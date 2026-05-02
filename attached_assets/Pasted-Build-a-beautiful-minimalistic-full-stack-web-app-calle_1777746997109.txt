@@ -1,0 +1,873 @@
+Build a beautiful, minimalistic full-stack web app called “Citizen Science.”
+
+Create a premium marketing site that leads into a logged-in science dashboard where users can explore life science categories, learn through tutorials, use simulators/tools, create safe experiments, track progress, and save observations in a personal lab notebook.
+
+STYLE
+
+Make it feel like Apple + Notion + Khan Academy + a modern AI dashboard.
+
+Visual direction:
+- Clean white/light interface
+- Minimalistic and premium
+- Soft science-inspired gradients
+- Rounded cards
+- Thin borders
+- Gentle shadows
+- Generous spacing
+- Elegant typography
+- Smooth subtle animations
+- Responsive mobile design
+
+Colors:
+- Background: #F8FAFC
+- Card: #FFFFFF
+- Text: #0F172A
+- Muted text: #64748B
+- Primary blue: #2563EB
+- Green accent: #16A34A
+- Violet accent: #7C3AED
+- Border: #E2E8F0
+
+TECH STACK
+
+Use:
+- React
+- TypeScript
+- Tailwind CSS
+- Supabase or Firebase
+- Google OAuth login
+- Protected routes
+- Persistent database
+- Charts where useful
+- Toast notifications
+- Clean reusable components
+
+ROUTES
+
+Create:
+- /
+- /login
+- /dashboard
+- /categories
+- /category/:slug
+- /experiments
+- /experiments/:id
+- /notebook
+- /progress
+- /profile
+
+PUBLIC MARKETING SITE
+
+Create a stunning landing page.
+
+Hero:
+Headline:
+“Run Your Own Experiments. Learn Science by Doing.”
+
+Subheadline:
+“Citizen Science helps curious people explore biology, ecology, health, chemistry, physics, agriculture, environmental science, and more through guided tutorials, interactive simulations, and personal experiment tracking.”
+
+CTA buttons:
+- Start Exploring
+- View Experiment Categories
+
+Hero visual:
+Show a polished dashboard mockup with:
+- Experiment progress
+- Category cards
+- Simulator preview
+- Recent observations
+- Progress indicators
+
+Sections:
+
+1. Problem
+Title:
+“Science Shouldn’t Stay Locked in Labs.”
+
+Explain:
+- Most science education is passive
+- Tools feel inaccessible
+- Beginners do not know where to start
+- Data tracking is fragmented
+- Experiments are hard to structure safely
+
+2. Solution
+Title:
+“A Guided Science Lab for Everyone.”
+
+Explain the workflow:
+- Learn the concept
+- Run a simulation
+- Plan an experiment
+- Track observations
+- Save results
+- Build a personal science portfolio
+
+3. Category Preview
+
+Show beautiful cards for:
+- Biology
+- Plant Science
+- Environmental Science
+- Water Quality
+- Chemistry
+- Physics
+- Human Health & Wellness
+- Microbiology
+- Food Science
+- Agriculture
+- Neuroscience
+- Climate Science
+- Astronomy
+- Materials Science
+
+Each card should include:
+- Icon
+- Short description
+- Difficulty
+- Example experiment
+- Explore button
+
+4. How It Works
+
+Step 1:
+Choose a field
+
+Step 2:
+Learn the basics
+
+Step 3:
+Use a simulator or tool
+
+Step 4:
+Track your results
+
+5. Featured Tools
+
+Show:
+- Plant Growth Planner
+- Water Quality Tracker
+- pH Experiment Planner
+- Sleep & Wellness Logger
+- Soil Health Calculator
+- Microbial Growth Simulator
+- Reaction Time Tester
+- Carbon Footprint Estimator
+- Sky Observation Journal
+- DIY Lab Notebook
+
+6. Safety Section
+
+Important copy:
+“Citizen Science is designed for education, simulation, observation, and safe at-home experimentation. We do not encourage hazardous, medical, biological, or chemical procedures without proper training, supervision, and safety standards.”
+
+7. Final CTA
+
+Headline:
+“Start Building Your Personal Science Lab.”
+
+Buttons:
+- Create Free Account
+- Explore Categories
+
+AUTH
+
+Create full login/logout.
+
+Users should be able to:
+- Sign in with Google
+- Log out
+- See name, email, and avatar
+- Access dashboard only when logged in
+- Redirect to dashboard after login
+- Redirect to landing page after logout
+
+ONBOARDING
+
+After first login, show onboarding.
+
+Question 1:
+“What kind of science are you most interested in?”
+Options:
+- Plants and growing things
+- Human performance and wellness
+- Water and the environment
+- Chemistry and materials
+- Physics and motion
+- Food, fermentation, and nutrition
+- Climate and ecology
+- Space and sky observation
+
+Question 2:
+“What is your experience level?”
+Options:
+- Beginner
+- Curious hobbyist
+- Student
+- Teacher
+- Advanced learner
+
+Question 3:
+“What do you want to do?”
+Options:
+- Learn concepts
+- Run safe home experiments
+- Use simulations
+- Track observations
+- Build a science portfolio
+
+Question 4:
+“How much time do you want to spend per experiment?”
+Options:
+- 5 minutes
+- 15 minutes
+- 30 minutes
+- Multi-day observations
+
+After onboarding, recommend 3 starter experiments.
+
+DASHBOARD
+
+Create a clean logged-in dashboard.
+
+Dashboard layout:
+- Sidebar on desktop
+- Mobile nav on small screens
+- Top bar with profile and logout
+- Main content area with cards
+
+Dashboard sections:
+
+1. Welcome Header
+“Welcome back.”
+“Continue your experiments and explore new fields.”
+
+2. Progress Overview Cards
+Show:
+- Experiments started
+- Experiments completed
+- Observations logged
+- Categories explored
+- Current learning streak
+
+3. Continue Learning
+Show active experiments with:
+- Title
+- Category
+- Progress %
+- Last updated
+- Continue button
+
+4. Recommended Experiments
+Cards:
+- Track plant growth under different light conditions
+- Measure local water pH
+- Simulate microbial population growth
+- Log sleep quality vs. screen exposure
+- Compare soil moisture retention
+
+5. Personal Science Notebook Preview
+Show recent notes:
+- Date
+- Experiment name
+- Observation preview
+- Category tag
+
+6. Category Grid
+Cards linking to each category.
+
+CATEGORIES
+
+Each category page should have:
+
+1. Category Hero
+- Title
+- Description
+- Difficulty
+- Number of tutorials
+- Number of tools
+- Safety level
+
+2. Beginner Tutorial
+Include:
+- What this field studies
+- Why it matters
+- Key concepts
+- Simple example experiment
+- Safety considerations
+- What you can measure at home
+
+3. Interactive Tool
+Every category must include at least one working simulator/tool.
+
+4. Starter Experiments
+Each category should include 3 starter experiment templates.
+
+5. Progress Tracking
+Show tutorial/tool completion status.
+
+CATEGORY CONTENT AND TOOLS
+
+1. Biology
+
+Tutorial:
+Explain cells, organisms, growth, variables, observation, and controlled experiments.
+
+Tool:
+Growth Variable Simulator
+
+Inputs:
+- Starting population
+- Growth rate
+- Time period
+- Environmental stress factor
+
+Outputs:
+- Simulated growth curve
+- Summary of results
+- Suggested observation notes
+
+Starter experiments:
+- Track mold growth on different food types through sealed observation only
+- Compare yeast activity in different sugar conditions
+- Observe plant response to light direction
+
+2. Plant Science
+
+Tool:
+Plant Growth Planner
+
+Inputs:
+- Plant type
+- Light hours per day
+- Water frequency
+- Soil type
+- Fertilizer yes/no
+
+Outputs:
+- Growth prediction
+- Weekly observation checklist
+- Measurement guide
+
+Starter experiments:
+- Light vs. shade growth comparison
+- Water frequency comparison
+- Soil type comparison
+
+3. Environmental Science
+
+Tool:
+Environmental Observation Logger
+
+Inputs:
+- Location
+- Weather
+- Temperature
+- Air quality estimate
+- Biodiversity notes
+- Pollution observations
+
+Outputs:
+- Environmental condition score
+- Observation summary
+- Suggested follow-up measurements
+
+Starter experiments:
+- Track temperature differences between shaded and sunny areas
+- Observe biodiversity in a local park
+- Compare litter levels across locations
+
+4. Water Quality
+
+Tool:
+Water Quality Tracker
+
+Inputs:
+- pH
+- Turbidity
+- Smell
+- Color
+- Source type
+- Temperature
+
+Outputs:
+- Basic quality interpretation
+- Safety disclaimer
+- Trend chart over time
+
+Starter experiments:
+- Compare tap water vs. filtered water
+- Observe pH changes after exposure to air
+- Track water temperature throughout the day
+
+5. Chemistry
+
+Tool:
+pH Experiment Planner
+
+Inputs:
+- Substance
+- Estimated pH
+- Indicator type
+- Dilution level
+
+Outputs:
+- pH category
+- Safety guidance
+- Observation template
+
+Starter experiments:
+- Compare household liquid pH using safe indicators
+- Study dilution effects
+- Observe crystallization from saltwater evaporation
+
+Safety:
+No dangerous reactions, explosives, toxic materials, or unsafe chemical mixing.
+
+6. Physics
+
+Tool:
+Motion Simulator
+
+Inputs:
+- Distance
+- Time
+- Mass
+- Force
+
+Outputs:
+- Speed
+- Acceleration
+- Momentum
+- Simple visualization
+
+Starter experiments:
+- Measure rolling object speed
+- Compare friction surfaces
+- Pendulum timing experiment
+
+7. Human Health & Wellness
+
+Tool:
+Personal Wellness Experiment Tracker
+
+Inputs:
+- Sleep hours
+- Exercise
+- Screen time
+- Mood
+- Energy level
+- Caffeine intake
+
+Outputs:
+- Personal trend dashboard
+- Correlation hints
+- Weekly reflection
+
+Starter experiments:
+- Sleep vs. energy
+- Screen time vs. focus
+- Hydration vs. mood
+
+Safety:
+No medical diagnosis, treatment, or medical advice.
+
+8. Microbiology
+
+Tool:
+Microbial Growth Simulator
+
+Inputs:
+- Starting colony estimate
+- Temperature
+- Nutrient level
+- Time
+- Growth rate
+
+Outputs:
+- Growth curve
+- Educational explanation
+
+Starter experiments:
+- Safe sealed observation only
+- Yogurt fermentation concept simulation
+- Compare theoretical growth under different conditions
+
+Safety:
+Do not instruct users to culture unknown microbes or handle potentially harmful samples.
+
+9. Food Science
+
+Tool:
+Fermentation Timeline Simulator
+
+Inputs:
+- Food type
+- Temperature
+- Salt or sugar level
+- Time
+
+Outputs:
+- Predicted fermentation activity
+- Safety notes
+- Observation schedule
+
+Starter experiments:
+- Bread yeast rise comparison
+- Apple browning prevention
+- Salt concentration effects on texture
+
+10. Agriculture
+
+Tool:
+Soil Health Calculator
+
+Inputs:
+- Soil texture
+- Moisture
+- Organic matter estimate
+- Drainage
+- pH
+
+Outputs:
+- Soil health score
+- Recommendations
+- Plant suitability
+
+Starter experiments:
+- Soil water retention comparison
+- Compost observation
+- Seed germination rates by soil type
+
+11. Neuroscience
+
+Tool:
+Reaction Time Tester
+
+Function:
+Create an interactive button-based reaction time test.
+
+Track:
+- Average reaction time
+- Best reaction time
+- Number of attempts
+- Trend over time
+
+Starter experiments:
+- Reaction time before/after caffeine
+- Reaction time morning vs. night
+- Reaction time with distraction vs. focus
+
+12. Climate Science
+
+Tool:
+Carbon Footprint Estimator
+
+Inputs:
+- Transportation
+- Diet type
+- Electricity usage
+- Travel frequency
+
+Outputs:
+- Estimated footprint
+- Reduction suggestions
+- Monthly tracking
+
+Starter experiments:
+- Track household energy habits
+- Compare transportation choices
+- Local temperature observation log
+
+13. Astronomy
+
+Tool:
+Sky Observation Journal
+
+Inputs:
+- Date
+- Time
+- Location
+- Moon phase
+- Visible planets
+- Weather
+- Notes
+
+Outputs:
+- Observation log
+- Skywatching calendar
+- Pattern tracking
+
+Starter experiments:
+- Moon phase tracking
+- Sunrise/sunset time comparison
+- Light pollution observation
+
+14. Materials Science
+
+Tool:
+Material Strength Comparison
+
+Inputs:
+- Material type
+- Thickness
+- Weight applied
+- Flexibility
+
+Outputs:
+- Strength score
+- Comparison chart
+- Observation notes
+
+Starter experiments:
+- Paper bridge strength
+- Fabric absorbency
+- Insulation comparison
+
+EXPERIMENT WORKFLOW
+
+Each experiment should have:
+
+1. Objective
+What are we trying to learn?
+
+2. Hypothesis
+User writes a prediction.
+
+3. Variables
+- Independent variable
+- Dependent variable
+- Controlled variables
+
+4. Materials
+List only safe materials.
+
+5. Procedure
+Step-by-step instructions.
+
+6. Data Collection
+Measurement table.
+
+7. Observations
+Freeform notes.
+
+8. Results
+User summarizes what happened.
+
+9. Reflection
+What would they change next time?
+
+10. Save Experiment
+Save to dashboard and notebook.
+
+EXPERIMENT BUILDER
+
+Create a guided experiment builder.
+
+Fields:
+- Experiment title
+- Category
+- Objective
+- Hypothesis
+- Independent variable
+- Dependent variable
+- Controlled variables
+- Materials
+- Procedure steps
+- Data table fields
+- Safety notes
+- Start date
+- End date
+- Status
+
+Statuses:
+- Draft
+- Active
+- Completed
+- Archived
+
+NOTEBOOK
+
+Create a beautiful notebook page where users can:
+- See all entries
+- Filter by category
+- Search notes
+- Create new entry
+- Link note to experiment
+- Add tags
+- Edit entries
+- Delete entries
+- View timestamps
+
+PROGRESS PAGE
+
+Show:
+- Completed tutorials
+- Tools used
+- Experiments completed
+- Categories explored
+- Weekly activity
+- Streak
+- Science portfolio summary
+- Simple charts
+
+PROFILE PAGE
+
+Show:
+- Name
+- Email
+- Avatar
+- Favorite categories
+- Experience level
+- Total experiments
+- Export data button
+- Account settings
+- Logout
+
+DATABASE MODEL
+
+Create tables/collections:
+
+users:
+- id
+- name
+- email
+- avatar_url
+- experience_level
+- interests
+- created_at
+
+categories:
+- id
+- title
+- slug
+- description
+- icon
+- difficulty
+- safety_level
+
+experiments:
+- id
+- user_id
+- category_id
+- title
+- objective
+- hypothesis
+- independent_variable
+- dependent_variable
+- controlled_variables
+- materials
+- procedure
+- observations
+- results
+- reflection
+- status
+- progress
+- created_at
+- updated_at
+
+notebook_entries:
+- id
+- user_id
+- experiment_id
+- title
+- content
+- category
+- tags
+- created_at
+- updated_at
+
+tool_results:
+- id
+- user_id
+- tool_name
+- category_id
+- input_data
+- output_data
+- created_at
+
+progress:
+- id
+- user_id
+- category_id
+- tutorials_completed
+- tools_used
+- experiments_completed
+- last_activity
+
+REUSABLE COMPONENTS
+
+Create:
+- Button
+- Card
+- DashboardShell
+- Sidebar
+- TopNav
+- CategoryCard
+- ExperimentCard
+- ProgressCard
+- TutorialBlock
+- ToolContainer
+- DataInput
+- ResultPanel
+- NotebookEntry
+- SafetyNotice
+- EmptyState
+- ChartCard
+- OnboardingFlow
+- ExperimentBuilder
+- ProtectedRoute
+
+SAFETY REQUIREMENTS
+
+Citizen Science must never encourage dangerous experiments.
+
+Add safety disclaimers across relevant areas:
+- Educational use only
+- Do not ingest unknown substances
+- Do not culture unknown microbes
+- Do not mix chemicals unsafely
+- Do not perform medical experiments
+- Do not use this as medical advice
+- Use protective equipment where appropriate
+- Minors should work with adult supervision
+- Follow local laws and safety guidelines
+
+Microbiology:
+Keep it simulation-based or sealed observation only.
+
+Chemistry:
+Only safe household-level demonstrations. No hazardous combinations.
+
+Health:
+Track wellness only. No diagnosis, treatment, or medical claims.
+
+COPY LINES
+
+Use these lines throughout the product:
+
+“Science starts with curiosity.”
+
+“Turn questions into experiments.”
+
+“Learn the concept. Simulate the system. Track the result.”
+
+“Your personal lab notebook, rebuilt for the modern world.”
+
+“Explore biology, ecology, chemistry, physics, and more through guided scientific workflows.”
+
+“Built for students, hobbyists, educators, families, and lifelong learners.”
+
+FINAL QUALITY BAR
+
+The final app should feel like a real startup-ready MVP.
+
+It should feel like:
+- A premium science learning platform
+- A personal lab notebook
+- A simulator library
+- A safe experimentation guide
+- A dashboard for curiosity-driven learning
+
+Make it beautiful, functional, safe, polished, and ready to demo.
