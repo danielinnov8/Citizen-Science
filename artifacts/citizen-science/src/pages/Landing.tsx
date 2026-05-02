@@ -15,8 +15,10 @@ type DashboardSlide = {
   metric1: { label: string; value: string };
   metric2: { label: string; value: string };
   chartLabel: string;
-  chartPath: string;
-  chartPoints: { cx: number; cy: number }[];
+  yUnit: string;
+  yLabels: string[];
+  xLabels: string[];
+  dataPoints: number[];
   accent: string;
   ring: string;
   ringText: string;
@@ -31,9 +33,11 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     percent: 62,
     metric1: { label: "Days Active", value: "14" },
     metric2: { label: "Observations", value: "8" },
-    chartLabel: "Growth Curve (cm)",
-    chartPath: "M0,50 Q40,45 80,30 T160,10 T200,5",
-    chartPoints: [{ cx: 80, cy: 30 }, { cx: 160, cy: 10 }],
+    chartLabel: "Stem height vs day",
+    yUnit: "cm",
+    yLabels: ["10", "7.5", "5.0", "2.5", "0"],
+    xLabels: ["D1", "D2", "D3", "D4", "D5", "D6", "D7"],
+    dataPoints: [60, 53, 43, 33, 24, 13, 5],
     accent: "#2563EB",
     ring: "border-blue-100 border-t-blue-600",
     ringText: "text-blue-700",
@@ -49,9 +53,11 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     percent: 38,
     metric1: { label: "Samples", value: "11" },
     metric2: { label: "Avg pH", value: "7.2" },
-    chartLabel: "pH over 7 days",
-    chartPath: "M0,40 L33,32 L66,38 L100,28 L133,34 L166,22 L200,26",
-    chartPoints: [{ cx: 100, cy: 28 }, { cx: 166, cy: 22 }],
+    chartLabel: "pH measurements",
+    yUnit: "pH",
+    yLabels: ["8.0", "7.5", "7.0", "6.5", "6.0"],
+    xLabels: ["M", "T", "W", "T", "F", "S", "S"],
+    dataPoints: [30, 27, 33, 21, 30, 18, 24],
     accent: "#0EA5E9",
     ring: "border-sky-100 border-t-sky-600",
     ringText: "text-sky-700",
@@ -67,9 +73,11 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     percent: 74,
     metric1: { label: "Trials", value: "22" },
     metric2: { label: "Avg v (m/s)", value: "4.6" },
-    chartLabel: "Velocity vs Time",
-    chartPath: "M0,55 Q50,48 100,32 T200,5",
-    chartPoints: [{ cx: 100, cy: 32 }, { cx: 170, cy: 12 }],
+    chartLabel: "Velocity vs time",
+    yUnit: "m/s",
+    yLabels: ["6", "4.5", "3", "1.5", "0"],
+    xLabels: ["0", "1", "2", "3", "4", "5", "6s"],
+    dataPoints: [60, 52, 41, 32, 24, 16, 8],
     accent: "#2563EB",
     ring: "border-blue-100 border-t-blue-600",
     ringText: "text-blue-700",
@@ -85,9 +93,11 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     percent: 45,
     metric1: { label: "Reactions", value: "9" },
     metric2: { label: "Tests Run", value: "17" },
-    chartLabel: "Acidity Trend",
-    chartPath: "M0,30 Q30,15 60,28 T120,32 T200,18",
-    chartPoints: [{ cx: 60, cy: 28 }, { cx: 140, cy: 26 }],
+    chartLabel: "Acidity trend",
+    yUnit: "pH",
+    yLabels: ["7", "6", "5", "4", "3"],
+    xLabels: ["D1", "D2", "D3", "D4", "D5", "D6", "D7"],
+    dataPoints: [9, 23, 33, 38, 45, 48, 51],
     accent: "#7C3AED",
     ring: "border-violet-100 border-t-violet-600",
     ringText: "text-violet-700",
@@ -103,9 +113,11 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     percent: 81,
     metric1: { label: "Sleep avg", value: "7.4h" },
     metric2: { label: "Resting HR", value: "62" },
-    chartLabel: "Sleep quality (7d)",
-    chartPath: "M0,30 L33,22 L66,28 L100,15 L133,20 L166,12 L200,18",
-    chartPoints: [{ cx: 100, cy: 15 }, { cx: 166, cy: 12 }],
+    chartLabel: "Sleep quality",
+    yUnit: "hrs",
+    yLabels: ["9", "8.25", "7.5", "6.75", "6"],
+    xLabels: ["M", "T", "W", "T", "F", "S", "S"],
+    dataPoints: [36, 50, 24, 18, 32, 14, 22],
     accent: "#E11D48",
     ring: "border-rose-100 border-t-rose-600",
     ringText: "text-rose-700",
@@ -122,8 +134,10 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     metric1: { label: "Cultures", value: "4" },
     metric2: { label: "Doubling t", value: "28m" },
     chartLabel: "Population growth",
-    chartPath: "M0,55 Q60,52 110,40 T180,8 L200,4",
-    chartPoints: [{ cx: 110, cy: 40 }, { cx: 180, cy: 8 }],
+    yUnit: "×10⁴ CFU",
+    yLabels: ["60", "45", "30", "15", "0"],
+    xLabels: ["0h", "2h", "4h", "6h", "8h", "10h", "12h"],
+    dataPoints: [59, 58, 56, 52, 44, 32, 10],
     accent: "#7C3AED",
     ring: "border-violet-100 border-t-violet-600",
     ringText: "text-violet-700",
@@ -139,9 +153,11 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     percent: 67,
     metric1: { label: "Trials", value: "30" },
     metric2: { label: "Avg ms", value: "284" },
-    chartLabel: "Reaction time (ms)",
-    chartPath: "M0,18 L33,28 L66,22 L100,32 L133,26 L166,38 L200,30",
-    chartPoints: [{ cx: 100, cy: 32 }, { cx: 166, cy: 38 }],
+    chartLabel: "Reaction time",
+    yUnit: "ms",
+    yLabels: ["320", "300", "280", "260", "240"],
+    xLabels: ["T1", "T2", "T3", "T4", "T5", "T6", "T7"],
+    dataPoints: [8, 19, 26, 23, 38, 30, 41],
     accent: "#C026D3",
     ring: "border-fuchsia-100 border-t-fuchsia-600",
     ringText: "text-fuchsia-700",
@@ -157,9 +173,11 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     percent: 29,
     metric1: { label: "Days logged", value: "21" },
     metric2: { label: "Avg °C", value: "18.4" },
-    chartLabel: "Temperature trend",
-    chartPath: "M0,42 L33,38 L66,30 L100,34 L133,22 L166,18 L200,12",
-    chartPoints: [{ cx: 100, cy: 34 }, { cx: 166, cy: 18 }],
+    chartLabel: "Air temperature",
+    yUnit: "°C",
+    yLabels: ["25", "21", "17", "14", "10"],
+    xLabels: ["D1", "D2", "D3", "D4", "D5", "D6", "D7"],
+    dataPoints: [52, 44, 48, 36, 28, 24, 16],
     accent: "#0284C7",
     ring: "border-sky-100 border-t-sky-600",
     ringText: "text-sky-700",
@@ -175,9 +193,11 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     percent: 41,
     metric1: { label: "Sessions", value: "6" },
     metric2: { label: "Objects", value: "23" },
-    chartLabel: "Visibility (lux)",
-    chartPath: "M0,50 Q40,30 80,38 T160,15 T200,22",
-    chartPoints: [{ cx: 80, cy: 38 }, { cx: 160, cy: 15 }],
+    chartLabel: "Sky brightness",
+    yUnit: "lux",
+    yLabels: ["2.0", "1.5", "1.0", "0.5", "0"],
+    xLabels: ["N1", "N2", "N3", "N4", "N5", "N6", "N7"],
+    dataPoints: [45, 48, 51, 42, 36, 39, 24],
     accent: "#4F46E5",
     ring: "border-indigo-100 border-t-indigo-600",
     ringText: "text-indigo-700",
@@ -194,8 +214,10 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     metric1: { label: "Plots", value: "3" },
     metric2: { label: "NPK score", value: "82" },
     chartLabel: "Nutrient density",
-    chartPath: "M0,40 Q40,38 80,30 T160,18 T200,12",
-    chartPoints: [{ cx: 80, cy: 30 }, { cx: 160, cy: 18 }],
+    yUnit: "NPK",
+    yLabels: ["100", "87", "75", "62", "50"],
+    xLabels: ["P1", "P2", "P3", "P4", "P5", "P6", "P7"],
+    dataPoints: [48, 42, 36, 32, 29, 25, 22],
     accent: "#D97706",
     ring: "border-amber-100 border-t-amber-600",
     ringText: "text-amber-700",
@@ -212,8 +234,10 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     metric1: { label: "Batches", value: "5" },
     metric2: { label: "Avg pH", value: "3.6" },
     chartLabel: "Fermentation pH",
-    chartPath: "M0,15 Q40,22 80,28 T160,42 T200,48",
-    chartPoints: [{ cx: 80, cy: 28 }, { cx: 160, cy: 42 }],
+    yUnit: "pH",
+    yLabels: ["7", "6", "5", "4", "3"],
+    xLabels: ["D1", "D2", "D3", "D4", "D5", "D6", "D7"],
+    dataPoints: [15, 23, 35, 41, 45, 48, 51],
     accent: "#EA580C",
     ring: "border-orange-100 border-t-orange-600",
     ringText: "text-orange-700",
@@ -230,8 +254,10 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     metric1: { label: "Species", value: "27" },
     metric2: { label: "Sites", value: "4" },
     chartLabel: "Biodiversity index",
-    chartPath: "M0,42 Q40,30 80,32 T160,18 T200,14",
-    chartPoints: [{ cx: 80, cy: 32 }, { cx: 160, cy: 18 }],
+    yUnit: "H'",
+    yLabels: ["3.0", "2.25", "1.5", "0.75", "0"],
+    xLabels: ["W1", "W2", "W3", "W4", "W5", "W6", "W7"],
+    dataPoints: [36, 30, 24, 20, 14, 10, 6],
     accent: "#059669",
     ring: "border-emerald-100 border-t-emerald-600",
     ringText: "text-emerald-700",
@@ -248,8 +274,10 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     metric1: { label: "Slides", value: "7" },
     metric2: { label: "Notes", value: "12" },
     chartLabel: "Mitosis rate",
-    chartPath: "M0,40 Q40,35 80,28 T160,22 T200,16",
-    chartPoints: [{ cx: 80, cy: 28 }, { cx: 160, cy: 22 }],
+    yUnit: "%",
+    yLabels: ["60", "45", "30", "15", "0"],
+    xLabels: ["S1", "S2", "S3", "S4", "S5", "S6", "S7"],
+    dataPoints: [40, 35, 30, 25, 20, 15, 8],
     accent: "#16A34A",
     ring: "border-green-100 border-t-green-600",
     ringText: "text-green-700",
@@ -265,9 +293,11 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
     percent: 70,
     metric1: { label: "Specimens", value: "9" },
     metric2: { label: "Max load", value: "48N" },
-    chartLabel: "Strain curve",
-    chartPath: "M0,55 Q60,42 110,28 T180,8 L200,5",
-    chartPoints: [{ cx: 110, cy: 28 }, { cx: 180, cy: 8 }],
+    chartLabel: "Strain vs load",
+    yUnit: "ε×10⁻³",
+    yLabels: ["50", "37", "25", "12", "0"],
+    xLabels: ["10N", "20N", "30N", "35N", "40N", "45N", "48N"],
+    dataPoints: [54, 46, 34, 20, 12, 6, 2],
     accent: "#475569",
     ring: "border-slate-200 border-t-slate-700",
     ringText: "text-slate-700",
@@ -575,67 +605,168 @@ function RotatingDashboardCard() {
                 </div>
               </div>
               <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm mb-6 overflow-hidden">
-                <div className="flex items-baseline justify-between px-4 pt-3 pb-1">
-                  <div className="text-xs font-semibold tracking-tight">{slide.chartLabel}</div>
-                  <div className="text-[10px] font-medium text-[#94A3B8] uppercase tracking-wider">Last 7 days</div>
+                <div className="flex items-baseline justify-between px-4 pt-3 pb-2 border-b border-[#F1F5F9]">
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-xs font-semibold tracking-tight text-[#0F172A]">{slide.chartLabel}</div>
+                    <div className="text-[10px] font-mono text-[#94A3B8]">n=7</div>
+                  </div>
+                  <div className="text-[10px] font-mono font-semibold text-[#475569] bg-[#F8FAFC] border border-[#E2E8F0] rounded px-1.5 py-0.5">
+                    {slide.yUnit}
+                  </div>
                 </div>
-                <svg
-                  viewBox="0 0 200 80"
-                  preserveAspectRatio="none"
-                  className="block w-full h-24"
-                >
-                  <defs>
-                    <linearGradient id={`area-${slide.slug}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={slide.accent} stopOpacity="0.32" />
-                      <stop offset="60%" stopColor={slide.accent} stopOpacity="0.08" />
-                      <stop offset="100%" stopColor={slide.accent} stopOpacity="0" />
-                    </linearGradient>
-                    <linearGradient id={`line-${slide.slug}`} x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor={slide.accent} stopOpacity="0.7" />
-                      <stop offset="100%" stopColor={slide.accent} stopOpacity="1" />
-                    </linearGradient>
-                  </defs>
 
-                  {[20, 40, 60].map(y => (
-                    <line
-                      key={y}
-                      x1="0"
-                      x2="200"
-                      y1={y}
-                      y2={y}
-                      stroke="#F1F5F9"
-                      strokeWidth="1"
-                      vectorEffect="non-scaling-stroke"
-                    />
-                  ))}
+                <div className="px-3 pt-2 pb-2">
+                  <div className="grid grid-cols-[28px_1fr] gap-x-1.5">
+                    {/* Y-axis labels */}
+                    <div className="flex flex-col justify-between text-[9px] font-mono text-[#94A3B8] text-right py-0.5 leading-none">
+                      {slide.yLabels.map((label, i) => (
+                        <span key={`${slide.slug}-y-${i}`}>{label}</span>
+                      ))}
+                    </div>
 
-                  <path
-                    d={`${slide.chartPath} L200,80 L0,80 Z`}
-                    fill={`url(#area-${slide.slug})`}
-                    stroke="none"
-                  />
+                    {/* Plot area */}
+                    <div className="relative border-l border-b border-[#CBD5E1]">
+                      {(() => {
+                        const linePath = `M0,${slide.dataPoints[0]} ${slide.dataPoints
+                          .slice(1)
+                          .map((y, i) => `L${((i + 1) / (slide.dataPoints.length - 1)) * 200},${y}`)
+                          .join(" ")}`;
+                        return (
+                          <svg
+                            viewBox="0 0 200 60"
+                            preserveAspectRatio="none"
+                            className="block w-full h-24"
+                            aria-hidden="true"
+                          >
+                            <defs>
+                              <linearGradient id={`area-${slide.slug}`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor={slide.accent} stopOpacity="0.28" />
+                                <stop offset="60%" stopColor={slide.accent} stopOpacity="0.06" />
+                                <stop offset="100%" stopColor={slide.accent} stopOpacity="0" />
+                              </linearGradient>
+                            </defs>
 
-                  <motion.path
-                    key={`line-${slide.slug}`}
-                    d={slide.chartPath}
-                    fill="none"
-                    stroke={`url(#line-${slide.slug})`}
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    vectorEffect="non-scaling-stroke"
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    animate={{ pathLength: 1, opacity: 1 }}
-                    transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-                  />
+                            {/* Horizontal gridlines (graph paper) */}
+                            {[15, 30, 45].map(y => (
+                              <line
+                                key={`h-${y}`}
+                                x1="0"
+                                x2="200"
+                                y1={y}
+                                y2={y}
+                                stroke="#E2E8F0"
+                                strokeWidth="1"
+                                strokeDasharray="2 3"
+                                vectorEffect="non-scaling-stroke"
+                              />
+                            ))}
 
-                  {slide.chartPoints.map((p, i) => (
-                    <g key={i}>
-                      <circle cx={p.cx} cy={p.cy} r="6" fill={slide.accent} fillOpacity="0.18" />
-                      <circle cx={p.cx} cy={p.cy} r="3" fill="white" stroke={slide.accent} strokeWidth="2" vectorEffect="non-scaling-stroke" />
-                    </g>
-                  ))}
-                </svg>
+                            {/* Vertical gridlines */}
+                            {slide.dataPoints.map((_, i) => {
+                              if (i === 0 || i === slide.dataPoints.length - 1) return null;
+                              const x = (i / (slide.dataPoints.length - 1)) * 200;
+                              return (
+                                <line
+                                  key={`v-${i}`}
+                                  x1={x}
+                                  x2={x}
+                                  y1="0"
+                                  y2="60"
+                                  stroke="#F1F5F9"
+                                  strokeWidth="1"
+                                  vectorEffect="non-scaling-stroke"
+                                />
+                              );
+                            })}
+
+                            {/* Area fill */}
+                            <path
+                              d={`${linePath} L200,60 L0,60 Z`}
+                              fill={`url(#area-${slide.slug})`}
+                              stroke="none"
+                            />
+
+                            {/* Line (animated draw-in) */}
+                            <motion.path
+                              key={`line-${slide.slug}`}
+                              d={linePath}
+                              fill="none"
+                              stroke={slide.accent}
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              vectorEffect="non-scaling-stroke"
+                              initial={{ pathLength: 0, opacity: 0 }}
+                              animate={{ pathLength: 1, opacity: 1 }}
+                              transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+                            />
+                          </svg>
+                        );
+                      })()}
+
+                      {/* X-axis tick marks (HTML, perfectly aligned) */}
+                      <div className="absolute left-0 right-0 top-full h-1 pointer-events-none" aria-hidden="true">
+                        {slide.dataPoints.map((_, i) => {
+                          const xPct = (i / (slide.dataPoints.length - 1)) * 100;
+                          return (
+                            <span
+                              key={`tick-${slide.slug}-${i}`}
+                              className="absolute top-0 w-px h-1 bg-[#94A3B8]"
+                              style={{ left: `${xPct}%` }}
+                            />
+                          );
+                        })}
+                      </div>
+
+                      {/* Data point markers as HTML overlay (immune to non-uniform SVG scaling) */}
+                      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+                        {slide.dataPoints.map((y, i) => {
+                          const xPct = (i / (slide.dataPoints.length - 1)) * 100;
+                          const yPct = (y / 60) * 100;
+                          const isLast = i === slide.dataPoints.length - 1;
+                          return (
+                            <span
+                              key={`pt-${slide.slug}-${i}`}
+                              className="absolute"
+                              style={{ left: `${xPct}%`, top: `${yPct}%`, transform: "translate(-50%, -50%)" }}
+                            >
+                              {isLast && (
+                                <span
+                                  className="absolute rounded-full"
+                                  style={{
+                                    width: 14,
+                                    height: 14,
+                                    backgroundColor: slide.accent,
+                                    opacity: 0.18,
+                                    left: "50%",
+                                    top: "50%",
+                                    transform: "translate(-50%, -50%)",
+                                  }}
+                                />
+                              )}
+                              <span
+                                className="block rounded-full bg-white"
+                                style={{
+                                  width: isLast ? 8 : 6,
+                                  height: isLast ? 8 : 6,
+                                  border: `${isLast ? 2 : 1.5}px solid ${slide.accent}`,
+                                }}
+                              />
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* X-axis labels (offset to align with plot column) */}
+                    <div />
+                    <div className="flex justify-between text-[9px] font-mono text-[#94A3B8] mt-1 leading-none">
+                      {slide.xLabels.map((label, i) => (
+                        <span key={`${slide.slug}-x-${i}`}>{label}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="flex gap-2">
                 {slide.chips.map((chip, i) => (
