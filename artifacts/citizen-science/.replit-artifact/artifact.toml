@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Citizen Science"
+version = "1.0.0"
+id = "artifacts/citizen-science"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21526
+
+[services.development]
+run = "pnpm --filter @workspace/citizen-science run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/citizen-science", "run", "build" ]
+publicDir = "artifacts/citizen-science/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21526"
+BASE_PATH = "/"
