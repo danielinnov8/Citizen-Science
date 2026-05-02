@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, Sparkles, Wand2, RotateCcw, ChevronRight, AlertCircle } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, RotateCcw, ChevronRight, AlertCircle, ExternalLink, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES } from "@/lib/categories";
+import { LABS } from "@/lib/labs";
 
 interface ChatMessage {
   id: string;
@@ -11,7 +12,7 @@ interface ChatMessage {
 }
 
 const STORAGE_KEY = "cs.agentConversation";
-const MODULE_TOKEN = /\[\[module:([a-z0-9-]+)\]\]/g;
+const TOKEN_REGEX = /\[\[(module|lab):([a-z0-9-]+)\]\]/g;
 
 const SUGGESTIONS = [
   "Help me design a sourdough fermentation tracker",
@@ -74,17 +75,60 @@ function ModuleCard({ slug }: { slug: string }) {
   );
 }
 
+function LabCard({ slug }: { slug: string }) {
+  const lab = LABS.find(l => l.slug === slug);
+  if (!lab) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 rounded-md bg-slate-100 text-slate-700 text-sm">
+        {slug}
+      </span>
+    );
+  }
+
+  return (
+    <a
+      href={lab.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="not-prose flex flex-col my-2 mr-1.5 group rounded-xl border border-[#E2E8F0] bg-white hover:border-emerald-300 hover:shadow-md transition-all overflow-hidden max-w-md"
+    >
+      <span className="flex items-stretch">
+        <span className="flex items-center justify-center w-1.5 bg-gradient-to-b from-emerald-500 to-blue-500" />
+        <span className="flex-1 px-3.5 py-2.5">
+          <span className="flex items-center justify-between gap-2 mb-0.5">
+            <span className="flex items-center gap-1.5">
+              <FlaskConical className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">
+                Lab · {lab.tier}
+              </span>
+            </span>
+            <ExternalLink className="h-3.5 w-3.5 text-[#94A3B8] group-hover:text-emerald-600 transition-colors" />
+          </span>
+          <span className="block text-sm font-semibold text-[#0F172A] leading-tight">{lab.name}</span>
+          <span className="block text-xs text-[#64748B] leading-snug mt-1">{lab.summary}</span>
+        </span>
+      </span>
+    </a>
+  );
+}
+
+type ContentPart =
+  | { type: "text"; value: string }
+  | { type: "module"; slug: string }
+  | { type: "lab"; slug: string };
+
 function MessageContent({ content }: { content: string }) {
-  const parts = useMemo(() => {
-    const out: Array<{ type: "text"; value: string } | { type: "module"; slug: string }> = [];
+  const parts = useMemo<ContentPart[]>(() => {
+    const out: ContentPart[] = [];
     let lastIndex = 0;
     let match: RegExpExecArray | null;
-    const regex = new RegExp(MODULE_TOKEN.source, "g");
+    const regex = new RegExp(TOKEN_REGEX.source, "g");
     while ((match = regex.exec(content)) !== null) {
       if (match.index > lastIndex) {
         out.push({ type: "text", value: content.slice(lastIndex, match.index) });
       }
-      out.push({ type: "module", slug: match[1] });
+      const kind = match[1] as "module" | "lab";
+      out.push({ type: kind, slug: match[2] });
       lastIndex = regex.lastIndex;
     }
     if (lastIndex < content.length) {
@@ -96,9 +140,8 @@ function MessageContent({ content }: { content: string }) {
   return (
     <div className="text-[15px] leading-relaxed text-[#0F172A] whitespace-pre-wrap break-words">
       {parts.map((part, i) => {
-        if (part.type === "module") {
-          return <ModuleCard key={i} slug={part.slug} />;
-        }
+        if (part.type === "module") return <ModuleCard key={i} slug={part.slug} />;
+        if (part.type === "lab") return <LabCard key={i} slug={part.slug} />;
         return <span key={i}>{part.value}</span>;
       })}
     </div>

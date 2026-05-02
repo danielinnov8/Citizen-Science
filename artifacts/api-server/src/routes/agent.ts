@@ -1,5 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { openai } from "@workspace/integrations-openai-ai-server";
+import { LABS } from "../lib/labs";
 
 const router: IRouter = Router();
 
@@ -47,7 +48,12 @@ To recommend a module, write the token [[module:SLUG]] inline in your reply. The
 Available modules:
 ${MODULES.map(m => `- ${m.slug} — ${m.name}: ${m.description}`).join("\n")}
 
-Safety: Citizen Science is for safe, low-risk home experiments. If a request involves dangerous chemicals, biohazards, electricity, or anything risky, gently redirect to a safer version of the experiment.
+You may also recommend a real-world laboratory or testing service when the user asks about something that requires equipment they don't have at home (DNA sequencing, microbiome analysis, water/soil/air testing, hormone or food-sensitivity panels, etc.). To recommend a lab, write the token [[lab:SLUG]] inline. The UI will turn it into a clickable card with the lab's website. Recommend at most 2 labs per turn, and only when the user's question genuinely calls for one — don't push labs for every message. Use the slug exactly as listed below.
+
+Available labs:
+${LABS.map(l => `- ${l.slug} — ${l.name} (${l.tier}): ${l.summary}`).join("\n")}
+
+Safety: Citizen Science is for safe, low-risk home experiments. If a request involves dangerous chemicals, biohazards, electricity, or anything risky, gently redirect to a safer version of the experiment. When recommending labs, remind the user that lab results are not medical advice.
 
 Stay focused on science learning and experiment design. If asked something off-topic, briefly redirect.`;
 
