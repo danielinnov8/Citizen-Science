@@ -61,15 +61,13 @@ function ModuleCard({ slug }: { slug: string }) {
   return (
     <Link
       href={`/category/${category.slug}`}
-      className="not-prose inline-flex items-stretch my-1.5 mr-1.5 group rounded-xl border border-[#E2E8F0] bg-white hover:border-blue-300 hover:shadow-md transition-all overflow-hidden align-middle"
+      className="not-prose inline-flex items-center mx-0.5 group rounded-md border border-[#E2E8F0] bg-white hover:border-blue-300 hover:shadow-sm transition-all overflow-hidden align-baseline leading-none"
     >
-      <span className="flex items-center justify-center w-1.5 bg-gradient-to-b from-blue-500 to-violet-500" />
-      <span className="flex items-center gap-2 px-3 py-2">
-        <span className="flex flex-col leading-tight">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">Module</span>
-          <span className="text-sm font-semibold text-[#0F172A]">{category.name}</span>
-        </span>
-        <ChevronRight className="h-4 w-4 text-[#94A3B8] group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
+      <span className="self-stretch w-1 bg-gradient-to-b from-blue-500 to-violet-500" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">Module</span>
+        <span className="text-sm font-semibold text-[#0F172A]">{category.name}</span>
+        <ChevronRight className="h-3 w-3 text-[#94A3B8] group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
       </span>
     </Link>
   );
