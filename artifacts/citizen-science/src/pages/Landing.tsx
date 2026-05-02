@@ -705,7 +705,7 @@ function RotatingDashboardCard() {
                               stroke="none"
                             />
 
-                            {/* Line (animated draw-in) */}
+                            {/* Line — render fully drawn, fade in only */}
                             <motion.path
                               key={`line-${slide.slug}`}
                               d={linePath}
@@ -715,9 +715,9 @@ function RotatingDashboardCard() {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               vectorEffect="non-scaling-stroke"
-                              initial={{ pathLength: 0, opacity: 0 }}
-                              animate={{ pathLength: 1, opacity: 1 }}
-                              transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ duration: 0.35, ease: "easeOut" }}
                             />
                           </svg>
                         );
