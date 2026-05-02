@@ -335,12 +335,66 @@ function RotatingDashboardCard() {
                   <div className="text-xl font-bold">{slide.metric2.value}</div>
                 </div>
               </div>
-              <div className="bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-sm mb-6">
-                <div className="text-xs font-semibold mb-3">{slide.chartLabel}</div>
-                <svg viewBox="0 0 200 60" className="w-full h-12 overflow-visible">
-                  <path d={slide.chartPath} fill="none" stroke={slide.accent} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm" />
+              <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm mb-6 overflow-hidden">
+                <div className="flex items-baseline justify-between px-4 pt-3 pb-1">
+                  <div className="text-xs font-semibold tracking-tight">{slide.chartLabel}</div>
+                  <div className="text-[10px] font-medium text-[#94A3B8] uppercase tracking-wider">Last 7 days</div>
+                </div>
+                <svg
+                  viewBox="0 0 200 80"
+                  preserveAspectRatio="none"
+                  className="block w-full h-24"
+                >
+                  <defs>
+                    <linearGradient id={`area-${slide.slug}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={slide.accent} stopOpacity="0.32" />
+                      <stop offset="60%" stopColor={slide.accent} stopOpacity="0.08" />
+                      <stop offset="100%" stopColor={slide.accent} stopOpacity="0" />
+                    </linearGradient>
+                    <linearGradient id={`line-${slide.slug}`} x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor={slide.accent} stopOpacity="0.7" />
+                      <stop offset="100%" stopColor={slide.accent} stopOpacity="1" />
+                    </linearGradient>
+                  </defs>
+
+                  {[20, 40, 60].map(y => (
+                    <line
+                      key={y}
+                      x1="0"
+                      x2="200"
+                      y1={y}
+                      y2={y}
+                      stroke="#F1F5F9"
+                      strokeWidth="1"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  ))}
+
+                  <path
+                    d={`${slide.chartPath} L200,80 L0,80 Z`}
+                    fill={`url(#area-${slide.slug})`}
+                    stroke="none"
+                  />
+
+                  <motion.path
+                    key={`line-${slide.slug}`}
+                    d={slide.chartPath}
+                    fill="none"
+                    stroke={`url(#line-${slide.slug})`}
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    vectorEffect="non-scaling-stroke"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: 1, opacity: 1 }}
+                    transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+                  />
+
                   {slide.chartPoints.map((p, i) => (
-                    <circle key={i} cx={p.cx} cy={p.cy} r="4" fill={slide.accent} />
+                    <g key={i}>
+                      <circle cx={p.cx} cy={p.cy} r="6" fill={slide.accent} fillOpacity="0.18" />
+                      <circle cx={p.cx} cy={p.cy} r="3" fill="white" stroke={slide.accent} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                    </g>
                   ))}
                 </svg>
               </div>
