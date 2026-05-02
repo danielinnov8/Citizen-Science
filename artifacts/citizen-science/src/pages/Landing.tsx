@@ -1,10 +1,380 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "wouter";
+import { AnimatePresence, motion } from "framer-motion";
 import { Atom, Beaker, Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CATEGORIES } from "@/lib/categories";
+
+type DashboardSlide = {
+  slug: string;
+  category: string;
+  topic: string;
+  percent: number;
+  metric1: { label: string; value: string };
+  metric2: { label: string; value: string };
+  chartLabel: string;
+  chartPath: string;
+  chartPoints: { cx: number; cy: number }[];
+  accent: string;
+  ring: string;
+  ringText: string;
+  chips: { label: string; bg: string; text: string }[];
+};
+
+const DASHBOARD_SLIDES: DashboardSlide[] = [
+  {
+    slug: "plant-science",
+    category: "Plant Science",
+    topic: "Continue learning",
+    percent: 62,
+    metric1: { label: "Days Active", value: "14" },
+    metric2: { label: "Observations", value: "8" },
+    chartLabel: "Growth Curve (cm)",
+    chartPath: "M0,50 Q40,45 80,30 T160,10 T200,5",
+    chartPoints: [{ cx: 80, cy: 30 }, { cx: 160, cy: 10 }],
+    accent: "#2563EB",
+    ring: "border-blue-100 border-t-blue-600",
+    ringText: "text-blue-700",
+    chips: [
+      { label: "Light", bg: "bg-green-50", text: "text-green-700" },
+      { label: "Water", bg: "bg-blue-50", text: "text-blue-700" },
+    ],
+  },
+  {
+    slug: "water-quality",
+    category: "Water Quality",
+    topic: "Field study",
+    percent: 38,
+    metric1: { label: "Samples", value: "11" },
+    metric2: { label: "Avg pH", value: "7.2" },
+    chartLabel: "pH over 7 days",
+    chartPath: "M0,40 L33,32 L66,38 L100,28 L133,34 L166,22 L200,26",
+    chartPoints: [{ cx: 100, cy: 28 }, { cx: 166, cy: 22 }],
+    accent: "#0EA5E9",
+    ring: "border-sky-100 border-t-sky-600",
+    ringText: "text-sky-700",
+    chips: [
+      { label: "pH", bg: "bg-sky-50", text: "text-sky-700" },
+      { label: "Turbidity", bg: "bg-blue-50", text: "text-blue-700" },
+    ],
+  },
+  {
+    slug: "physics",
+    category: "Physics",
+    topic: "Lab simulation",
+    percent: 74,
+    metric1: { label: "Trials", value: "22" },
+    metric2: { label: "Avg v (m/s)", value: "4.6" },
+    chartLabel: "Velocity vs Time",
+    chartPath: "M0,55 Q50,48 100,32 T200,5",
+    chartPoints: [{ cx: 100, cy: 32 }, { cx: 170, cy: 12 }],
+    accent: "#2563EB",
+    ring: "border-blue-100 border-t-blue-600",
+    ringText: "text-blue-700",
+    chips: [
+      { label: "Mass", bg: "bg-blue-50", text: "text-blue-700" },
+      { label: "Force", bg: "bg-indigo-50", text: "text-indigo-700" },
+    ],
+  },
+  {
+    slug: "chemistry",
+    category: "Chemistry",
+    topic: "Continue learning",
+    percent: 45,
+    metric1: { label: "Reactions", value: "9" },
+    metric2: { label: "Tests Run", value: "17" },
+    chartLabel: "Acidity Trend",
+    chartPath: "M0,30 Q30,15 60,28 T120,32 T200,18",
+    chartPoints: [{ cx: 60, cy: 28 }, { cx: 140, cy: 26 }],
+    accent: "#7C3AED",
+    ring: "border-violet-100 border-t-violet-600",
+    ringText: "text-violet-700",
+    chips: [
+      { label: "Acid", bg: "bg-violet-50", text: "text-violet-700" },
+      { label: "Base", bg: "bg-purple-50", text: "text-purple-700" },
+    ],
+  },
+  {
+    slug: "human-health",
+    category: "Human Health",
+    topic: "Wellness study",
+    percent: 81,
+    metric1: { label: "Sleep avg", value: "7.4h" },
+    metric2: { label: "Resting HR", value: "62" },
+    chartLabel: "Sleep quality (7d)",
+    chartPath: "M0,30 L33,22 L66,28 L100,15 L133,20 L166,12 L200,18",
+    chartPoints: [{ cx: 100, cy: 15 }, { cx: 166, cy: 12 }],
+    accent: "#E11D48",
+    ring: "border-rose-100 border-t-rose-600",
+    ringText: "text-rose-700",
+    chips: [
+      { label: "Sleep", bg: "bg-rose-50", text: "text-rose-700" },
+      { label: "HRV", bg: "bg-pink-50", text: "text-pink-700" },
+    ],
+  },
+  {
+    slug: "microbiology",
+    category: "Microbiology",
+    topic: "Active culture",
+    percent: 53,
+    metric1: { label: "Cultures", value: "4" },
+    metric2: { label: "Doubling t", value: "28m" },
+    chartLabel: "Population growth",
+    chartPath: "M0,55 Q60,52 110,40 T180,8 L200,4",
+    chartPoints: [{ cx: 110, cy: 40 }, { cx: 180, cy: 8 }],
+    accent: "#7C3AED",
+    ring: "border-violet-100 border-t-violet-600",
+    ringText: "text-violet-700",
+    chips: [
+      { label: "Yeast", bg: "bg-violet-50", text: "text-violet-700" },
+      { label: "37°C", bg: "bg-amber-50", text: "text-amber-700" },
+    ],
+  },
+  {
+    slug: "neuroscience",
+    category: "Neuroscience",
+    topic: "Cognitive test",
+    percent: 67,
+    metric1: { label: "Trials", value: "30" },
+    metric2: { label: "Avg ms", value: "284" },
+    chartLabel: "Reaction time (ms)",
+    chartPath: "M0,18 L33,28 L66,22 L100,32 L133,26 L166,38 L200,30",
+    chartPoints: [{ cx: 100, cy: 32 }, { cx: 166, cy: 38 }],
+    accent: "#C026D3",
+    ring: "border-fuchsia-100 border-t-fuchsia-600",
+    ringText: "text-fuchsia-700",
+    chips: [
+      { label: "Focus", bg: "bg-fuchsia-50", text: "text-fuchsia-700" },
+      { label: "Attention", bg: "bg-pink-50", text: "text-pink-700" },
+    ],
+  },
+  {
+    slug: "climate-science",
+    category: "Climate Science",
+    topic: "Daily log",
+    percent: 29,
+    metric1: { label: "Days logged", value: "21" },
+    metric2: { label: "Avg °C", value: "18.4" },
+    chartLabel: "Temperature trend",
+    chartPath: "M0,42 L33,38 L66,30 L100,34 L133,22 L166,18 L200,12",
+    chartPoints: [{ cx: 100, cy: 34 }, { cx: 166, cy: 18 }],
+    accent: "#0284C7",
+    ring: "border-sky-100 border-t-sky-600",
+    ringText: "text-sky-700",
+    chips: [
+      { label: "Temp", bg: "bg-sky-50", text: "text-sky-700" },
+      { label: "Humidity", bg: "bg-blue-50", text: "text-blue-700" },
+    ],
+  },
+  {
+    slug: "astronomy",
+    category: "Astronomy",
+    topic: "Sky journal",
+    percent: 41,
+    metric1: { label: "Sessions", value: "6" },
+    metric2: { label: "Objects", value: "23" },
+    chartLabel: "Visibility (lux)",
+    chartPath: "M0,50 Q40,30 80,38 T160,15 T200,22",
+    chartPoints: [{ cx: 80, cy: 38 }, { cx: 160, cy: 15 }],
+    accent: "#4F46E5",
+    ring: "border-indigo-100 border-t-indigo-600",
+    ringText: "text-indigo-700",
+    chips: [
+      { label: "Moon phase", bg: "bg-indigo-50", text: "text-indigo-700" },
+      { label: "Clear sky", bg: "bg-blue-50", text: "text-blue-700" },
+    ],
+  },
+  {
+    slug: "agriculture",
+    category: "Agriculture",
+    topic: "Soil tracker",
+    percent: 58,
+    metric1: { label: "Plots", value: "3" },
+    metric2: { label: "NPK score", value: "82" },
+    chartLabel: "Nutrient density",
+    chartPath: "M0,40 Q40,38 80,30 T160,18 T200,12",
+    chartPoints: [{ cx: 80, cy: 30 }, { cx: 160, cy: 18 }],
+    accent: "#D97706",
+    ring: "border-amber-100 border-t-amber-600",
+    ringText: "text-amber-700",
+    chips: [
+      { label: "Nitrogen", bg: "bg-amber-50", text: "text-amber-700" },
+      { label: "pH 6.4", bg: "bg-green-50", text: "text-green-700" },
+    ],
+  },
+  {
+    slug: "food-science",
+    category: "Food Science",
+    topic: "Fermentation",
+    percent: 36,
+    metric1: { label: "Batches", value: "5" },
+    metric2: { label: "Avg pH", value: "3.6" },
+    chartLabel: "Fermentation pH",
+    chartPath: "M0,15 Q40,22 80,28 T160,42 T200,48",
+    chartPoints: [{ cx: 80, cy: 28 }, { cx: 160, cy: 42 }],
+    accent: "#EA580C",
+    ring: "border-orange-100 border-t-orange-600",
+    ringText: "text-orange-700",
+    chips: [
+      { label: "Sourdough", bg: "bg-orange-50", text: "text-orange-700" },
+      { label: "Day 3", bg: "bg-amber-50", text: "text-amber-700" },
+    ],
+  },
+  {
+    slug: "environmental-science",
+    category: "Environmental Science",
+    topic: "Habitat survey",
+    percent: 49,
+    metric1: { label: "Species", value: "27" },
+    metric2: { label: "Sites", value: "4" },
+    chartLabel: "Biodiversity index",
+    chartPath: "M0,42 Q40,30 80,32 T160,18 T200,14",
+    chartPoints: [{ cx: 80, cy: 32 }, { cx: 160, cy: 18 }],
+    accent: "#059669",
+    ring: "border-emerald-100 border-t-emerald-600",
+    ringText: "text-emerald-700",
+    chips: [
+      { label: "Forest", bg: "bg-emerald-50", text: "text-emerald-700" },
+      { label: "Insects", bg: "bg-lime-50", text: "text-lime-700" },
+    ],
+  },
+  {
+    slug: "biology",
+    category: "Biology",
+    topic: "Cell observation",
+    percent: 23,
+    metric1: { label: "Slides", value: "7" },
+    metric2: { label: "Notes", value: "12" },
+    chartLabel: "Mitosis rate",
+    chartPath: "M0,40 Q40,35 80,28 T160,22 T200,16",
+    chartPoints: [{ cx: 80, cy: 28 }, { cx: 160, cy: 22 }],
+    accent: "#16A34A",
+    ring: "border-green-100 border-t-green-600",
+    ringText: "text-green-700",
+    chips: [
+      { label: "Stained", bg: "bg-green-50", text: "text-green-700" },
+      { label: "400x", bg: "bg-emerald-50", text: "text-emerald-700" },
+    ],
+  },
+  {
+    slug: "materials-science",
+    category: "Materials Science",
+    topic: "Stress test",
+    percent: 70,
+    metric1: { label: "Specimens", value: "9" },
+    metric2: { label: "Max load", value: "48N" },
+    chartLabel: "Strain curve",
+    chartPath: "M0,55 Q60,42 110,28 T180,8 L200,5",
+    chartPoints: [{ cx: 110, cy: 28 }, { cx: 180, cy: 8 }],
+    accent: "#475569",
+    ring: "border-slate-200 border-t-slate-700",
+    ringText: "text-slate-700",
+    chips: [
+      { label: "Polymer", bg: "bg-slate-100", text: "text-slate-700" },
+      { label: "Tensile", bg: "bg-zinc-100", text: "text-zinc-700" },
+    ],
+  },
+];
+
+function RotatingDashboardCard() {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const id = window.setInterval(() => {
+      setIndex(i => (i + 1) % DASHBOARD_SLIDES.length);
+    }, 3500);
+    return () => window.clearInterval(id);
+  }, [paused]);
+
+  const slide = DASHBOARD_SLIDES[index];
+
+  return (
+    <div
+      className="relative mx-auto w-full max-w-[540px]"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      data-testid="rotating-dashboard-card"
+    >
+      <div className="relative rounded-2xl border border-[#E2E8F0] bg-white shadow-2xl shadow-blue-900/5 overflow-hidden">
+        <div className="h-10 border-b border-[#E2E8F0] bg-[#F8FAFC] flex items-center px-4 gap-2">
+          <div className="flex gap-1.5">
+            <div className="h-3 w-3 rounded-full bg-red-400" />
+            <div className="h-3 w-3 rounded-full bg-amber-400" />
+            <div className="h-3 w-3 rounded-full bg-green-400" />
+          </div>
+        </div>
+        <div className="p-6 bg-[#FAFAF9] min-h-[388px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={slide.slug}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="font-semibold text-sm">{slide.topic}</h3>
+                  <p className="text-xs text-[#64748B]">{slide.category}</p>
+                </div>
+                <div className={`h-10 w-10 rounded-full border-4 ${slide.ring} flex items-center justify-center text-xs font-bold ${slide.ringText}`}>
+                  {slide.percent}%
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-sm">
+                  <div className="text-xs text-[#64748B] mb-1">{slide.metric1.label}</div>
+                  <div className="text-xl font-bold">{slide.metric1.value}</div>
+                </div>
+                <div className="bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-sm">
+                  <div className="text-xs text-[#64748B] mb-1">{slide.metric2.label}</div>
+                  <div className="text-xl font-bold">{slide.metric2.value}</div>
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-sm mb-6">
+                <div className="text-xs font-semibold mb-3">{slide.chartLabel}</div>
+                <svg viewBox="0 0 200 60" className="w-full h-12 overflow-visible">
+                  <path d={slide.chartPath} fill="none" stroke={slide.accent} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm" />
+                  {slide.chartPoints.map((p, i) => (
+                    <circle key={i} cx={p.cx} cy={p.cy} r="4" fill={slide.accent} />
+                  ))}
+                </svg>
+              </div>
+              <div className="flex gap-2">
+                {slide.chips.map((chip, i) => (
+                  <Badge
+                    key={i}
+                    variant="secondary"
+                    className={`${chip.bg} ${chip.text} hover:${chip.bg}`}
+                  >
+                    {chip.label}
+                  </Badge>
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+        <div className="border-t border-[#E2E8F0] bg-white/60 px-6 py-3 flex items-center justify-center gap-1.5">
+          {DASHBOARD_SLIDES.map((s, i) => (
+            <button
+              key={s.slug}
+              type="button"
+              onClick={() => setIndex(i)}
+              aria-label={`Show ${s.category}`}
+              className={`h-1.5 rounded-full transition-all ${
+                i === index ? "w-6 bg-[#0F172A]" : "w-1.5 bg-[#CBD5E1] hover:bg-[#94A3B8]"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const TOOLS = [
   { icon: Sprout, name: "Plant Growth Planner", desc: "Simulate and track plant development.", slug: "plant-science" },
@@ -81,50 +451,7 @@ export function Landing() {
               </div>
 
               {/* DASHBOARD MOCKUP */}
-              <div className="relative mx-auto w-full max-w-[540px]">
-                <div className="relative rounded-2xl border border-[#E2E8F0] bg-white shadow-2xl shadow-blue-900/5 overflow-hidden">
-                  <div className="h-10 border-b border-[#E2E8F0] bg-[#F8FAFC] flex items-center px-4 gap-2">
-                    <div className="flex gap-1.5">
-                      <div className="h-3 w-3 rounded-full bg-red-400" />
-                      <div className="h-3 w-3 rounded-full bg-amber-400" />
-                      <div className="h-3 w-3 rounded-full bg-green-400" />
-                    </div>
-                  </div>
-                  <div className="p-6 bg-[#FAFAF9]">
-                    <div className="flex justify-between items-center mb-6">
-                      <div>
-                        <h3 className="font-semibold text-sm">Continue learning</h3>
-                        <p className="text-xs text-[#64748B]">Plant Science</p>
-                      </div>
-                      <div className="h-10 w-10 rounded-full border-4 border-blue-100 border-t-blue-600 flex items-center justify-center text-xs font-bold text-blue-700">
-                        62%
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-sm">
-                        <div className="text-xs text-[#64748B] mb-1">Days Active</div>
-                        <div className="text-xl font-bold">14</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-sm">
-                        <div className="text-xs text-[#64748B] mb-1">Observations</div>
-                        <div className="text-xl font-bold">8</div>
-                      </div>
-                    </div>
-                    <div className="bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-sm mb-6">
-                      <div className="text-xs font-semibold mb-3">Growth Curve (cm)</div>
-                      <svg viewBox="0 0 200 60" className="w-full h-12 overflow-visible">
-                        <path d="M0,50 Q40,45 80,30 T160,10 T200,5" fill="none" stroke="#2563EB" strokeWidth="3" strokeLinecap="round" className="drop-shadow-sm" />
-                        <circle cx="80" cy="30" r="4" fill="#2563EB" />
-                        <circle cx="160" cy="10" r="4" fill="#2563EB" />
-                      </svg>
-                    </div>
-                    <div className="flex gap-2">
-                      <Badge variant="secondary" className="bg-green-50 text-green-700 hover:bg-green-100">Light</Badge>
-                      <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100">Water</Badge>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <RotatingDashboardCard />
             </div>
           </div>
         </section>
