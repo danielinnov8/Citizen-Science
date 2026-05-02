@@ -47,7 +47,17 @@ export function Onboarding() {
   const handleComplete = () => {
     localStorage.setItem("cs_preferences", JSON.stringify(answers));
     completeOnboarding();
-    setLocation("/dashboard");
+    let pendingPrompt: string | null = null;
+    try {
+      pendingPrompt = window.localStorage.getItem("cs.pendingPrompt");
+    } catch {
+      /* ignore */
+    }
+    if (pendingPrompt && pendingPrompt.trim().length > 0) {
+      setLocation("/agent");
+    } else {
+      setLocation("/dashboard");
+    }
   };
 
   const toggleInterest = (opt: string) => {

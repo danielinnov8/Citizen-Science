@@ -404,12 +404,14 @@ function AskAgent() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const prompt = value.trim() || ALL_PROMPTS[placeholderIndex];
+    let isAuthed = false;
     try {
       window.localStorage.setItem("cs.pendingPrompt", prompt);
+      isAuthed = window.localStorage.getItem("cs_auth") === "true";
     } catch {
       // ignore storage failures
     }
-    navigate("/login");
+    navigate(isAuthed ? "/agent" : "/login");
   };
 
   const handleChip = (prompt: string) => {

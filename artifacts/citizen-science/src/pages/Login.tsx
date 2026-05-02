@@ -11,8 +11,16 @@ export function Login() {
 
   const handleLogin = () => {
     signIn();
+    let pendingPrompt: string | null = null;
+    try {
+      pendingPrompt = window.localStorage.getItem("cs.pendingPrompt");
+    } catch {
+      /* ignore */
+    }
     if (!hasCompletedOnboarding) {
       setLocation("/onboarding");
+    } else if (pendingPrompt && pendingPrompt.trim().length > 0) {
+      setLocation("/agent");
     } else {
       setLocation("/dashboard");
     }

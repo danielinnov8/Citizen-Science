@@ -9,6 +9,7 @@ import { Landing } from "@/pages/Landing";
 import { Login } from "@/pages/Login";
 import { Onboarding } from "@/pages/Onboarding";
 import { Dashboard } from "@/pages/Dashboard";
+import { Agent } from "@/pages/Agent";
 import { Categories } from "@/pages/Categories";
 import { Category } from "@/pages/Category";
 import { Experiments } from "@/pages/Experiments";
@@ -43,6 +44,9 @@ function Router() {
       </Route>
       <Route path="/dashboard">
         <ProtectedRoute><AppShell><Dashboard /></AppShell></ProtectedRoute>
+      </Route>
+      <Route path="/agent">
+        <ProtectedRoute><AppShell><Agent /></AppShell></ProtectedRoute>
       </Route>
       <Route path="/categories">
         <ProtectedRoute><AppShell><Categories /></AppShell></ProtectedRoute>
