@@ -673,6 +673,9 @@ export function Landing() {
       </header>
 
       <main>
+        {/* AGENT / ASK SECTION */}
+        <AskAgent />
+
         {/* HERO SECTION */}
         <section className="relative overflow-hidden pt-24 pb-32 lg:pt-32 lg:pb-40">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-30 pointer-events-none blur-[100px]">
@@ -715,9 +718,6 @@ export function Landing() {
             </div>
           </div>
         </section>
-
-        {/* AGENT / ASK SECTION */}
-        <AskAgent />
 
         {/* PROBLEM SECTION */}
         <section className="py-24 bg-white border-y border-[#E2E8F0]">
