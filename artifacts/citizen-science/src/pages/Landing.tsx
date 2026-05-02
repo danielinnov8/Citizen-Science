@@ -629,10 +629,27 @@ function RotatingDashboardCard() {
                     {/* Plot area */}
                     <div className="relative border-l border-b border-[#CBD5E1]">
                       {(() => {
-                        const linePath = `M0,${slide.dataPoints[0]} ${slide.dataPoints
-                          .slice(1)
-                          .map((y, i) => `L${((i + 1) / (slide.dataPoints.length - 1)) * 200},${y}`)
-                          .join(" ")}`;
+                        // Build a smooth curve that flows through every data
+                        // point using Catmull-Rom → cubic Bézier conversion.
+                        // This avoids sharp corners between segments while
+                        // still passing exactly through each measured value.
+                        const pts = slide.dataPoints.map((y, i) => ({
+                          x: (i / (slide.dataPoints.length - 1)) * 200,
+                          y,
+                        }));
+                        const t = 0.5; // tension; 0.5 = standard Catmull-Rom
+                        let linePath = `M${pts[0].x},${pts[0].y}`;
+                        for (let i = 0; i < pts.length - 1; i++) {
+                          const p0 = pts[i - 1] ?? pts[i];
+                          const p1 = pts[i];
+                          const p2 = pts[i + 1];
+                          const p3 = pts[i + 2] ?? p2;
+                          const cp1x = p1.x + ((p2.x - p0.x) / 6) * t * 2;
+                          const cp1y = p1.y + ((p2.y - p0.y) / 6) * t * 2;
+                          const cp2x = p2.x - ((p3.x - p1.x) / 6) * t * 2;
+                          const cp2y = p2.y - ((p3.y - p1.y) / 6) * t * 2;
+                          linePath += ` C${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)}`;
+                        }
                         return (
                           <svg
                             viewBox="0 0 200 60"
