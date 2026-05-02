@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
-import { Atom, Beaker, Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft } from "lucide-react";
+import { Atom, Beaker, Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -361,6 +361,7 @@ function AskAgent() {
   const [value, setValue] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [focused, setFocused] = useState(false);
+  const [examplesOpen, setExamplesOpen] = useState(false);
 
   useEffect(() => {
     if (focused || value.length > 0) return;
@@ -457,27 +458,59 @@ function AskAgent() {
           </div>
         </form>
 
-        <div className="mt-10 space-y-3">
-          {PROMPT_GROUPS.map(group => (
-            <div key={group.segment} className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <div className="text-xs font-semibold uppercase tracking-wider text-[#64748B] sm:w-44 shrink-0">
-                {group.segment}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {group.prompts.map(prompt => (
-                  <button
-                    key={prompt}
-                    type="button"
-                    onClick={() => handleChip(prompt)}
-                    className={`text-sm font-medium rounded-full border px-3.5 py-1.5 transition-colors ${group.accentBg} ${group.accentText}`}
-                    data-testid={`agent-prompt-chip`}
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
+        <div className="mt-8">
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => setExamplesOpen(o => !o)}
+              aria-expanded={examplesOpen}
+              aria-controls="agent-prompt-examples"
+              className="group inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white px-4 py-2 text-sm font-medium text-[#0F172A] shadow-sm hover:bg-[#F8FAFC] transition-colors"
+              data-testid="agent-examples-toggle"
+            >
+              <span>{examplesOpen ? "Hide examples" : "Browse examples by topic"}</span>
+              <ChevronDown
+                className={`h-4 w-4 text-[#64748B] transition-transform duration-300 ${examplesOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+          </div>
+
+          <AnimatePresence initial={false}>
+            {examplesOpen && (
+              <motion.div
+                key="examples"
+                id="agent-prompt-examples"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="pt-6 space-y-3">
+                  {PROMPT_GROUPS.map(group => (
+                    <div key={group.segment} className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-[#64748B] sm:w-44 shrink-0">
+                        {group.segment}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {group.prompts.map(prompt => (
+                          <button
+                            key={prompt}
+                            type="button"
+                            onClick={() => handleChip(prompt)}
+                            className={`text-sm font-medium rounded-full border px-3.5 py-1.5 transition-colors ${group.accentBg} ${group.accentText}`}
+                            data-testid={`agent-prompt-chip`}
+                          >
+                            {prompt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </section>
