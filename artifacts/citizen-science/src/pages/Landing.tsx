@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
-import { Atom, Beaker, Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save } from "lucide-react";
+import { Atom, Beaker, Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -278,6 +278,212 @@ const DASHBOARD_SLIDES: DashboardSlide[] = [
   },
 ];
 
+type PromptGroup = {
+  segment: string;
+  accentBg: string;
+  accentText: string;
+  prompts: string[];
+};
+
+const PROMPT_GROUPS: PromptGroup[] = [
+  {
+    segment: "Life & Genomics",
+    accentBg: "bg-green-50 hover:bg-green-100 border-green-100",
+    accentText: "text-green-800",
+    prompts: [
+      "I want to sequence my genome at home",
+      "Identify mushrooms growing in my backyard",
+      "Track butterfly populations in my garden",
+      "Grow yogurt cultures and compare strains",
+    ],
+  },
+  {
+    segment: "Plants & Agriculture",
+    accentBg: "bg-emerald-50 hover:bg-emerald-100 border-emerald-100",
+    accentText: "text-emerald-800",
+    prompts: [
+      "Find the best soil for my tomatoes",
+      "Compare lettuce growth under LED vs sunlight",
+      "Test which fertilizer my basil prefers",
+      "Measure how shade affects strawberry yield",
+    ],
+  },
+  {
+    segment: "Chemistry & Materials",
+    accentBg: "bg-violet-50 hover:bg-violet-100 border-violet-100",
+    accentText: "text-violet-800",
+    prompts: [
+      "Make a pH indicator from red cabbage",
+      "Test the acidity of my tap water",
+      "Build homemade litmus paper",
+      "Compare strength of glues and tapes",
+    ],
+  },
+  {
+    segment: "Physics & Earth",
+    accentBg: "bg-blue-50 hover:bg-blue-100 border-blue-100",
+    accentText: "text-blue-800",
+    prompts: [
+      "Measure the speed of sound in my kitchen",
+      "Build a pendulum and calculate gravity",
+      "Test which paper airplane flies farthest",
+      "Estimate the height of a building with shadows",
+    ],
+  },
+  {
+    segment: "Health & Behavior",
+    accentBg: "bg-rose-50 hover:bg-rose-100 border-rose-100",
+    accentText: "text-rose-800",
+    prompts: [
+      "Correlate my sleep with caffeine intake",
+      "Measure my reaction time over a week",
+      "Track how walking affects my heart rate",
+      "Test how music tempo changes my focus",
+    ],
+  },
+  {
+    segment: "Climate & Sky",
+    accentBg: "bg-sky-50 hover:bg-sky-100 border-sky-100",
+    accentText: "text-sky-800",
+    prompts: [
+      "Monitor air quality in my neighborhood",
+      "Track local rainfall over a season",
+      "Estimate my household carbon footprint",
+      "Photograph the phases of the moon",
+    ],
+  },
+];
+
+const ALL_PROMPTS: string[] = PROMPT_GROUPS.flatMap(g => g.prompts);
+
+function AskAgent() {
+  const [, navigate] = useLocation();
+  const [value, setValue] = useState("");
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (focused || value.length > 0) return;
+    const id = window.setInterval(() => {
+      setPlaceholderIndex(i => (i + 1) % ALL_PROMPTS.length);
+    }, 2800);
+    return () => window.clearInterval(id);
+  }, [focused, value]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const prompt = value.trim() || ALL_PROMPTS[placeholderIndex];
+    try {
+      window.localStorage.setItem("cs.pendingPrompt", prompt);
+    } catch {
+      // ignore storage failures
+    }
+    navigate("/login");
+  };
+
+  const handleChip = (prompt: string) => {
+    setValue(prompt);
+  };
+
+  const currentPlaceholder = ALL_PROMPTS[placeholderIndex];
+
+  return (
+    <section className="relative w-full border-y border-[#E2E8F0] bg-gradient-to-b from-white via-[#FAFBFF] to-white">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-200/60 to-transparent" />
+      <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-gradient-to-br from-blue-200/30 via-violet-200/20 to-emerald-200/20 blur-3xl rounded-full pointer-events-none" />
+
+      <div className="relative container mx-auto max-w-5xl px-4 lg:px-8 py-20 lg:py-24">
+        <div className="text-center mb-10">
+          <Badge variant="outline" className="rounded-full bg-white text-[#0F172A] border-[#E2E8F0] mb-5 px-3 py-1 text-xs font-medium shadow-sm">
+            <Wand2 className="h-3 w-3 mr-1.5 inline text-violet-600" />
+            Science copilot — preview
+          </Badge>
+          <h2 className="text-4xl lg:text-5xl font-serif tracking-tight text-[#0F172A] leading-[1.1] mb-4">
+            What do you want to <span className="italic text-blue-600">explore</span> today?
+          </h2>
+          <p className="text-base text-[#64748B] max-w-2xl mx-auto leading-relaxed">
+            Tell us a question, a hunch, or a wild curiosity. We'll turn it into a guided experiment with steps, tools, and a notebook ready to go.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="relative">
+          <div
+            className={`relative flex items-center gap-3 rounded-2xl border bg-white pl-5 pr-2 py-2 shadow-lg transition-all ${
+              focused ? "border-blue-300 shadow-blue-500/10 ring-4 ring-blue-100/60" : "border-[#E2E8F0] shadow-blue-900/5"
+            }`}
+          >
+            <Sparkles className="h-5 w-5 shrink-0 text-blue-600" />
+            <div className="relative flex-1 h-14">
+              <input
+                type="text"
+                value={value}
+                onChange={e => setValue(e.target.value)}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                aria-label="What do you want to explore today?"
+                className="absolute inset-0 w-full bg-transparent outline-none text-base lg:text-lg text-[#0F172A] placeholder:text-transparent font-medium"
+                data-testid="agent-prompt-input"
+              />
+              {value.length === 0 && (
+                <div className="pointer-events-none absolute inset-0 flex items-center text-base lg:text-lg text-[#94A3B8] font-medium">
+                  <span className="mr-1.5 hidden sm:inline">Try:</span>
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={currentPlaceholder}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                      className="truncate"
+                    >
+                      {currentPlaceholder}
+                    </motion.span>
+                  </AnimatePresence>
+                </div>
+              )}
+            </div>
+            <button
+              type="submit"
+              className="group flex items-center gap-2 rounded-xl bg-[#0F172A] hover:bg-blue-700 text-white px-5 h-12 text-sm font-medium transition-colors"
+              data-testid="agent-prompt-submit"
+            >
+              <span className="hidden sm:inline">Plan my experiment</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </div>
+          <div className="mt-3 flex items-center justify-center gap-2 text-xs text-[#94A3B8]">
+            <CornerDownLeft className="h-3 w-3" />
+            <span>Press enter to begin — we'll save your prompt and pick up after you sign in.</span>
+          </div>
+        </form>
+
+        <div className="mt-10 space-y-3">
+          {PROMPT_GROUPS.map(group => (
+            <div key={group.segment} className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="text-xs font-semibold uppercase tracking-wider text-[#64748B] sm:w-44 shrink-0">
+                {group.segment}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {group.prompts.map(prompt => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => handleChip(prompt)}
+                    className={`text-sm font-medium rounded-full border px-3.5 py-1.5 transition-colors ${group.accentBg} ${group.accentText}`}
+                    data-testid={`agent-prompt-chip`}
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function RotatingDashboardCard() {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -509,6 +715,9 @@ export function Landing() {
             </div>
           </div>
         </section>
+
+        {/* AGENT / ASK SECTION */}
+        <AskAgent />
 
         {/* PROBLEM SECTION */}
         <section className="py-24 bg-white border-y border-[#E2E8F0]">
