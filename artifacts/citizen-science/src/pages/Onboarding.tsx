@@ -194,7 +194,7 @@ export function Onboarding() {
               ))}
             </div>
 
-            <Button size="lg" className="w-full bg-blue-600 rounded-full h-12" onClick={handleComplete}>
+            <Button size="lg" className="w-full rounded-full h-12" onClick={handleComplete}>
               Enter Dashboard <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </div>

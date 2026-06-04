@@ -447,8 +447,9 @@ export function Agent() {
             <Button
               type="submit"
               size="sm"
+              variant="ink"
               disabled={!input.trim() || isStreaming}
-              className="bg-[#0F172A] hover:bg-[#1E293B] text-white h-9 px-3.5 mb-0.5 flex-shrink-0"
+              className="h-9 px-3.5 mb-0.5 flex-shrink-0"
             >
               <ArrowRight className="h-4 w-4" />
             </Button>

@@ -111,7 +111,6 @@ export function Profile() {
                     variant={isConnected ? "outline" : "default"}
                     size="sm"
                     aria-pressed={isConnected}
-                    className={isConnected ? "" : "bg-blue-600 hover:bg-blue-700 text-white"}
                     onClick={() => toggleDevice(device.id)}
                   >
                     {isConnected ? (

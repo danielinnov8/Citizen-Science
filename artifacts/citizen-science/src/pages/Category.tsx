@@ -140,7 +140,7 @@ export function Category() {
               </div>
             </CardContent>
             <div className="p-4 bg-white border-t border-[#E2E8F0]">
-              <Button className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-white">Continue Tutorial</Button>
+              <Button variant="ink" className="w-full">Continue Tutorial</Button>
             </div>
           </Card>
 

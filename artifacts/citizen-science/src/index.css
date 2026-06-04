@@ -241,3 +241,52 @@
     inset: -1px;
   }
 }
+
+/* Metallic logo-matched button styles */
+@layer components {
+  .btn-metal-blue {
+    color: #ffffff;
+    border: 1px solid #D4AF37;
+    background-image: linear-gradient(to bottom right, #60A5FA, #2563EB 45%, #1E3A8A);
+    text-shadow: 0 1px 1px rgba(15, 23, 42, 0.35);
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.28),
+      0 1px 2px rgba(15, 23, 42, 0.25);
+  }
+  .btn-metal-blue:focus-visible,
+  .btn-metal-ink:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px #ffffff,
+      0 0 0 4px #2563EB;
+  }
+  .btn-metal-blue:hover {
+    background-image: linear-gradient(to bottom right, #7DB7FC, #2F6FF0 45%, #24489A);
+    border-color: #E4C75B;
+  }
+  .btn-metal-blue:active {
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.35),
+      inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-metal-ink {
+    color: #ffffff;
+    border: 1px solid #C7CDD6;
+    background-image: linear-gradient(to bottom right, #334155, #0F172A 55%, #020617);
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.22),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+      0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  .btn-metal-ink:hover {
+    background-image: linear-gradient(to bottom right, #3E4D63, #16213A 55%, #060B16);
+    border-color: #E2E8F0;
+  }
+  .btn-metal-ink:active {
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.5),
+      inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  }
+}

@@ -11,8 +11,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-           // @replit: no hover, and add primary border
-           "bg-primary text-primary-foreground border border-primary-border",
+           // metallic blue + gold border, matching the brand logo
+           "btn-metal-blue",
+        ink:
+           // dark surface with silver outline + subtle shine
+           "btn-metal-ink",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm border-destructive-border",
         outline:

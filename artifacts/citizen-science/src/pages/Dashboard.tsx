@@ -104,7 +104,7 @@ export function Dashboard() {
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-[#64748B] flex items-center gap-1"><Clock className="h-3 w-3" /> {exp.updated}</span>
                   <Link href={`/experiments/${exp.id}`}>
-                    <Button size="sm" className="h-8 text-xs bg-white text-blue-700 border border-blue-200 hover:bg-blue-50">Continue</Button>
+                    <Button size="sm" className="h-8 text-xs bg-white bg-none shadow-none text-blue-700 border border-blue-200 hover:bg-blue-50">Continue</Button>
                   </Link>
                 </div>
               </CardContent>

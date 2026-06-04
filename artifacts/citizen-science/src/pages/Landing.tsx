@@ -479,7 +479,7 @@ function AskAgent() {
             </div>
             <button
               type="submit"
-              className="group flex items-center gap-2 rounded-xl bg-[#0F172A] hover:bg-blue-700 text-white px-5 h-12 text-sm font-medium transition-colors"
+              className="btn-metal-ink group flex items-center gap-2 rounded-xl px-5 h-12 text-sm font-medium transition-colors"
               data-testid="agent-prompt-submit"
             >
               <span className="hidden sm:inline">Plan my experiment</span>
@@ -849,7 +849,7 @@ export function Landing() {
             <a href="#safety" className="transition-colors hover:text-[#0F172A]">Safety</a>
             <Link href="/login" className="transition-colors hover:text-[#0F172A]">Sign in</Link>
           </nav>
-          <Link href="/login" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6 py-2 text-sm font-medium transition-colors">
+          <Link href="/login" className="btn-metal-blue inline-flex items-center rounded-full px-6 py-2 text-sm font-medium transition-colors">
             Start Exploring
           </Link>
         </div>
@@ -884,7 +884,7 @@ export function Landing() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link href="/login">
-                    <Button size="lg" className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full text-base h-12 px-8">
+                    <Button size="lg" className="w-full rounded-full text-base h-12 px-8">
                       Create Free Account <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
@@ -1106,7 +1106,7 @@ export function Landing() {
             <p className="text-[#64748B] text-lg mb-10">Join thousands of curious minds exploring the world around them.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/login">
-                <Button size="lg" className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 h-12">
+                <Button size="lg" className="w-full rounded-full px-8 h-12">
                   Create Free Account
                 </Button>
               </Link>

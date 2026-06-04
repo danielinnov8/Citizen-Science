@@ -196,7 +196,7 @@ export function Login() {
           <Button
             type="submit"
             size="lg"
-            className="w-full bg-blue-600 h-12"
+            className="w-full h-12"
             disabled={submitting}
           >
             {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

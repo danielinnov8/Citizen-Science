@@ -130,7 +130,7 @@ export function ExperimentDetail() {
           onChange={e => setObsText(e.target.value)}
         />
         <div className="flex justify-end">
-          <Button onClick={saveObservation} disabled={!obsText.trim()} className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button onClick={saveObservation} disabled={!obsText.trim()}>
             <Save className="mr-2 h-4 w-4" /> Save to Notebook
           </Button>
         </div>
