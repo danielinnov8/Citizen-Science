@@ -1,3 +1,28 @@
-<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Citizen Science">
+  <defs>
+    <linearGradient id="cs-metal" x1="18" y1="14" x2="162" y2="166" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7DB3FB"/>
+      <stop offset="0.45" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#16307A"/>
+    </linearGradient>
+    <linearGradient id="cs-sheen" x1="90" y1="10" x2="90" y2="170" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.5"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.22"/>
+    </linearGradient>
+    <linearGradient id="cs-gold" x1="20" y1="16" x2="160" y2="164" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FBE9A8"/>
+      <stop offset="0.35" stop-color="#E4C75B"/>
+      <stop offset="0.6" stop-color="#C9A227"/>
+      <stop offset="1" stop-color="#9C7A12"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="160" height="160" rx="40" fill="url(#cs-metal)"/>
+  <rect x="10" y="10" width="160" height="160" rx="40" fill="url(#cs-sheen)"/>
+  <rect x="13.5" y="13.5" width="153" height="153" rx="36.5" fill="none" stroke="url(#cs-gold)" stroke-width="7"/>
+  <g transform="translate(45 45) scale(3.75)" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"/>
+    <path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/>
+    <circle cx="12" cy="12" r="1.6" fill="#FFFFFF" stroke="none"/>
+  </g>
 </svg>
