@@ -76,8 +76,19 @@ export function LegalPage({ title, lastUpdated, intro, sections }: LegalPageProp
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
           </div>
-          <div className="text-sm">
+          <div className="text-sm text-right">
             &copy; {new Date().getFullYear()} Citizen Science.
+            <span className="block md:inline md:ml-2">
+              Built by{" "}
+              <a
+                href="https://ideafactory.agency/danielinnovate"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:text-[#D4AF37] transition-colors"
+              >
+                Daniel Innov8
+              </a>
+            </span>
           </div>
         </div>
       </footer>
