@@ -974,7 +974,7 @@ export function Landing() {
                   <Card className="border-[#E2E8F0] shadow-none hover:shadow-md transition-shadow group cursor-pointer h-full">
                     <CardHeader className="pb-4">
                       <div className="flex justify-between items-start mb-4">
-                        <div className="h-10 w-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <div className="icon-tile-metal h-10 w-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                           <Beaker className="h-5 w-5" />
                         </div>
                         <Badge variant="outline" className={`text-[10px] uppercase font-bold tracking-wider
