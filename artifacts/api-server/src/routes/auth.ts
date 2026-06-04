@@ -62,10 +62,24 @@ function getGoogleConfig(): { clientId: string; clientSecret: string } | null {
   return { clientId, clientSecret };
 }
 
-function getRedirectUri(): string {
+function getRedirectUri(req: Request): string {
+  // Prefer an explicit public origin. Set PUBLIC_BASE_URL on Cloud Run so the
+  // redirect URI exactly matches what is registered in the Google console.
+  const configured = process.env.PUBLIC_BASE_URL?.replace(/\/+$/, "");
+  if (configured) return `${configured}/api/auth/google/callback`;
+
+  // Replit dev/prod exposes the external domain here.
   const domain = (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim();
-  if (!domain) throw new Error("REPLIT_DOMAINS is not set");
-  return `https://${domain}/api/auth/google/callback`;
+  if (domain) return `https://${domain}/api/auth/google/callback`;
+
+  // Fall back to the request's own host — works on any single-domain host
+  // (e.g. Google Cloud Run) where REPLIT_DOMAINS is absent.
+  const host = req.get("host");
+  if (host) return `${req.protocol}://${host}/api/auth/google/callback`;
+
+  throw new Error(
+    "Unable to determine the OAuth redirect URI (set PUBLIC_BASE_URL).",
+  );
 }
 
 function base64url(buf: Buffer): string {
@@ -182,7 +196,7 @@ router.get("/auth/google", (req: Request, res: Response): void => {
 
   const params = new URLSearchParams({
     client_id: config.clientId,
-    redirect_uri: getRedirectUri(),
+    redirect_uri: getRedirectUri(req),
     response_type: "code",
     scope: "openid email profile",
     state,
@@ -228,7 +242,7 @@ router.get(
           code,
           client_id: config.clientId,
           client_secret: config.clientSecret,
-          redirect_uri: getRedirectUri(),
+          redirect_uri: getRedirectUri(req),
           grant_type: "authorization_code",
           code_verifier: verifier,
         }),

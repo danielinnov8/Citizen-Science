@@ -1,3 +1,1 @@
-- [api-server externalized deps](api-server-externalized-deps.md) — esbuild externals (e.g. `@google/*`, `protobufjs`) must be direct deps of api-server, not just a workspace lib, or the server crashes with ERR_MODULE_NOT_FOUND at startup.
-- [AI clients lazy-init](ai-clients-lazy-init.md) — server AI integration clients must construct on first use, not at import, or a missing provider env var crash-loops the whole server (breaks Cloud Run).
-- [orval hook queryKey](orval-query-options-querykey.md) — passing custom `query` options to a generated `use*` query hook needs `queryKey: get*QueryKey()` too, or TS2741.
+- [Single-origin Cloud Run](single-origin-cloud-run.md) — Cloud Run image serves SPA + API from one origin so SameSite=Lax cookies work; build/redirect/env gotchas.
