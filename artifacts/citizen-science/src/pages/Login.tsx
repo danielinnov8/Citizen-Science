@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { Atom, Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
+import { LogoIcon } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -105,9 +106,7 @@ export function Login() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-4">
       <div className="flex items-center gap-2 font-semibold text-xl tracking-tight mb-8">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
-          <Atom className="h-6 w-6" />
-        </div>
+        <LogoIcon className="h-10 w-10" />
         <span>Citizen Science</span>
       </div>
 

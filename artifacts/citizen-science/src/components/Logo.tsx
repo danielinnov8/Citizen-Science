@@ -25,11 +25,18 @@ export function LogoIcon({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm",
+        "relative inline-flex items-center justify-center rounded-lg text-white",
+        "bg-gradient-to-br from-[#60A5FA] via-[#2563EB] to-[#1E3A8A]",
+        "ring-1 ring-[#D4AF37] ring-offset-0",
+        "shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),inset_0_-2px_3px_rgba(0,0,0,0.25),0_1px_2px_rgba(15,23,42,0.2)]",
         className,
       )}
     >
-      <AtomGlyph className="h-[62%] w-[62%]" />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-t from-transparent via-white/0 to-white/30"
+      />
+      <AtomGlyph className="relative h-[62%] w-[62%] drop-shadow-[0_1px_0.5px_rgba(0,0,0,0.3)]" />
     </span>
   );
 }

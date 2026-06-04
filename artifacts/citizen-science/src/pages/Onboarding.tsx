@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "wouter";
-import { Atom, ChevronRight, Check } from "lucide-react";
+import { ChevronRight, Check } from "lucide-react";
+import { LogoIcon } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -77,9 +78,7 @@ export function Onboarding() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center p-4 pt-12 lg:pt-24">
       <div className="flex items-center gap-2 font-semibold text-lg tracking-tight mb-12">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
-          <Atom className="h-5 w-5" />
-        </div>
+        <LogoIcon className="h-8 w-8" />
         <span>Citizen Science</span>
       </div>
 

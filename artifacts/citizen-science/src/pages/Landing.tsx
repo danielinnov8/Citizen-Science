@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
-import { Atom, Beaker, Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown } from "lucide-react";
+import { Beaker, Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CATEGORIES } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
-import { Logo } from "@/components/Logo";
+import { Logo, LogoIcon } from "@/components/Logo";
 
 type DashboardSlide = {
   slug: string;
@@ -839,9 +839,7 @@ export function Landing() {
       <header className="sticky top-0 z-50 w-full border-b border-[#E2E8F0] bg-white/80 backdrop-blur-md">
         <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
           <div className="flex items-center gap-2 font-semibold text-lg tracking-tight">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
-              <Atom className="h-5 w-5" />
-            </div>
+            <LogoIcon className="h-8 w-8" />
             <span>Citizen Science</span>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[#64748B]">
