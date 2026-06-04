@@ -1,12 +1,13 @@
 import * as React from "react";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Compass, Beaker, BookA, TrendingUp, User, LogOut } from "lucide-react";
+import { LayoutDashboard, Compass, Beaker, BookA, TrendingUp, User, Users, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: Compass, label: "Categories", href: "/categories" },
   { icon: Beaker, label: "Experiments", href: "/experiments" },
+  { icon: Users, label: "Directory", href: "/directory" },
   { icon: BookA, label: "Notebook", href: "/notebook" },
   { icon: TrendingUp, label: "Progress", href: "/progress" },
   { icon: User, label: "Profile", href: "/profile" },

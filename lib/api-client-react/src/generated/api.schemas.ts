@@ -40,3 +40,33 @@ export interface LoginInput {
   /** @minLength 1 */
   password: string;
 }
+
+export interface ProfileSource {
+  title: string;
+  url: string;
+}
+
+export interface FeaturedProfileSummary {
+  id: string;
+  slug: string;
+  name: string;
+  field: string;
+  era: string;
+  /** @nullable */
+  imageUrl: string | null;
+}
+
+export interface FeaturedProfile {
+  id: string;
+  slug: string;
+  name: string;
+  field: string;
+  era: string;
+  summary: string;
+  contributions: string[];
+  quotes: string[];
+  /** @nullable */
+  imageUrl: string | null;
+  relatedCategorySlugs: string[];
+  sources: ProfileSource[];
+}

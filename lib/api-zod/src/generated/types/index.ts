@@ -8,7 +8,10 @@
 
 export * from "./authUser";
 export * from "./error";
+export * from "./featuredProfile";
+export * from "./featuredProfileSummary";
 export * from "./healthStatus";
 export * from "./loginInput";
 export * from "./messageResponse";
+export * from "./profileSource";
 export * from "./registerInput";

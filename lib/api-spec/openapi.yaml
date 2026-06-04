@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: auth
     description: Authentication operations
+  - name: profiles
+    description: Featured scientists & inventors directory
 paths:
   /healthz:
     get:
@@ -144,6 +146,48 @@ paths:
       responses:
         "302":
           description: Redirect back into the web app
+  /profiles:
+    get:
+      operationId: listFeaturedProfiles
+      tags: [profiles]
+      summary: List featured scientists and inventors
+      description: >
+        Returns the directory of featured scientists and inventors as
+        lightweight summaries (no contributions, quotes, or citations).
+      responses:
+        "200":
+          description: The directory listing
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeaturedProfileSummary"
+  /profiles/{slug}:
+    get:
+      operationId: getFeaturedProfile
+      tags: [profiles]
+      summary: Get a featured profile by slug
+      description: Returns the full profile for a single scientist or inventor.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeaturedProfile"
+        "404":
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     HealthStatus:
@@ -211,3 +255,80 @@ components:
       required:
         - email
         - password
+    ProfileSource:
+      type: object
+      properties:
+        title:
+          type: string
+        url:
+          type: string
+      required:
+        - title
+        - url
+    FeaturedProfileSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+        name:
+          type: string
+        field:
+          type: string
+        era:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+      required:
+        - id
+        - slug
+        - name
+        - field
+        - era
+        - imageUrl
+    FeaturedProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+        name:
+          type: string
+        field:
+          type: string
+        era:
+          type: string
+        summary:
+          type: string
+        contributions:
+          type: array
+          items:
+            type: string
+        quotes:
+          type: array
+          items:
+            type: string
+        imageUrl:
+          type: ["string", "null"]
+        relatedCategorySlugs:
+          type: array
+          items:
+            type: string
+        sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProfileSource"
+      required:
+        - id
+        - slug
+        - name
+        - field
+        - era
+        - summary
+        - contributions
+        - quotes
+        - imageUrl
+        - relatedCategorySlugs
+        - sources

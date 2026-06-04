@@ -2,4 +2,6 @@
 - [Replit AI proxy not on Cloud Run](replit-ai-proxy-not-on-cloud-run.md) — OpenAI-via-Replit-proxy routes throw outside Replit; use own GEMINI_API_KEY for deployed AI calls.
 - [Gemini Google Search grounding](gemini-search-grounding.md) — enable via googleSearch tool; thinkingBudget:0 silently disables search — keep thinking ON when grounding.
 - [Gemini free-tier daily cap](gemini-free-tier-daily-cap.md) — own GEMINI_API_KEY ~20 req/day; 429 RESOURCE_EXHAUSTED blocks live testing, not a code bug.
+- [Gemini free-tier daily quota](gemini-free-tier-daily-quota.md) — ~20 grounded requests/DAY on free tier walls bulk seeds; daily 429 retryDelay is misleading, make seeds idempotent.
 - [Affiliate & referral links](affiliate-referral-links.md) — referral = full URL slot (not base+code); Amazon Associates tag auto-appended to amazon.* links, streaming-safe.
+- [Background procs die between bash calls](background-procs-die-between-bash-calls.md) — nohup/setsid don't survive; use foreground timeout-bounded idempotent batches.

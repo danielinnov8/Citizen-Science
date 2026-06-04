@@ -19,6 +19,8 @@ import type {
 import type {
   AuthUser,
   Error,
+  FeaturedProfile,
+  FeaturedProfileSummary,
   HealthStatus,
   LoginInput,
   MessageResponse,
@@ -588,6 +590,172 @@ export function useGoogleAuthCallback<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGoogleAuthCallbackQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the directory of featured scientists and inventors as lightweight summaries (no contributions, quotes, or citations).
+
+ * @summary List featured scientists and inventors
+ */
+export const getListFeaturedProfilesUrl = () => {
+  return `/api/profiles`;
+};
+
+export const listFeaturedProfiles = async (
+  options?: RequestInit,
+): Promise<FeaturedProfileSummary[]> => {
+  return customFetch<FeaturedProfileSummary[]>(getListFeaturedProfilesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListFeaturedProfilesQueryKey = () => {
+  return [`/api/profiles`] as const;
+};
+
+export const getListFeaturedProfilesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listFeaturedProfiles>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listFeaturedProfiles>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListFeaturedProfilesQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listFeaturedProfiles>>
+  > = ({ signal }) => listFeaturedProfiles({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listFeaturedProfiles>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListFeaturedProfilesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listFeaturedProfiles>>
+>;
+export type ListFeaturedProfilesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List featured scientists and inventors
+ */
+
+export function useListFeaturedProfiles<
+  TData = Awaited<ReturnType<typeof listFeaturedProfiles>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listFeaturedProfiles>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListFeaturedProfilesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the full profile for a single scientist or inventor.
+ * @summary Get a featured profile by slug
+ */
+export const getGetFeaturedProfileUrl = (slug: string) => {
+  return `/api/profiles/${slug}`;
+};
+
+export const getFeaturedProfile = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<FeaturedProfile> => {
+  return customFetch<FeaturedProfile>(getGetFeaturedProfileUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetFeaturedProfileQueryKey = (slug: string) => {
+  return [`/api/profiles/${slug}`] as const;
+};
+
+export const getGetFeaturedProfileQueryOptions = <
+  TData = Awaited<ReturnType<typeof getFeaturedProfile>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getFeaturedProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetFeaturedProfileQueryKey(slug);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getFeaturedProfile>>
+  > = ({ signal }) => getFeaturedProfile(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getFeaturedProfile>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetFeaturedProfileQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getFeaturedProfile>>
+>;
+export type GetFeaturedProfileQueryError = ErrorType<Error>;
+
+/**
+ * @summary Get a featured profile by slug
+ */
+
+export function useGetFeaturedProfile<
+  TData = Awaited<ReturnType<typeof getFeaturedProfile>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getFeaturedProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetFeaturedProfileQueryOptions(slug, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

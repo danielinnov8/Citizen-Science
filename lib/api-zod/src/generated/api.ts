@@ -64,3 +64,47 @@ export const GetCurrentUserResponse = zod.object({
   name: zod.string().nullable(),
   image: zod.string().nullable(),
 });
+
+/**
+ * Returns the directory of featured scientists and inventors as lightweight summaries (no contributions, quotes, or citations).
+
+ * @summary List featured scientists and inventors
+ */
+export const ListFeaturedProfilesResponseItem = zod.object({
+  id: zod.string(),
+  slug: zod.string(),
+  name: zod.string(),
+  field: zod.string(),
+  era: zod.string(),
+  imageUrl: zod.string().nullable(),
+});
+export const ListFeaturedProfilesResponse = zod.array(
+  ListFeaturedProfilesResponseItem,
+);
+
+/**
+ * Returns the full profile for a single scientist or inventor.
+ * @summary Get a featured profile by slug
+ */
+export const GetFeaturedProfileParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetFeaturedProfileResponse = zod.object({
+  id: zod.string(),
+  slug: zod.string(),
+  name: zod.string(),
+  field: zod.string(),
+  era: zod.string(),
+  summary: zod.string(),
+  contributions: zod.array(zod.string()),
+  quotes: zod.array(zod.string()),
+  imageUrl: zod.string().nullable(),
+  relatedCategorySlugs: zod.array(zod.string()),
+  sources: zod.array(
+    zod.object({
+      title: zod.string(),
+      url: zod.string(),
+    }),
+  ),
+});

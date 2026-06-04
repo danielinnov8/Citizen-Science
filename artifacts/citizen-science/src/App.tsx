@@ -17,6 +17,8 @@ import { ExperimentDetail } from "@/pages/ExperimentDetail";
 import { Notebook } from "@/pages/Notebook";
 import { ProgressPage } from "@/pages/Progress";
 import { Profile } from "@/pages/Profile";
+import { Directory } from "@/pages/Directory";
+import { ProfileDetail } from "@/pages/ProfileDetail";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import Brand from "@/pages/Brand";
@@ -65,6 +67,12 @@ function Router() {
       </Route>
       <Route path="/experiments/:id">
         <ProtectedRoute><AppShell><ExperimentDetail /></AppShell></ProtectedRoute>
+      </Route>
+      <Route path="/directory">
+        <ProtectedRoute><AppShell><Directory /></AppShell></ProtectedRoute>
+      </Route>
+      <Route path="/directory/:slug">
+        <ProtectedRoute><AppShell><ProfileDetail /></AppShell></ProtectedRoute>
       </Route>
       <Route path="/notebook">
         <ProtectedRoute><AppShell><Notebook /></AppShell></ProtectedRoute>
