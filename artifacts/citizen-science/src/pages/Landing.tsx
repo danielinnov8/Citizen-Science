@@ -876,7 +876,7 @@ export function Landing() {
                 <h1 className="text-5xl lg:text-6xl font-serif tracking-tight text-[#0F172A] leading-[1.1] mb-6">
                   Run Your Own Experiments. <br className="hidden lg:block" />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600 font-sans font-bold tracking-tight">
-                    Learn Science by Doing.
+                    Learn Science <br />by Doing.
                   </span>
                 </h1>
                 <p className="text-lg text-[#64748B] mb-8 leading-relaxed">
