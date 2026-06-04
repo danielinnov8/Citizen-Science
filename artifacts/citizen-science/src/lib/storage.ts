@@ -97,6 +97,5 @@ export const storage = {
     localStorage.removeItem("cs_started_experiments");
     localStorage.removeItem("cs_completed_tutorials");
     localStorage.removeItem("cs_onboarded");
-    localStorage.removeItem("cs_auth");
   }
 };

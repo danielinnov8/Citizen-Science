@@ -1,6 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { getOpenAI } from "@workspace/integrations-openai-ai-server";
 import { analyzeFieldNotes } from "@workspace/integrations-gemini-ai-server";
+import { requireAuth } from "../middlewares/requireAuth";
 import { LABS } from "../lib/labs";
 
 const router: IRouter = Router();
@@ -78,15 +79,7 @@ Safety: Citizen Science is for safe, low-risk home experiments. If a request inv
 
 Stay focused on science learning and experiment design. If asked something off-topic, briefly redirect.`;
 
-router.post("/agent/chat", async (req: Request, res: Response) => {
-  // Lightweight gate matching the app's client-side auth model (no real
-  // backend sessions exist). The web client always sends this header after
-  // sign-in. This deters casual direct API calls but is not real security.
-  if (req.header("x-cs-auth") !== "1") {
-    res.status(401).json({ error: "Sign in to use the science copilot." });
-    return;
-  }
-
+router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
   const body = req.body as ChatBody;
   const incoming = Array.isArray(body?.messages) ? body.messages : [];
 
@@ -163,12 +156,7 @@ router.post("/agent/chat", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/agent/process-observation", async (req: Request, res: Response) => {
-  if (req.header("x-cs-auth") !== "1") {
-    res.status(401).json({ error: "Sign in to use field-note analysis." });
-    return;
-  }
-
+router.post("/agent/process-observation", requireAuth, async (req: Request, res: Response) => {
   const rawText =
     typeof (req.body as { rawText?: unknown })?.rawText === "string"
       ? (req.body as { rawText: string }).rawText

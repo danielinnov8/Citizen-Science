@@ -8,3 +8,35 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface Error {
+  error: string;
+}
+
+export interface MessageResponse {
+  success: boolean;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  /** @nullable */
+  name: string | null;
+  /** @nullable */
+  image: string | null;
+}
+
+export interface RegisterInput {
+  /** @minLength 3 */
+  email: string;
+  /** @minLength 8 */
+  password: string;
+  /** @minLength 1 */
+  name?: string;
+}
+
+export interface LoginInput {
+  email: string;
+  /** @minLength 1 */
+  password: string;
+}

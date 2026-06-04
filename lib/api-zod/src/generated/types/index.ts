@@ -6,4 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./authUser";
+export * from "./error";
 export * from "./healthStatus";
+export * from "./loginInput";
+export * from "./messageResponse";
+export * from "./registerInput";

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CATEGORIES } from "@/lib/categories";
+import { useAuth } from "@/lib/auth";
 
 type DashboardSlide = {
   slug: string;
@@ -388,6 +389,7 @@ const ALL_PROMPTS: string[] = PROMPT_GROUPS.flatMap(g => g.prompts);
 
 function AskAgent() {
   const [, navigate] = useLocation();
+  const { isAuthenticated } = useAuth();
   const [value, setValue] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [focused, setFocused] = useState(false);
@@ -404,14 +406,12 @@ function AskAgent() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const prompt = value.trim() || ALL_PROMPTS[placeholderIndex];
-    let isAuthed = false;
     try {
       window.localStorage.setItem("cs.pendingPrompt", prompt);
-      isAuthed = window.localStorage.getItem("cs_auth") === "true";
     } catch {
       // ignore storage failures
     }
-    navigate(isAuthed ? "/agent" : "/login");
+    navigate(isAuthenticated ? "/agent" : "/login");
   };
 
   const handleChip = (prompt: string) => {

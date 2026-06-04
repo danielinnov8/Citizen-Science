@@ -212,7 +212,7 @@ export function Agent() {
     try {
       const res = await fetch(`/api/agent/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-cs-auth": "1" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [...history, userMsg].map(m => ({ role: m.role, content: m.content })),
         }),

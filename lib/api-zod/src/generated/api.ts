@@ -14,3 +14,53 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Creates an account with email/password and starts a session.
+ * @summary Register a new account
+ */
+export const registerBodyEmailMin = 3;
+
+export const registerBodyPasswordMin = 8;
+
+export const RegisterBody = zod.object({
+  email: zod.string().email().min(registerBodyEmailMin),
+  password: zod.string().min(registerBodyPasswordMin),
+  name: zod.string().min(1).optional(),
+});
+
+/**
+ * Verifies credentials and starts a session.
+ * @summary Log in with email and password
+ */
+
+export const LoginBody = zod.object({
+  email: zod.string().email(),
+  password: zod.string().min(1),
+});
+
+export const LoginResponse = zod.object({
+  id: zod.string(),
+  email: zod.string(),
+  name: zod.string().nullable(),
+  image: zod.string().nullable(),
+});
+
+/**
+ * Destroys the current session and clears the session cookie.
+ * @summary Log out
+ */
+export const LogoutResponse = zod.object({
+  success: zod.boolean(),
+});
+
+/**
+ * Returns the user for the active session, or 401 if not signed in.
+ * @summary Get the current authenticated user
+ */
+export const GetCurrentUserResponse = zod.object({
+  id: zod.string(),
+  email: zod.string(),
+  name: zod.string().nullable(),
+  image: zod.string().nullable(),
+});

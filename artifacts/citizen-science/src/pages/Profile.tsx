@@ -17,14 +17,14 @@ export function Profile() {
     if (raw) prefs = JSON.parse(raw);
   } catch (e) {}
 
-  const handleSignOut = () => {
-    signOut();
+  const handleSignOut = async () => {
+    await signOut();
     setLocation("/");
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     storage.clearAll();
-    signOut();
+    await signOut();
     setLocation("/");
   };
 
@@ -47,7 +47,7 @@ export function Profile() {
             <h2 className="text-2xl font-bold">{user?.name}</h2>
             <p className="text-[#64748B] mb-6">{user?.email}</p>
             <div className="flex gap-4">
-              <Button variant="outline" onClick={handleSignOut}>
+              <Button variant="outline" onClick={() => void handleSignOut()}>
                 <LogOut className="mr-2 h-4 w-4" /> Sign Out
               </Button>
             </div>
@@ -85,7 +85,7 @@ export function Profile() {
         <CardContent className="p-6">
           <h3 className="font-semibold text-lg text-red-900 mb-2">Danger Zone</h3>
           <p className="text-sm text-red-700 mb-6">Resetting prototype data will delete all your notebook entries, started experiments, and preferences from localStorage.</p>
-          <Button variant="destructive" onClick={handleReset}>
+          <Button variant="destructive" onClick={() => void handleReset()}>
             <Trash2 className="mr-2 h-4 w-4" /> Reset Prototype Data
           </Button>
         </CardContent>
