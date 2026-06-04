@@ -1,5 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { openai } from "@workspace/integrations-openai-ai-server";
+import { analyzeFieldNotes } from "@workspace/integrations-gemini-ai-server";
 import { LABS } from "../lib/labs";
 
 const router: IRouter = Router();
@@ -159,6 +160,31 @@ router.post("/agent/chat", async (req: Request, res: Response) => {
     }
   } finally {
     if (!clientGone) res.end();
+  }
+});
+
+router.post("/agent/process-observation", async (req: Request, res: Response) => {
+  if (req.header("x-cs-auth") !== "1") {
+    res.status(401).json({ error: "Sign in to use field-note analysis." });
+    return;
+  }
+
+  const rawText =
+    typeof (req.body as { rawText?: unknown })?.rawText === "string"
+      ? (req.body as { rawText: string }).rawText
+      : "";
+
+  if (!rawText.trim()) {
+    res.status(400).json({ error: "rawText is required" });
+    return;
+  }
+
+  try {
+    const data = await analyzeFieldNotes(rawText);
+    res.json({ success: true, data });
+  } catch (err) {
+    req.log?.error({ err }, "field note analysis failed");
+    res.status(500).json({ error: "Failed to analyze field notes." });
   }
 });
 
