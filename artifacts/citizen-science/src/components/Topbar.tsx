@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Atom } from "lucide-react";
 import { Link } from "wouter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/lib/auth";
+import { Logo } from "@/components/Logo";
 
 export function Topbar() {
   const { isAuthenticated, user } = useAuth();
@@ -10,11 +10,8 @@ export function Topbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#E2E8F0] bg-white/80 backdrop-blur-md">
       <div className="container mx-auto flex h-14 max-w-7xl items-center justify-between px-4 lg:px-8">
-        <Link href={isAuthenticated ? "/dashboard" : "/"} className="flex items-center gap-2 font-semibold text-lg tracking-tight">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
-            <Atom className="h-5 w-5" />
-          </div>
-          <span className="text-[#0F172A]">Citizen Science</span>
+        <Link href={isAuthenticated ? "/dashboard" : "/"} className="flex items-center">
+          <Logo variant="full" />
         </Link>
 
         {isAuthenticated ? (

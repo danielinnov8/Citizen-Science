@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Link } from "wouter";
-import { Atom, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 type LegalSection = {
   heading: string;
@@ -23,11 +24,8 @@ export function LegalPage({ title, lastUpdated, intro, sections }: LegalPageProp
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col">
       <header className="sticky top-0 z-50 w-full border-b border-[#E2E8F0] bg-white/80 backdrop-blur-md">
         <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 font-semibold text-lg tracking-tight">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
-              <Atom className="h-5 w-5" />
-            </div>
-            <span>Citizen Science</span>
+          <Link href="/" className="flex items-center">
+            <Logo variant="full" />
           </Link>
           <Link
             href="/"
@@ -71,12 +69,10 @@ export function LegalPage({ title, lastUpdated, intro, sections }: LegalPageProp
 
       <footer className="bg-[#0F172A] text-[#64748B] py-12">
         <div className="container mx-auto max-w-7xl px-4 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2 font-semibold text-white">
-            <Atom className="h-5 w-5" />
-            <span>Citizen Science</span>
-          </div>
+          <Logo variant="full" theme="dark" />
           <div className="flex gap-6 text-sm">
             <Link href="/categories" className="hover:text-white transition-colors">Categories</Link>
+            <Link href="/brand" className="hover:text-white transition-colors">Brand</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
           </div>

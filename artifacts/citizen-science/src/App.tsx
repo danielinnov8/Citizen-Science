@@ -19,6 +19,7 @@ import { ProgressPage } from "@/pages/Progress";
 import { Profile } from "@/pages/Profile";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
+import Brand from "@/pages/Brand";
 
 import { AppShell } from "@/components/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
+      <Route path="/brand" component={Brand} />
       
       {/* Protected Routes */}
       <Route path="/onboarding">

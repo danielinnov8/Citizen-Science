@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CATEGORIES } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
+import { Logo } from "@/components/Logo";
 
 type DashboardSlide = {
   slug: string;
@@ -1082,14 +1083,12 @@ export function Landing() {
 
       <footer className="bg-[#0F172A] text-[#64748B] py-12">
         <div className="container mx-auto max-w-7xl px-4 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2 font-semibold text-white">
-            <Atom className="h-5 w-5" />
-            <span>Citizen Science</span>
-          </div>
+          <Logo variant="full" theme="dark" />
           <div className="flex gap-6 text-sm">
             <Link href="/categories" className="hover:text-white transition-colors">Categories</Link>
             <a href="#tools" className="hover:text-white transition-colors">Tools</a>
             <a href="#safety" className="hover:text-white transition-colors">Safety</a>
+            <Link href="/brand" className="hover:text-white transition-colors">Brand</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
           </div>
