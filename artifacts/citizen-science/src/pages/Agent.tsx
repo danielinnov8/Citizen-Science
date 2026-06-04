@@ -328,7 +328,12 @@ export function Agent() {
             <Wand2 className="h-4 w-4" />
           </div>
           <div className="flex flex-col leading-tight">
-            <h1 className="text-base font-semibold tracking-tight text-[#0F172A]">Science copilot</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base font-semibold tracking-tight text-[#0F172A]">Science copilot</h1>
+              <span className="rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[10px] font-medium text-[#64748B]">
+                Gemini 2.5 Flash
+              </span>
+            </div>
             <p className="text-xs text-[#64748B]">
               Plan an experiment, then we'll point you to the right module.
             </p>
