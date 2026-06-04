@@ -1,0 +1,128 @@
+Let's implement the scientist recommendation engine capability into our application stack. We want the chat agent to autonomously determine when a user's question relates to a specific scientific field (like astronomy or primatology) and recommend a featured specialist's profile card in the stream.
+
+Please create or update the following architectural files exactly as configured below:
+
+1. Create a tools file to declare our Gemini Function and mock dataset registry:
+File: lib/db/integrations-gemini-ai-server/tools.ts
+--------------------------------------------------
+import { Type, FunctionDeclaration } from '@google/genai';
+
+export const featuredScientists = [
+  {
+    id: "neil-degrasse-tyson",
+    name: "Dr. Neil deGrasse Tyson",
+    specialty: "Astronomy, Astrophysics, and Space Exploration",
+    profileUrl: "https://citizen-science.org/profiles/neil-degrasse-tyson",
+    bio: "Director of the Hayden Planetarium, specializing in star formation, exploding stars, and the structure of our Milky Way."
+  },
+  {
+    id: "jane-goodall",
+    name: "Dr. Jane Goodall",
+    specialty: "Primatology, Ethology, and Wildlife Conservation",
+    profileUrl: "https://citizen-science.org/profiles/jane-goodall",
+    bio: "Founder of the Jane Goodall Institute, pioneering global research on chimpanzee social and family interactions."
+  }
+];
+
+export const recommendScientistTool: FunctionDeclaration = {
+  name: 'recommendFeaturedScientist',
+  description: 'Recommends a verified platform scientist or specialist profile when a user asks questions explicitly related to a specific scientific domain or field of study.',
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      scientificField: {
+        type: Type.STRING,
+        description: 'The specific science vertical extracted from the chat context (e.g., astronomy, mycology, primatology).'
+      }
+    },
+    required: ['scientificField']
+  }
+};
+
+export function executeScientistRecommendation(scientificField: string) {
+  const fieldLower = scientificField.toLowerCase();
+  const match = featuredScientists.find(s => 
+    s.specialty.toLowerCase().includes(fieldLower) || 
+    fieldLower.includes(s.specialty.split(',')[0].toLowerCase())
+  );
+
+  if (match) {
+    return {
+      found: true,
+      recommendationCard: {
+        name: match.name,
+        specialty: match.specialty,
+        profileUrl: match.profileUrl,
+        message: `I highly recommend consulting with ${match.name}, our featured specialist in ${scientificField}. You can ask them direct questions on their profile page!`
+      }
+    };
+  }
+  return { found: false, message: "No explicit match in current directory." };
+}
+
+
+2. Refactor our Express chat handler to configure the function execution tool parameters and emit the metadata chunk across the live Server-Sent Events (SSE) pipeline:
+File: server/routes/chat.ts
+---------------------------
+import { Router } from 'express';
+import { GoogleGenAI } from '@google/genai';
+import { recommendScientistTool, executeScientistRecommendation } from '../../lib/db/integrations-gemini-ai-server/tools';
+
+const router = Router();
+
+router.post('/api/agent/chat', async (req, res) => {
+  const { message } = req.body;
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: message,
+      config: {
+        tools: [{ functionDeclarations: [recommendScientistTool] }]
+      }
+    });
+
+    const functionCall = response.candidates?.[0]?.content?.parts?.find(p => p.functionCall)?.functionCall;
+
+    if (functionCall && functionCall.name === 'recommendFeaturedScientist') {
+      const args = functionCall.args as { scientificField: string };
+      const result = executeScientistRecommendation(args.scientificField);
+
+      if (result.found) {
+        // Emit the structural recommended scientist payload metadata immediately
+        res.write(`data: ${JSON.stringify({ recommendedScientist: result.recommendationCard })}\n\n`);
+      }
+
+      // Feed function response context back into Gemini to complete the loop and synthesize the user response
+      const finalResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [
+          { role: 'user', parts: [{ text: message }] },
+          { role: 'model', parts: [{ functionCall }] },
+          { role: 'user', parts: [{ functionResponse: { name: functionCall.name, response: result } }] }
+        ]
+      });
+
+      res.write(`data: ${JSON.stringify({ text: finalResponse.text })}\n\n`);
+    } else {
+      res.write(`data: ${JSON.stringify({ text: response.text })}\n\n`);
+    }
+
+  } catch (error) {
+    if (req.log) req.log.error(error, "Recommendation engine failure.");
+  } finally {
+    res.write('data: [DONE]\n\n');
+    res.end();
+  }
+});
+
+export default router;
+
+Please apply these updates, verify the build paths compile correctly with our existing layout layout tokens, and let me know when it is ready to test!
