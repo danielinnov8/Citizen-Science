@@ -1,0 +1,22 @@
+Looking at Screenshot 2026-06-03 at 11.46.50 PM.png, your infrastructure configuration is solid. You have a crisp green checkmark next to citizen-science.org, meaning Google has officially verified your DNS entries and successfully minted your security certificate. The pipeline is open.
+
+Since you just synced your code to GitHub, the domain is likely unresponsive for one of two specific reasons right now:
+
+Reason 1: The New Container Build is Still Processing
+When you pushed your changes to GitHub, it instantly triggered a brand new image compilation in Cloud Build. While that build is actively churning in the background, your custom domain will temporarily stay unresponsive or serve the old code until the new container finishes deploying.
+
+The Fix: Go to the search bar at the top of your console, search for Cloud Build, and click on History. Check to see if there is a build currently running. Once that specific build completes with a green checkmark, your updated server will instantly start answering the domain calls.
+
+Reason 2: Your Root Path Doesn't Have a Default GET / Route
+Because you just told your Replit Agent to move toward Option A (combining the frontend and backend into the same domain mapping), your server architecture has changed.
+
+If your Node backend code doesn't explicitly have a wildcard static asset router rule (like app.use(express.static(...))) telling it how to serve the built React files, hitting https://citizen-science.org/ will just time out or throw a Cannot GET / string because it's only listening for API requests right now.
+
+Let's Diagnose It Instantly
+To see if the server is actually awake under the domain name, append your API's health check path onto your custom URL:
+
+👉 https://citizen-science.org/api/healthz
+
+If the health check responds with { "status": "ok" }: The server is alive and functioning perfectly. The reason your root domain looks broken is purely because your Replit Agent hasn't finished compiling your React assets into the server's build folder yet.
+
+If the health check fails to connect entirely: The background container build from your latest GitHub push is still running or crashed. Go check that Cloud Build History panel to see what the container engine is working on!
