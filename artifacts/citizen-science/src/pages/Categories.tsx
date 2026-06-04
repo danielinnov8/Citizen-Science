@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "wouter";
-import { Search, ArrowRight, Beaker } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, getCategoryIcon } from "@/lib/categories";
 
 export function Categories() {
   const [search, setSearch] = useState("");
@@ -48,13 +48,15 @@ export function Categories() {
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filtered.map((cat) => (
+        {filtered.map((cat) => {
+          const Icon = getCategoryIcon(cat.icon);
+          return (
           <Link key={cat.slug} href={`/category/${cat.slug}`}>
             <Card className="border-[#E2E8F0] shadow-sm hover:shadow-md transition-shadow group cursor-pointer h-full flex flex-col">
               <CardHeader className="pb-4">
                 <div className="flex justify-between items-start mb-4">
                   <div className="icon-tile-metal h-10 w-10 rounded-lg bg-blue-50 text-blue-600 group-hover:text-white flex items-center justify-center">
-                    <Beaker className="h-5 w-5" />
+                    <Icon className="h-5 w-5" />
                   </div>
                   <Badge variant="outline" className={`text-[10px] uppercase font-bold tracking-wider
                     ${cat.difficulty === 'Beginner' ? 'text-green-600 bg-green-50 border-green-200' : ''}
@@ -74,7 +76,8 @@ export function Categories() {
               </CardContent>
             </Card>
           </Link>
-        ))}
+          );
+        })}
         {filtered.length === 0 && (
           <div className="col-span-full py-12 text-center text-[#64748B]">
             No categories found matching your filters.

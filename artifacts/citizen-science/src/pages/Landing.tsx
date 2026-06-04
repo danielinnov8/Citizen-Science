@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
-import { Beaker, Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown } from "lucide-react";
+import { Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, getCategoryIcon } from "@/lib/categories";
 import { DEVICES } from "@/lib/devices";
 import { useAuth } from "@/lib/auth";
 import { Logo, LogoIcon } from "@/components/Logo";
@@ -969,13 +969,15 @@ export function Landing() {
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {CATEGORIES.slice(0, 8).map((cat, i) => (
+              {CATEGORIES.slice(0, 8).map((cat, i) => {
+                const Icon = getCategoryIcon(cat.icon);
+                return (
                 <Link key={i} href={`/category/${cat.slug}`}>
                   <Card className="border-[#E2E8F0] shadow-none hover:shadow-md transition-shadow group cursor-pointer h-full">
                     <CardHeader className="pb-4">
                       <div className="flex justify-between items-start mb-4">
                         <div className="icon-tile-metal h-10 w-10 rounded-lg bg-blue-50 text-blue-600 group-hover:text-white flex items-center justify-center">
-                          <Beaker className="h-5 w-5" />
+                          <Icon className="h-5 w-5" />
                         </div>
                         <Badge variant="outline" className={`text-[10px] uppercase font-bold tracking-wider
                           ${cat.difficulty === 'Beginner' ? 'text-green-600 bg-green-50 border-green-200' : ''}
@@ -995,7 +997,8 @@ export function Landing() {
                     </CardContent>
                   </Card>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
