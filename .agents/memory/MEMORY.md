@@ -1,1 +1,2 @@
 - [Single-origin Cloud Run](single-origin-cloud-run.md) — Cloud Run image serves SPA + API from one origin so SameSite=Lax cookies work; build/redirect/env gotchas.
+- [Replit AI proxy not on Cloud Run](replit-ai-proxy-not-on-cloud-run.md) — OpenAI-via-Replit-proxy routes throw outside Replit; use own GEMINI_API_KEY for deployed AI calls.

@@ -101,3 +101,57 @@ export async function analyzeFieldNotes(rawText: string): Promise<FieldNoteAnaly
 
   return JSON.parse(text) as FieldNoteAnalysis;
 }
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface StreamChatOptions {
+  signal?: AbortSignal;
+  maxOutputTokens?: number;
+}
+
+// Stream a multi-turn chat completion from Gemini, yielding text deltas.
+// Uses the user's own GEMINI_API_KEY so it works anywhere (including Google
+// Cloud Run), unlike the Replit AI proxy. Thinking is disabled so the token
+// budget goes to the actual reply and latency stays low for this routing chat.
+export async function* streamChat(
+  systemPrompt: string,
+  messages: ChatMessage[],
+  options: StreamChatOptions = {},
+): AsyncGenerator<string> {
+  // Gemini requires the conversation to start with a user turn and uses the
+  // role name "model" instead of "assistant".
+  const trimmed = [...messages];
+  while (trimmed.length > 0 && trimmed[0].role !== "user") {
+    trimmed.shift();
+  }
+
+  if (trimmed.length === 0) {
+    throw new Error("streamChat requires at least one user message");
+  }
+
+  const contents = trimmed.map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }],
+  }));
+
+  const stream = await getGenAI().models.generateContentStream({
+    model: "gemini-2.5-flash",
+    contents,
+    config: {
+      systemInstruction: systemPrompt,
+      maxOutputTokens: options.maxOutputTokens ?? 1024,
+      thinkingConfig: { thinkingBudget: 0 },
+      abortSignal: options.signal,
+    },
+  });
+
+  for await (const chunk of stream) {
+    const text = chunk.text;
+    if (text) {
+      yield text;
+    }
+  }
+}

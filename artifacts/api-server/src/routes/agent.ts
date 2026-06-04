@@ -1,6 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { getOpenAI } from "@workspace/integrations-openai-ai-server";
-import { analyzeFieldNotes } from "@workspace/integrations-gemini-ai-server";
+import { analyzeFieldNotes, streamChat } from "@workspace/integrations-gemini-ai-server";
 import { requireAuth } from "../middlewares/requireAuth";
 import { LABS } from "../lib/labs";
 
@@ -124,22 +123,13 @@ router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
   });
 
   try {
-    const stream = await getOpenAI().chat.completions.create(
-      {
-        model: "gpt-5.4",
-        max_completion_tokens: 1024,
-        stream: true,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          ...messages,
-        ],
-      },
-      { signal: abort.signal },
-    );
+    const stream = streamChat(SYSTEM_PROMPT, messages, {
+      signal: abort.signal,
+      maxOutputTokens: 1024,
+    });
 
-    for await (const chunk of stream) {
+    for await (const content of stream) {
       if (clientGone) break;
-      const content = chunk.choices[0]?.delta?.content;
       if (content) {
         send({ content });
       }

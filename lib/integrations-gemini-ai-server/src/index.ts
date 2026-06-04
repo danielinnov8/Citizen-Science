@@ -1,2 +1,7 @@
-export { analyzeFieldNotes } from "./client";
-export type { FieldNoteAnalysis, Measurement } from "./client";
+export { analyzeFieldNotes, streamChat } from "./client";
+export type {
+  FieldNoteAnalysis,
+  Measurement,
+  ChatMessage,
+  StreamChatOptions,
+} from "./client";
