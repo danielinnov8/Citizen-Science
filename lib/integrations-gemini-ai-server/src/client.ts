@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, type GenerateContentResponse } from "@google/genai";
 
 let client: GoogleGenAI | null = null;
 
@@ -18,6 +18,13 @@ function getGenAI(): GoogleGenAI {
 
   client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   return client;
+}
+
+// Whether a Gemini API key is configured. Lets callers decide how to degrade
+// (e.g. skip grounding, surface a clear message) before triggering a throw
+// from getGenAI(). Does not validate the key, only its presence.
+export function isGeminiConfigured(): boolean {
+  return !!process.env.GEMINI_API_KEY;
 }
 
 export interface Measurement {
@@ -102,6 +109,68 @@ export async function analyzeFieldNotes(rawText: string): Promise<FieldNoteAnaly
   return JSON.parse(text) as FieldNoteAnalysis;
 }
 
+export interface WebSource {
+  title: string;
+  url: string;
+}
+
+export interface ResearchResult {
+  text: string;
+  sources: WebSource[];
+}
+
+export interface ResearchOptions {
+  systemInstruction?: string;
+  maxOutputTokens?: number;
+  signal?: AbortSignal;
+}
+
+// Pull the de-duplicated list of web sources Gemini cited from the grounding
+// metadata. Search grounding returns these as `groundingChunks[].web`.
+function extractWebSources(response: GenerateContentResponse): WebSource[] {
+  const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
+  const sources: WebSource[] = [];
+  const seen = new Set<string>();
+
+  for (const chunk of chunks) {
+    const url = chunk.web?.uri;
+    if (!url || seen.has(url)) {
+      continue;
+    }
+    seen.add(url);
+    sources.push({ title: chunk.web?.title?.trim() || url, url });
+  }
+
+  return sources;
+}
+
+// Run a one-shot Gemini call with the built-in Google Search tool enabled and
+// return both the synthesized answer and the web sources it grounded on. This
+// is the reusable "research agent" foundation (Perplexity-style). Uses the
+// user's own GEMINI_API_KEY so it works on Cloud Run too.
+export async function researchWithSearch(
+  prompt: string,
+  options: ResearchOptions = {},
+): Promise<ResearchResult> {
+  const trimmed = prompt.trim();
+  if (!trimmed) {
+    throw new Error("prompt must not be empty");
+  }
+
+  const response = await getGenAI().models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: trimmed.slice(0, 8000),
+    config: {
+      systemInstruction: options.systemInstruction,
+      tools: [{ googleSearch: {} }],
+      maxOutputTokens: options.maxOutputTokens ?? 2048,
+      abortSignal: options.signal,
+    },
+  });
+
+  return { text: response.text ?? "", sources: extractWebSources(response) };
+}
+
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -110,6 +179,16 @@ export interface ChatMessage {
 export interface StreamChatOptions {
   signal?: AbortSignal;
   maxOutputTokens?: number;
+  // When true, enable Google Search grounding so replies can cite live web
+  // sources. Sources are emitted as a final chunk once the stream completes.
+  useSearch?: boolean;
+}
+
+// A streamed chat yields incremental text deltas and, when grounding is on, a
+// single trailing chunk carrying the de-duplicated web sources.
+export interface StreamChatChunk {
+  text?: string;
+  sources?: WebSource[];
 }
 
 // Stream a multi-turn chat completion from Gemini, yielding text deltas.
@@ -120,7 +199,7 @@ export async function* streamChat(
   systemPrompt: string,
   messages: ChatMessage[],
   options: StreamChatOptions = {},
-): AsyncGenerator<string> {
+): AsyncGenerator<StreamChatChunk> {
   // Gemini requires the conversation to start with a user turn and uses the
   // role name "model" instead of "assistant".
   const trimmed = [...messages];
@@ -143,15 +222,43 @@ export async function* streamChat(
     config: {
       systemInstruction: systemPrompt,
       maxOutputTokens: options.maxOutputTokens ?? 1024,
-      thinkingConfig: { thinkingBudget: 0 },
       abortSignal: options.signal,
+      // Enabling the built-in Google Search tool lets the model ground its
+      // reply in live web results; grounding metadata arrives across chunks.
+      // Thinking must stay on for grounding — with thinkingBudget 0 the model
+      // never decides to invoke the Search tool and just answers from memory.
+      // For the ungrounded path we disable thinking to keep latency low.
+      ...(options.useSearch
+        ? { tools: [{ googleSearch: {} }] }
+        : { thinkingConfig: { thinkingBudget: 0 } }),
     },
   });
+
+  const sources: WebSource[] = [];
+  const seen = new Set<string>();
 
   for await (const chunk of stream) {
     const text = chunk.text;
     if (text) {
-      yield text;
+      yield { text };
     }
+
+    if (options.useSearch) {
+      const groundingChunks = chunk.candidates?.[0]?.groundingMetadata?.groundingChunks;
+      if (groundingChunks) {
+        for (const gc of groundingChunks) {
+          const url = gc.web?.uri;
+          if (!url || seen.has(url)) {
+            continue;
+          }
+          seen.add(url);
+          sources.push({ title: gc.web?.title?.trim() || url, url });
+        }
+      }
+    }
+  }
+
+  if (sources.length > 0) {
+    yield { sources };
   }
 }

@@ -1,5 +1,9 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { analyzeFieldNotes, streamChat } from "@workspace/integrations-gemini-ai-server";
+import {
+  analyzeFieldNotes,
+  streamChat,
+  isGeminiConfigured,
+} from "@workspace/integrations-gemini-ai-server";
 import { requireAuth } from "../middlewares/requireAuth";
 import { LABS } from "../lib/labs";
 
@@ -74,6 +78,8 @@ Cost benchmarks you can rely on (always present these as approximate, not guaran
 Available labs:
 ${LABS.map(l => `- ${l.slug} — ${l.name} (${l.tier}): ${l.summary}`).join("\n")}
 
+You can search the live web when a question needs current facts, recent research, real products, or details you are unsure about. When you draw on web results, weave the facts naturally into your reply — the UI shows the underlying source links automatically, so do not paste raw URLs.
+
 Safety: Citizen Science is for safe, low-risk home experiments. If a request involves dangerous chemicals, biohazards, electricity, or anything risky, gently redirect to a safer version of the experiment. When recommending labs, remind the user that lab results are not medical advice.
 
 Stay focused on science learning and experiment design. If asked something off-topic, briefly redirect.`;
@@ -110,6 +116,7 @@ router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
 
   const abort = new AbortController();
   let clientGone = false;
+  let sentAny = false;
   const onClose = () => {
     if (clientGone) return;
     clientGone = true;
@@ -122,17 +129,53 @@ router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
     if (!res.writableEnded) onClose();
   });
 
-  try {
+  // Run one streaming pass. `useSearch` enables Google Search grounding so
+  // replies can cite live web sources; sources arrive as a trailing chunk.
+  const runStream = async (useSearch: boolean) => {
     const stream = streamChat(SYSTEM_PROMPT, messages, {
       signal: abort.signal,
-      maxOutputTokens: 1024,
+      // Grounded replies need a larger budget because thinking tokens (which
+      // must stay enabled for search) count against maxOutputTokens.
+      maxOutputTokens: useSearch ? 4096 : 1024,
+      useSearch,
     });
 
-    for await (const content of stream) {
+    for await (const chunk of stream) {
       if (clientGone) break;
-      if (content) {
-        send({ content });
+      if (chunk.text) {
+        sentAny = true;
+        send({ content: chunk.text });
       }
+      if (chunk.sources && chunk.sources.length > 0) {
+        send({ sources: chunk.sources });
+      }
+    }
+  };
+
+  // Grounding needs a Gemini key. If none is configured, skip the grounded
+  // pass entirely (it would only waste a doomed request) and run the plain
+  // chat — which surfaces the existing "set GEMINI_API_KEY" error gracefully
+  // instead of crashing. With a key, try grounded first and fall back to
+  // ungrounded only on a grounding/tool-specific failure.
+  const grounded = isGeminiConfigured();
+
+  try {
+    if (grounded) {
+      try {
+        await runStream(true);
+      } catch (err) {
+        // Don't retry if the client disconnected or we already streamed text.
+        if (clientGone || abort.signal.aborted || sentAny) {
+          throw err;
+        }
+        // Grounding gracefully degrades: a search-specific failure falls back
+        // to the plain ungrounded chat so the user still gets a reply.
+        req.log?.warn({ err }, "grounded agent chat failed, falling back to ungrounded");
+        await runStream(false);
+      }
+    } else {
+      req.log?.warn("GEMINI_API_KEY not set; serving ungrounded agent chat");
+      await runStream(false);
     }
 
     if (!clientGone) send({ done: true });

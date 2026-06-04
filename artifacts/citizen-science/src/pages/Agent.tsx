@@ -5,10 +5,16 @@ import { Button } from "@/components/ui/button";
 import { CATEGORIES } from "@/lib/categories";
 import { LABS } from "@/lib/labs";
 
+interface WebSource {
+  title: string;
+  url: string;
+}
+
 interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  sources?: WebSource[];
 }
 
 const STORAGE_KEY = "cs.agentConversation";
@@ -107,6 +113,36 @@ function LabCard({ slug }: { slug: string }) {
         </span>
       </span>
     </a>
+  );
+}
+
+function SourceList({ sources }: { sources?: WebSource[] }) {
+  if (!sources || sources.length === 0) return null;
+
+  return (
+    <div className="not-prose mt-3 flex flex-col gap-1.5">
+      <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">
+        Sources
+      </span>
+      <div className="flex flex-wrap gap-1.5">
+        {sources.map((s, i) => (
+          <a
+            key={`${s.url}-${i}`}
+            href={s.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={s.title}
+            className="group inline-flex items-center gap-1.5 max-w-[260px] rounded-lg border border-[#E2E8F0] bg-white px-2.5 py-1 hover:border-blue-300 hover:shadow-sm transition-all"
+          >
+            <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded bg-blue-50 text-[9px] font-semibold text-blue-600">
+              {i + 1}
+            </span>
+            <span className="truncate text-xs text-[#334155]">{s.title}</span>
+            <ExternalLink className="h-3 w-3 flex-shrink-0 text-[#94A3B8] group-hover:text-blue-600 transition-colors" />
+          </a>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -227,6 +263,7 @@ export function Agent() {
       const decoder = new TextDecoder();
       let buffer = "";
       let accumulated = "";
+      let sources: WebSource[] = [];
       let streamError: string | null = null;
 
       while (true) {
@@ -243,6 +280,7 @@ export function Agent() {
           try {
             const payload = JSON.parse(dataLine.slice(5).trim()) as {
               content?: string;
+              sources?: WebSource[];
               done?: boolean;
               error?: string;
             };
@@ -253,6 +291,20 @@ export function Agent() {
               accumulated += payload.content;
               setMessages(prev =>
                 prev.map(m => (m.id === assistantMsg.id ? { ...m, content: accumulated } : m)),
+              );
+            }
+            if (Array.isArray(payload.sources) && payload.sources.length > 0) {
+              const merged = [...sources];
+              const seen = new Set(merged.map(s => s.url));
+              for (const s of payload.sources) {
+                if (s && typeof s.url === "string" && !seen.has(s.url)) {
+                  seen.add(s.url);
+                  merged.push({ title: s.title || s.url, url: s.url });
+                }
+              }
+              sources = merged;
+              setMessages(prev =>
+                prev.map(m => (m.id === assistantMsg.id ? { ...m, sources } : m)),
               );
             }
             if (payload.done) {
@@ -403,7 +455,10 @@ export function Agent() {
                         <span className="h-1.5 w-1.5 rounded-full bg-[#94A3B8] animate-pulse [animation-delay:300ms]" />
                       </div>
                     ) : (
-                      <MessageContent content={m.content} />
+                      <>
+                        <MessageContent content={m.content} />
+                        <SourceList sources={m.sources} />
+                      </>
                     )}
                   </div>
                 </div>
