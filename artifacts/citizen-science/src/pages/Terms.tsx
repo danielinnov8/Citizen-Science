@@ -82,6 +82,25 @@ export default function Terms() {
           ),
         },
         {
+          heading: "Affiliate links and disclosure",
+          body: (
+            <>
+              <p>
+                Some recommendations in Citizen Science — including product, lab, and partner
+                links surfaced by the science copilot — are affiliate or referral links. If you
+                click one and make a purchase, we may earn a commission at no additional cost to
+                you. This helps support and fund the service.
+              </p>
+              <p>
+                As an Amazon Associate, we earn from qualifying purchases. We only recommend
+                products and services we believe are genuinely relevant to your learning, and an
+                affiliate relationship never changes the guidance we give. Prices, availability,
+                and offers are set by the third-party seller, not by us.
+              </p>
+            </>
+          ),
+        },
+        {
           heading: "Service availability",
           body: (
             <p>

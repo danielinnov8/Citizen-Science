@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, Sparkles, Wand2, RotateCcw, ChevronRight, AlertCircle, ExternalLink, FlaskConical, Youtube } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, RotateCcw, ChevronRight, AlertCircle, ExternalLink, FlaskConical, Youtube, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES } from "@/lib/categories";
-import { LABS } from "@/lib/labs";
+import { LABS, labUrl } from "@/lib/labs";
+import { PARTNERS, partnerUrl } from "@/lib/partners";
 
 interface WebSource {
   title: string;
@@ -25,7 +26,7 @@ interface ChatMessage {
 }
 
 const STORAGE_KEY = "cs.agentConversation";
-const TOKEN_REGEX = /\[\[(module|lab):([a-z0-9-]+)\]\]/g;
+const TOKEN_REGEX = /\[\[(module|lab|partner):([a-z0-9-]+)\]\]/g;
 
 const SUGGESTIONS = [
   "Help me design a sourdough fermentation tracker",
@@ -98,7 +99,7 @@ function LabCard({ slug }: { slug: string }) {
 
   return (
     <a
-      href={lab.url}
+      href={labUrl(lab)}
       target="_blank"
       rel="noopener noreferrer"
       className="not-prose flex flex-col my-2 mr-1.5 group rounded-xl border border-[#E2E8F0] bg-white hover:border-emerald-300 hover:shadow-md transition-all overflow-hidden max-w-md"
@@ -117,6 +118,43 @@ function LabCard({ slug }: { slug: string }) {
           </span>
           <span className="block text-sm font-semibold text-[#0F172A] leading-tight">{lab.name}</span>
           <span className="block text-xs text-[#64748B] leading-snug mt-1">{lab.summary}</span>
+        </span>
+      </span>
+    </a>
+  );
+}
+
+function PartnerCard({ slug }: { slug: string }) {
+  const partner = PARTNERS.find(p => p.slug === slug);
+  if (!partner) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 rounded-md bg-slate-100 text-slate-700 text-sm">
+        {slug}
+      </span>
+    );
+  }
+
+  return (
+    <a
+      href={partnerUrl(partner)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="not-prose flex flex-col my-2 mr-1.5 group rounded-xl border border-[#E2E8F0] bg-white hover:border-violet-300 hover:shadow-md transition-all overflow-hidden max-w-md"
+    >
+      <span className="flex items-stretch">
+        <span className="flex items-center justify-center w-1.5 bg-gradient-to-b from-violet-500 to-blue-500" />
+        <span className="flex-1 px-3.5 py-2.5">
+          <span className="flex items-center justify-between gap-2 mb-0.5">
+            <span className="flex items-center gap-1.5">
+              <Tag className="h-3.5 w-3.5 text-violet-600" />
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">
+                Partner
+              </span>
+            </span>
+            <ExternalLink className="h-3.5 w-3.5 text-[#94A3B8] group-hover:text-violet-600 transition-colors" />
+          </span>
+          <span className="block text-sm font-semibold text-[#0F172A] leading-tight">{partner.name}</span>
+          <span className="block text-xs text-[#64748B] leading-snug mt-1">{partner.summary}</span>
         </span>
       </span>
     </a>
@@ -191,7 +229,8 @@ function VideoCard({ video }: { video?: VerifiedVideo }) {
 type ContentPart =
   | { type: "text"; value: string }
   | { type: "module"; slug: string }
-  | { type: "lab"; slug: string };
+  | { type: "lab"; slug: string }
+  | { type: "partner"; slug: string };
 
 function MessageContent({ content }: { content: string }) {
   const parts = useMemo<ContentPart[]>(() => {
@@ -203,7 +242,7 @@ function MessageContent({ content }: { content: string }) {
       if (match.index > lastIndex) {
         out.push({ type: "text", value: content.slice(lastIndex, match.index) });
       }
-      const kind = match[1] as "module" | "lab";
+      const kind = match[1] as "module" | "lab" | "partner";
       out.push({ type: kind, slug: match[2] });
       lastIndex = regex.lastIndex;
     }
@@ -218,6 +257,7 @@ function MessageContent({ content }: { content: string }) {
       {parts.map((part, i) => {
         if (part.type === "module") return <ModuleCard key={i} slug={part.slug} />;
         if (part.type === "lab") return <LabCard key={i} slug={part.slug} />;
+        if (part.type === "partner") return <PartnerCard key={i} slug={part.slug} />;
         return <span key={i}>{part.value}</span>;
       })}
     </div>
@@ -561,6 +601,11 @@ export function Agent() {
           </div>
           <p className="text-[11px] text-[#94A3B8] mt-2 text-center font-mono">
             ↵ enter to send · ⇧↵ for newline · responses may include module recommendations
+          </p>
+          <p className="text-[10px] text-[#94A3B8] mt-1.5 text-center max-w-2xl mx-auto leading-relaxed">
+            Some product, lab, and partner links are affiliate links — we may earn a commission
+            from qualifying purchases at no extra cost to you. As an Amazon Associate we earn from
+            qualifying purchases.
           </p>
         </form>
       </div>

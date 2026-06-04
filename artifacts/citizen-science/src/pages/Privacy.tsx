@@ -96,6 +96,18 @@ export default function Privacy() {
           ),
         },
         {
+          heading: "Affiliate links",
+          body: (
+            <p>
+              Some product, lab, and partner links in the app are affiliate or referral links,
+              and as an Amazon Associate we earn from qualifying purchases. When you follow one of
+              these links, you leave Citizen Science and the third-party site's own privacy policy
+              and cookies apply. We do not share your account details with these partners; any
+              information collected after you click is governed by that partner, not by us.
+            </p>
+          ),
+        },
+        {
           heading: "Data retention",
           body: (
             <p>

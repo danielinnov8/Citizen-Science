@@ -5,6 +5,21 @@ export interface Lab {
   url: string;
   tier: "$" | "$$" | "$$$";
   modules: string[];
+  /**
+   * Full referral/affiliate URL for this lab. Leave unset (or "") until you
+   * have one — `labUrl()` then falls back to the plain `url`. To start earning,
+   * paste the whole referral link here in a single-line edit, e.g.
+   * referralUrl: "https://refer.23andme.com/s/yourcode".
+   */
+  referralUrl?: string;
+}
+
+/**
+ * Resolve a lab's outbound link: the referral URL when one has been set,
+ * otherwise the plain homepage. Empty referral slots degrade gracefully.
+ */
+export function labUrl(lab: Lab): string {
+  return lab.referralUrl?.trim() || lab.url;
 }
 
 export const LABS: Lab[] = [
@@ -31,6 +46,8 @@ export const LABS: Lab[] = [
     url: "https://www.23andme.com",
     tier: "$$",
     modules: ["biology", "human-health"],
+    // Referral link — paste the full URL here (single-line edit) to start earning.
+    referralUrl: "https://refer.23andme.com/s/danielinnov8",
   },
   {
     slug: "ancestrydna",

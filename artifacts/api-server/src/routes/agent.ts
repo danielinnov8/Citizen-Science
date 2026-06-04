@@ -7,6 +7,8 @@ import {
 } from "@workspace/integrations-gemini-ai-server";
 import { requireAuth } from "../middlewares/requireAuth";
 import { LABS } from "../lib/labs";
+import { PARTNERS } from "../lib/partners";
+import { AmazonTagger, tagAmazonUrl } from "../lib/amazon";
 import { searchTrustedVideos, isYouTubeConfigured } from "../lib/youtube/search";
 import { VideoMarkerStripper } from "../lib/youtube/marker";
 
@@ -102,10 +104,12 @@ ${MODULES.map(m => `- ${m.slug} — ${m.name}: ${m.description}`).join("\n")}
 
 You may also recommend a real-world laboratory or testing service when the user asks about something that requires equipment they don't have at home (DNA sequencing for humans or pets, microbiome analysis, water/soil/air testing, hormone or food-sensitivity panels, etc.). To recommend a lab, write the token [[lab:SLUG]] inline. The UI will turn it into a clickable card with the lab's website. Recommend at most 2 labs per turn, and only when the user's question genuinely calls for one — don't push labs for every message.
 
+You may ALSO recommend a real-world product or service partner when a topic genuinely calls for a physical tool, kit, course, or device the user would need to actually do the science (a telescope for astronomy, a microscope for microbiology, a weather station for climate logging, a hands-on kit, an online course, etc.). To recommend a partner, write the token [[partner:SLUG]] inline. The UI turns it into a clickable card linking to the partner. Recommend at most 1 partner per turn, only when it clearly helps the user's specific goal — never as a sales pitch, and never for greetings, clarifications, or generic questions.
+
 TOKEN RULES (follow these EXACTLY — the UI only renders a card when a token matches them; any token that breaks them is shown to the user as ugly raw text like "[[biology]]"):
-- A token MUST have the form [[module:SLUG]] or [[lab:SLUG]]. The "module:" or "lab:" prefix is REQUIRED. Never write [[SLUG]] without a prefix.
-- SLUG must be copied EXACTLY, character-for-character, from the "Available modules" or "Available labs" lists below. Slugs are always lowercase with hyphens and contain only letters, digits, and hyphens.
-- Module slugs may only be used with the module: prefix; lab slugs may only be used with the lab: prefix.
+- A token MUST have the form [[module:SLUG]], [[lab:SLUG]], or [[partner:SLUG]]. The "module:", "lab:", or "partner:" prefix is REQUIRED. Never write [[SLUG]] without a prefix.
+- SLUG must be copied EXACTLY, character-for-character, from the "Available modules", "Available labs", or "Available partners" lists below. Slugs are always lowercase with hyphens and contain only letters, digits, and hyphens.
+- Module slugs may only be used with the module: prefix; lab slugs only with the lab: prefix; partner slugs only with the partner: prefix.
 - NEVER invent, guess, abbreviate, or shorten a slug. If a service or topic is not in the lists, do NOT wrap it in brackets — just name it in plain prose.
 - The Cost benchmarks section below is reference text, NOT a source of slugs. Brand names that appear only there (e.g. "Nebula", "Dante") are not valid slugs. Only use a lab if it has its own entry in the "Available labs" list (Nebula → use the slug nebula-genomics; Dante → use the slug dante-labs).
 
@@ -131,6 +135,9 @@ Cost benchmarks you can rely on (always present these as approximate, not guaran
 
 Available labs:
 ${LABS.map(l => `- ${l.slug} — ${l.name} (${l.tier}): ${l.summary}`).join("\n")}
+
+Available partners:
+${PARTNERS.map(p => `- ${p.slug} — ${p.name}: ${p.summary}`).join("\n")}
 
 You can search the live web when a question needs current facts, recent research, real products, or details you are unsure about. When you draw on web results, weave the facts naturally into your reply — the UI shows the underlying source links automatically, so do not paste raw URLs.
 
@@ -199,6 +206,9 @@ router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
     // Strip the hidden video marker from the user-visible text. A fresh
     // stripper per pass so a grounded->ungrounded fallback starts clean.
     const stripper = new VideoMarkerStripper();
+    // Append our Amazon Associates tag to any amazon.com link in the reply
+    // text. Streaming-safe: it buffers an in-progress URL across chunks.
+    const amazon = new AmazonTagger();
     const stream = streamChat(SYSTEM_PROMPT, messages, {
       signal: abort.signal,
       // Grounded replies need a larger budget because thinking tokens (which
@@ -210,18 +220,22 @@ router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
     for await (const chunk of stream) {
       if (clientGone) break;
       if (chunk.text) {
-        const safe = stripper.push(chunk.text);
+        const safe = amazon.push(stripper.push(chunk.text));
         if (safe) {
           sentAny = true;
           send({ content: safe });
         }
       }
       if (chunk.sources && chunk.sources.length > 0) {
-        send({ sources: chunk.sources });
+        // Cited web sources may point at Amazon too — tag those links as well.
+        const sources = chunk.sources.map(s => ({ ...s, url: tagAmazonUrl(s.url) }));
+        send({ sources });
       }
     }
 
-    const tail = stripper.flush();
+    // Drain both buffers: stripper first (may release held text), then the
+    // Amazon tagger's final buffered word.
+    const tail = amazon.push(stripper.flush()) + amazon.flush();
     if (tail && !clientGone) {
       sentAny = true;
       send({ content: tail });
