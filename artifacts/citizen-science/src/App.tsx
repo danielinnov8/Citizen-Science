@@ -17,6 +17,8 @@ import { ExperimentDetail } from "@/pages/ExperimentDetail";
 import { Notebook } from "@/pages/Notebook";
 import { ProgressPage } from "@/pages/Progress";
 import { Profile } from "@/pages/Profile";
+import Privacy from "@/pages/Privacy";
+import Terms from "@/pages/Terms";
 
 import { AppShell } from "@/components/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -37,6 +39,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Landing} />
       <Route path="/login" component={Login} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
       
       {/* Protected Routes */}
       <Route path="/onboarding">

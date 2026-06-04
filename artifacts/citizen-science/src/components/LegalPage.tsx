@@ -1,0 +1,90 @@
+import React, { useEffect } from "react";
+import { Link } from "wouter";
+import { Atom, ArrowLeft } from "lucide-react";
+
+type LegalSection = {
+  heading: string;
+  body: React.ReactNode;
+};
+
+type LegalPageProps = {
+  title: string;
+  lastUpdated: string;
+  intro: React.ReactNode;
+  sections: LegalSection[];
+};
+
+export function LegalPage({ title, lastUpdated, intro, sections }: LegalPageProps) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col">
+      <header className="sticky top-0 z-50 w-full border-b border-[#E2E8F0] bg-white/80 backdrop-blur-md">
+        <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
+          <Link href="/" className="flex items-center gap-2 font-semibold text-lg tracking-tight">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+              <Atom className="h-5 w-5" />
+            </div>
+            <span>Citizen Science</span>
+          </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#64748B] transition-colors hover:text-[#0F172A]"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to home
+          </Link>
+        </div>
+      </header>
+
+      <main className="flex-1">
+        <article className="container mx-auto max-w-3xl px-4 lg:px-8 py-16 lg:py-24">
+          <p className="text-sm font-medium uppercase tracking-wide text-blue-600 mb-3">Legal</p>
+          <h1 className="text-4xl lg:text-5xl font-serif tracking-tight leading-[1.1] mb-4">{title}</h1>
+          <p className="text-sm text-[#64748B] mb-10">Last updated {lastUpdated}</p>
+
+          <div className="text-[#334155] leading-relaxed text-[15px] lg:text-base mb-12">{intro}</div>
+
+          <div className="space-y-10">
+            {sections.map((section, i) => (
+              <section key={i}>
+                <h2 className="text-xl lg:text-2xl font-semibold tracking-tight mb-3">{section.heading}</h2>
+                <div className="text-[#334155] leading-relaxed text-[15px] lg:text-base space-y-4">
+                  {section.body}
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <div className="mt-16 border-t border-[#E2E8F0] pt-8 flex flex-col sm:flex-row gap-4 text-sm">
+            <Link href="/privacy" className="text-blue-600 hover:text-blue-700 transition-colors font-medium">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="text-blue-600 hover:text-blue-700 transition-colors font-medium">
+              Terms of Service
+            </Link>
+          </div>
+        </article>
+      </main>
+
+      <footer className="bg-[#0F172A] text-[#64748B] py-12">
+        <div className="container mx-auto max-w-7xl px-4 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2 font-semibold text-white">
+            <Atom className="h-5 w-5" />
+            <span>Citizen Science</span>
+          </div>
+          <div className="flex gap-6 text-sm">
+            <Link href="/categories" className="hover:text-white transition-colors">Categories</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+          </div>
+          <div className="text-sm">
+            &copy; {new Date().getFullYear()} Citizen Science.
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

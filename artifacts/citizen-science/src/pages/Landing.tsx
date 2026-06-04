@@ -1090,7 +1090,8 @@ export function Landing() {
             <Link href="/categories" className="hover:text-white transition-colors">Categories</Link>
             <a href="#tools" className="hover:text-white transition-colors">Tools</a>
             <a href="#safety" className="hover:text-white transition-colors">Safety</a>
-            <span className="hover:text-white transition-colors cursor-pointer">Terms</span>
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
           </div>
           <div className="text-sm">
             &copy; {new Date().getFullYear()} Citizen Science.
