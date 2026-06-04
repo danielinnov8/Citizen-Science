@@ -1,0 +1,42 @@
+Step 1: Connect Replit to GitHub
+You need to make sure your Replit workspace is actively pushing your code changes to your repository:
+
+In your Replit project, open the Git tool from the left-hand sidebar.
+
+Link your workspace to your repository ([github.com/danielinnov8/Citizen-Science.git](https://github.com/danielinnov8/Citizen-Science.git)).
+
+Whenever you write new features or update your Gemini backend scripts, stage your changes, commit them, and hit Push to Origin to update your GitHub main branch.
+
+Step 2: Set Up Google Cloud Run (The Hosting Layer)
+Google Cloud Run is a fully managed platform that automatically scales stateless frontend or backend containers. It is the easiest, cheapest way to fulfill the XPRIZE infrastructure requirement using your $300 credit balance.
+
+Go to your Google Cloud Console and log in with your account.
+
+Search for Cloud Run in the top search bar and click Create Service.
+
+Choose "Continuously deploy new revisions from a source repository" and click Set Up with Cloud Build.
+
+Select GitHub as your provider, authenticate your account, and choose your Citizen-Science repository.
+
+Set your build configuration to Buildpacks (which automatically detects your TypeScript Node monorepo layout without needing a manual Dockerfile) or point it specifically to your artifacts/api-server directory.
+
+Step 3: Inject Your Secrets Safely into Google Cloud
+Because you shouldn't hardcode API keys into your source code repository, you must inject your credentials directly into the cloud hosting layer:
+
+While configuring your Cloud Run service, scroll down to the Variables & Secrets tab.
+
+Add a new environment variable:
+
+Name: GEMINI_API_KEY
+
+Value: (Paste your live production key generated from Google AI Studio)
+
+Click Deploy.
+
+The Resulting Workflow
+Now you have a fully automated, continuous pipeline that satisfies the judges and gives you total development freedom:
+
+ [ Your Replit Workspace ]  --->  [ GitHub Repository ]  --->  [ Google Cloud Run ]
+   (Where you physically         (Triggered automatically        (Fulfills the XPRIZE
+    write & test code)              on every git push)            infrastructure rule)
+You can keep your hands on the keyboard in Replit, while Google Cloud continuously builds and hosts your live API server endpoints in production on Google's actual infrastructure!
