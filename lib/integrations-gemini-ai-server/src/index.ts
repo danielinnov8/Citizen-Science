@@ -2,6 +2,7 @@ export {
   analyzeFieldNotes,
   streamChat,
   researchWithSearch,
+  scoreVideoRelevance,
   isGeminiConfigured,
 } from "./client";
 export type {
@@ -13,4 +14,6 @@ export type {
   WebSource,
   ResearchResult,
   ResearchOptions,
+  VideoCandidate,
+  VideoRelevanceResult,
 } from "./client";

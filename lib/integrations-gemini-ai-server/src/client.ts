@@ -171,6 +171,95 @@ export async function researchWithSearch(
   return { text: response.text ?? "", sources: extractWebSources(response) };
 }
 
+export interface VideoCandidate {
+  title: string;
+  channelTitle: string;
+  description: string;
+}
+
+export interface VideoRelevanceResult {
+  // Index into the candidates array of the single best video, or -1 when none
+  // clear the bar.
+  bestIndex: number;
+  // 0-100 confidence that the chosen video is a near-perfect match for the
+  // topic. Callers apply their own high threshold.
+  score: number;
+  reason: string;
+}
+
+const VIDEO_RELEVANCE_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    bestIndex: { type: Type.INTEGER },
+    score: { type: Type.INTEGER },
+    reason: { type: Type.STRING },
+  },
+  required: ["bestIndex", "score", "reason"],
+};
+
+const VIDEO_RELEVANCE_INSTRUCTION = `You are a strict quality gate that decides whether ONE of several candidate YouTube videos is a near-perfect match for a learner's topic.
+
+You are given a topic and a numbered list of candidate videos (title, channel, description). All candidates already come from reputable, trusted science/education channels — do not second-guess the channel's credibility.
+
+Your only job is relevance. Pick the single candidate that most directly and specifically teaches or explains the exact topic. Be extremely strict:
+- Score 90-100 only when a video is clearly, specifically about the topic and would genuinely help the learner right now.
+- Score below 90 for anything tangential, overly broad, only loosely related, or where you are unsure.
+- If no candidate is a strong, specific match, set bestIndex to -1 and score to 0.
+
+bestIndex is the 0-based index of the chosen candidate (or -1 for none). score is 0-100. reason is one short sentence. Respond with JSON only.`;
+
+// Score a small set of candidate videos against a topic and return the single
+// best match (or none). Used as the strict relevance gate before a verified
+// video is shown to the user. Uses the user's own GEMINI_API_KEY.
+export async function scoreVideoRelevance(
+  topic: string,
+  candidates: VideoCandidate[],
+  options: { signal?: AbortSignal } = {},
+): Promise<VideoRelevanceResult> {
+  const cleanTopic = topic.trim();
+  if (!cleanTopic || candidates.length === 0) {
+    return { bestIndex: -1, score: 0, reason: "No topic or candidates." };
+  }
+
+  const list = candidates
+    .map(
+      (c, i) =>
+        `[${i}] title: ${c.title}\n    channel: ${c.channelTitle}\n    description: ${c.description.slice(0, 400)}`,
+    )
+    .join("\n");
+
+  const prompt = `Topic: ${cleanTopic.slice(0, 600)}\n\nCandidate videos:\n${list}`;
+
+  const response = await getGenAI().models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
+    config: {
+      systemInstruction: VIDEO_RELEVANCE_INSTRUCTION,
+      responseMimeType: "application/json",
+      responseSchema: VIDEO_RELEVANCE_SCHEMA,
+      maxOutputTokens: 2048,
+      thinkingConfig: { thinkingBudget: 0 },
+      abortSignal: options.signal,
+    },
+  });
+
+  const text = response.text;
+  if (!text) {
+    return { bestIndex: -1, score: 0, reason: "Empty relevance response." };
+  }
+
+  const parsed = JSON.parse(text) as VideoRelevanceResult;
+  const bestIndex =
+    Number.isInteger(parsed.bestIndex) &&
+    parsed.bestIndex >= 0 &&
+    parsed.bestIndex < candidates.length
+      ? parsed.bestIndex
+      : -1;
+  const score = typeof parsed.score === "number" ? parsed.score : 0;
+
+  return { bestIndex, score, reason: parsed.reason ?? "" };
+}
+
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;

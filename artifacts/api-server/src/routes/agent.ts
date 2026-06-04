@@ -2,10 +2,57 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import {
   analyzeFieldNotes,
   streamChat,
+  scoreVideoRelevance,
   isGeminiConfigured,
 } from "@workspace/integrations-gemini-ai-server";
 import { requireAuth } from "../middlewares/requireAuth";
 import { LABS } from "../lib/labs";
+import { searchTrustedVideos, isYouTubeConfigured } from "../lib/youtube/search";
+import { VideoMarkerStripper } from "../lib/youtube/marker";
+
+// A video must clear this strict relevance bar (0-100) before it is shown.
+const VIDEO_RELEVANCE_THRESHOLD = 90;
+
+interface VerifiedVideo {
+  id: string;
+  title: string;
+  channel: string;
+}
+
+// Resolve a copilot video request: search YouTube (allowlist-filtered), then
+// run the strict Gemini relevance gate. Returns a single verified video or
+// null. Never throws — video lookup must never break the chat reply.
+async function resolveVerifiedVideo(
+  topic: string,
+  signal: AbortSignal,
+): Promise<VerifiedVideo | null> {
+  if (!isYouTubeConfigured() || !isGeminiConfigured()) {
+    return null;
+  }
+
+  const candidates = await searchTrustedVideos(topic, { signal, maxResults: 25 });
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  const top = candidates.slice(0, 10);
+  const result = await scoreVideoRelevance(
+    topic,
+    top.map((c) => ({
+      title: c.title,
+      channelTitle: c.channelTitle,
+      description: c.description,
+    })),
+    { signal },
+  );
+
+  if (result.bestIndex < 0 || result.score < VIDEO_RELEVANCE_THRESHOLD) {
+    return null;
+  }
+
+  const v = top[result.bestIndex];
+  return { id: v.id, title: v.title, channel: v.channelTitle };
+}
 
 const router: IRouter = Router();
 
@@ -87,6 +134,12 @@ ${LABS.map(l => `- ${l.slug} — ${l.name} (${l.tier}): ${l.summary}`).join("\n"
 
 You can search the live web when a question needs current facts, recent research, real products, or details you are unsure about. When you draw on web results, weave the facts naturally into your reply — the UI shows the underlying source links automatically, so do not paste raw URLs.
 
+VIDEO SUGGESTIONS (separate from the token rules above):
+When — and only when — a short video would genuinely deepen the user's understanding of a specific concept they're exploring, you may request one by writing a hidden marker of the form [[video?:SEARCH TERMS]] on its own line at the very end of your reply. Replace SEARCH TERMS with a concise topic phrase to search for (e.g. [[video?:how mRNA vaccines work]] or [[video?:photosynthesis explained]]).
+- This marker is a PRIVATE request to the system and is never shown to the user. The system independently searches a fixed allowlist of trusted science channels (NASA, Veritasium, Kurzgesagt, SciShow, Khan Academy, MIT, etc.) and runs its own strict relevance check. If nothing clears the bar, no video appears and your reply is unaffected — so never promise, name, or describe a specific video.
+- NEVER write a YouTube link, video ID, thumbnail, or channel/video name yourself. The hidden marker is the ONLY way a video can reach the user.
+- Use at MOST ONE marker per reply, and only for clearly video-worthy science concepts. Most replies should have none. Do not add a marker for greetings, simple clarifications, lab/cost questions, or off-topic messages.
+
 Safety: Citizen Science is for safe, low-risk home experiments. If a request involves dangerous chemicals, biohazards, electricity, or anything risky, gently redirect to a safer version of the experiment. When recommending labs, remind the user that lab results are not medical advice.
 
 Stay focused on science learning and experiment design. If asked something off-topic, briefly redirect.`;
@@ -136,9 +189,16 @@ router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
     if (!res.writableEnded) onClose();
   });
 
+  // The latest video search topic requested by the model via the hidden
+  // [[video?:...]] marker. Resolved (search + verify) after the text stream.
+  let videoTopic: string | null = null;
+
   // Run one streaming pass. `useSearch` enables Google Search grounding so
   // replies can cite live web sources; sources arrive as a trailing chunk.
   const runStream = async (useSearch: boolean) => {
+    // Strip the hidden video marker from the user-visible text. A fresh
+    // stripper per pass so a grounded->ungrounded fallback starts clean.
+    const stripper = new VideoMarkerStripper();
     const stream = streamChat(SYSTEM_PROMPT, messages, {
       signal: abort.signal,
       // Grounded replies need a larger budget because thinking tokens (which
@@ -150,12 +210,25 @@ router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
     for await (const chunk of stream) {
       if (clientGone) break;
       if (chunk.text) {
-        sentAny = true;
-        send({ content: chunk.text });
+        const safe = stripper.push(chunk.text);
+        if (safe) {
+          sentAny = true;
+          send({ content: safe });
+        }
       }
       if (chunk.sources && chunk.sources.length > 0) {
         send({ sources: chunk.sources });
       }
+    }
+
+    const tail = stripper.flush();
+    if (tail && !clientGone) {
+      sentAny = true;
+      send({ content: tail });
+    }
+    // Use the last requested topic (the marker is meant to be at the end).
+    if (stripper.terms.length > 0) {
+      videoTopic = stripper.terms[stripper.terms.length - 1];
     }
   };
 
@@ -183,6 +256,20 @@ router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
     } else {
       req.log?.warn("GEMINI_API_KEY not set; serving ungrounded agent chat");
       await runStream(false);
+    }
+
+    // After the text reply is complete, resolve the (optional) video request.
+    // This is best-effort: any failure or empty result leaves the reply intact
+    // and simply shows no video card.
+    if (!clientGone && videoTopic) {
+      try {
+        const video = await resolveVerifiedVideo(videoTopic, abort.signal);
+        if (video && !clientGone) {
+          send({ video });
+        }
+      } catch (err) {
+        req.log?.warn({ err }, "verified video resolution failed");
+      }
     }
 
     if (!clientGone) send({ done: true });
