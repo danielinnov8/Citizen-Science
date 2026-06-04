@@ -1,15 +1,21 @@
 import React from "react";
 import { useLocation } from "wouter";
-import { User, LogOut, Trash2 } from "lucide-react";
+import { LogOut, Trash2, Check, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/lib/auth";
 import { storage } from "@/lib/storage";
+import { DEVICES } from "@/lib/devices";
 
 export function Profile() {
   const [, setLocation] = useLocation();
   const { user, signOut } = useAuth();
+  const [connected, setConnected] = React.useState<Record<string, boolean>>({});
+
+  const toggleDevice = (id: string) => {
+    setConnected((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
   
   let prefs = { interests: [], experience: "Beginner" };
   try {
@@ -78,6 +84,50 @@ export function Profile() {
           </div>
           
           <Button variant="link" className="px-0 text-blue-600">Retake Onboarding Survey</Button>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm border-[#E2E8F0] mb-8">
+        <CardContent className="p-6 space-y-1">
+          <div className="border-b border-[#E2E8F0] pb-3 mb-4">
+            <h3 className="font-semibold text-lg">Connected Devices</h3>
+            <p className="text-sm text-[#64748B] mt-1">
+              Sync biometric data from your wearables into your experiments and notebook. This is a preview — connections aren't live yet.
+            </p>
+          </div>
+          <div className="divide-y divide-[#E2E8F0]">
+            {DEVICES.map((device) => {
+              const isConnected = !!connected[device.id];
+              return (
+                <div key={device.id} className="flex items-center gap-4 py-4">
+                  <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${device.accent}`}>
+                    <device.icon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-sm leading-tight">{device.name}</div>
+                    <div className="text-xs text-[#64748B] line-clamp-1">{device.description}</div>
+                  </div>
+                  <Button
+                    variant={isConnected ? "outline" : "default"}
+                    size="sm"
+                    aria-pressed={isConnected}
+                    className={isConnected ? "" : "bg-blue-600 hover:bg-blue-700 text-white"}
+                    onClick={() => toggleDevice(device.id)}
+                  >
+                    {isConnected ? (
+                      <>
+                        <Check className="mr-1.5 h-4 w-4 text-green-600" /> Connected
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="mr-1.5 h-4 w-4" /> Connect
+                      </>
+                    )}
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
 

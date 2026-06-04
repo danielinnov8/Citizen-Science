@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CATEGORIES } from "@/lib/categories";
+import { DEVICES } from "@/lib/devices";
 import { useAuth } from "@/lib/auth";
 import { Logo, LogoIcon } from "@/components/Logo";
 
@@ -1054,6 +1055,46 @@ export function Landing() {
               <p className="text-amber-800 leading-relaxed max-w-2xl mx-auto">
                 Citizen Science is designed for education, simulation, observation, and safe at-home experimentation. We do not encourage hazardous, medical, biological, or chemical procedures without proper training, supervision, and safety standards.
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* CONNECT DEVICES */}
+        <section id="devices" className="py-32 bg-[#F8FAFC] border-y border-[#E2E8F0]">
+          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <Badge className="mb-4 bg-blue-50 text-blue-700 border border-blue-100 hover:bg-blue-50">
+                Coming soon
+              </Badge>
+              <h2 className="text-3xl lg:text-4xl font-serif mb-4 tracking-tight">
+                Connect your monitoring devices
+              </h2>
+              <p className="text-[#64748B] text-lg">
+                Sync real biometric data from your wearables straight into your experiments and notebook — perfect for human-health, sleep, and neuroscience studies.
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {DEVICES.map((device) => (
+                <div
+                  key={device.id}
+                  className="flex items-center gap-4 p-5 rounded-2xl border border-[#E2E8F0] bg-white shadow-sm hover:border-blue-200 hover:shadow-md transition-all"
+                >
+                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${device.accent}`}>
+                    <device.icon className="h-6 w-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-semibold text-sm leading-tight">{device.name}</h4>
+                    <p className="text-xs text-[#64748B] line-clamp-1">{device.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-12">
+              <Link href="/login">
+                <Button size="lg" variant="outline" className="rounded-full px-8 h-12 border-[#E2E8F0]">
+                  Connect in Settings <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
