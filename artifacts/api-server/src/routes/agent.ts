@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { getOpenAI } from "@workspace/integrations-openai-ai-server";
 import { analyzeFieldNotes } from "@workspace/integrations-gemini-ai-server";
 import { LABS } from "../lib/labs";
 
@@ -131,7 +131,7 @@ router.post("/agent/chat", async (req: Request, res: Response) => {
   });
 
   try {
-    const stream = await openai.chat.completions.create(
+    const stream = await getOpenAI().chat.completions.create(
       {
         model: "gpt-5.4",
         max_completion_tokens: 1024,

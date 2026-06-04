@@ -1,12 +1,24 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error(
-    "GEMINI_API_KEY must be set. Add it in the Secrets tab to enable field-note analysis.",
-  );
-}
+let client: GoogleGenAI | null = null;
 
-export const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Lazily construct the Gemini client on first use rather than at import time,
+// so the server boots even when GEMINI_API_KEY is absent — only the field-note
+// route fails, not the whole process. Callers should handle the thrown error.
+function getGenAI(): GoogleGenAI {
+  if (client) {
+    return client;
+  }
+
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error(
+      "GEMINI_API_KEY must be set. Add it in the Secrets tab to enable field-note analysis.",
+    );
+  }
+
+  client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  return client;
+}
 
 export interface Measurement {
   name: string;
@@ -71,7 +83,7 @@ export async function analyzeFieldNotes(rawText: string): Promise<FieldNoteAnaly
     throw new Error("rawText must not be empty");
   }
 
-  const response = await genai.models.generateContent({
+  const response = await getGenAI().models.generateContent({
     model: "gemini-2.5-flash",
     contents: trimmed.slice(0, 8000),
     config: {

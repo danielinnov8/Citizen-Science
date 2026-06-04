@@ -1,0 +1,32 @@
+# Keep the Docker build context small and reproducible.
+# Dependencies are installed fresh inside the image from the lockfile.
+**/node_modules
+
+# Build outputs (regenerated inside the image)
+**/dist
+**/.tsbuildinfo
+**/out-tsc
+
+# Version control & local tooling
+.git
+.gitignore
+.local
+.agents
+
+# Logs and temp
+**/*.log
+tmp
+.cache
+
+# Editor / OS cruft
+.idea
+.vscode
+.DS_Store
+
+# Env files — never copy secrets into the image
+.env
+**/.env
+**/.env.*
+
+# Other artifacts not needed to build/run the api-server
+attached_assets
