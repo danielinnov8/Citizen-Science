@@ -32,7 +32,17 @@ URL from `PUBLIC_BASE_URL` → `REPLIT_DOMAINS` → request host (in that order)
 because `REPLIT_DOMAINS` does not exist on Cloud Run. Set `PUBLIC_BASE_URL` to
 the exact Cloud Run origin and register that callback in the Google console.
 
-**Cloud Run prerequisites (the app crashes/!works without them):** `DATABASE_URL`
-(the DB lib throws at import if missing — a real Postgres must be provisioned and
-migrated), `SESSION_SECRET`, `GEMINI_API_KEY`, `GOOGLE_CLIENT_ID`,
+**DB connection is lazy (don't revert this):** `lib/db/src/index.ts` exports `db`
+and `pool` as Proxies that create the pg Pool + drizzle instance on FIRST USE,
+not at import. **Why:** the original eager `throw` on missing `DATABASE_URL`
+crash-looped the whole Cloud Run container at boot (revision "failed to start and
+listen on PORT"), which also took down the bundled frontend. Lazy init lets the
+container boot and serve the SPA + `/healthz` even before the DB is wired; DB
+routes fail per-request instead. The Proxy binds methods to the real instance —
+drizzle/pg use private fields that are unreachable if `this` is the Proxy, so
+never drop the `.bind(target)`.
+
+**Cloud Run env vars (app boots without them now, but auth needs them):**
+`DATABASE_URL` (a real Postgres must still be provisioned + migrated for login to
+work), `SESSION_SECRET`, `GEMINI_API_KEY`, `GOOGLE_CLIENT_ID`,
 `GOOGLE_CLIENT_SECRET`, and `PUBLIC_BASE_URL`.
