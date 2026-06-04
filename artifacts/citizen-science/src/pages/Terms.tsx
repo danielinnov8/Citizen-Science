@@ -146,8 +146,8 @@ export default function Terms() {
           body: (
             <p>
               Questions about these Terms? Reach us at{" "}
-              <a href="mailto:support@citizen-science.org" className="text-blue-600 hover:text-blue-700">
-                support@citizen-science.org
+              <a href="mailto:info@citizen-science.org" className="text-blue-600 hover:text-blue-700">
+                info@citizen-science.org
               </a>
               .
             </p>

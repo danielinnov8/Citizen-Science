@@ -153,8 +153,8 @@ export default function Privacy() {
           body: (
             <p>
               Questions about your privacy? Reach us at{" "}
-              <a href="mailto:privacy@citizen-science.org" className="text-blue-600 hover:text-blue-700">
-                privacy@citizen-science.org
+              <a href="mailto:info@citizen-science.org" className="text-blue-600 hover:text-blue-700">
+                info@citizen-science.org
               </a>
               .
             </p>
