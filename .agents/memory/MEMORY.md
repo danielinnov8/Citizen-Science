@@ -1,0 +1,1 @@
+- [api-server externalized deps](api-server-externalized-deps.md) — esbuild externals (e.g. `@google/*`, `protobufjs`) must be direct deps of api-server, not just a workspace lib, or the server crashes with ERR_MODULE_NOT_FOUND at startup.
