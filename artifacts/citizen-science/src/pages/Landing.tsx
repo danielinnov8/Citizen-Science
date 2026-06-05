@@ -1117,7 +1117,7 @@ export function Landing() {
         {/* GLOBAL NETWORK — INTERACTIVE GLOBE */}
         <NetworkGlobe />
 
-        {/* IMAGINE 2045 — CINEMATIC INTERLUDE */}
+        {/* IMAGINE 2045 + BY THE NUMBERS — one continuous passage */}
         <section className="relative overflow-hidden bg-[#0B1120] py-32 text-white lg:py-44">
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute top-1/2 left-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-700/20 blur-[160px]" />
@@ -1141,15 +1141,8 @@ export function Landing() {
               </p>
             </Reveal>
           </div>
-        </section>
 
-        {/* BY THE NUMBERS */}
-        <section className="relative overflow-hidden bg-[#0B1120] py-28 text-white lg:py-32">
-          <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={GRID_BG} />
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute left-1/2 top-1/2 h-[400px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-700/20 blur-[150px]" />
-          </div>
-          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="container relative z-10 mx-auto mt-24 max-w-7xl px-4 lg:mt-28 lg:px-8">
             <Reveal>
               <h2 className="mb-16 text-center font-serif text-3xl tracking-tight lg:text-4xl">
                 By The Numbers
