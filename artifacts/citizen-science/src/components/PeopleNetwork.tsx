@@ -84,6 +84,38 @@ const EDGES: Edge[] = (() => {
 // A few edges carry an animated "signal" pulse for liveliness.
 const PULSE_EDGES = EDGES.filter((e) => e.a !== "hub").slice(0, 6);
 
+// Outermost "growth" ring: anonymous future participants continuously appearing
+// beyond the named pioneers — visualizing how the network keeps expanding.
+const GROWTH_COUNT = 16;
+const OUTER_NODE_LIST = NODES.map((n, i) => ({ n, i })).filter((o) => !o.n.inner);
+
+interface GrowthNode {
+  x: number;
+  y: number;
+  nearest: { x: number; y: number };
+}
+const GROWTH_NODES: GrowthNode[] = Array.from({ length: GROWTH_COUNT }).map(
+  (_, k) => {
+    const angle = (k / GROWTH_COUNT) * 360 - 90 + 11;
+    const rad = (angle * Math.PI) / 180;
+    const rx = 47.5;
+    const ry = 44;
+    const x = 50 + rx * Math.cos(rad);
+    const y = 50 + ry * Math.sin(rad);
+    // Anchor each growth node to its angularly-nearest outer pioneer.
+    let best = OUTER_NODE_LIST[0];
+    let bestDelta = Infinity;
+    OUTER_NODE_LIST.forEach((o) => {
+      const d = Math.abs(((angle - o.n.angle + 540) % 360) - 180);
+      if (d < bestDelta) {
+        bestDelta = d;
+        best = o;
+      }
+    });
+    return { x, y, nearest: { x: best.n.x, y: best.n.y } };
+  },
+);
+
 export function PeopleNetwork() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -134,6 +166,60 @@ export function PeopleNetwork() {
               <stop offset="100%" stopColor="#7C3AED" />
             </radialGradient>
           </defs>
+
+          {/* Growth ring — the network continuously expanding outward */}
+          <ellipse
+            cx={50}
+            cy={50}
+            rx={47.5}
+            ry={44}
+            fill="none"
+            stroke="#CBD5E1"
+            strokeWidth={0.15}
+            strokeDasharray="0.5 1.3"
+            opacity={0.55}
+          />
+          {GROWTH_NODES.map((g, i) => {
+            const begin = `${(i % 8) * 0.5}s`;
+            return (
+              <g key={`growth-${i}`}>
+                <line
+                  x1={g.nearest.x}
+                  y1={g.nearest.y}
+                  x2={g.x}
+                  y2={g.y}
+                  stroke="#94A3B8"
+                  strokeWidth={0.18}
+                  strokeDasharray="0.6 0.9"
+                  strokeLinecap="round"
+                >
+                  <animate
+                    attributeName="opacity"
+                    values="0.04;0.4;0.04"
+                    dur="4s"
+                    begin={begin}
+                    repeatCount="indefinite"
+                  />
+                </line>
+                <circle cx={g.x} cy={g.y} fill="#94A3B8">
+                  <animate
+                    attributeName="r"
+                    values="0;0.85;0.85;0"
+                    dur="4s"
+                    begin={begin}
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    values="0;0.8;0.8;0"
+                    dur="4s"
+                    begin={begin}
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              </g>
+            );
+          })}
 
           {edgesToRender.map((e, i) => (
             <motion.line
@@ -251,8 +337,19 @@ export function PeopleNetwork() {
         })}
       </div>
 
+      {/* Live growth indicator */}
+      <div className="mt-6 flex justify-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white px-3.5 py-1.5 text-xs font-medium text-[#64748B] shadow-sm">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+          </span>
+          The network grows every day — thousands joining worldwide
+        </span>
+      </div>
+
       {/* Caption */}
-      <div className="relative mx-auto mt-10 h-20 max-w-lg text-center">
+      <div className="relative mx-auto mt-8 h-20 max-w-lg text-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={active}
