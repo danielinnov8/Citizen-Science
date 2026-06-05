@@ -23,6 +23,10 @@ const GROUP_LABELS: Record<string, string> = {
   thought_leader: "Thought Leader",
 };
 
+const IMAGE_FOCAL_BY_SLUG: Record<string, string> = {
+  "manu-rehani": "object-[70%_center]",
+};
+
 function initials(name: string): string {
   return name
     .split(/\s+/)
@@ -130,7 +134,9 @@ export function ProfileDetail() {
                 <img
                   src={profile.imageUrl}
                   alt={profile.name}
-                  className="h-full w-full object-cover object-center"
+                  className={`h-full w-full object-cover ${
+                    IMAGE_FOCAL_BY_SLUG[profile.slug] ?? "object-center"
+                  }`}
                 />
               ) : (
                 <div className="h-full w-full flex items-center justify-center">
