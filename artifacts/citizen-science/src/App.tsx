@@ -57,10 +57,10 @@ function Router() {
         <AppShell><Agent /></AppShell>
       </Route>
       <Route path="/categories">
-        <ProtectedRoute><AppShell><Categories /></AppShell></ProtectedRoute>
+        <AppShell><Categories /></AppShell>
       </Route>
       <Route path="/category/:slug">
-        <ProtectedRoute><AppShell><Category /></AppShell></ProtectedRoute>
+        <AppShell><Category /></AppShell>
       </Route>
       <Route path="/experiments">
         <ProtectedRoute><AppShell><Experiments /></AppShell></ProtectedRoute>
