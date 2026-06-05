@@ -1548,7 +1548,7 @@ export function Landing() {
                   { Icon: Linkedin, label: "LinkedIn", href: "#" },
                   { Icon: Github, label: "GitHub", href: "#" },
                   { Icon: Youtube, label: "YouTube", href: "#" },
-                  { Icon: Mail, label: "Email us", href: "mailto:hello@citizenscience.org" },
+                  { Icon: Mail, label: "Email us", href: "mailto:56289968+danielinnov8@users.noreply.github.com" },
                 ].map(({ Icon, label, href }) => (
                   <a
                     key={label}
@@ -1612,7 +1612,7 @@ export function Landing() {
                 <ul className="mt-4 space-y-3 text-sm">
                   <li><Link href="/brand" className="transition-colors hover:text-white">Brand Guidelines</Link></li>
                   <li><Link href="/login" className="transition-colors hover:text-white">Sign In / Join</Link></li>
-                  <li><a href="mailto:hello@citizenscience.org" className="transition-colors hover:text-white">Contact</a></li>
+                  <li><a href="mailto:56289968+danielinnov8@users.noreply.github.com" className="transition-colors hover:text-white">Contact</a></li>
                   <li><Link href="/privacy" className="transition-colors hover:text-white">Privacy Policy</Link></li>
                   <li><Link href="/terms" className="transition-colors hover:text-white">Terms of Service</Link></li>
                 </ul>
