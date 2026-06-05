@@ -1114,10 +1114,36 @@ export function Landing() {
           </div>
         </section>
 
+        {/* BY THE NUMBERS */}
+        <section className="relative overflow-hidden bg-[#0B1120] py-28 text-white lg:py-32">
+          <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={GRID_BG} />
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute left-1/2 top-1/2 h-[400px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-700/20 blur-[150px]" />
+          </div>
+          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8">
+            <Reveal>
+              <h2 className="mb-16 text-center font-serif text-3xl tracking-tight lg:text-4xl">
+                By The Numbers
+              </h2>
+            </Reveal>
+            <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+              {STATS.map((s, i) => (
+                <Reveal key={s.label} delay={i * 0.08}>
+                  <div className="text-center">
+                    <s.icon className="mx-auto mb-4 h-7 w-7 text-blue-300" />
+                    <div className="font-serif text-4xl tracking-tight lg:text-5xl">{s.value}</div>
+                    <div className="mt-2 text-sm text-white/55">{s.label}</div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* GLOBAL NETWORK — INTERACTIVE GLOBE */}
         <NetworkGlobe />
 
-        {/* IMAGINE 2045 + BY THE NUMBERS — one continuous passage */}
+        {/* IMAGINE 2045 — CINEMATIC INTERLUDE */}
         <section className="relative overflow-hidden bg-[#0B1120] py-32 text-white lg:py-44">
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute top-1/2 left-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-700/20 blur-[160px]" />
@@ -1140,25 +1166,6 @@ export function Landing() {
                 Students contribute to active research. Communities monitor their own ecosystems. AI coordinates millions of observations in real time. Discovery is no longer limited by institutions — it belongs to everyone.
               </p>
             </Reveal>
-          </div>
-
-          <div className="container relative z-10 mx-auto mt-24 max-w-7xl px-4 lg:mt-28 lg:px-8">
-            <Reveal>
-              <h2 className="mb-16 text-center font-serif text-3xl tracking-tight lg:text-4xl">
-                By The Numbers
-              </h2>
-            </Reveal>
-            <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-              {STATS.map((s, i) => (
-                <Reveal key={s.label} delay={i * 0.08}>
-                  <div className="text-center">
-                    <s.icon className="mx-auto mb-4 h-7 w-7 text-blue-300" />
-                    <div className="font-serif text-4xl tracking-tight lg:text-5xl">{s.value}</div>
-                    <div className="mt-2 text-sm text-white/55">{s.label}</div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
           </div>
         </section>
 
