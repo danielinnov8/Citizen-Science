@@ -11,6 +11,7 @@ import { INVENTORS } from "@/lib/inventors";
 import { Logo, LogoIcon } from "@/components/Logo";
 import { NetworkGlobe } from "@/components/NetworkGlobe";
 import { Flywheel } from "@/components/Flywheel";
+import { HeroAtom } from "@/components/HeroAtom";
 
 type DashboardSlide = {
   slug: string;
@@ -960,7 +961,8 @@ export function Landing() {
             <div className="absolute bottom-0 left-1/3 h-[500px] w-[500px] rounded-full bg-emerald-500/20 blur-[160px]" />
           </div>
           <div className="pointer-events-none absolute inset-0 opacity-[0.18]" style={GRID_BG} />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_25%,#0B1120_85%)]" />
+          <HeroAtom />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_25%,#0B1120_85%)]" />
 
           <div className="container relative z-10 mx-auto max-w-5xl px-4 pt-28 pb-32 text-center lg:px-8 lg:pt-40 lg:pb-44">
             <Reveal>
@@ -971,7 +973,7 @@ export function Landing() {
             </Reveal>
             <Reveal delay={0.05}>
               <h1 className="mt-8 font-serif text-5xl leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-                Humanity's Research<br className="hidden sm:block" /> Network
+                Humanity's<br className="hidden sm:block" /> Research Network
                 <span className="align-super text-2xl text-blue-300 lg:text-3xl">™</span>
               </h1>
             </Reveal>
