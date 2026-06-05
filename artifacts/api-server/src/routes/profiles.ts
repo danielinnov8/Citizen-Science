@@ -5,13 +5,11 @@ import {
   ListFeaturedProfilesResponse,
   GetFeaturedProfileResponse,
 } from "@workspace/api-zod";
-import { requireAuth } from "../middlewares/requireAuth";
 
 const router: IRouter = Router();
 
 router.get(
   "/profiles",
-  requireAuth,
   async (_req: Request, res: Response): Promise<void> => {
     const rows = await db
       .select({
@@ -32,7 +30,6 @@ router.get(
 
 router.get(
   "/profiles/:slug",
-  requireAuth,
   async (req: Request, res: Response): Promise<void> => {
     const slug = String(req.params.slug);
 
