@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
-import { Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown, Smartphone, Users, Eye, Lightbulb, Wheat, ShieldCheck, GraduationCap, Handshake, Wrench, Building2, UserPlus, Cpu } from "lucide-react";
+import { Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown, Smartphone, Users, Eye, Lightbulb, Wheat, ShieldCheck, GraduationCap, Handshake, Wrench, Building2, UserPlus, Cpu, Mail, Twitter, Linkedin, Github, Youtube, Send, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -959,6 +959,55 @@ function InventorCard({ inv, delay }: { inv: Inventor; delay: number }) {
   );
 }
 
+function FooterNewsletter() {
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  return (
+    <div className="mt-7">
+      <p className="text-sm font-semibold text-white">Join the network</p>
+      <p className="mt-1.5 text-sm leading-relaxed text-[#94A3B8]">
+        Get discoveries, new tools, and ways to take part — straight to your inbox.
+      </p>
+      {submitted ? (
+        <div className="mt-3 flex items-center gap-2 rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-300">
+          <Check className="h-4 w-4 shrink-0" />
+          You're on the list. Welcome to the network.
+        </div>
+      ) : (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (email.trim()) setSubmitted(true);
+          }}
+          className="mt-3 flex gap-2"
+        >
+          <div className="relative flex-1">
+            <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748B]" />
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@email.com"
+              aria-label="Email address"
+              className="h-11 w-full rounded-xl border border-white/10 bg-white/5 pl-9 pr-3 text-sm text-white placeholder:text-[#64748B] outline-none transition-colors focus:border-blue-500"
+            />
+          </div>
+          <button
+            type="submit"
+            aria-label="Subscribe"
+            className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            <Send className="h-4 w-4" />
+            <span className="hidden sm:inline">Subscribe</span>
+          </button>
+        </form>
+      )}
+    </div>
+  );
+}
+
 export function Landing() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans selection:bg-blue-100 selection:text-blue-900">
@@ -1481,21 +1530,108 @@ export function Landing() {
         </section>
       </main>
 
-      <footer className="bg-[#0B1120] py-12 text-[#94A3B8]">
-        <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 md:flex-row lg:px-8">
-          <Logo variant="full" theme="dark" />
-          <div className="flex flex-wrap justify-center gap-6 text-sm">
-            <a href="#vision" className="transition-colors hover:text-white">Vision</a>
-            <a href="#discover" className="transition-colors hover:text-white">Discover</a>
-            <a href="#impact" className="transition-colors hover:text-white">Impact</a>
-            <a href="#participate" className="transition-colors hover:text-white">Participate</a>
-            <Link href="/brand" className="transition-colors hover:text-white">Brand</Link>
-            <Link href="/privacy" className="transition-colors hover:text-white">Privacy</Link>
-            <Link href="/terms" className="transition-colors hover:text-white">Terms</Link>
+      <footer className="bg-[#0B1120] text-[#94A3B8]">
+        <div className="container mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-20">
+          <div className="flex flex-col gap-12 lg:flex-row lg:gap-16">
+            {/* Brand + newsletter */}
+            <div className="lg:w-[34%]">
+              <Logo variant="full" theme="dark" />
+              <p className="mt-5 max-w-sm text-sm leading-relaxed">
+                Humanity's Research Network™ — turning everyday curiosity into
+                collective intelligence. We give anyone, anywhere the tools to
+                run real experiments and contribute to the frontier of science.
+              </p>
+              <FooterNewsletter />
+              <div className="mt-7 flex items-center gap-3">
+                {[
+                  { Icon: Twitter, label: "Twitter / X", href: "#" },
+                  { Icon: Linkedin, label: "LinkedIn", href: "#" },
+                  { Icon: Github, label: "GitHub", href: "#" },
+                  { Icon: Youtube, label: "YouTube", href: "#" },
+                  { Icon: Mail, label: "Email us", href: "mailto:hello@citizenscience.org" },
+                ].map(({ Icon, label, href }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    aria-label={label}
+                    target={href.startsWith("http") ? "_blank" : undefined}
+                    rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[#94A3B8] transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Link columns */}
+            <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-4">
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Explore</h4>
+                <ul className="mt-4 space-y-3 text-sm">
+                  <li><a href="#vision" className="transition-colors hover:text-white">Our Vision</a></li>
+                  <li><a href="#discover" className="transition-colors hover:text-white">Discover</a></li>
+                  <li><a href="#impact" className="transition-colors hover:text-white">Areas of Impact</a></li>
+                  <li><a href="#participate" className="transition-colors hover:text-white">Participate</a></li>
+                  <li><a href="#community" className="transition-colors hover:text-white">Community</a></li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Platform</h4>
+                <ul className="mt-4 space-y-3 text-sm">
+                  <li><Link href="/dashboard" className="transition-colors hover:text-white">Dashboard</Link></li>
+                  <li><Link href="/agent" className="transition-colors hover:text-white">Science Copilot</Link></li>
+                  <li><Link href="/experiments" className="transition-colors hover:text-white">Experiments</Link></li>
+                  <li><Link href="/notebook" className="transition-colors hover:text-white">Field Notebook</Link></li>
+                  <li><Link href="/directory" className="transition-colors hover:text-white">Inventor Directory</Link></li>
+                  <li><Link href="/progress" className="transition-colors hover:text-white">Your Progress</Link></li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Areas of Science</h4>
+                <ul className="mt-4 space-y-3 text-sm">
+                  {CATEGORIES.filter((c) =>
+                    ["biology", "physics", "climate-science", "astronomy", "neuroscience", "chemistry"].includes(c.slug),
+                  ).map((c) => (
+                    <li key={c.slug}>
+                      <Link href={`/category/${c.slug}`} className="transition-colors hover:text-white">{c.name}</Link>
+                    </li>
+                  ))}
+                  <li>
+                    <Link href="/categories" className="inline-flex items-center gap-1 text-blue-400 transition-colors hover:text-blue-300">
+                      All areas <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Company</h4>
+                <ul className="mt-4 space-y-3 text-sm">
+                  <li><Link href="/brand" className="transition-colors hover:text-white">Brand Guidelines</Link></li>
+                  <li><Link href="/login" className="transition-colors hover:text-white">Sign In / Join</Link></li>
+                  <li><a href="mailto:hello@citizenscience.org" className="transition-colors hover:text-white">Contact</a></li>
+                  <li><Link href="/privacy" className="transition-colors hover:text-white">Privacy Policy</Link></li>
+                  <li><Link href="/terms" className="transition-colors hover:text-white">Terms of Service</Link></li>
+                </ul>
+              </div>
+            </div>
           </div>
-          <div className="text-right text-sm">
-            &copy; {new Date().getFullYear()} Citizen Science™.
-            <span className="block md:inline md:ml-2">
+        </div>
+
+        {/* Bottom bar */}
+        <div className="border-t border-white/10">
+          <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-xs md:flex-row lg:px-8">
+            <p className="order-2 md:order-1">
+              &copy; {new Date().getFullYear()} Citizen Science™. All rights reserved.
+            </p>
+            <p className="order-1 flex items-center gap-1.5 md:order-2">
+              <MapPin className="h-3.5 w-3.5" />
+              A global research network — built for everyone.
+            </p>
+            <p className="order-3">
               Built by{" "}
               <a
                 href="https://ideafactory.agency/danielinnovate"
@@ -1505,7 +1641,7 @@ export function Landing() {
               >
                 Daniel Innov8
               </a>
-            </span>
+            </p>
           </div>
         </div>
       </footer>
