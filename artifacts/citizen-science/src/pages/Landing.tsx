@@ -1042,11 +1042,11 @@ export function Landing() {
         <section id="community" className="bg-white pb-32 lg:pb-40">
           <div className="container mx-auto max-w-7xl px-4 lg:px-8">
             <Reveal>
-              <div className="mb-12 max-w-2xl">
+              <div className="mb-12 max-w-3xl">
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
                   Community
                 </span>
-                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
+                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:whitespace-nowrap lg:text-5xl">
                   Discovery has always belonged to the curious.
                 </h2>
                 <p className="mt-5 text-lg leading-relaxed text-[#64748B]">
