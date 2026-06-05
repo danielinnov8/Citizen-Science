@@ -1,7 +1,13 @@
 /**
- * Seed the eight inventors featured in the Citizen Science homepage Community
- * section into the `featured_profiles` table so their homepage cards can link to
- * real in-app directory profiles (`/directory/:slug`) instead of external links.
+ * Seed the people featured in the Citizen Science homepage Community section
+ * into the `featured_profiles` table so their homepage cards can link to real
+ * in-app directory profiles (`/directory/:slug`) instead of external links.
+ *
+ * The first row of four are the "Moonshot Mates" — the co-hosts of the Moonshots
+ * with Peter Diamandis podcast — followed by three widely recognized scientists.
+ * `manu-rehani` is intentionally NOT seeded here; he is seeded with richer
+ * content (patents, etc.) by `seed-profiles.ts`, and re-upserting him here would
+ * overwrite that.
  *
  * Unlike `seed-profiles.ts`, this seed uses hand-authored, fact-checked content
  * (no Gemini grounded research) so it is fully deterministic and not subject to
@@ -21,177 +27,164 @@ import {
 
 const INVENTORS: InsertFeaturedProfile[] = [
   {
-    slug: "manu-rehani",
-    name: "Manu Rehani",
-    group: "inventor",
-    field: "Behavioral Intelligence & Systems",
-    era: "21st century",
+    slug: "peter-diamandis",
+    name: "Peter Diamandis",
+    group: "thought_leader",
+    field: "Exponential Innovation",
+    era: "b. 1961",
     summary:
-      "Manu Rehani is an Austin-based inventor, engineer, and advisor whose work spans cloud storage, large language models, autonomous systems, and wearable intelligence. He holds twelve patents and advises teams building at the frontier of applied AI and human-centered systems.",
+      "Dr. Peter Diamandis is an entrepreneur and futurist who founded the XPRIZE Foundation, which uses large incentive prizes to drive breakthroughs in space, health, and the environment. He also co-founded Singularity University to educate leaders on exponential technologies.",
     contributions: [
-      "Holds twelve patents across cloud storage, language models, autonomous systems, and wearable intelligence",
-      "Advises teams building applied AI and human-centered systems",
-      "Work bridges behavioral intelligence and real-world engineering",
-    ],
-    quotes: [],
-    imageUrl: null,
-    relatedCategorySlugs: ["neuroscience"],
-    sources: [{ title: "rehani.co", url: "https://rehani.co" }],
-  },
-  {
-    slug: "manu-prakash",
-    name: "Manu Prakash",
-    group: "inventor",
-    field: "Frugal Science",
-    era: "21st century",
-    summary:
-      "Manu Prakash is a Stanford bioengineer and pioneer of \"frugal science\" — building powerful scientific tools that cost almost nothing so that anyone, anywhere, can do real research. His inventions put laboratory-grade capability into the hands of communities worldwide.",
-    contributions: [
-      "Invented the Foldscope, a durable paper microscope that costs about $1",
-      "Created the Paperfuge, a hand-powered centrifuge inspired by a child's whirligig",
-      "Champion of the \"frugal science\" movement for ultra-low-cost research tools",
+      "Founded the XPRIZE Foundation, pioneering incentivized competition for grand challenges",
+      "Co-founded Singularity University and Human Longevity, Inc.",
+      "Author of \"Abundance\" and \"Bold,\" charting how technology can solve humanity's biggest problems",
     ],
     quotes: [],
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/f/f1/Manu_Prakash_at_TED.jpg",
-    relatedCategorySlugs: ["microbiology", "biology"],
+      "https://upload.wikimedia.org/wikipedia/commons/6/64/Peter-Diamandis-Headshot.jpg",
+    relatedCategorySlugs: ["physics"],
     sources: [
-      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Manu_Prakash" },
-    ],
-  },
-  {
-    slug: "james-dyson",
-    name: "James Dyson",
-    group: "inventor",
-    field: "Industrial Design",
-    era: "b. 1947",
-    summary:
-      "Sir James Dyson is a British inventor and industrial designer best known for reinventing everyday machines. After building thousands of prototypes, he perfected the bagless cyclonic vacuum cleaner and went on to rethink fans, hand dryers, and lighting.",
-    contributions: [
-      "Invented the first bagless cyclonic vacuum cleaner after 5,127 prototypes",
-      "Developed bladeless Air Multiplier fans and the Airblade hand dryer",
-      "Founded the James Dyson Foundation to support young engineers",
-    ],
-    quotes: [],
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/6/67/Sir_James_Dyson_CBE_FREng_FRS.jpg",
-    relatedCategorySlugs: ["physics", "materials-science"],
-    sources: [
-      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/James_Dyson" },
-    ],
-  },
-  {
-    slug: "lonnie-johnson",
-    name: "Lonnie Johnson",
-    group: "inventor",
-    field: "Aerospace Engineering",
-    era: "b. 1949",
-    summary:
-      "Lonnie Johnson is an American aerospace and mechanical engineer who worked on NASA missions including Galileo and Cassini. He is widely known for inventing the Super Soaker water gun and now develops advanced energy and battery technologies.",
-    contributions: [
-      "Invented the Super Soaker, one of the best-selling toys of all time",
-      "Worked as an engineer on NASA's Galileo and Cassini missions",
-      "Develops next-generation energy conversion and battery systems",
-    ],
-    quotes: [],
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/e/eb/Lonnie_Johnson%2C_Office_of_Naval_Research_%28crop%29.jpg",
-    relatedCategorySlugs: ["physics", "materials-science"],
-    sources: [
+      { title: "diamandis.com", url: "https://www.diamandis.com" },
       {
         title: "Wikipedia",
-        url: "https://en.wikipedia.org/wiki/Lonnie_Johnson_(inventor)",
+        url: "https://en.wikipedia.org/wiki/Peter_Diamandis",
       },
     ],
   },
   {
-    slug: "radia-perlman",
-    name: "Radia Perlman",
-    group: "inventor",
-    field: "Network Engineering",
-    era: "b. 1951",
+    slug: "salim-ismail",
+    name: "Salim Ismail",
+    group: "thought_leader",
+    field: "Exponential Organizations",
+    era: "b. 1965",
     summary:
-      "Radia Perlman is an American computer scientist often called the \"Mother of the Internet.\" Her invention of the Spanning Tree Protocol made it possible to build large, reliable networks, shaping the foundations of how modern data networks operate.",
+      "Salim Ismail is a technology strategist, speaker, and serial entrepreneur. As founding executive director of Singularity University and author of \"Exponential Organizations,\" he studies how organizations can scale rapidly by leveraging accelerating technologies.",
     contributions: [
-      "Invented the Spanning Tree Protocol (STP) underpinning modern Ethernet networks",
-      "Made major contributions to network routing and security",
-      "Author of influential textbooks on network protocols",
+      "Founding executive director of Singularity University",
+      "Lead author of \"Exponential Organizations,\" a framework for technology-driven scaling",
+      "Founder of OpenExO, a global transformation platform",
     ],
     quotes: [],
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/a/af/Radia_Perlman_2009.jpg",
+      "https://www.shrm.org/content/dam/en/shrm/topics-tools/content-journeys/aihi/salim-ismail.png",
     relatedCategorySlugs: [],
     sources: [
       {
         title: "Wikipedia",
-        url: "https://en.wikipedia.org/wiki/Radia_Perlman",
+        url: "https://en.wikipedia.org/wiki/Salim_Ismail",
+      },
+      { title: "OpenExO", url: "https://openexo.com/community/salimismail" },
+    ],
+  },
+  {
+    slug: "dave-blundin",
+    name: "Dave Blundin",
+    group: "thought_leader",
+    field: "AI & Venture",
+    era: "Contemporary",
+    summary:
+      "Dave Blundin is an AI entrepreneur and investor who founded Link Ventures. Trained in MIT's AI Lab, he programmed some of the largest-scale neural networks of his era and has spent three decades building at the intersection of artificial intelligence and entrepreneurship.",
+    contributions: [
+      "Founder and managing partner of Link Ventures",
+      "Pioneered early large-scale neural networks and neural network quantization",
+      "Co-host of the Moonshots with Peter Diamandis podcast",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://www.vestigoventures.com/wp-content/uploads/2024/05/Headshot_Color_DaveBlundin.webp",
+    relatedCategorySlugs: [],
+    sources: [
+      {
+        title: "Link Ventures",
+        url: "https://www.linkventures.com/team/dave-blundin",
       },
     ],
   },
   {
-    slug: "dean-kamen",
-    name: "Dean Kamen",
-    group: "inventor",
-    field: "Biomedical Engineering",
-    era: "b. 1951",
+    slug: "alexander-wissner-gross",
+    name: "Alexander Wissner-Gross",
+    group: "scientist",
+    field: "AI & Complex Systems",
+    era: "b. 1981",
     summary:
-      "Dean Kamen is an American inventor and entrepreneur with hundreds of patents. He created early wearable medical devices and the Segway personal transporter, and founded FIRST to inspire young people in science and engineering.",
+      "Dr. Alexander Wissner-Gross is a computer scientist, inventor, and investor. He is best known for proposing the theory of causal entropic forces, which frames intelligent behavior as a drive to maximize future freedom of action.",
     contributions: [
-      "Invented the first wearable insulin pump and a portable dialysis machine",
-      "Created the Segway personal transporter and the iBot stair-climbing wheelchair",
-      "Founded FIRST (For Inspiration and Recognition of Science and Technology)",
+      "Proposed the theory of causal entropic forces linking intelligence to future option-keeping",
+      "Holds multiple patents and has published across physics, AI, and complex systems",
+      "Co-host of the Moonshots with Peter Diamandis podcast",
     ],
     quotes: [],
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/7/72/Dean_Kamen_at_MAGNET_in_Cleveland_-_2025_%28cropped%29.jpg",
-    relatedCategorySlugs: ["human-health"],
-    sources: [
-      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Dean_Kamen" },
-    ],
+    imageUrl: "https://www.alexwg.org/images/AWG-Headshot_2024-03-18B.png",
+    relatedCategorySlugs: ["physics"],
+    sources: [{ title: "alexwg.org", url: "https://www.alexwg.org" }],
   },
   {
-    slug: "federico-faggin",
-    name: "Federico Faggin",
-    group: "inventor",
-    field: "Microelectronics",
-    era: "b. 1941",
+    slug: "neil-degrasse-tyson",
+    name: "Neil deGrasse Tyson",
+    group: "scientist",
+    field: "Astrophysics",
+    era: "b. 1958",
     summary:
-      "Federico Faggin is an Italian-American physicist and engineer who led the design of the Intel 4004, the world's first commercial microprocessor. He pioneered the silicon-gate technology that made modern chips possible and later co-founded companies advancing microprocessor and touch technology.",
+      "Neil deGrasse Tyson is an American astrophysicist and one of the world's most prominent science communicators. As director of the Hayden Planetarium and host of Cosmos and StarTalk, he has brought astronomy and the wonder of the universe to millions.",
     contributions: [
-      "Led the design of the Intel 4004, the first commercial microprocessor",
-      "Developed silicon-gate MOS technology, foundational to modern chips",
-      "Co-founded Zilog and created the Z80 microprocessor",
+      "Director of the Hayden Planetarium at the American Museum of Natural History",
+      "Host of Cosmos: A Spacetime Odyssey and the StarTalk podcast",
+      "Best-selling author popularizing astrophysics for the public",
     ],
     quotes: [],
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/f/fc/Federico_Faggin_%28cropped%29.jpg",
-    relatedCategorySlugs: ["physics", "materials-science"],
+      "https://upload.wikimedia.org/wikipedia/commons/0/03/Neil_DeGrasse_Tyson_%282023%29.jpg",
+    relatedCategorySlugs: ["physics"],
     sources: [
       {
         title: "Wikipedia",
-        url: "https://en.wikipedia.org/wiki/Federico_Faggin",
+        url: "https://en.wikipedia.org/wiki/Neil_deGrasse_Tyson",
       },
     ],
   },
   {
-    slug: "hedy-lamarr",
-    name: "Hedy Lamarr",
-    group: "inventor",
-    field: "Communications",
-    era: "1914–2000",
+    slug: "albert-einstein",
+    name: "Albert Einstein",
+    group: "scientist",
+    field: "Theoretical Physics",
+    era: "1879–1955",
     summary:
-      "Hedy Lamarr was an Austrian-American actress and inventor. During World War II she co-invented a frequency-hopping spread-spectrum system to prevent the jamming of radio-guided torpedoes — a concept that became foundational to modern Wi-Fi, GPS, and Bluetooth.",
+      "Albert Einstein was a German-born theoretical physicist whose theory of relativity transformed our understanding of space, time, gravity, and energy. His work laid much of the foundation of modern physics and made him a global symbol of scientific genius.",
     contributions: [
-      "Co-invented a frequency-hopping spread-spectrum communication system",
-      "Her patent laid the groundwork for Wi-Fi, GPS, and Bluetooth",
-      "Posthumously inducted into the National Inventors Hall of Fame",
+      "Developed the special and general theories of relativity",
+      "Explained the photoelectric effect, foundational to quantum theory (1921 Nobel Prize in Physics)",
+      "Derived the mass–energy equivalence, E = mc²",
     ],
     quotes: [],
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/8/83/Hedy_Lamarr_Publicity_Photo_for_The_Heavenly_Body_1944.jpg",
-    relatedCategorySlugs: [],
+      "https://upload.wikimedia.org/wikipedia/commons/2/28/Albert_Einstein_Head_cleaned.jpg",
+    relatedCategorySlugs: ["physics"],
     sources: [
-      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Hedy_Lamarr" },
+      {
+        title: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Albert_Einstein",
+      },
+    ],
+  },
+  {
+    slug: "marie-curie",
+    name: "Marie Curie",
+    group: "scientist",
+    field: "Radioactivity",
+    era: "1867–1934",
+    summary:
+      "Marie Curie was a Polish-French physicist and chemist who pioneered research on radioactivity — a term she coined. She was the first woman to win a Nobel Prize and the first person to win Nobel Prizes in two different sciences.",
+    contributions: [
+      "Pioneered the theory of radioactivity and discovered the elements polonium and radium",
+      "First person to win Nobel Prizes in two sciences — Physics (1903) and Chemistry (1911)",
+      "Developed mobile radiography units to treat wounded soldiers in World War I",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/c/c8/Marie_Curie_c._1920s.jpg",
+    relatedCategorySlugs: ["physics"],
+    sources: [
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Marie_Curie" },
     ],
   },
 ];

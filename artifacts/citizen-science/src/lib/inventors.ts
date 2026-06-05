@@ -1,4 +1,7 @@
 import manuPhoto from "@assets/image_1780677287488.jpeg";
+import salimPhoto from "@assets/moonshot-salim-ismail.png";
+import blundinPhoto from "@assets/moonshot-dave-blundin.webp";
+import wissnerGrossPhoto from "@assets/moonshot-alexander-wissner-gross.png";
 
 export interface Inventor {
   name: string;
@@ -9,13 +12,50 @@ export interface Inventor {
   href: string;
 }
 
-// Curated showcase of inventors for the homepage. Manu Rehani is featured in
-// the first slot; the rest are widely recognized inventors whose work made
-// science and technology more accessible. Each `slug` maps to an in-app
-// directory profile (`/directory/:slug`) seeded by
+// Curated showcase for the homepage Community section. The first row of four are
+// the "Moonshot Mates" — the co-hosts of the Moonshots with Peter Diamandis
+// podcast — followed by Manu Rehani and three widely recognized scientists. Each
+// `slug` maps to an in-app directory profile (`/directory/:slug`) seeded by
 // `@workspace/scripts run seed-homepage-inventors`; `href` is kept as the
 // canonical external source for that profile.
 export const INVENTORS: Inventor[] = [
+  {
+    name: "Peter Diamandis",
+    slug: "peter-diamandis",
+    field: "Exponential Innovation",
+    blurb:
+      "Founder of the XPRIZE Foundation and Singularity University, championing incentivized competition to solve humanity's grand challenges.",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/6/64/Peter-Diamandis-Headshot.jpg",
+    href: "https://www.diamandis.com",
+  },
+  {
+    name: "Salim Ismail",
+    slug: "salim-ismail",
+    field: "Exponential Organizations",
+    blurb:
+      "Founding executive director of Singularity University and author of \"Exponential Organizations,\" mapping how technology reshapes institutions.",
+    imageUrl: salimPhoto,
+    href: "https://openexo.com/community/salimismail",
+  },
+  {
+    name: "Dave Blundin",
+    slug: "dave-blundin",
+    field: "AI & Venture",
+    blurb:
+      "MIT-trained AI pioneer and founder of Link Ventures who built large-scale neural networks decades before the modern AI boom.",
+    imageUrl: blundinPhoto,
+    href: "https://www.linkventures.com/team/dave-blundin",
+  },
+  {
+    name: "Alexander Wissner-Gross",
+    slug: "alexander-wissner-gross",
+    field: "AI & Complex Systems",
+    blurb:
+      "Computer scientist and inventor known for the theory of causal entropic forces, linking intelligence to the drive to keep future options open.",
+    imageUrl: wissnerGrossPhoto,
+    href: "https://www.alexwg.org",
+  },
   {
     name: "Manu Rehani",
     slug: "manu-rehani",
@@ -26,73 +66,33 @@ export const INVENTORS: Inventor[] = [
     href: "https://rehani.co",
   },
   {
-    name: "Manu Prakash",
-    slug: "manu-prakash",
-    field: "Frugal Science",
+    name: "Neil deGrasse Tyson",
+    slug: "neil-degrasse-tyson",
+    field: "Astrophysics",
     blurb:
-      "Invented the Foldscope, a $1 paper microscope, and the Paperfuge — putting real lab tools into anyone's hands.",
+      "Astrophysicist, director of the Hayden Planetarium, and one of the world's most influential communicators of science to the public.",
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/f/f1/Manu_Prakash_at_TED.jpg",
-    href: "https://en.wikipedia.org/wiki/Manu_Prakash",
+      "https://upload.wikimedia.org/wikipedia/commons/0/03/Neil_DeGrasse_Tyson_%282023%29.jpg",
+    href: "https://en.wikipedia.org/wiki/Neil_deGrasse_Tyson",
   },
   {
-    name: "James Dyson",
-    slug: "james-dyson",
-    field: "Industrial Design",
+    name: "Albert Einstein",
+    slug: "albert-einstein",
+    field: "Theoretical Physics",
     blurb:
-      "Built 5,127 prototypes to perfect the bagless cyclonic vacuum, then reinvented fans, dryers, and more.",
+      "Developed the theory of relativity and reshaped our understanding of space, time, and energy — a defining mind of modern science.",
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/6/67/Sir_James_Dyson_CBE_FREng_FRS.jpg",
-    href: "https://en.wikipedia.org/wiki/James_Dyson",
+      "https://upload.wikimedia.org/wikipedia/commons/2/28/Albert_Einstein_Head_cleaned.jpg",
+    href: "https://en.wikipedia.org/wiki/Albert_Einstein",
   },
   {
-    name: "Lonnie Johnson",
-    slug: "lonnie-johnson",
-    field: "Aerospace Engineering",
+    name: "Marie Curie",
+    slug: "marie-curie",
+    field: "Radioactivity",
     blurb:
-      "NASA engineer who invented the Super Soaker and now develops next-generation energy and battery technology.",
+      "Pioneer of radioactivity and the first person to win Nobel Prizes in two sciences — Physics and Chemistry.",
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/e/eb/Lonnie_Johnson%2C_Office_of_Naval_Research_%28crop%29.jpg",
-    href: "https://en.wikipedia.org/wiki/Lonnie_Johnson_(inventor)",
-  },
-  {
-    name: "Radia Perlman",
-    slug: "radia-perlman",
-    field: "Network Engineering",
-    blurb:
-      "The \"Mother of the Internet\" — invented the Spanning Tree Protocol that makes modern networks possible.",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/a/af/Radia_Perlman_2009.jpg",
-    href: "https://en.wikipedia.org/wiki/Radia_Perlman",
-  },
-  {
-    name: "Dean Kamen",
-    slug: "dean-kamen",
-    field: "Biomedical Engineering",
-    blurb:
-      "Inventor of the first wearable insulin pump and the Segway, and founder of the FIRST robotics program.",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/7/72/Dean_Kamen_at_MAGNET_in_Cleveland_-_2025_%28cropped%29.jpg",
-    href: "https://en.wikipedia.org/wiki/Dean_Kamen",
-  },
-  {
-    name: "Federico Faggin",
-    slug: "federico-faggin",
-    field: "Microelectronics",
-    blurb:
-      "Led the design of the Intel 4004, the world's first commercial microprocessor, and the silicon-gate technology behind it.",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/f/fc/Federico_Faggin_%28cropped%29.jpg",
-    href: "https://en.wikipedia.org/wiki/Federico_Faggin",
-  },
-  {
-    name: "Hedy Lamarr",
-    slug: "hedy-lamarr",
-    field: "Communications",
-    blurb:
-      "Hollywood star and inventor whose frequency-hopping patent laid the groundwork for Wi-Fi, GPS, and Bluetooth.",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/8/83/Hedy_Lamarr_Publicity_Photo_for_The_Heavenly_Body_1944.jpg",
-    href: "https://en.wikipedia.org/wiki/Hedy_Lamarr",
+      "https://upload.wikimedia.org/wikipedia/commons/c/c8/Marie_Curie_c._1920s.jpg",
+    href: "https://en.wikipedia.org/wiki/Marie_Curie",
   },
 ];
