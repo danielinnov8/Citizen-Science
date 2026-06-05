@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ProfileGroup } from "./profileGroup";
+import type { ProfilePatent } from "./profilePatent";
 import type { ProfileSource } from "./profileSource";
 
 export interface FeaturedProfile {
@@ -22,4 +23,5 @@ export interface FeaturedProfile {
   imageUrl: string | null;
   relatedCategorySlugs: string[];
   sources: ProfileSource[];
+  patents: ProfilePatent[];
 }

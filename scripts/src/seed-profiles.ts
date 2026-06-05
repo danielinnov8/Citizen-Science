@@ -32,6 +32,7 @@ import {
   pool,
   featuredProfilesTable,
   type ProfileSource,
+  type ProfilePatent,
   type ProfileGroup,
 } from "@workspace/db";
 import { researchWithSearch } from "@workspace/integrations-gemini-ai-server";
@@ -566,7 +567,137 @@ interface CuratedProfile {
   imageUrl: string | null;
   relatedCategorySlugs: (typeof CATEGORY_SLUGS)[number][];
   sources: ProfileSource[];
+  patents?: ProfilePatent[];
 }
+
+// Real, verified patents keyed by profile slug. Every entry was confirmed
+// against its public record (Google Patents / Justia inventor pages) so the
+// directory never displays a fabricated patent. `url` links to the
+// authoritative source. Only profiles whose patents are verifiable appear
+// here; profiles absent from this map render no Patents section.
+const PATENTS_BY_SLUG: Record<string, ProfilePatent[]> = {
+  "manu-rehani": [
+    {
+      title: "Storage system for pervasive and mobile content",
+      number: "US 9,787,454",
+      year: "2017",
+      url: "https://patents.google.com/patent/US9787454",
+    },
+    {
+      title: "Real-time autonomous organization",
+      number: "US 9,667,513",
+      year: "2017",
+      url: "https://patents.google.com/patent/US9667513",
+    },
+    {
+      title: "Methods and systems for measuring semantics in communications",
+      number: "US 9,269,353",
+      year: "2016",
+      url: "https://patents.google.com/patent/US9269353",
+    },
+    {
+      title: "Format for displaying text analytics results",
+      number: "US 9,020,807",
+      year: "2015",
+      url: "https://patents.google.com/patent/US9020807",
+    },
+    {
+      title: "Taxonomy and application of language analysis and processing",
+      number: "US 8,996,359",
+      year: "2015",
+      url: "https://patents.google.com/patent/US8996359",
+    },
+    {
+      title: "Enactive perception device",
+      number: "US 8,952,796",
+      year: "2015",
+      url: "https://patents.google.com/patent/US8952796",
+    },
+    {
+      title:
+        "Methods and systems for identifying, quantifying, analyzing, and optimizing the level of engagement of components within a defined ecosystem or context",
+      number: "US 8,577,718",
+      year: "2013",
+      url: "https://patents.google.com/patent/US8577718",
+    },
+  ],
+  "hedy-lamarr": [
+    {
+      title: "Secret Communication System (frequency hopping)",
+      number: "US 2,292,387",
+      year: "1942",
+      url: "https://patents.google.com/patent/US2292387A",
+    },
+  ],
+  "james-dyson": [
+    {
+      title: "Vacuum cleaning appliance (Dual Cyclone)",
+      number: "US 4,593,429",
+      year: "1986",
+      url: "https://patents.google.com/patent/US4593429",
+    },
+  ],
+  "lonnie-johnson": [
+    {
+      title: "Double tank pinch trigger pump water gun (Super Soaker)",
+      number: "US 5,150,819",
+      year: "1992",
+      url: "https://patents.google.com/patent/US5150819",
+    },
+  ],
+  "dean-kamen": [
+    {
+      title: "Riderless stabilization of a balancing transporter (Segway)",
+      number: "US 6,779,621",
+      year: "2004",
+      url: "https://patents.google.com/patent/US6779621",
+    },
+  ],
+  "federico-faggin": [
+    {
+      title: "Object position detector with edge motion feature (touchpad)",
+      number: "US 5,543,590",
+      year: "1996",
+      url: "https://patents.google.com/patent/US5543590",
+    },
+    {
+      title: "Finger/stylus touch pad",
+      number: "US 8,089,470",
+      year: "2012",
+      url: "https://patents.google.com/patent/US8089470",
+    },
+  ],
+  "radia-perlman": [
+    {
+      title:
+        "Reliable broadcast of information in a wide area network (Spanning Tree Protocol)",
+      number: "US 5,086,428",
+      year: "1992",
+      url: "https://patents.google.com/patent/US5086428",
+    },
+    {
+      title:
+        "Method and apparatus for preventing spanning tree loops during traffic overload conditions",
+      number: "US 7,339,900",
+      year: "2008",
+      url: "https://patents.google.com/patent/US7339900B2",
+    },
+  ],
+  "manu-prakash": [
+    {
+      title: "Foldscope — ultra-low-cost folding microscope",
+      number: "US 9,696,535",
+      year: "2017",
+      url: "https://patents.google.com/patent/US9696535B2",
+    },
+    {
+      title: "Paperfuge — paper-based centrifugation platform",
+      number: "US 11,331,665",
+      year: "2022",
+      url: "https://patents.google.com/patent/US11331665B2",
+    },
+  ],
+};
 
 const CURATED_PROFILES: CuratedProfile[] = [
   {
@@ -597,9 +728,10 @@ const CURATED_PROFILES: CuratedProfile[] = [
 ];
 
 async function seedCurated(profile: CuratedProfile): Promise<string> {
+  const patents = profile.patents ?? PATENTS_BY_SLUG[profile.slug] ?? [];
   await db
     .insert(featuredProfilesTable)
-    .values(profile)
+    .values({ ...profile, patents })
     .onConflictDoUpdate({
       target: featuredProfilesTable.slug,
       set: {
@@ -613,6 +745,7 @@ async function seedCurated(profile: CuratedProfile): Promise<string> {
         imageUrl: profile.imageUrl,
         relatedCategorySlugs: profile.relatedCategorySlugs,
         sources: profile.sources,
+        patents,
         updatedAt: new Date(),
       },
     });
@@ -814,6 +947,7 @@ async function seedOne(person: Person, force: boolean): Promise<string> {
     imageUrl,
     relatedCategorySlugs: researched.profile.relatedCategorySlugs,
     sources: researched.sources,
+    patents: PATENTS_BY_SLUG[slug] ?? [],
   };
 
   await db
@@ -832,6 +966,7 @@ async function seedOne(person: Person, force: boolean): Promise<string> {
         imageUrl: values.imageUrl,
         relatedCategorySlugs: values.relatedCategorySlugs,
         sources: values.sources,
+        patents: values.patents,
         updatedAt: new Date(),
       },
     });

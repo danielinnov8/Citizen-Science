@@ -265,6 +265,21 @@ components:
       required:
         - title
         - url
+    ProfilePatent:
+      type: object
+      properties:
+        title:
+          type: string
+        number:
+          type: string
+        year:
+          type: string
+        url:
+          type: string
+      required:
+        - title
+        - number
+        - url
     ProfileGroup:
       type: string
       enum:
@@ -331,6 +346,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ProfileSource"
+        patents:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProfilePatent"
       required:
         - id
         - slug
@@ -344,3 +363,4 @@ components:
         - imageUrl
         - relatedCategorySlugs
         - sources
+        - patents

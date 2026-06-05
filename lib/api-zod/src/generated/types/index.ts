@@ -14,5 +14,6 @@ export * from "./healthStatus";
 export * from "./loginInput";
 export * from "./messageResponse";
 export * from "./profileGroup";
+export * from "./profilePatent";
 export * from "./profileSource";
 export * from "./registerInput";

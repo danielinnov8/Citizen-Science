@@ -8,6 +8,7 @@ import {
   Compass,
   Beaker,
   AlertCircle,
+  FileText,
 } from "lucide-react";
 import { useGetFeaturedProfile } from "@workspace/api-client-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -213,6 +214,51 @@ export function ProfileDetail() {
                   </blockquote>
                 ))}
               </div>
+            </section>
+          )}
+
+          {/* Patents */}
+          {profile.patents.length > 0 && (
+            <section>
+              <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight mb-4">
+                <FileText className="h-5 w-5 text-[#2563EB]" />
+                Patents
+              </h2>
+              <ul className="space-y-3">
+                {profile.patents.map((p, i) => (
+                  <li key={i}>
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-start gap-3 bg-white rounded-xl border border-[#E2E8F0] p-4 hover:border-blue-300 transition-colors"
+                    >
+                      <FileText className="h-5 w-5 flex-shrink-0 text-[#94A3B8] group-hover:text-[#2563EB] transition-colors mt-0.5" />
+                      <span className="min-w-0">
+                        <span className="block font-semibold text-[#0F172A] group-hover:text-blue-700 transition-colors">
+                          {p.title}
+                        </span>
+                        <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#64748B]">
+                          <span className="font-mono font-medium text-[#475569]">
+                            {p.number}
+                          </span>
+                          {p.year && (
+                            <>
+                              <span className="text-[#CBD5E1]">·</span>
+                              <span>{p.year}</span>
+                            </>
+                          )}
+                          <span className="text-[#CBD5E1]">·</span>
+                          <span className="inline-flex items-center gap-1 text-[#2563EB]">
+                            {hostname(p.url)}
+                            <ExternalLink className="h-3 w-3" />
+                          </span>
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </section>
           )}
 

@@ -109,4 +109,12 @@ export const GetFeaturedProfileResponse = zod.object({
       url: zod.string(),
     }),
   ),
+  patents: zod.array(
+    zod.object({
+      title: zod.string(),
+      number: zod.string(),
+      year: zod.string().optional(),
+      url: zod.string(),
+    }),
+  ),
 });

@@ -46,6 +46,13 @@ export interface ProfileSource {
   url: string;
 }
 
+export interface ProfilePatent {
+  title: string;
+  number: string;
+  year?: string;
+  url: string;
+}
+
 export type ProfileGroup = (typeof ProfileGroup)[keyof typeof ProfileGroup];
 
 export const ProfileGroup = {
@@ -79,4 +86,5 @@ export interface FeaturedProfile {
   imageUrl: string | null;
   relatedCategorySlugs: string[];
   sources: ProfileSource[];
+  patents: ProfilePatent[];
 }

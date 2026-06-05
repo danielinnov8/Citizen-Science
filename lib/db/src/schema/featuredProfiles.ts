@@ -5,6 +5,16 @@ export interface ProfileSource {
   url: string;
 }
 
+// A patent attributed to a profile, linking to its verified public record
+// (e.g. Google Patents). `number` is the human-readable patent number and
+// `url` points to the authoritative source so claims stay verifiable.
+export interface ProfilePatent {
+  title: string;
+  number: string;
+  year?: string;
+  url: string;
+}
+
 // Discriminates the kind of figure a profile represents so the directory can
 // filter by it. Task #14 seeded mixed scientists/inventors; this dimension was
 // added in Task #18 alongside ~300 living figures (defaults to "scientist" so
@@ -30,6 +40,7 @@ export const featuredProfilesTable = pgTable("featured_profiles", {
     .notNull()
     .default([]),
   sources: jsonb("sources").$type<ProfileSource[]>().notNull().default([]),
+  patents: jsonb("patents").$type<ProfilePatent[]>().notNull().default([]),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
