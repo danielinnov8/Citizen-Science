@@ -10,6 +10,7 @@ import { DEVICES } from "@/lib/devices";
 import { INVENTORS } from "@/lib/inventors";
 import { Logo, LogoIcon } from "@/components/Logo";
 import { NetworkGlobe } from "@/components/NetworkGlobe";
+import { Flywheel } from "@/components/Flywheel";
 
 type DashboardSlide = {
   slug: string;
@@ -875,15 +876,6 @@ const PILLARS = [
   },
 ];
 
-const FLYWHEEL = [
-  "Curiosity",
-  "Participation",
-  "Observation",
-  "Knowledge",
-  "Discovery",
-  "Impact",
-];
-
 const IMPACT_AREAS = [
   { icon: CloudSun, name: "Climate", desc: "Track a changing planet in real time." },
   { icon: Leaf, name: "Biodiversity", desc: "Map the species around us." },
@@ -1108,7 +1100,7 @@ export function Landing() {
                   How The Network Grows
                 </span>
                 <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
-                  The Discovery Flywheel™
+                  The Discovery Flywheel
                 </h2>
                 <p className="mt-5 text-lg leading-relaxed text-[#64748B]">
                   Citizen Science transforms individual moments of curiosity into a continuous cycle of learning, innovation, and progress.
@@ -1116,50 +1108,8 @@ export function Landing() {
               </div>
             </Reveal>
 
-            {/* Ring (md+) */}
             <Reveal delay={0.1}>
-              <div className="relative mx-auto hidden aspect-square w-full max-w-xl md:block">
-                <div className="absolute inset-[12%] rounded-full border-2 border-dashed border-blue-200" />
-                <div className="absolute left-1/2 top-1/2 flex h-36 w-36 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-violet-600 text-center text-white shadow-xl">
-                  <span className="font-serif text-lg leading-tight">Discovery<br />Flywheel™</span>
-                </div>
-                {FLYWHEEL.map((stage, i) => {
-                  const angle = (i / FLYWHEEL.length) * 2 * Math.PI - Math.PI / 2;
-                  const x = 50 + 44 * Math.cos(angle);
-                  const y = 50 + 44 * Math.sin(angle);
-                  return (
-                    <div
-                      key={stage}
-                      className="absolute flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-[#E2E8F0] bg-white text-center shadow-sm"
-                      style={{ left: `${x}%`, top: `${y}%` }}
-                    >
-                      <span className="text-[10px] font-bold text-blue-500">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <span className="px-1 text-sm font-semibold leading-tight text-[#0F172A]">
-                        {stage}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </Reveal>
-
-            {/* Linear (mobile) */}
-            <Reveal delay={0.1}>
-              <div className="flex flex-wrap items-center justify-center gap-2 md:hidden">
-                {FLYWHEEL.map((stage, i) => (
-                  <React.Fragment key={stage}>
-                    <span className="rounded-full border border-[#E2E8F0] bg-white px-4 py-2 text-sm font-semibold shadow-sm">
-                      {stage}
-                    </span>
-                    <ArrowRight className="h-4 w-4 text-blue-400" />
-                  </React.Fragment>
-                ))}
-                <span className="rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
-                  More Curiosity
-                </span>
-              </div>
+              <Flywheel />
             </Reveal>
           </div>
         </section>
