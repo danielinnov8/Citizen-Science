@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CATEGORIES, getCategoryIcon } from "@/lib/categories";
 import { DEVICES } from "@/lib/devices";
+import { INVENTORS } from "@/lib/inventors";
 import { Logo, LogoIcon } from "@/components/Logo";
 
 type DashboardSlide = {
@@ -1001,8 +1002,56 @@ export function Landing() {
           </div>
         </section>
 
-        {/* HOW IT WORKS */}
+        {/* INVENTORS */}
         <section className="py-32 bg-[#F8FAFC] border-y border-[#E2E8F0]">
+          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+            <div className="mb-12 max-w-2xl">
+              <div className="flex items-center gap-2 text-sm font-medium text-[#2563EB] mb-3">
+                <Sparkles className="h-4 w-4" />
+                Inventors
+              </div>
+              <h2 className="text-3xl font-bold mb-4">Minds That Built the Future</h2>
+              <p className="text-[#64748B] leading-relaxed">
+                The same curiosity that powers citizen science drives the world's
+                great inventors. Meet a few who turned questions into things that
+                changed how we live.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+              {INVENTORS.map((inv) => (
+                <a
+                  key={inv.name}
+                  href={inv.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden hover:border-blue-200 hover:shadow-md transition-all flex flex-col"
+                >
+                  <div className="aspect-[4/5] bg-[#F1F5F9] overflow-hidden relative">
+                    <img
+                      src={inv.imageUrl}
+                      alt={inv.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="p-4 flex flex-col flex-1">
+                    <h3 className="font-semibold text-[#0F172A] leading-snug group-hover:text-blue-700 transition-colors">
+                      {inv.name}
+                    </h3>
+                    <p className="text-sm text-[#2563EB] font-medium mt-1">{inv.field}</p>
+                    <p className="text-xs text-[#64748B] mt-2 leading-relaxed line-clamp-4">
+                      {inv.blurb}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* HOW IT WORKS */}
+        <section className="py-32 bg-white">
           <div className="container mx-auto max-w-5xl px-4 lg:px-8">
             <h2 className="text-3xl font-bold mb-16 text-center">How It Works</h2>
             <div className="space-y-12">
