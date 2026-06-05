@@ -16,6 +16,12 @@ import {
 
 const ALL = "__all__";
 
+const GROUP_LABELS: Record<string, string> = {
+  scientist: "Scientists",
+  inventor: "Inventors",
+  thought_leader: "Thought Leaders",
+};
+
 function initials(name: string): string {
   return name
     .split(/\s+/)
@@ -63,11 +69,20 @@ function ProfileCard({ p }: { p: FeaturedProfileSummary }) {
 export function Directory() {
   const { data, isLoading, isError } = useListFeaturedProfiles();
   const [query, setQuery] = useState("");
+  const [group, setGroup] = useState(ALL);
   const [field, setField] = useState(ALL);
   const [era, setEra] = useState(ALL);
 
   const profiles = data ?? [];
 
+  const groups = useMemo(
+    () =>
+      Array.from(new Set(profiles.map((p) => p.group))).sort(
+        (a, b) =>
+          (GROUP_LABELS[a] ?? a).localeCompare(GROUP_LABELS[b] ?? b),
+      ),
+    [profiles],
+  );
   const fields = useMemo(
     () => Array.from(new Set(profiles.map((p) => p.field))).sort(),
     [profiles],
@@ -80,6 +95,7 @@ export function Directory() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return profiles.filter((p) => {
+      if (group !== ALL && p.group !== group) return false;
       if (field !== ALL && p.field !== field) return false;
       if (era !== ALL && p.era !== era) return false;
       if (q) {
@@ -88,7 +104,7 @@ export function Directory() {
       }
       return true;
     });
-  }, [profiles, query, field, era]);
+  }, [profiles, query, group, field, era]);
 
   return (
     <div className="p-6 lg:p-10 max-w-6xl mx-auto w-full animate-in fade-in duration-500 pb-32">
@@ -119,6 +135,19 @@ export function Directory() {
             className="pl-9 bg-white"
           />
         </div>
+        <Select value={group} onValueChange={setGroup}>
+          <SelectTrigger className="bg-white md:w-48">
+            <SelectValue placeholder="All groups" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All groups</SelectItem>
+            {groups.map((g) => (
+              <SelectItem key={g} value={g}>
+                {GROUP_LABELS[g] ?? g}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={field} onValueChange={setField}>
           <SelectTrigger className="bg-white md:w-52">
             <SelectValue placeholder="All fields" />

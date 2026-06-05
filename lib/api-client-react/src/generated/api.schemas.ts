@@ -46,10 +46,19 @@ export interface ProfileSource {
   url: string;
 }
 
+export type ProfileGroup = (typeof ProfileGroup)[keyof typeof ProfileGroup];
+
+export const ProfileGroup = {
+  scientist: "scientist",
+  inventor: "inventor",
+  thought_leader: "thought_leader",
+} as const;
+
 export interface FeaturedProfileSummary {
   id: string;
   slug: string;
   name: string;
+  group: ProfileGroup;
   field: string;
   era: string;
   /** @nullable */
@@ -60,6 +69,7 @@ export interface FeaturedProfile {
   id: string;
   slug: string;
   name: string;
+  group: ProfileGroup;
   field: string;
   era: string;
   summary: string;

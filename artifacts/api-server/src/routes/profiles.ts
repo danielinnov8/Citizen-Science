@@ -18,6 +18,7 @@ router.get(
         id: featuredProfilesTable.id,
         slug: featuredProfilesTable.slug,
         name: featuredProfilesTable.name,
+        group: featuredProfilesTable.group,
         field: featuredProfilesTable.field,
         era: featuredProfilesTable.era,
         imageUrl: featuredProfilesTable.imageUrl,

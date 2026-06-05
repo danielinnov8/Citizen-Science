@@ -5,12 +5,14 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ProfileGroup } from "./profileGroup";
 import type { ProfileSource } from "./profileSource";
 
 export interface FeaturedProfile {
   id: string;
   slug: string;
   name: string;
+  group: ProfileGroup;
   field: string;
   era: string;
   summary: string;

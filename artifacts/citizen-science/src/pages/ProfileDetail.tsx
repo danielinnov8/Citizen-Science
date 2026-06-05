@@ -16,6 +16,12 @@ import { Button } from "@/components/ui/button";
 import { CATEGORIES } from "@/lib/categories";
 import { EXPERIMENTS } from "@/lib/experiments";
 
+const GROUP_LABELS: Record<string, string> = {
+  scientist: "Scientist",
+  inventor: "Inventor",
+  thought_leader: "Thought Leader",
+};
+
 function initials(name: string): string {
   return name
     .split(/\s+/)
@@ -136,6 +142,12 @@ export function ProfileDetail() {
               )}
             </div>
             <div className="p-5">
+              <div className="text-xs font-bold uppercase tracking-wide text-[#94A3B8] mb-1">
+                Group
+              </div>
+              <div className="text-[#0F172A] font-medium mb-4">
+                {GROUP_LABELS[profile.group] ?? profile.field}
+              </div>
               <div className="text-xs font-bold uppercase tracking-wide text-[#94A3B8] mb-1">
                 Field
               </div>

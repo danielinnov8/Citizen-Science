@@ -265,6 +265,12 @@ components:
       required:
         - title
         - url
+    ProfileGroup:
+      type: string
+      enum:
+        - scientist
+        - inventor
+        - thought_leader
     FeaturedProfileSummary:
       type: object
       properties:
@@ -274,6 +280,8 @@ components:
           type: string
         name:
           type: string
+        group:
+          $ref: "#/components/schemas/ProfileGroup"
         field:
           type: string
         era:
@@ -284,6 +292,7 @@ components:
         - id
         - slug
         - name
+        - group
         - field
         - era
         - imageUrl
@@ -296,6 +305,8 @@ components:
           type: string
         name:
           type: string
+        group:
+          $ref: "#/components/schemas/ProfileGroup"
         field:
           type: string
         era:
@@ -324,6 +335,7 @@ components:
         - id
         - slug
         - name
+        - group
         - field
         - era
         - summary

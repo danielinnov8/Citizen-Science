@@ -1,16 +1,30 @@
 /**
- * One-time seed for the Citizen Science "Scientists & Inventors" directory.
+ * Seed for the Citizen Science "Scientists & Inventors" directory.
  *
  * For each curated person it uses the grounded Gemini research helper
  * (Google Search) to fetch a short bio, field, era, key contributions, notable
  * quotes, and relevant Citizen Science category slugs — capturing the web
  * source citations from grounding — then pulls a portrait from Wikipedia and
- * upserts the record into the `featured_profiles` table.
+ * upserts the record into the `featured_profiles` table (keyed by slug).
+ *
+ * Task #18 expanded this into a living-focused dataset of ~300 people across
+ * three groups — ~100 living scientists, ~100 living inventors, and ~100 living
+ * thought leaders / science communicators — plus the original Task #14 list
+ * (kept for backward-compat, tagged with an inferred group). The `group`
+ * dimension lets the directory filter scientist vs. inventor vs. thought-leader.
+ *
+ * The run is idempotent and RESUMABLE: by default it skips people that already
+ * exist (by slug), so a partial run interrupted by API rate limits can simply
+ * be re-run to continue. The Gemini free tier caps grounded requests heavily
+ * (~per-minute and per-day), so seeding all ~300 takes multiple passes / a paid
+ * key — pacing and 429 back-off are built in.
  *
  * Usage:
- *   pnpm --filter @workspace/scripts run seed-profiles            # seed everyone
- *   pnpm --filter @workspace/scripts run seed-profiles -- 10      # first 10 only
- *   FORCE=1 pnpm --filter @workspace/scripts run seed-profiles    # re-research existing
+ *   pnpm --filter @workspace/scripts run seed-profiles               # seed everyone (resumable)
+ *   pnpm --filter @workspace/scripts run seed-profiles -- 10         # first 10 only
+ *   GROUP=thought_leader pnpm --filter @workspace/scripts run seed-profiles   # one group only
+ *   FORCE=1 pnpm --filter @workspace/scripts run seed-profiles       # re-research existing
+ *   PACE_MS=2000 pnpm --filter @workspace/scripts run seed-profiles  # faster pacing (paid key)
  */
 import { sql } from "drizzle-orm";
 import {
@@ -18,6 +32,7 @@ import {
   pool,
   featuredProfilesTable,
   type ProfileSource,
+  type ProfileGroup,
 } from "@workspace/db";
 import { researchWithSearch } from "@workspace/integrations-gemini-ai-server";
 
@@ -39,8 +54,326 @@ const CATEGORY_SLUGS = [
   "materials-science",
 ] as const;
 
-// Curated list of ~100 notable scientists and inventors across many fields.
-const PEOPLE: string[] = [
+interface Person {
+  name: string;
+  group: ProfileGroup;
+}
+
+// ~100 living scientists (researchers across the sciences).
+const LIVING_SCIENTISTS: string[] = [
+  "Jennifer Doudna",
+  "Emmanuelle Charpentier",
+  "Frances Arnold",
+  "Carolyn Bertozzi",
+  "Katalin Karikó",
+  "Drew Weissman",
+  "Svante Pääbo",
+  "Roger Penrose",
+  "Kip Thorne",
+  "Rainer Weiss",
+  "Barry Barish",
+  "Andrea Ghez",
+  "Reinhard Genzel",
+  "Donna Strickland",
+  "Gérard Mourou",
+  "Arthur Ashkin",
+  "M. Stanley Whittingham",
+  "Akira Yoshino",
+  "James P. Allison",
+  "Tasuku Honjo",
+  "Gregg Semenza",
+  "William Kaelin",
+  "Peter Ratcliffe",
+  "Michael Houghton",
+  "Charles M. Rice",
+  "Harvey Alter",
+  "David Julius",
+  "Ardem Patapoutian",
+  "Morten Meldal",
+  "Benjamin List",
+  "David MacMillan",
+  "Klaus Hasselmann",
+  "Giorgio Parisi",
+  "Alain Aspect",
+  "John Clauser",
+  "Anton Zeilinger",
+  "Pierre Agostini",
+  "Ferenc Krausz",
+  "Anne L'Huillier",
+  "Moungi Bawendi",
+  "Louis Brus",
+  "Aleksey Yekimov",
+  "Edward Witten",
+  "Juan Maldacena",
+  "Lisa Randall",
+  "Brian Greene",
+  "Sean Carroll",
+  "Lene Hau",
+  "Shinya Yamanaka",
+  "Robert Langer",
+  "George Church",
+  "Eric Lander",
+  "Feng Zhang",
+  "Carl June",
+  "Geoffrey Hinton",
+  "Yoshua Bengio",
+  "Yann LeCun",
+  "Fei-Fei Li",
+  "Stuart Russell",
+  "Judea Pearl",
+  "Demis Hassabis",
+  "John Jumper",
+  "Cumrun Vafa",
+  "Frank Wilczek",
+  "Steven Chu",
+  "William Phillips",
+  "David Wineland",
+  "Serge Haroche",
+  "Saul Perlmutter",
+  "Brian Schmidt",
+  "Adam Riess",
+  "John Mather",
+  "George Smoot",
+  "Michel Mayor",
+  "Didier Queloz",
+  "James Peebles",
+  "Takaaki Kajita",
+  "Arthur McDonald",
+  "Shuji Nakamura",
+  "Hiroshi Amano",
+  "Elizabeth Blackburn",
+  "Carol Greider",
+  "Jack Szostak",
+  "Craig Venter",
+  "Eric Topol",
+  "Sarah Gilbert",
+  "Uğur Şahin",
+  "Özlem Türeci",
+  "Mary-Claire King",
+  "Beth Shapiro",
+  "Sara Seager",
+  "Avi Loeb",
+  "Carolyn Porco",
+  "Neil Shubin",
+  "Veerabhadran Ramanathan",
+  "Gabriela González",
+  "Michael Levin",
+  "Jill Tarter",
+  "Karl Deisseroth",
+  "Pardis Sabeti",
+];
+
+// ~100 living inventors, engineers, and technology creators.
+const LIVING_INVENTORS: string[] = [
+  "Elon Musk",
+  "Jeff Bezos",
+  "Bill Gates",
+  "Steve Wozniak",
+  "Vint Cerf",
+  "Robert Kahn",
+  "Sergey Brin",
+  "Larry Page",
+  "Jensen Huang",
+  "Lisa Su",
+  "Marc Andreessen",
+  "Jack Dorsey",
+  "Jan Koum",
+  "Brian Acton",
+  "Palmer Luckey",
+  "Dean Kamen",
+  "Nathan Myhrvold",
+  "Federico Faggin",
+  "Bjarne Stroustrup",
+  "James Gosling",
+  "Guido van Rossum",
+  "Linus Torvalds",
+  "Brendan Eich",
+  "Vitalik Buterin",
+  "John Carmack",
+  "Shigeru Miyamoto",
+  "Robin Li",
+  "Ma Huateng",
+  "Jack Ma",
+  "Lei Jun",
+  "Morris Chang",
+  "Whitfield Diffie",
+  "Martin Hellman",
+  "Ralph Merkle",
+  "Ron Rivest",
+  "Adi Shamir",
+  "Leonard Adleman",
+  "Radia Perlman",
+  "Shafi Goldwasser",
+  "Silvio Micali",
+  "Robert Metcalfe",
+  "Andy Bechtolsheim",
+  "Anders Hejlsberg",
+  "Yukihiro Matsumoto",
+  "Rasmus Lerdorf",
+  "Irwin Jacobs",
+  "Andrew Viterbi",
+  "Carver Mead",
+  "Tony Fadell",
+  "Jony Ive",
+  "Steve Chen",
+  "Chad Hurley",
+  "Jawed Karim",
+  "Drew Houston",
+  "Patrick Collison",
+  "John Collison",
+  "Evan Spiegel",
+  "Kevin Systrom",
+  "Brian Chesky",
+  "Andy Rubin",
+  "Chuck Hull",
+  "Scott Crump",
+  "Hod Lipson",
+  "Adrian Bowyer",
+  "Joseph DeSimone",
+  "Marc Raibert",
+  "Rodney Brooks",
+  "Cynthia Breazeal",
+  "Colin Angle",
+  "Helen Greiner",
+  "Lonnie Johnson",
+  "James Dyson",
+  "Saul Griffith",
+  "Hugh Herr",
+  "Pranav Mistry",
+  "Yoky Matsuoka",
+  "Angela Belcher",
+  "Zhenan Bao",
+  "John Rogers",
+  "Chad Mirkin",
+  "Naomi Halas",
+  "Paula Hammond",
+  "Ashok Gadgil",
+  "John O'Sullivan",
+  "Sumio Iijima",
+  "Andre Geim",
+  "Konstantin Novoselov",
+  "Stuart Parkin",
+  "Eli Harari",
+  "Sanjay Mehrotra",
+  "Fujio Masuoka",
+  "Sebastian Thrun",
+  "Chris Urmson",
+  "Raffaello D'Andrea",
+  "Vijay Kumar",
+  "Daniela Rus",
+  "Henrik Fisker",
+  "JB Straubel",
+  "Franz von Holzhausen",
+  "Mary Lou Jepsen",
+];
+
+// ~100 living thought leaders / science communicators / public intellectuals.
+const LIVING_THOUGHT_LEADERS: string[] = [
+  "Neil deGrasse Tyson",
+  "Bill Nye",
+  "Brian Cox",
+  "Richard Dawkins",
+  "Steven Pinker",
+  "David Attenborough",
+  "Carlo Rovelli",
+  "Sabine Hossenfelder",
+  "Hannah Fry",
+  "Adam Rutherford",
+  "Alice Roberts",
+  "Jim Al-Khalili",
+  "Marcus du Sautoy",
+  "Steven Strogatz",
+  "Ed Yong",
+  "Mary Roach",
+  "Carl Zimmer",
+  "Siddhartha Mukherjee",
+  "Atul Gawande",
+  "Sanjay Gupta",
+  "Robert Sapolsky",
+  "Andrew Huberman",
+  "Dan Ariely",
+  "Sam Harris",
+  "Yuval Noah Harari",
+  "Max Tegmark",
+  "Nick Bostrom",
+  "Ray Kurzweil",
+  "Emily Calandrelli",
+  "Dianna Cowern",
+  "Derek Muller",
+  "Hank Green",
+  "Michael Stevens",
+  "Destin Sandlin",
+  "Mark Rober",
+  "Philipp Dettmer",
+  "Henry Reich",
+  "Grant Sanderson",
+  "Cleo Abram",
+  "Simone Giertz",
+  "Toby Hendy",
+  "Kate Biberdorf",
+  "Joe Hanson",
+  "Anton Petrov",
+  "Fraser Cain",
+  "Phil Plait",
+  "Katie Mack",
+  "Chanda Prescod-Weinstein",
+  "Janna Levin",
+  "Priyamvada Natarajan",
+  "Jo Dunkley",
+  "Maggie Aderin-Pocock",
+  "Chris Hadfield",
+  "Scott Kelly",
+  "Mae Jemison",
+  "Kathryn Sullivan",
+  "Peggy Whitson",
+  "Tim Peake",
+  "Samantha Cristoforetti",
+  "Bill McKibben",
+  "Katharine Hayhoe",
+  "Greta Thunberg",
+  "Vandana Shiva",
+  "Paul Stamets",
+  "Merlin Sheldrake",
+  "Suzanne Simard",
+  "Robin Wall Kimmerer",
+  "Hope Jahren",
+  "Temple Grandin",
+  "Carl Safina",
+  "Sylvia Earle",
+  "Enric Sala",
+  "Robert Ballard",
+  "Bjørn Lomborg",
+  "Vaclav Smil",
+  "Steven Johnson",
+  "Walter Isaacson",
+  "Lawrence Krauss",
+  "Leonard Susskind",
+  "Stephon Alexander",
+  "Brian Keating",
+  "Don Lincoln",
+  "Matt O'Dowd",
+  "Paul Davies",
+  "Martin Rees",
+  "Marcus Chown",
+  "Angela Saini",
+  "Ainissa Ramirez",
+  "Raychelle Burks",
+  "Samuel Ramsey",
+  "Diana Trujillo",
+  "Swati Mohan",
+  "Michio Kaku",
+  "Adam Savage",
+  "Jamie Hyneman",
+  "Richard Wiseman",
+  "Michael Shermer",
+  "Bill Bryson",
+  "David Eagleman",
+  "V.S. Ramachandran",
+];
+
+// Original Task #14 list (mostly historical) — kept for backward-compat so a
+// re-run upserts those rows with a sensible group rather than leaving them out.
+const LEGACY_PEOPLE: string[] = [
   "Albert Einstein",
   "Isaac Newton",
   "Marie Curie",
@@ -154,13 +487,35 @@ const PEOPLE: string[] = [
   "Alexander Wissner-Gross",
 ];
 
-interface ResearchedProfile {
-  field: string;
-  era: string;
-  summary: string;
-  contributions: string[];
-  quotes: string[];
-  relatedCategorySlugs: string[];
+// Group inference for the legacy list (defaults to scientist).
+const LEGACY_INVENTORS = new Set<string>([
+  "Thomas Edison",
+  "Nikola Tesla",
+  "Alexander Graham Bell",
+  "Samuel Morse",
+  "Guglielmo Marconi",
+  "Charles Goodyear",
+  "Willis Carrier",
+  "Garrett Morgan",
+  "Granville Woods",
+  "Charles Babbage",
+  "Stephanie Kwolek",
+  "Hedy Lamarr",
+  "Tim Berners-Lee",
+  "Leonardo da Vinci",
+]);
+const LEGACY_THOUGHT_LEADERS = new Set<string>([
+  "Carl Sagan",
+  "Peter Diamandis",
+  "Salim Ismail",
+  "Dave Blundin",
+  "Alexander Wissner-Gross",
+]);
+
+function legacyGroup(name: string): ProfileGroup {
+  if (LEGACY_THOUGHT_LEADERS.has(name)) return "thought_leader";
+  if (LEGACY_INVENTORS.has(name)) return "inventor";
+  return "scientist";
 }
 
 function slugify(name: string): string {
@@ -170,6 +525,38 @@ function slugify(name: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+// Build the combined, de-duplicated (by slug) people list. Living groups come
+// first so a quota-limited partial run seeds the Task #18 focus first.
+function buildPeople(): Person[] {
+  const combined: Person[] = [
+    ...LIVING_SCIENTISTS.map((name) => ({ name, group: "scientist" as const })),
+    ...LIVING_INVENTORS.map((name) => ({ name, group: "inventor" as const })),
+    ...LIVING_THOUGHT_LEADERS.map((name) => ({
+      name,
+      group: "thought_leader" as const,
+    })),
+    ...LEGACY_PEOPLE.map((name) => ({ name, group: legacyGroup(name) })),
+  ];
+  const seen = new Set<string>();
+  const people: Person[] = [];
+  for (const p of combined) {
+    const slug = slugify(p.name);
+    if (seen.has(slug)) continue;
+    seen.add(slug);
+    people.push(p);
+  }
+  return people;
+}
+
+interface ResearchedProfile {
+  field: string;
+  era: string;
+  summary: string;
+  contributions: string[];
+  quotes: string[];
+  relatedCategorySlugs: string[];
 }
 
 function asStringArray(value: unknown, max: number): string[] {
@@ -199,12 +586,20 @@ function parseJsonObject(text: string): Record<string, unknown> | null {
   }
 }
 
-const RESEARCH_PROMPT = (name: string) => `Research the scientist or inventor "${name}" using up-to-date, factual web sources.
+const GROUP_DESC: Record<ProfileGroup, string> = {
+  scientist: "living scientist (an active or recent researcher in a scientific discipline)",
+  inventor: "living inventor, engineer, or technology creator",
+  thought_leader:
+    "living science communicator, public intellectual, or well-known thought leader in the scientific space",
+};
+
+const RESEARCH_PROMPT = (name: string, group: ProfileGroup) =>
+  `Research the ${GROUP_DESC[group]} "${name}" using up-to-date, factual web sources. This person is living — do NOT include a death year.
 
 Respond with ONLY a single JSON object (no markdown, no prose) with exactly these keys:
 {
-  "field": "primary field of work, e.g. Physics, Chemistry, Biology, Astronomy",
-  "era": "the period they were active, e.g. \\"1879–1955\\" or \\"20th century\\"",
+  "field": "primary field of work, e.g. Physics, Genetics, Robotics, Science Communication",
+  "era": "the period they have been active, e.g. \\"21st century\\", \\"since the 1990s\\", or \\"b. 1964\\" — no death year",
   "summary": "2-4 sentence plain-text biography of who they are and why they matter",
   "contributions": ["3-6 short strings, each one key discovery, invention, or contribution"],
   "quotes": ["0-3 short, accurately attributed direct quotes; empty array if none are well-documented"],
@@ -223,11 +618,12 @@ function sleep(ms: number): Promise<void> {
 // long to wait via retryDelay; honour it (with a sane floor/ceiling) and retry.
 async function researchWithRetry(
   name: string,
+  group: ProfileGroup,
   maxRetries = 2,
 ): Promise<{ text: string; sources: ProfileSource[] }> {
   for (let attempt = 0; ; attempt++) {
     try {
-      return await researchWithSearch(RESEARCH_PROMPT(name), {
+      return await researchWithSearch(RESEARCH_PROMPT(name, group), {
         maxOutputTokens: 2048,
       });
     } catch (err) {
@@ -257,11 +653,14 @@ async function researchWithRetry(
   }
 }
 
-async function research(name: string): Promise<{
+async function research(
+  name: string,
+  group: ProfileGroup,
+): Promise<{
   profile: ResearchedProfile;
   sources: ProfileSource[];
 } | null> {
-  const { text, sources } = await researchWithRetry(name);
+  const { text, sources } = await researchWithRetry(name, group);
   const parsed = parseJsonObject(text);
   if (!parsed) return null;
 
@@ -317,7 +716,8 @@ async function fetchPortrait(name: string): Promise<string | null> {
   }
 }
 
-async function seedOne(name: string, force: boolean): Promise<string> {
+async function seedOne(person: Person, force: boolean): Promise<string> {
+  const { name, group } = person;
   const slug = slugify(name);
 
   if (!force) {
@@ -328,7 +728,7 @@ async function seedOne(name: string, force: boolean): Promise<string> {
     if (existing) return `skip (exists): ${name}`;
   }
 
-  const researched = await research(name);
+  const researched = await research(name, group);
   if (!researched) return `FAIL (no usable research): ${name}`;
 
   const imageUrl = await fetchPortrait(name);
@@ -336,6 +736,7 @@ async function seedOne(name: string, force: boolean): Promise<string> {
   const values = {
     slug,
     name,
+    group,
     field: researched.profile.field,
     era: researched.profile.era,
     summary: researched.profile.summary,
@@ -353,6 +754,7 @@ async function seedOne(name: string, force: boolean): Promise<string> {
       target: featuredProfilesTable.slug,
       set: {
         name: values.name,
+        group: values.group,
         field: values.field,
         era: values.era,
         summary: values.summary,
@@ -365,39 +767,47 @@ async function seedOne(name: string, force: boolean): Promise<string> {
       },
     });
 
-  return `ok${imageUrl ? "" : " (no portrait)"}: ${name}`;
+  return `ok [${group}]${imageUrl ? "" : " (no portrait)"}: ${name}`;
 }
 
 async function main(): Promise<void> {
   const arg = process.argv[2];
   const limit = arg ? Number.parseInt(arg, 10) : NaN;
   const force = process.env.FORCE === "1";
-  const people = Number.isFinite(limit) ? PEOPLE.slice(0, limit) : PEOPLE;
+
+  const groupFilter = process.env.GROUP as ProfileGroup | undefined;
+  let people = buildPeople();
+  if (groupFilter) {
+    people = people.filter((p) => p.group === groupFilter);
+  }
+  if (Number.isFinite(limit)) {
+    people = people.slice(0, limit);
+  }
 
   console.log(
-    `Seeding ${people.length} profiles (serial, ~12s pacing${force ? ", force" : ""})...`,
+    `Seeding ${people.length} profiles${groupFilter ? ` (group=${groupFilter})` : ""} (serial pacing${force ? ", force" : ""})...`,
   );
 
   // The free tier allows ~5 requests/min, so pace research calls ~12s apart to
   // mostly avoid 429s (researchWithRetry backs off when we still hit one).
   // On a paid key the per-minute limit is far higher, so PACE_MS can be lowered
-  // via env (e.g. PACE_MS=1500) to finish the full list in one pass.
+  // via env (e.g. PACE_MS=2000) to finish the full list in fewer passes.
   const PACE_MS = Number.isFinite(Number(process.env.PACE_MS))
     ? Number(process.env.PACE_MS)
     : 12_500;
 
   let done = 0;
-  for (const name of people) {
+  for (const person of people) {
     let madeApiCall = true;
     try {
-      const result = await seedOne(name, force);
+      const result = await seedOne(person, force);
       madeApiCall = !result.startsWith("skip");
       done += 1;
       console.log(`[${done}/${people.length}] ${result}`);
     } catch (err) {
       done += 1;
       console.error(
-        `[${done}/${people.length}] ERROR: ${name}:`,
+        `[${done}/${people.length}] ERROR: ${person.name}:`,
         err instanceof Error ? err.message : err,
       );
     }
