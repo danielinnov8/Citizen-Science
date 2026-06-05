@@ -1145,11 +1145,22 @@ export function Landing() {
 
         {/* IMAGINE 2045 — CINEMATIC INTERLUDE */}
         <section className="relative overflow-hidden bg-[#0B1120] py-32 text-white lg:py-44">
+          {/* Continue the globe's bottom glow downward from the exact seam so the
+              two dark sections read as one continuous field instead of meeting at
+              a hard line. Mirrors the gradient at the bottom of NetworkGlobe. */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-[60vh] bg-[linear-gradient(to_bottom,rgba(30,58,138,0.22)_0%,rgba(30,58,138,0.18)_30%,rgba(76,29,149,0.1)_60%,transparent_100%)]" />
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute top-1/2 left-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-700/20 blur-[160px]" />
             <div className="absolute bottom-0 right-1/4 h-[400px] w-[400px] rounded-full bg-violet-600/20 blur-[150px]" />
           </div>
-          <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={GRID_BG} />
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.12]"
+            style={{
+              ...GRID_BG,
+              maskImage: "linear-gradient(to bottom, transparent 0%, black 32%)",
+              WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 32%)",
+            }}
+          />
           <div className="container relative z-10 mx-auto max-w-4xl px-4 text-center lg:px-8">
             <Reveal>
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-300">

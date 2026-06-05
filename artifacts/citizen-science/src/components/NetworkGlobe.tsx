@@ -474,8 +474,10 @@ export function NetworkGlobe() {
       </div>
 
       {/* Seamless hand-off: bleed the blue/violet of the section below up into
-          the bottom of the planet so there is no hard seam between them. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-[55vh] bg-[linear-gradient(to_top,#0B1120_0%,rgba(30,58,138,0.35)_28%,rgba(76,29,149,0.16)_55%,transparent_100%)]" />
+          the bottom of the planet. The bottom-most stop keeps a faint blue tint
+          (rather than going fully dark) so it matches the glow that the next
+          section continues downward from the exact same seam — no hard edge. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-[60vh] bg-[linear-gradient(to_top,rgba(30,58,138,0.22)_0%,rgba(30,58,138,0.35)_24%,rgba(76,29,149,0.16)_55%,transparent_100%)]" />
     </section>
   );
 }
