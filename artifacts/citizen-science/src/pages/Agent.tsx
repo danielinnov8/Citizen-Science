@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, Sparkles, Wand2, RotateCcw, ChevronRight, AlertCircle, ExternalLink, FlaskConical, Youtube, Tag } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, RotateCcw, ChevronRight, AlertCircle, ExternalLink, FlaskConical, Youtube, Tag, UserRound } from "lucide-react";
+import { useListFeaturedProfiles } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES } from "@/lib/categories";
 import { LABS, labUrl } from "@/lib/labs";
@@ -26,7 +27,7 @@ interface ChatMessage {
 }
 
 const STORAGE_KEY = "cs.agentConversation";
-const TOKEN_REGEX = /\[\[(module|lab|partner):([a-z0-9-]+)\]\]/g;
+const TOKEN_REGEX = /\[\[(module|lab|partner|scientist):([a-z0-9-]+)\]\]/g;
 
 const SUGGESTIONS = [
   "Help me design a sourdough fermentation tracker",
@@ -161,6 +162,34 @@ function PartnerCard({ slug }: { slug: string }) {
   );
 }
 
+function ScientistCard({ slug }: { slug: string }) {
+  const { data: profiles } = useListFeaturedProfiles();
+  const profile = profiles?.find(p => p.slug === slug);
+  if (!profile) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 rounded-md bg-slate-100 text-slate-700 text-sm">
+        {slug}
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={`/directory/${profile.slug}`}
+      className="not-prose inline-flex items-center mx-0.5 group rounded-md border border-[#E2E8F0] bg-white hover:border-violet-300 hover:shadow-sm transition-all overflow-hidden align-baseline leading-none"
+    >
+      <span className="self-stretch w-1 bg-gradient-to-b from-violet-500 to-blue-500" />
+      <span className="inline-flex items-center gap-1 px-2 py-0.5">
+        <UserRound className="h-3 w-3 text-violet-600" />
+        <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">Scientist</span>
+        <span className="text-sm font-semibold text-[#0F172A]">{profile.name}</span>
+        <span className="text-xs text-[#64748B]">· {profile.field}</span>
+        <ChevronRight className="h-3 w-3 text-[#94A3B8] group-hover:text-violet-600 group-hover:translate-x-0.5 transition-all" />
+      </span>
+    </Link>
+  );
+}
+
 function SourceList({ sources }: { sources?: WebSource[] }) {
   if (!sources || sources.length === 0) return null;
 
@@ -230,7 +259,8 @@ type ContentPart =
   | { type: "text"; value: string }
   | { type: "module"; slug: string }
   | { type: "lab"; slug: string }
-  | { type: "partner"; slug: string };
+  | { type: "partner"; slug: string }
+  | { type: "scientist"; slug: string };
 
 function MessageContent({ content }: { content: string }) {
   const parts = useMemo<ContentPart[]>(() => {
@@ -242,7 +272,7 @@ function MessageContent({ content }: { content: string }) {
       if (match.index > lastIndex) {
         out.push({ type: "text", value: content.slice(lastIndex, match.index) });
       }
-      const kind = match[1] as "module" | "lab" | "partner";
+      const kind = match[1] as "module" | "lab" | "partner" | "scientist";
       out.push({ type: kind, slug: match[2] });
       lastIndex = regex.lastIndex;
     }
@@ -258,6 +288,7 @@ function MessageContent({ content }: { content: string }) {
         if (part.type === "module") return <ModuleCard key={i} slug={part.slug} />;
         if (part.type === "lab") return <LabCard key={i} slug={part.slug} />;
         if (part.type === "partner") return <PartnerCard key={i} slug={part.slug} />;
+        if (part.type === "scientist") return <ScientistCard key={i} slug={part.slug} />;
         return <span key={i}>{part.value}</span>;
       })}
     </div>

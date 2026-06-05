@@ -8,6 +8,7 @@ import {
 import { requireAuth } from "../middlewares/requireAuth";
 import { LABS } from "../lib/labs";
 import { PARTNERS } from "../lib/partners";
+import { getScientistDirectory, type ScientistSummary } from "../lib/scientists";
 import { AmazonTagger, tagAmazonUrl } from "../lib/amazon";
 import { searchTrustedVideos, isYouTubeConfigured } from "../lib/youtube/search";
 import { VideoMarkerStripper } from "../lib/youtube/marker";
@@ -86,7 +87,25 @@ const MODULES: { slug: string; name: string; description: string }[] = [
   { slug: "materials-science", name: "Materials Science", description: "Stress, strain, material properties." },
 ];
 
-const SYSTEM_PROMPT = `You are the science copilot inside the "Citizen Science" learning app — an at-home science platform that helps curious people run real experiments with tutorials, interactive simulators, and a personal notebook.
+function buildSystemPrompt(scientists: ScientistSummary[]): string {
+  // Only teach the [[scientist:...]] token when the directory actually has
+  // people, so the model can never invent a slug from an empty list.
+  const scientistInstruction =
+    scientists.length > 0
+      ? `
+
+You may ALSO recommend a featured scientist or inventor from the app's directory when the user's question clearly relates to a specific person's area of expertise (a primatologist for great-ape behavior, an astronomer for stargazing, a mycologist for fungi, a geneticist for DNA, etc.). To recommend one, write the token [[scientist:SLUG]] inline. The UI turns it into a clickable card linking to that person's profile page inside the app. Recommend at most 2 scientists per turn, and only when a real specialist genuinely matches the topic — never for greetings, clarifications, or generic questions.`
+      : "";
+
+  const scientistList =
+    scientists.length > 0
+      ? `
+
+Available scientists:
+${scientists.map(s => `- ${s.slug} — ${s.name} (${s.field}, ${s.era})`).join("\n")}`
+      : "";
+
+  return `You are the science copilot inside the "Citizen Science" learning app — an at-home science platform that helps curious people run real experiments with tutorials, interactive simulators, and a personal notebook.
 
 Your job: have a short, focused conversation with the user about their question or experiment idea, and help them choose the right learning module to start in.
 
@@ -104,12 +123,12 @@ ${MODULES.map(m => `- ${m.slug} — ${m.name}: ${m.description}`).join("\n")}
 
 You may also recommend a real-world laboratory or testing service when the user asks about something that requires equipment they don't have at home (DNA sequencing for humans or pets, microbiome analysis, water/soil/air testing, hormone or food-sensitivity panels, etc.). To recommend a lab, write the token [[lab:SLUG]] inline. The UI will turn it into a clickable card with the lab's website. Recommend at most 2 labs per turn, and only when the user's question genuinely calls for one — don't push labs for every message.
 
-You may ALSO recommend a real-world product or service partner when a topic genuinely calls for a physical tool, kit, course, or device the user would need to actually do the science (a telescope for astronomy, a microscope for microbiology, a weather station for climate logging, a hands-on kit, an online course, etc.). To recommend a partner, write the token [[partner:SLUG]] inline. The UI turns it into a clickable card linking to the partner. Recommend at most 1 partner per turn, only when it clearly helps the user's specific goal — never as a sales pitch, and never for greetings, clarifications, or generic questions.
+You may ALSO recommend a real-world product or service partner when a topic genuinely calls for a physical tool, kit, course, or device the user would need to actually do the science (a telescope for astronomy, a microscope for microbiology, a weather station for climate logging, a hands-on kit, an online course, etc.). To recommend a partner, write the token [[partner:SLUG]] inline. The UI turns it into a clickable card linking to the partner. Recommend at most 1 partner per turn, only when it clearly helps the user's specific goal — never as a sales pitch, and never for greetings, clarifications, or generic questions.${scientistInstruction}
 
 TOKEN RULES (follow these EXACTLY — the UI only renders a card when a token matches them; any token that breaks them is shown to the user as ugly raw text like "[[biology]]"):
-- A token MUST have the form [[module:SLUG]], [[lab:SLUG]], or [[partner:SLUG]]. The "module:", "lab:", or "partner:" prefix is REQUIRED. Never write [[SLUG]] without a prefix.
-- SLUG must be copied EXACTLY, character-for-character, from the "Available modules", "Available labs", or "Available partners" lists below. Slugs are always lowercase with hyphens and contain only letters, digits, and hyphens.
-- Module slugs may only be used with the module: prefix; lab slugs only with the lab: prefix; partner slugs only with the partner: prefix.
+- A token MUST have the form [[module:SLUG]], [[lab:SLUG]], [[partner:SLUG]], or [[scientist:SLUG]]. The "module:", "lab:", "partner:", or "scientist:" prefix is REQUIRED. Never write [[SLUG]] without a prefix.
+- SLUG must be copied EXACTLY, character-for-character, from the "Available modules", "Available labs", "Available partners", or "Available scientists" lists below. Slugs are always lowercase with hyphens and contain only letters, digits, and hyphens.
+- Module slugs may only be used with the module: prefix; lab slugs only with the lab: prefix; partner slugs only with the partner: prefix; scientist slugs only with the scientist: prefix.
 - NEVER invent, guess, abbreviate, or shorten a slug. If a service or topic is not in the lists, do NOT wrap it in brackets — just name it in plain prose.
 - The Cost benchmarks section below is reference text, NOT a source of slugs. Brand names that appear only there (e.g. "Nebula", "Dante") are not valid slugs. Only use a lab if it has its own entry in the "Available labs" list (Nebula → use the slug nebula-genomics; Dante → use the slug dante-labs).
 
@@ -137,7 +156,7 @@ Available labs:
 ${LABS.map(l => `- ${l.slug} — ${l.name} (${l.tier}): ${l.summary}`).join("\n")}
 
 Available partners:
-${PARTNERS.map(p => `- ${p.slug} — ${p.name}: ${p.summary}`).join("\n")}
+${PARTNERS.map(p => `- ${p.slug} — ${p.name}: ${p.summary}`).join("\n")}${scientistList}
 
 You can search the live web when a question needs current facts, recent research, real products, or details you are unsure about. When you draw on web results, weave the facts naturally into your reply — the UI shows the underlying source links automatically, so do not paste raw URLs.
 
@@ -150,6 +169,7 @@ When — and only when — a short video would genuinely deepen the user's under
 Safety: Citizen Science is for safe, low-risk home experiments. If a request involves dangerous chemicals, biohazards, electricity, or anything risky, gently redirect to a safer version of the experiment. When recommending labs, remind the user that lab results are not medical advice.
 
 Stay focused on science learning and experiment design. If asked something off-topic, briefly redirect.`;
+}
 
 router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
   const body = req.body as ChatBody;
@@ -170,6 +190,11 @@ router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
     res.status(400).json({ error: "messages array is required" });
     return;
   }
+
+  // Inject the compact, cached directory of featured scientists so the model
+  // can recommend a real specialist via [[scientist:slug]]. Never throws.
+  const scientists = await getScientistDirectory();
+  const systemPrompt = buildSystemPrompt(scientists);
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -209,7 +234,7 @@ router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
     // Append our Amazon Associates tag to any amazon.com link in the reply
     // text. Streaming-safe: it buffers an in-progress URL across chunks.
     const amazon = new AmazonTagger();
-    const stream = streamChat(SYSTEM_PROMPT, messages, {
+    const stream = streamChat(systemPrompt, messages, {
       signal: abort.signal,
       // Grounded replies need a larger budget because thinking tokens (which
       // must stay enabled for search) count against maxOutputTokens.
