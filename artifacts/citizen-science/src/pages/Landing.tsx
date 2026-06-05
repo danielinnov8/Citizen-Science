@@ -9,6 +9,7 @@ import { CATEGORIES, getCategoryIcon } from "@/lib/categories";
 import { DEVICES } from "@/lib/devices";
 import { INVENTORS } from "@/lib/inventors";
 import { Logo, LogoIcon } from "@/components/Logo";
+import { NetworkGlobe } from "@/components/NetworkGlobe";
 
 type DashboardSlide = {
   slug: string;
@@ -1265,6 +1266,9 @@ export function Landing() {
             </div>
           </div>
         </section>
+
+        {/* GLOBAL NETWORK — INTERACTIVE GLOBE */}
+        <NetworkGlobe />
 
         {/* DISCOVER — THE LIVE PRODUCT */}
         <section id="discover" className="bg-white">

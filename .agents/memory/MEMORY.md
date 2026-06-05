@@ -5,3 +5,4 @@
 - [Gemini free-tier daily quota](gemini-free-tier-daily-quota.md) — ~20 grounded requests/DAY on free tier walls bulk seeds; daily 429 retryDelay is misleading, make seeds idempotent.
 - [Affiliate & referral links](affiliate-referral-links.md) — referral = full URL slot (not base+code); Amazon Associates tag auto-appended to amazon.* links, streaming-safe.
 - [Background procs die between bash calls](background-procs-die-between-bash-calls.md) — nohup/setsid don't survive; use foreground timeout-bounded idempotent batches.
+- [R3F / WebGL on Replit preview](r3f-webgl-on-replit.md) — Canvas throws on WebGL ctx fail; wrap in error boundary; headless preview can't render/screenshot WebGL; MotionValue via ref.
