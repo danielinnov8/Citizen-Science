@@ -27,6 +27,24 @@ export function HeroAtom() {
     reduceMotion ? [0.9, 0.9, 0.9] : [0.9, 0.5, 0],
   );
 
+  // Sample many points around an ellipse so the electron follows the actual
+  // orbit line (linear interpolation between a few keyframes would cut the
+  // curve into straight chords that bow inside the line).
+  const ELLIPSE_STEPS = 64;
+  const ellipsePath = (rx: number, ry: number) => {
+    const cx: number[] = [];
+    const cy: number[] = [];
+    const times: number[] = [];
+    for (let i = 0; i <= ELLIPSE_STEPS; i++) {
+      const t = i / ELLIPSE_STEPS;
+      const a = t * Math.PI * 2;
+      cx.push(rx * Math.cos(a));
+      cy.push(ry * Math.sin(a));
+      times.push(t);
+    }
+    return { cx, cy, times };
+  };
+
   // Three electron orbits, each tilted differently so they read as a cloud.
   const orbits = [
     { rx: 230, ry: 92, tilt: 0, dur: 14, delay: 0, color: "#60A5FA" },
@@ -62,44 +80,50 @@ export function HeroAtom() {
             className="absolute inset-0 h-full w-full"
             fill="none"
           >
-            {orbits.map((o, i) => (
-              <g key={i} transform={`rotate(${o.tilt})`}>
-                <ellipse
-                  cx="0"
-                  cy="0"
-                  rx={o.rx}
-                  ry={o.ry}
-                  stroke={o.color}
-                  strokeOpacity="0.22"
-                  strokeWidth="1"
-                />
-                {/* Orbiting electron */}
-                <motion.circle
-                  r="5"
-                  fill={o.color}
-                  fillOpacity="0.9"
-                  style={{ filter: "drop-shadow(0 0 6px currentColor)" }}
-                  animate={
-                    reduceMotion
-                      ? undefined
-                      : {
-                          cx: [o.rx, 0, -o.rx, 0, o.rx],
-                          cy: [0, o.ry, 0, -o.ry, 0],
-                        }
-                  }
-                  transition={
-                    reduceMotion
-                      ? undefined
-                      : {
-                          duration: o.dur,
-                          delay: o.delay,
-                          repeat: Infinity,
-                          ease: "linear",
-                        }
-                  }
-                />
-              </g>
-            ))}
+            {orbits.map((o, i) => {
+              const path = ellipsePath(o.rx, o.ry);
+              return (
+                <g key={i} transform={`rotate(${o.tilt})`}>
+                  <ellipse
+                    cx="0"
+                    cy="0"
+                    rx={o.rx}
+                    ry={o.ry}
+                    stroke={o.color}
+                    strokeOpacity="0.22"
+                    strokeWidth="1"
+                  />
+                  {/* Orbiting electron — follows the ellipse line exactly */}
+                  <motion.circle
+                    r="5"
+                    cx={path.cx[0]}
+                    cy={path.cy[0]}
+                    fill={o.color}
+                    fillOpacity="0.9"
+                    style={{ filter: "drop-shadow(0 0 6px currentColor)" }}
+                    animate={
+                      reduceMotion
+                        ? undefined
+                        : {
+                            cx: path.cx,
+                            cy: path.cy,
+                          }
+                    }
+                    transition={
+                      reduceMotion
+                        ? undefined
+                        : {
+                            duration: o.dur,
+                            delay: o.delay,
+                            repeat: Infinity,
+                            ease: "linear",
+                            times: path.times,
+                          }
+                    }
+                  />
+                </g>
+              );
+            })}
 
             {/* Nucleus */}
             <circle r="14" fill="#93C5FD" fillOpacity="0.18" />
