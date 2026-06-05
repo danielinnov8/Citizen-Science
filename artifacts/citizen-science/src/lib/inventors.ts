@@ -2,6 +2,7 @@ import manuPhoto from "@assets/image_1780677287488.jpeg";
 
 export interface Inventor {
   name: string;
+  slug: string;
   field: string;
   blurb: string;
   imageUrl: string;
@@ -10,10 +11,14 @@ export interface Inventor {
 
 // Curated showcase of inventors for the homepage. Manu Rehani is featured in
 // the first slot; the rest are widely recognized inventors whose work made
-// science and technology more accessible.
+// science and technology more accessible. Each `slug` maps to an in-app
+// directory profile (`/directory/:slug`) seeded by
+// `@workspace/scripts run seed-homepage-inventors`; `href` is kept as the
+// canonical external source for that profile.
 export const INVENTORS: Inventor[] = [
   {
     name: "Manu Rehani",
+    slug: "manu-rehani",
     field: "Behavioral Intelligence & Systems",
     blurb:
       "Austin-based inventor, engineer, and advisor with twelve patents across cloud storage, language models, autonomous systems, and wearable intelligence.",
@@ -22,6 +27,7 @@ export const INVENTORS: Inventor[] = [
   },
   {
     name: "Manu Prakash",
+    slug: "manu-prakash",
     field: "Frugal Science",
     blurb:
       "Invented the Foldscope, a $1 paper microscope, and the Paperfuge — putting real lab tools into anyone's hands.",
@@ -31,6 +37,7 @@ export const INVENTORS: Inventor[] = [
   },
   {
     name: "James Dyson",
+    slug: "james-dyson",
     field: "Industrial Design",
     blurb:
       "Built 5,127 prototypes to perfect the bagless cyclonic vacuum, then reinvented fans, dryers, and more.",
@@ -40,6 +47,7 @@ export const INVENTORS: Inventor[] = [
   },
   {
     name: "Lonnie Johnson",
+    slug: "lonnie-johnson",
     field: "Aerospace Engineering",
     blurb:
       "NASA engineer who invented the Super Soaker and now develops next-generation energy and battery technology.",
@@ -49,6 +57,7 @@ export const INVENTORS: Inventor[] = [
   },
   {
     name: "Radia Perlman",
+    slug: "radia-perlman",
     field: "Network Engineering",
     blurb:
       "The \"Mother of the Internet\" — invented the Spanning Tree Protocol that makes modern networks possible.",
@@ -58,6 +67,7 @@ export const INVENTORS: Inventor[] = [
   },
   {
     name: "Dean Kamen",
+    slug: "dean-kamen",
     field: "Biomedical Engineering",
     blurb:
       "Inventor of the first wearable insulin pump and the Segway, and founder of the FIRST robotics program.",
@@ -67,6 +77,7 @@ export const INVENTORS: Inventor[] = [
   },
   {
     name: "Federico Faggin",
+    slug: "federico-faggin",
     field: "Microelectronics",
     blurb:
       "Led the design of the Intel 4004, the world's first commercial microprocessor, and the silicon-gate technology behind it.",
@@ -76,6 +87,7 @@ export const INVENTORS: Inventor[] = [
   },
   {
     name: "Hedy Lamarr",
+    slug: "hedy-lamarr",
     field: "Communications",
     blurb:
       "Hollywood star and inventor whose frequency-hopping patent laid the groundwork for Wi-Fi, GPS, and Bluetooth.",

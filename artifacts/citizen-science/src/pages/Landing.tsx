@@ -1395,10 +1395,8 @@ export function Landing() {
             <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
               {INVENTORS.map((inv, i) => (
                 <Reveal key={inv.name} delay={(i % 4) * 0.06}>
-                  <a
-                    href={inv.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href={`/directory/${inv.slug}`}
                     className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
                   >
                     <div className="relative aspect-[4/5] overflow-hidden bg-[#F1F5F9]">
@@ -1418,7 +1416,7 @@ export function Landing() {
                         {inv.blurb}
                       </p>
                     </div>
-                  </a>
+                  </Link>
                 </Reveal>
               ))}
             </div>

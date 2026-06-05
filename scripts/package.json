@@ -6,6 +6,7 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "seed-profiles": "tsx ./src/seed-profiles.ts",
+    "seed-homepage-inventors": "tsx ./src/seed-homepage-inventors.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
