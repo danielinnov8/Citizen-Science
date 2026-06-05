@@ -16,7 +16,7 @@ import {
 } from "@/lib/inventors";
 import { Logo, LogoIcon } from "@/components/Logo";
 import { NetworkGlobe } from "@/components/NetworkGlobe";
-import { Flywheel } from "@/components/Flywheel";
+import { PeopleNetwork } from "@/components/PeopleNetwork";
 import { HeroAtom } from "@/components/HeroAtom";
 
 type DashboardSlide = {
@@ -1230,7 +1230,7 @@ export function Landing() {
           </div>
         </section>
 
-        {/* THE DISCOVERY FLYWHEEL */}
+        {/* A LIVING NETWORK OF MINDS */}
         <section className="bg-white py-32 lg:py-40">
           <div className="container mx-auto max-w-6xl px-4 lg:px-8">
             <Reveal>
@@ -1239,16 +1239,16 @@ export function Landing() {
                   How The Network Grows
                 </span>
                 <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
-                  The Discovery Flywheel
+                  A Living Network of Minds
                 </h2>
                 <p className="mt-5 text-lg leading-relaxed text-[#64748B]">
-                  Citizen Science transforms individual moments of curiosity into a continuous cycle of learning, innovation, and progress.
+                  Today's scientists, inventors, and researchers connect into one growing web of discovery — and every new participant strengthens it.
                 </p>
               </div>
             </Reveal>
 
             <Reveal delay={0.1}>
-              <Flywheel />
+              <PeopleNetwork />
             </Reveal>
           </div>
         </section>
