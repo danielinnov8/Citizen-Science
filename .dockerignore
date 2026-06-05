@@ -28,5 +28,6 @@ tmp
 **/.env
 **/.env.*
 
-# Other artifacts not needed to build/run the api-server
-attached_assets
+# NOTE: attached_assets must stay in the build context — the citizen-science
+# web app imports images from it via the @assets alias (inventor photo, globe
+# textures). Excluding it breaks `vite build` with ENOENT.

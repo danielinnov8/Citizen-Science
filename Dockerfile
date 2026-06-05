@@ -33,6 +33,12 @@ RUN pnpm install --frozen-lockfile
 # to artifacts/api-server/dist/index.mjs via esbuild).
 RUN pnpm --filter @workspace/api-server run build
 
+# The citizen-science web app imports images from the repo-root attached_assets
+# directory via its @assets alias (inventor photo, globe textures). Copy it in
+# before the web build, or Vite fails with ENOENT. Placed after the api-server
+# build so changes to assets don't bust the install/api-server layer cache.
+COPY attached_assets ./attached_assets
+
 # Build the web client (Vite) so the API service can serve it from the same
 # origin. Vite's config validates PORT and BASE_PATH at load time even for a
 # build, so provide them; BASE_PATH=/ serves the SPA at the domain root, and the
