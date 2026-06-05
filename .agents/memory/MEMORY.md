@@ -6,3 +6,4 @@
 - [Affiliate & referral links](affiliate-referral-links.md) — referral = full URL slot (not base+code); Amazon Associates tag auto-appended to amazon.* links, streaming-safe.
 - [Background procs die between bash calls](background-procs-die-between-bash-calls.md) — nohup/setsid don't survive; use foreground timeout-bounded idempotent batches.
 - [R3F / WebGL on Replit preview](r3f-webgl-on-replit.md) — Canvas throws on WebGL ctx fail; wrap in error boundary; headless preview can't render/screenshot WebGL; MotionValue via ref.
+- [attached_assets in Docker build](attached-assets-docker-build.md) — web app @assets imports are real build inputs; keep attached_assets in .dockerignore context AND COPY it; deploy-only ENOENT.
