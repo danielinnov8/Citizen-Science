@@ -6,6 +6,7 @@ import {
   isGeminiConfigured,
 } from "@workspace/integrations-gemini-ai-server";
 import { requireAuth } from "../middlewares/requireAuth";
+import { rateLimit } from "../middlewares/rateLimit";
 import { LABS } from "../lib/labs";
 import { PARTNERS } from "../lib/partners";
 import { getScientistDirectory, type ScientistSummary } from "../lib/scientists";
@@ -171,7 +172,7 @@ Safety: Citizen Science is for safe, low-risk home experiments. If a request inv
 Stay focused on science learning and experiment design. If asked something off-topic, briefly redirect.`;
 }
 
-router.post("/agent/chat", requireAuth, async (req: Request, res: Response) => {
+router.post("/agent/chat", rateLimit({ windowMs: 10 * 60 * 1000, max: 40 }), async (req: Request, res: Response) => {
   const body = req.body as ChatBody;
   const incoming = Array.isArray(body?.messages) ? body.messages : [];
 

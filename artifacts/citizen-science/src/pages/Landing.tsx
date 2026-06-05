@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CATEGORIES, getCategoryIcon } from "@/lib/categories";
 import { DEVICES } from "@/lib/devices";
-import { useAuth } from "@/lib/auth";
 import { Logo, LogoIcon } from "@/components/Logo";
 
 type DashboardSlide = {
@@ -391,7 +390,6 @@ const ALL_PROMPTS: string[] = PROMPT_GROUPS.flatMap(g => g.prompts);
 
 function AskAgent() {
   const [, navigate] = useLocation();
-  const { isAuthenticated } = useAuth();
   const [value, setValue] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [focused, setFocused] = useState(false);
@@ -413,7 +411,7 @@ function AskAgent() {
     } catch {
       // ignore storage failures
     }
-    navigate(isAuthenticated ? "/agent" : "/login");
+    navigate("/agent");
   };
 
   const handleChip = (prompt: string) => {

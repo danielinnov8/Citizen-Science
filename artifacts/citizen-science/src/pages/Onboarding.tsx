@@ -49,12 +49,24 @@ export function Onboarding() {
     localStorage.setItem("cs_preferences", JSON.stringify(answers));
     completeOnboarding();
     let pendingPrompt: string | null = null;
+    let redirect: string | null = null;
     try {
       pendingPrompt = window.localStorage.getItem("cs.pendingPrompt");
+      redirect = window.localStorage.getItem("cs.postAuthRedirect");
     } catch {
       /* ignore */
     }
-    if (pendingPrompt && pendingPrompt.trim().length > 0) {
+    // Only honor same-origin internal paths to avoid open-redirects.
+    const safeRedirect =
+      redirect && /^\/(?!\/)/.test(redirect) ? redirect : null;
+    if (safeRedirect) {
+      try {
+        window.localStorage.removeItem("cs.postAuthRedirect");
+      } catch {
+        /* ignore */
+      }
+      setLocation(safeRedirect);
+    } else if (pendingPrompt && pendingPrompt.trim().length > 0) {
       setLocation("/agent");
     } else {
       setLocation("/dashboard");

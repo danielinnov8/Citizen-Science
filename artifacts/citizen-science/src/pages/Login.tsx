@@ -33,13 +33,26 @@ export function Login() {
 
   const routeAfterAuth = React.useCallback(() => {
     let pendingPrompt: string | null = null;
+    let redirect: string | null = null;
     try {
       pendingPrompt = window.localStorage.getItem("cs.pendingPrompt");
+      redirect = window.localStorage.getItem("cs.postAuthRedirect");
     } catch {
       /* ignore */
     }
+    // Only honor same-origin internal paths to avoid open-redirects.
+    const safeRedirect =
+      redirect && /^\/(?!\/)/.test(redirect) ? redirect : null;
     if (!hasCompletedOnboarding) {
+      // Keep the redirect flag so onboarding can return the user to it.
       setLocation("/onboarding");
+    } else if (safeRedirect) {
+      try {
+        window.localStorage.removeItem("cs.postAuthRedirect");
+      } catch {
+        /* ignore */
+      }
+      setLocation(safeRedirect);
     } else if (pendingPrompt && pendingPrompt.trim().length > 0) {
       setLocation("/agent");
     } else {

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { ArrowRight, Sparkles, Wand2, RotateCcw, ChevronRight, AlertCircle, ExternalLink, FlaskConical, Youtube, Tag, UserRound } from "lucide-react";
 import { useListFeaturedProfiles } from "@workspace/api-client-react";
+import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES } from "@/lib/categories";
 import { LABS, labUrl } from "@/lib/labs";
@@ -296,6 +297,8 @@ function MessageContent({ content }: { content: string }) {
 }
 
 export function Agent() {
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const [, navigate] = useLocation();
   const [messages, setMessages] = useState<ChatMessage[]>(() => loadConversation());
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -490,7 +493,17 @@ export function Agent() {
     inputRef.current?.focus();
   }
 
+  function handleSignUpToSave() {
+    try {
+      window.localStorage.setItem("cs.postAuthRedirect", "/agent");
+    } catch {
+      /* ignore */
+    }
+    navigate("/login");
+  }
+
   const isEmpty = messages.length === 0;
+  const showGuestInvite = !isAuthLoading && !isAuthenticated;
 
   return (
     <div className="flex flex-col h-[calc(100dvh-65px)] bg-[#F8FAFC]">
@@ -523,6 +536,22 @@ export function Agent() {
           </Button>
         )}
       </header>
+
+      {showGuestInvite && (
+        <div className="flex items-center justify-between gap-3 px-6 lg:px-10 py-2.5 border-b border-blue-100 bg-gradient-to-r from-blue-50/80 to-violet-50/80">
+          <p className="text-xs sm:text-sm text-[#475569]">
+            <span className="font-medium text-[#0F172A]">You're chatting as a guest.</span>{" "}
+            Create a free account to save this conversation to your dashboard.
+          </p>
+          <Button
+            size="sm"
+            onClick={handleSignUpToSave}
+            className="flex-shrink-0"
+          >
+            Save my chat
+          </Button>
+        </div>
+      )}
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="container mx-auto max-w-3xl px-4 lg:px-8 py-8">

@@ -54,7 +54,7 @@ function Router() {
         <ProtectedRoute><AppShell><Dashboard /></AppShell></ProtectedRoute>
       </Route>
       <Route path="/agent">
-        <ProtectedRoute><AppShell><Agent /></AppShell></ProtectedRoute>
+        <AppShell><Agent /></AppShell>
       </Route>
       <Route path="/categories">
         <ProtectedRoute><AppShell><Categories /></AppShell></ProtectedRoute>
