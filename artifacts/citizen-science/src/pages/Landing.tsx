@@ -1038,6 +1038,53 @@ export function Landing() {
           </div>
         </section>
 
+        {/* COMMUNITY — MINDS */}
+        <section id="community" className="bg-white pb-32 lg:pb-40">
+          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+            <Reveal>
+              <div className="mb-12 max-w-2xl">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                  Community
+                </span>
+                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
+                  Discovery has always belonged to the curious.
+                </h2>
+                <p className="mt-5 text-lg leading-relaxed text-[#64748B]">
+                  The same curiosity that powers this network drove the world's great inventors. We're building the infrastructure so the next breakthrough can come from anyone, anywhere.
+                </p>
+              </div>
+            </Reveal>
+            <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+              {INVENTORS.map((inv, i) => (
+                <Reveal key={inv.name} delay={(i % 4) * 0.06}>
+                  <Link
+                    href={`/directory/${inv.slug}`}
+                    className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
+                  >
+                    <div className="relative aspect-[4/5] overflow-hidden bg-[#F1F5F9]">
+                      <img
+                        src={inv.imageUrl}
+                        alt={inv.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                      />
+                    </div>
+                    <div className="flex flex-1 flex-col p-4">
+                      <h3 className="font-semibold leading-snug text-[#0F172A] transition-colors group-hover:text-blue-700">
+                        {inv.name}
+                      </h3>
+                      <p className="mt-1 text-sm font-medium text-[#2563EB]">{inv.field}</p>
+                      <p className="mt-2 line-clamp-4 text-xs leading-relaxed text-[#64748B]">
+                        {inv.blurb}
+                      </p>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* THE FUTURE WE ARE BUILDING */}
         <section className="border-y border-[#E2E8F0] bg-[#F8FAFC] py-32 lg:py-40">
           <div className="container mx-auto max-w-7xl px-4 lg:px-8">
@@ -1324,53 +1371,6 @@ export function Landing() {
                       <div className="mt-6 flex items-center text-sm font-semibold text-blue-600 opacity-0 transition-opacity group-hover:opacity-100">
                         Get started <ArrowRight className="ml-1 h-3 w-3" />
                       </div>
-                    </div>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* COMMUNITY — MINDS */}
-        <section id="community" className="bg-white py-32 lg:py-40">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-            <Reveal>
-              <div className="mb-12 max-w-2xl">
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
-                  Community
-                </span>
-                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
-                  Discovery has always belonged to the curious.
-                </h2>
-                <p className="mt-5 text-lg leading-relaxed text-[#64748B]">
-                  The same curiosity that powers this network drove the world's great inventors. We're building the infrastructure so the next breakthrough can come from anyone, anywhere.
-                </p>
-              </div>
-            </Reveal>
-            <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-              {INVENTORS.map((inv, i) => (
-                <Reveal key={inv.name} delay={(i % 4) * 0.06}>
-                  <Link
-                    href={`/directory/${inv.slug}`}
-                    className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
-                  >
-                    <div className="relative aspect-[4/5] overflow-hidden bg-[#F1F5F9]">
-                      <img
-                        src={inv.imageUrl}
-                        alt={inv.name}
-                        loading="lazy"
-                        className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
-                      />
-                    </div>
-                    <div className="flex flex-1 flex-col p-4">
-                      <h3 className="font-semibold leading-snug text-[#0F172A] transition-colors group-hover:text-blue-700">
-                        {inv.name}
-                      </h3>
-                      <p className="mt-1 text-sm font-medium text-[#2563EB]">{inv.field}</p>
-                      <p className="mt-2 line-clamp-4 text-xs leading-relaxed text-[#64748B]">
-                        {inv.blurb}
-                      </p>
                     </div>
                   </Link>
                 </Reveal>
