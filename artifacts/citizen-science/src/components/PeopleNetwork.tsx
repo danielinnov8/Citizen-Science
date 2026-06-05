@@ -303,7 +303,7 @@ export function PeopleNetwork() {
                   <div
                     className={[
                       "relative overflow-hidden rounded-full border-2 bg-white shadow-md transition-colors duration-300",
-                      "h-12 w-12 md:h-[4.25rem] md:w-[4.25rem]",
+                      "h-14 w-14 md:h-[5.25rem] md:w-[5.25rem]",
                       isActive
                         ? "border-blue-500 shadow-[0_0_0_4px_rgba(37,99,235,0.18)]"
                         : "border-white group-hover:border-blue-300",
