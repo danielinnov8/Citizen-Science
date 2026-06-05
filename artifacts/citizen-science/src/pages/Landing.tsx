@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AnimatePresence, motion } from "framer-motion";
-import { Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown } from "lucide-react";
+import { Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown, Smartphone, Users, Eye, Lightbulb, Wheat, ShieldCheck, GraduationCap, Handshake, Wrench, Building2, UserPlus, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -833,363 +833,660 @@ const TOOLS = [
   { icon: PenTool, name: "DIY Lab Notebook", desc: "Free-form experiment logging.", slug: "biology" },
 ];
 
+
+function Reveal({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+const PILLARS = [
+  {
+    icon: Smartphone,
+    title: "Every Smartphone Becomes a Research Tool",
+    desc: "The sensor in your pocket can measure air, water, light, sound, and motion — turning daily life into data that matters.",
+  },
+  {
+    icon: Building2,
+    title: "Every Community Becomes a Living Laboratory",
+    desc: "Neighborhoods, schools, and cities become sites of active research, mapping the world block by block.",
+  },
+  {
+    icon: UserPlus,
+    title: "Every Citizen Becomes a Contributor",
+    desc: "No degree required — only curiosity. Each observation adds to a shared, global record of discovery.",
+  },
+];
+
+const FLYWHEEL = [
+  "Curiosity",
+  "Participation",
+  "Observation",
+  "Knowledge",
+  "Discovery",
+  "Impact",
+];
+
+const IMPACT_AREAS = [
+  { icon: CloudSun, name: "Climate", desc: "Track a changing planet in real time." },
+  { icon: Leaf, name: "Biodiversity", desc: "Map the species around us." },
+  { icon: HeartPulse, name: "Public Health", desc: "Spot patterns before they spread." },
+  { icon: Wheat, name: "Agriculture", desc: "Grow more with less." },
+  { icon: Droplet, name: "Water", desc: "Protect the source of life." },
+  { icon: ShieldCheck, name: "Disaster Resilience", desc: "See risk early, respond faster." },
+  { icon: GraduationCap, name: "Education", desc: "Learn by contributing to real science." },
+  { icon: Users, name: "Community Science", desc: "Solve local problems together." },
+];
+
+const PATHWAYS = [
+  {
+    icon: Users,
+    title: "Participate",
+    desc: "Contribute observations and run experiments from wherever you are.",
+  },
+  {
+    icon: Handshake,
+    title: "Partner",
+    desc: "Bring your institution, dataset, or mission into the network.",
+  },
+  {
+    icon: GraduationCap,
+    title: "Educate",
+    desc: "Turn classrooms into living laboratories of real research.",
+  },
+  {
+    icon: Wrench,
+    title: "Build",
+    desc: "Create tools and models on top of the world's largest discovery network.",
+  },
+];
+
+const STATS = [
+  { icon: Users, value: "8 Billion", label: "Potential Researchers" },
+  { icon: Cpu, value: "6+ Billion", label: "Connected Devices" },
+  { icon: Activity, value: "Millions", label: "Daily Observations" },
+  { icon: Globe2, value: "One", label: "Shared Planet" },
+];
+
+const GRID_BG = {
+  backgroundImage:
+    "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)",
+  backgroundSize: "52px 52px",
+} as const;
+
 export function Landing() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans selection:bg-blue-100 selection:text-blue-900">
-      <header className="sticky top-0 z-50 w-full border-b border-[#E2E8F0] bg-white/80 backdrop-blur-md">
+      {/* HEADER */}
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0B1120]/90 text-white backdrop-blur-md">
         <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
           <div className="flex items-center gap-2 font-semibold text-lg tracking-tight">
             <LogoIcon className="h-8 w-8" />
-            <span>Citizen Science</span>
+            <span>Citizen Science™</span>
           </div>
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[#64748B]">
-            <Link href="/categories" className="transition-colors hover:text-[#0F172A]">Categories</Link>
-            <a href="#tools" className="transition-colors hover:text-[#0F172A]">Tools</a>
-            <a href="#safety" className="transition-colors hover:text-[#0F172A]">Safety</a>
-            <Link href="/login" className="transition-colors hover:text-[#0F172A]">Sign in</Link>
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
+            <a href="#vision" className="transition-colors hover:text-white">Vision</a>
+            <a href="#discover" className="transition-colors hover:text-white">Discover</a>
+            <a href="#participate" className="transition-colors hover:text-white">Participate</a>
+            <a href="#impact" className="transition-colors hover:text-white">Impact</a>
+            <a href="#community" className="transition-colors hover:text-white">Community</a>
           </nav>
-          <Link href="/login" className="btn-metal-blue inline-flex items-center rounded-full px-6 py-2 text-sm font-medium transition-colors">
-            Start Exploring
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="hidden sm:inline text-sm font-medium text-white/70 transition-colors hover:text-white">
+              Sign in
+            </Link>
+            <Link href="/login" className="btn-metal-blue inline-flex items-center rounded-full px-6 py-2 text-sm font-medium transition-colors">
+              Join
+            </Link>
+          </div>
         </div>
       </header>
 
       <main>
-        {/* AGENT / ASK SECTION */}
-        <AskAgent />
-
-        {/* HERO SECTION */}
-        <section className="relative overflow-hidden pt-24 pb-32 lg:pt-32 lg:pb-40">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-30 pointer-events-none blur-[100px]">
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply animate-pulse" />
-            <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-green-400 rounded-full mix-blend-multiply animate-pulse delay-1000" />
-            <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-violet-400 rounded-full mix-blend-multiply animate-pulse delay-700" />
+        {/* HERO */}
+        <section className="relative overflow-hidden bg-[#0B1120] text-white">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -top-40 left-1/4 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-blue-600/30 blur-[150px]" />
+            <div className="absolute top-10 right-1/4 h-[520px] w-[520px] translate-x-1/2 rounded-full bg-violet-600/25 blur-[150px]" />
+            <div className="absolute bottom-0 left-1/3 h-[500px] w-[500px] rounded-full bg-emerald-500/20 blur-[160px]" />
           </div>
+          <div className="pointer-events-none absolute inset-0 opacity-[0.18]" style={GRID_BG} />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_25%,#0B1120_85%)]" />
 
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-              <div className="max-w-2xl">
-                <Badge variant="outline" className="rounded-full bg-blue-50/50 text-blue-700 border-blue-200 mb-6 px-3 py-1 text-xs font-medium">
-                  <Sparkles className="h-3 w-3 mr-1 inline" /> Premium Science Learning Platform
-                </Badge>
-                <h1 className="text-5xl lg:text-6xl font-serif tracking-tight text-[#0F172A] leading-[1.1] mb-6">
-                  Run Your Own Experiments. <br className="hidden lg:block" />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600 font-sans font-bold tracking-tight">
-                    Learn Science <br />by Doing.
-                  </span>
-                </h1>
-                <p className="text-lg text-[#64748B] mb-8 leading-relaxed">
-                  Citizen Science helps curious people explore biology, ecology, health, chemistry, physics, agriculture, environmental science, and more through guided tutorials, interactive simulations, and personal experiment tracking.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="/login">
-                    <Button size="lg" className="w-full rounded-full text-base h-12 px-8">
-                      Create Free Account <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href="/categories">
-                    <Button size="lg" variant="outline" className="w-full rounded-full text-base h-12 px-8 border-[#E2E8F0] hover:bg-[#F1F5F9] text-[#0F172A]">
-                      Explore Categories
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-
-              {/* DASHBOARD MOCKUP */}
-              <RotatingDashboardCard />
-            </div>
-          </div>
-        </section>
-
-        {/* PROBLEM SECTION */}
-        <section className="py-24 bg-white border-y border-[#E2E8F0]">
-          <div className="container mx-auto max-w-5xl px-4 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold mb-12">Science Shouldn't Stay Locked in Labs.</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
-              {[
-                { title: "Passive Education", desc: "Reading about science isn't the same as doing it." },
-                { title: "Inaccessible Tools", desc: "Real labs are expensive and hard to access." },
-                { title: "Fragmented Data", desc: "Notes scattered across paper and digital apps." },
-                { title: "Hard to Structure", desc: "Beginners struggle to plan safe, valid experiments." }
-              ].map((item, i) => (
-                <div key={i} className="p-6 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <div className="h-10 w-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center mb-4 font-bold">
-                    0{i + 1}
-                  </div>
-                  <h4 className="font-semibold mb-2">{item.title}</h4>
-                  <p className="text-sm text-[#64748B] leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* SOLUTION / WORKFLOW */}
-        <section className="py-32 bg-[#F8FAFC]">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-16">
-              <h2 className="text-3xl font-bold mb-4">A Guided Science Lab for Everyone.</h2>
-              <p className="text-[#64748B]">Follow a proven scientific method designed for home exploration.</p>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-              {[
-                { icon: BookOpen, label: "Learn concept" },
-                { icon: Activity, label: "Run simulation" },
-                { icon: PenTool, label: "Plan experiment" },
-                { icon: BookMarked, label: "Track observations" },
-                { icon: Save, label: "Save results" },
-                { icon: Layers, label: "Build portfolio" }
-              ].map((step, i) => (
-                <div key={i} className="relative flex flex-col items-center p-6 text-center">
-                  <div className="h-16 w-16 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm flex items-center justify-center text-blue-600 mb-4 z-10">
-                    <step.icon className="h-6 w-6" />
-                  </div>
-                  <div className="text-sm font-medium">{step.label}</div>
-                  {i < 5 && <div className="hidden lg:block absolute top-14 left-[60%] w-[80%] h-[2px] bg-gradient-to-r from-blue-200 to-transparent" />}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CATEGORY GRID */}
-        <section className="py-32 bg-white">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="flex justify-between items-end mb-12">
-              <div>
-                <h2 className="text-3xl font-bold mb-4">Explore Fields of Science</h2>
-                <p className="text-[#64748B]">Choose a discipline to start your journey.</p>
-              </div>
-              <Link href="/categories">
-                <Button variant="ghost" className="hidden sm:flex text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                  View all fields <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {CATEGORIES.slice(0, 8).map((cat, i) => {
-                const Icon = getCategoryIcon(cat.icon);
-                return (
-                <Link key={i} href={`/category/${cat.slug}`}>
-                  <Card className="border-[#E2E8F0] shadow-none hover:shadow-md transition-shadow group cursor-pointer h-full">
-                    <CardHeader className="pb-4">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="icon-tile-metal h-10 w-10 rounded-lg bg-blue-50 text-blue-600 group-hover:text-white flex items-center justify-center">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <Badge variant="outline" className={`text-[10px] uppercase font-bold tracking-wider
-                          ${cat.difficulty === 'Beginner' ? 'text-green-600 bg-green-50 border-green-200' : ''}
-                          ${cat.difficulty === 'Intermediate' ? 'text-amber-600 bg-amber-50 border-amber-200' : ''}
-                          ${cat.difficulty === 'Advanced' ? 'text-purple-600 bg-purple-50 border-purple-200' : ''}
-                        `}>
-                          {cat.difficulty}
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-lg">{cat.name}</CardTitle>
-                      <CardDescription className="text-xs line-clamp-2">{cat.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="pb-4 pt-0">
-                      <div className="text-xs font-semibold text-blue-600 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        Explore <ArrowRight className="ml-1 h-3 w-3" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* INVENTORS */}
-        <section className="py-32 bg-[#F8FAFC] border-y border-[#E2E8F0]">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="mb-12 max-w-2xl">
-              <div className="flex items-center gap-2 text-sm font-medium text-[#2563EB] mb-3">
-                <Sparkles className="h-4 w-4" />
-                Inventors
-              </div>
-              <h2 className="text-3xl font-bold mb-4">Minds That Built the Future</h2>
-              <p className="text-[#64748B] leading-relaxed">
-                The same curiosity that powers citizen science drives the world's
-                great inventors. Meet a few who turned questions into things that
-                changed how we live.
+          <div className="container relative z-10 mx-auto max-w-5xl px-4 pt-28 pb-32 text-center lg:px-8 lg:pt-40 lg:pb-44">
+            <Reveal>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
+                <Sparkles className="h-3.5 w-3.5 text-blue-300" />
+                Future Vision · A Citizen Science™ Initiative
+              </span>
+            </Reveal>
+            <Reveal delay={0.05}>
+              <h1 className="mt-8 font-serif text-5xl leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+                Humanity's Research<br className="hidden sm:block" /> Network
+                <span className="align-super text-2xl text-blue-300 lg:text-3xl">™</span>
+              </h1>
+            </Reveal>
+            <Reveal delay={0.12}>
+              <p className="mx-auto mt-8 max-w-3xl text-xl font-light leading-relaxed text-white/80 lg:text-2xl">
+                What if every person on Earth could help solve humanity's greatest challenges?
               </p>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-              {INVENTORS.map((inv) => (
-                <a
-                  key={inv.name}
-                  href={inv.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden hover:border-blue-200 hover:shadow-md transition-all flex flex-col"
-                >
-                  <div className="aspect-[4/5] bg-[#F1F5F9] overflow-hidden relative">
-                    <img
-                      src={inv.imageUrl}
-                      alt={inv.name}
-                      loading="lazy"
-                      className="h-full w-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="p-4 flex flex-col flex-1">
-                    <h3 className="font-semibold text-[#0F172A] leading-snug group-hover:text-blue-700 transition-colors">
-                      {inv.name}
-                    </h3>
-                    <p className="text-sm text-[#2563EB] font-medium mt-1">{inv.field}</p>
-                    <p className="text-xs text-[#64748B] mt-2 leading-relaxed line-clamp-4">
-                      {inv.blurb}
-                    </p>
-                  </div>
+            </Reveal>
+            <Reveal delay={0.18}>
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/55 lg:text-lg">
+                Citizen Science is building the world's largest distributed discovery network — transforming human curiosity into collective intelligence and accelerating scientific progress at global scale.
+              </p>
+            </Reveal>
+            <Reveal delay={0.24}>
+              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <Link href="/login">
+                  <Button size="lg" className="h-12 w-full rounded-full px-8 text-base sm:w-auto">
+                    Join the Network <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                <a href="#vision">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-12 w-full rounded-full border-white/25 bg-white/5 px-8 text-base text-white hover:bg-white/10 hover:text-white sm:w-auto"
+                  >
+                    Explore the Vision
+                  </Button>
                 </a>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* HOW IT WORKS */}
-        <section className="py-32 bg-white">
-          <div className="container mx-auto max-w-5xl px-4 lg:px-8">
-            <h2 className="text-3xl font-bold mb-16 text-center">How It Works</h2>
-            <div className="space-y-12">
-              {[
-                { num: "01", title: "Choose a field", desc: "Select from dozens of scientific disciplines, from botany to physics. We provide the foundational knowledge." },
-                { num: "02", title: "Learn the basics", desc: "Read guided tutorials that explain core concepts, terminology, and standard measurement techniques." },
-                { num: "03", title: "Use a simulator", desc: "Test hypotheses virtually before trying them in the real world. Adjust variables and see instant results." },
-                { num: "04", title: "Track your results", desc: "Set up a physical experiment and use your digital notebook to log daily observations, photos, and data points." },
-              ].map((step, i) => (
-                <div key={i} className="flex flex-col sm:flex-row gap-6 sm:gap-12 items-start">
-                  <div className="text-5xl font-serif text-blue-200">{step.num}</div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                    <p className="text-[#64748B] leading-relaxed max-w-2xl">{step.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* FEATURED TOOLS */}
-        <section id="tools" className="py-32 bg-white">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-            <h2 className="text-3xl font-bold mb-12 text-center">Featured Interactive Tools</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              {TOOLS.map((tool, i) => (
-                <Link key={i} href={`/category/${tool.slug}`}>
-                  <div className="p-5 rounded-xl border border-[#E2E8F0] hover:border-blue-200 hover:bg-blue-50/50 transition-colors group cursor-pointer h-full flex flex-col">
-                    <tool.icon className="h-6 w-6 text-[#64748B] group-hover:text-blue-600 mb-4" />
-                    <h4 className="font-medium text-sm mb-2 leading-tight">{tool.name}</h4>
-                    <p className="text-xs text-[#64748B] line-clamp-2 mb-4 flex-1">{tool.desc}</p>
-                    <div className="text-xs font-semibold text-blue-600 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      Open tool <ArrowRight className="ml-1 h-3 w-3" />
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* SAFETY */}
-        <section id="safety" className="py-24 bg-[#F8FAFC]">
-          <div className="container mx-auto max-w-4xl px-4 lg:px-8">
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 lg:p-12 text-center shadow-sm">
-              <div className="h-12 w-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Check className="h-6 w-6" />
               </div>
-              <h3 className="text-2xl font-serif mb-4 text-amber-900">Safety First</h3>
-              <p className="text-amber-800 leading-relaxed max-w-2xl mx-auto">
-                Citizen Science is designed for education, simulation, observation, and safe at-home experimentation. We do not encourage hazardous, medical, biological, or chemical procedures without proper training, supervision, and safety standards.
-              </p>
-            </div>
+            </Reveal>
+            <Reveal delay={0.32}>
+              <div className="mx-auto mt-16 flex max-w-2xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-white/55">
+                <span><span className="font-semibold text-white">8B</span> potential researchers</span>
+                <span className="hidden h-1 w-1 rounded-full bg-white/30 sm:inline-block" />
+                <span><span className="font-semibold text-white">6B+</span> connected devices</span>
+                <span className="hidden h-1 w-1 rounded-full bg-white/30 sm:inline-block" />
+                <span><span className="font-semibold text-white">1</span> shared planet</span>
+              </div>
+            </Reveal>
           </div>
         </section>
 
-        {/* CONNECT DEVICES */}
-        <section id="devices" className="py-32 bg-[#F8FAFC] border-y border-[#E2E8F0]">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <Badge className="mb-4 bg-blue-50 text-blue-700 border border-blue-100 hover:bg-blue-50">
-                Coming soon
-              </Badge>
-              <h2 className="text-3xl lg:text-4xl font-serif mb-4 tracking-tight">
-                Connect your monitoring devices
+        {/* VISION — THE BELIEF */}
+        <section id="vision" className="bg-white py-32 lg:py-40">
+          <div className="container mx-auto max-w-4xl px-4 text-center lg:px-8">
+            <Reveal>
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                The Core Belief
+              </span>
+            </Reveal>
+            <Reveal delay={0.06}>
+              <h2 className="mx-auto mt-6 max-w-3xl font-serif text-4xl leading-[1.1] tracking-tight lg:text-5xl">
+                The Greatest Untapped Resource Isn't Technology. It's People.
               </h2>
-              <p className="text-[#64748B] text-lg">
-                Sync real biometric data from your wearables straight into your experiments and notebook — perfect for human-health, sleep, and neuroscience studies.
+            </Reveal>
+            <Reveal delay={0.12}>
+              <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-[#475569]">
+                For centuries, scientific discovery has been limited by institutional capacity. Yet billions of people observe the world every day. Citizen Science unlocks humanity itself as a research network.
               </p>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {DEVICES.map((device) => (
-                <div
-                  key={device.id}
-                  className="flex items-center gap-4 p-5 rounded-2xl border border-[#E2E8F0] bg-white shadow-sm hover:border-blue-200 hover:shadow-md transition-all"
-                >
-                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${device.accent}`}>
-                    <device.icon className="h-6 w-6" />
+            </Reveal>
+          </div>
+        </section>
+
+        {/* THE FUTURE WE ARE BUILDING */}
+        <section className="border-y border-[#E2E8F0] bg-[#F8FAFC] py-32 lg:py-40">
+          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+            <Reveal>
+              <div className="mx-auto mb-16 max-w-2xl text-center">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                  The Future We Are Building
+                </span>
+                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
+                  A planet where discovery has no walls.
+                </h2>
+              </div>
+            </Reveal>
+            <div className="grid gap-6 md:grid-cols-3">
+              {PILLARS.map((p, i) => (
+                <Reveal key={p.title} delay={i * 0.08}>
+                  <div className="flex h-full flex-col rounded-3xl border border-[#E2E8F0] bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
+                    <div className="icon-tile-metal mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                      <p.icon className="h-7 w-7" />
+                    </div>
+                    <h3 className="text-xl font-semibold leading-snug">{p.title}</h3>
+                    <p className="mt-3 text-[#64748B] leading-relaxed">{p.desc}</p>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h4 className="font-semibold text-sm leading-tight">{device.name}</h4>
-                    <p className="text-xs text-[#64748B] line-clamp-1">{device.description}</p>
-                  </div>
-                </div>
+                </Reveal>
               ))}
             </div>
-            <div className="text-center mt-12">
-              <Link href="/login">
-                <Button size="lg" variant="outline" className="rounded-full px-8 h-12 border-[#E2E8F0]">
-                  Connect in Settings <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+          </div>
+        </section>
+
+        {/* IMAGINE 2045 — CINEMATIC INTERLUDE */}
+        <section className="relative overflow-hidden bg-[#0B1120] py-32 text-white lg:py-44">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute top-1/2 left-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-700/20 blur-[160px]" />
+            <div className="absolute bottom-0 right-1/4 h-[400px] w-[400px] rounded-full bg-violet-600/20 blur-[150px]" />
+          </div>
+          <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={GRID_BG} />
+          <div className="container relative z-10 mx-auto max-w-4xl px-4 text-center lg:px-8">
+            <Reveal>
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-300">
+                Imagine the Year 2045
+              </span>
+            </Reveal>
+            <Reveal delay={0.06}>
+              <h2 className="mx-auto mt-6 max-w-3xl font-serif text-4xl leading-[1.12] tracking-tight lg:text-6xl">
+                Science happens everywhere.
+              </h2>
+            </Reveal>
+            <Reveal delay={0.12}>
+              <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-white/70 lg:text-xl">
+                Students contribute to active research. Communities monitor their own ecosystems. AI coordinates millions of observations in real time. Discovery is no longer limited by institutions — it belongs to everyone.
+              </p>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* THE DISCOVERY FLYWHEEL */}
+        <section className="bg-white py-32 lg:py-40">
+          <div className="container mx-auto max-w-6xl px-4 lg:px-8">
+            <Reveal>
+              <div className="mx-auto mb-16 max-w-2xl text-center">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                  How The Network Grows
+                </span>
+                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
+                  The Discovery Flywheel™
+                </h2>
+                <p className="mt-5 text-lg leading-relaxed text-[#64748B]">
+                  Citizen Science transforms individual moments of curiosity into a continuous cycle of learning, innovation, and progress.
+                </p>
+              </div>
+            </Reveal>
+
+            {/* Ring (md+) */}
+            <Reveal delay={0.1}>
+              <div className="relative mx-auto hidden aspect-square w-full max-w-xl md:block">
+                <div className="absolute inset-[12%] rounded-full border-2 border-dashed border-blue-200" />
+                <div className="absolute left-1/2 top-1/2 flex h-36 w-36 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-violet-600 text-center text-white shadow-xl">
+                  <span className="font-serif text-lg leading-tight">Discovery<br />Flywheel™</span>
+                </div>
+                {FLYWHEEL.map((stage, i) => {
+                  const angle = (i / FLYWHEEL.length) * 2 * Math.PI - Math.PI / 2;
+                  const x = 50 + 44 * Math.cos(angle);
+                  const y = 50 + 44 * Math.sin(angle);
+                  return (
+                    <div
+                      key={stage}
+                      className="absolute flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-[#E2E8F0] bg-white text-center shadow-sm"
+                      style={{ left: `${x}%`, top: `${y}%` }}
+                    >
+                      <span className="text-[10px] font-bold text-blue-500">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="px-1 text-sm font-semibold leading-tight text-[#0F172A]">
+                        {stage}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </Reveal>
+
+            {/* Linear (mobile) */}
+            <Reveal delay={0.1}>
+              <div className="flex flex-wrap items-center justify-center gap-2 md:hidden">
+                {FLYWHEEL.map((stage, i) => (
+                  <React.Fragment key={stage}>
+                    <span className="rounded-full border border-[#E2E8F0] bg-white px-4 py-2 text-sm font-semibold shadow-sm">
+                      {stage}
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-blue-400" />
+                  </React.Fragment>
+                ))}
+                <span className="rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
+                  More Curiosity
+                </span>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* AREAS OF IMPACT */}
+        <section id="impact" className="border-y border-[#E2E8F0] bg-[#F8FAFC] py-32 lg:py-40">
+          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+            <Reveal>
+              <div className="mx-auto mb-16 max-w-2xl text-center">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                  Areas of Impact
+                </span>
+                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
+                  Pointed at humanity's hardest problems.
+                </h2>
+              </div>
+            </Reveal>
+            <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
+              {IMPACT_AREAS.map((area, i) => (
+                <Reveal key={area.name} delay={(i % 4) * 0.06}>
+                  <div className="group flex h-full flex-col rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
+                    <div className="icon-tile-metal mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                      <area.icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-lg font-semibold">{area.name}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-[#64748B]">{area.desc}</p>
+                  </div>
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* FINAL CTA */}
-        <section className="py-32 bg-white text-center">
-          <div className="container mx-auto max-w-3xl px-4 lg:px-8">
-            <h2 className="text-4xl lg:text-5xl font-serif mb-6 tracking-tight">Start Building Your Personal Science Lab.</h2>
-            <p className="text-[#64748B] text-lg mb-10">Join thousands of curious minds exploring the world around them.</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/login">
-                <Button size="lg" className="w-full rounded-full px-8 h-12">
-                  Create Free Account
-                </Button>
-              </Link>
-              <Link href="/categories">
-                <Button size="lg" variant="outline" className="w-full rounded-full px-8 h-12 border-[#E2E8F0]">
-                  Explore Categories
-                </Button>
-              </Link>
+        {/* WHY THIS MATTERS */}
+        <section className="bg-white py-32 lg:py-40">
+          <div className="container mx-auto max-w-6xl px-4 lg:px-8">
+            <Reveal>
+              <div className="mx-auto mb-16 max-w-2xl text-center">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                  Why This Matters
+                </span>
+                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
+                  The same scale that threatens us can save us.
+                </h2>
+              </div>
+            </Reveal>
+            <div className="grid gap-6 md:grid-cols-2">
+              <Reveal>
+                <div className="flex h-full flex-col rounded-3xl border border-[#E2E8F0] bg-[#F8FAFC] p-8 lg:p-10">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
+                    Today's Challenges
+                  </span>
+                  <ul className="mt-6 space-y-4">
+                    {["Climate instability", "Resource scarcity", "Health threats", "Information gaps"].map((c) => (
+                      <li key={c} className="flex items-center gap-3 text-lg text-[#475569]">
+                        <span className="h-2 w-2 shrink-0 rounded-full bg-[#CBD5E1]" />
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <div className="flex h-full flex-col rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 to-violet-50 p-8 lg:p-10">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">
+                    Tomorrow's Opportunity
+                  </span>
+                  <ul className="mt-6 space-y-4">
+                    {["Billions of contributors", "Real-time intelligence", "Faster discovery", "Better decisions"].map((c) => (
+                      <li key={c} className="flex items-center gap-3 text-lg font-medium text-[#0F172A]">
+                        <Check className="h-5 w-5 shrink-0 text-blue-600" />
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
             </div>
+          </div>
+        </section>
+
+        {/* BY THE NUMBERS */}
+        <section className="relative overflow-hidden bg-[#0B1120] py-28 text-white lg:py-32">
+          <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={GRID_BG} />
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute left-1/2 top-1/2 h-[400px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-700/20 blur-[150px]" />
+          </div>
+          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8">
+            <Reveal>
+              <h2 className="mb-16 text-center font-serif text-3xl tracking-tight lg:text-4xl">
+                By The Numbers
+              </h2>
+            </Reveal>
+            <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+              {STATS.map((s, i) => (
+                <Reveal key={s.label} delay={i * 0.08}>
+                  <div className="text-center">
+                    <s.icon className="mx-auto mb-4 h-7 w-7 text-blue-300" />
+                    <div className="font-serif text-4xl tracking-tight lg:text-5xl">{s.value}</div>
+                    <div className="mt-2 text-sm text-white/55">{s.label}</div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* DISCOVER — THE LIVE PRODUCT */}
+        <section id="discover" className="bg-white">
+          <AskAgent />
+          <div className="container mx-auto max-w-7xl px-4 py-32 lg:px-8 lg:py-40">
+            <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+              <Reveal>
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                    The Network Is Live
+                  </span>
+                  <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
+                    From a single question to a living notebook.
+                  </h2>
+                  <p className="mt-6 text-lg leading-relaxed text-[#64748B]">
+                    This isn't a someday vision. Start now — ask a question and our science copilot turns it into a guided experiment with steps, simulations, and an observation log ready to go.
+                  </p>
+                  <ul className="mt-8 space-y-4">
+                    {[
+                      "Guided experiments across dozens of scientific fields",
+                      "Interactive simulators to test before you build",
+                      "A personal notebook that becomes part of the network",
+                    ].map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-[#475569]">
+                        <Check className="mt-1 h-5 w-5 shrink-0 text-blue-600" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+                    <Link href="/login">
+                      <Button size="lg" className="h-12 w-full rounded-full px-8 text-base sm:w-auto">
+                        Start Your First Discovery <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Link href="/categories">
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className="h-12 w-full rounded-full border-[#E2E8F0] px-8 text-base text-[#0F172A] hover:bg-[#F1F5F9] sm:w-auto"
+                      >
+                        Explore All Fields
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </Reveal>
+              <Reveal delay={0.12}>
+                <RotatingDashboardCard />
+              </Reveal>
+            </div>
+
+            <Reveal>
+              <div className="mt-24 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {CATEGORIES.slice(0, 8).map((cat, i) => {
+                  const Icon = getCategoryIcon(cat.icon);
+                  return (
+                    <Link key={i} href={`/category/${cat.slug}`}>
+                      <Card className="group h-full cursor-pointer border-[#E2E8F0] shadow-none transition-shadow hover:shadow-md">
+                        <CardHeader className="pb-4">
+                          <div className="icon-tile-metal mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 group-hover:text-white">
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <CardTitle className="text-lg">{cat.name}</CardTitle>
+                          <CardDescription className="line-clamp-2 text-xs">
+                            {cat.description}
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+                    </Link>
+                  );
+                })}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* PARTICIPATE — PATHWAYS */}
+        <section id="participate" className="border-y border-[#E2E8F0] bg-[#F8FAFC] py-32 lg:py-40">
+          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+            <Reveal>
+              <div className="mx-auto mb-16 max-w-2xl text-center">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                  Join Humanity's Research Network™
+                </span>
+                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
+                  There's a way in for everyone.
+                </h2>
+              </div>
+            </Reveal>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {PATHWAYS.map((p, i) => (
+                <Reveal key={p.title} delay={i * 0.08}>
+                  <Link href="/login">
+                    <div className="group flex h-full flex-col rounded-3xl border border-[#E2E8F0] bg-white p-8 shadow-sm transition-all hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
+                      <div className="icon-tile-metal mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                        <p.icon className="h-6 w-6" />
+                      </div>
+                      <h3 className="text-xl font-semibold">{p.title}</h3>
+                      <p className="mt-3 flex-1 text-sm leading-relaxed text-[#64748B]">{p.desc}</p>
+                      <div className="mt-6 flex items-center text-sm font-semibold text-blue-600 opacity-0 transition-opacity group-hover:opacity-100">
+                        Get started <ArrowRight className="ml-1 h-3 w-3" />
+                      </div>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* COMMUNITY — MINDS */}
+        <section id="community" className="bg-white py-32 lg:py-40">
+          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+            <Reveal>
+              <div className="mb-12 max-w-2xl">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                  Community
+                </span>
+                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
+                  Discovery has always belonged to the curious.
+                </h2>
+                <p className="mt-5 text-lg leading-relaxed text-[#64748B]">
+                  The same curiosity that powers this network drove the world's great inventors. We're building the infrastructure so the next breakthrough can come from anyone, anywhere.
+                </p>
+              </div>
+            </Reveal>
+            <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+              {INVENTORS.map((inv, i) => (
+                <Reveal key={inv.name} delay={(i % 4) * 0.06}>
+                  <a
+                    href={inv.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
+                  >
+                    <div className="relative aspect-[4/5] overflow-hidden bg-[#F1F5F9]">
+                      <img
+                        src={inv.imageUrl}
+                        alt={inv.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                      />
+                    </div>
+                    <div className="flex flex-1 flex-col p-4">
+                      <h3 className="font-semibold leading-snug text-[#0F172A] transition-colors group-hover:text-blue-700">
+                        {inv.name}
+                      </h3>
+                      <p className="mt-1 text-sm font-medium text-[#2563EB]">{inv.field}</p>
+                      <p className="mt-2 line-clamp-4 text-xs leading-relaxed text-[#64748B]">
+                        {inv.blurb}
+                      </p>
+                    </div>
+                  </a>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CLOSING MANIFESTO */}
+        <section className="relative overflow-hidden bg-[#0B1120] py-36 text-center text-white lg:py-44">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute left-1/2 top-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-700/25 blur-[160px]" />
+            <div className="absolute bottom-0 right-1/3 h-[400px] w-[400px] rounded-full bg-violet-600/20 blur-[150px]" />
+          </div>
+          <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={GRID_BG} />
+          <div className="container relative z-10 mx-auto max-w-4xl px-4 lg:px-8">
+            <Reveal>
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-300">
+                The Manifesto
+              </span>
+            </Reveal>
+            <Reveal delay={0.06}>
+              <h2 className="mx-auto mt-6 max-w-3xl font-serif text-4xl leading-[1.12] tracking-tight lg:text-6xl">
+                We are building Humanity's Research Network™.
+              </h2>
+            </Reveal>
+            <Reveal delay={0.12}>
+              <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-white/70">
+                Unlocking the world's largest untapped source of discovery: people. Because humanity's greatest challenges require humanity's collective intelligence.
+              </p>
+            </Reveal>
+            <Reveal delay={0.18}>
+              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <Link href="/login">
+                  <Button size="lg" className="h-12 w-full rounded-full px-8 text-base sm:w-auto">
+                    Join the Network <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </Reveal>
+            <Reveal delay={0.24}>
+              <p className="mt-10 font-serif text-lg italic text-white/60">
+                Turning Human Curiosity into Collective Intelligence™
+              </p>
+            </Reveal>
           </div>
         </section>
       </main>
 
-      <footer className="bg-[#0F172A] text-[#64748B] py-12">
-        <div className="container mx-auto max-w-7xl px-4 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+      <footer className="bg-[#0B1120] py-12 text-[#94A3B8]">
+        <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 md:flex-row lg:px-8">
           <Logo variant="full" theme="dark" />
-          <div className="flex gap-6 text-sm">
-            <Link href="/categories" className="hover:text-white transition-colors">Categories</Link>
-            <a href="#tools" className="hover:text-white transition-colors">Tools</a>
-            <a href="#safety" className="hover:text-white transition-colors">Safety</a>
-            <Link href="/brand" className="hover:text-white transition-colors">Brand</Link>
-            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+          <div className="flex flex-wrap justify-center gap-6 text-sm">
+            <a href="#vision" className="transition-colors hover:text-white">Vision</a>
+            <a href="#discover" className="transition-colors hover:text-white">Discover</a>
+            <a href="#impact" className="transition-colors hover:text-white">Impact</a>
+            <a href="#participate" className="transition-colors hover:text-white">Participate</a>
+            <Link href="/brand" className="transition-colors hover:text-white">Brand</Link>
+            <Link href="/privacy" className="transition-colors hover:text-white">Privacy</Link>
+            <Link href="/terms" className="transition-colors hover:text-white">Terms</Link>
           </div>
-          <div className="text-sm text-right">
-            &copy; {new Date().getFullYear()} Citizen Science.
+          <div className="text-right text-sm">
+            &copy; {new Date().getFullYear()} Citizen Science™.
             <span className="block md:inline md:ml-2">
               Built by{" "}
               <a
                 href="https://ideafactory.agency/danielinnovate"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white hover:text-[#D4AF37] transition-colors"
+                className="text-white transition-colors hover:text-[#D4AF37]"
               >
                 Daniel Innov8
               </a>
