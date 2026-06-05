@@ -421,7 +421,7 @@ export function NetworkGlobe() {
         </div>
 
         {/* Heading overlay */}
-        <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-6 pt-20 text-center sm:pt-24">
+        <div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-300/80">
             Global Network
           </p>
