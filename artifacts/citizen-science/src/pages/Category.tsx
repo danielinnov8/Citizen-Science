@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "wouter";
-import { ChevronRight, Clock, BookOpen, Calculator, ShieldAlert, CheckCircle2, ChevronDown, Beaker, Sprout, Droplet, Atom, Activity } from "lucide-react";
+import { ChevronRight, Clock, BookOpen, Calculator, ShieldAlert, Beaker, Sprout, Droplet, Atom, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,8 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { CATEGORIES } from "@/lib/categories";
 import { EXPERIMENTS } from "@/lib/experiments";
+import { getTutorial } from "@/lib/tutorials";
+import { TutorialModule } from "@/components/TutorialModule";
 
 export function Category() {
   const { slug } = useParams();
@@ -36,6 +38,8 @@ export function Category() {
   const [force, setForce] = useState([25]);
 
   if (!category) return <div className="p-10">Category not found</div>;
+
+  const tutorial = getTutorial(slug);
 
   const getPlantGrowth = () => {
     let base = plantType === "basil" ? 3 : plantType === "tomato" ? 5 : plantType === "lettuce" ? 4 : 6;
@@ -114,35 +118,17 @@ export function Category() {
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           {/* Tutorial Section */}
-          <Card className="border-[#E2E8F0] shadow-sm overflow-hidden">
-            <CardHeader className="bg-[#FAFAF9] border-b border-[#E2E8F0] pb-6">
-              <div className="flex justify-between items-center mb-2">
-                <Badge variant="outline" className="bg-white font-semibold">Beginner Tutorial</Badge>
-                <span className="text-xs font-semibold text-[#64748B]">2/6 complete</span>
-              </div>
-              <CardTitle className="text-2xl">Introduction to {category.name}</CardTitle>
-              <CardDescription>Master the fundamentals before starting your first experiment.</CardDescription>
-              <Progress value={33} className="h-1.5 mt-4" />
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="divide-y divide-[#E2E8F0]">
-                {category.tutorialSections.map((section, i) => (
-                  <div key={i} className={`p-4 flex items-center justify-between cursor-pointer transition-colors ${section.status === 'active' ? 'bg-blue-50/50' : 'hover:bg-[#F8FAFC]'}`}>
-                    <div className="flex items-center gap-3 font-medium">
-                      {section.status === 'done' && <CheckCircle2 className="h-5 w-5 text-green-500" />}
-                      {section.status === 'active' && <div className="h-5 w-5 rounded-full border-2 border-blue-500 flex items-center justify-center"><div className="h-2 w-2 rounded-full bg-blue-500"/></div>}
-                      {section.status === 'locked' && <div className="h-5 w-5 rounded-full border-2 border-[#E2E8F0]" />}
-                      <span className={section.status === 'locked' ? 'text-[#64748B]' : 'text-[#0F172A]'}>{section.title}</span>
-                    </div>
-                    {section.status === 'active' && <ChevronDown className="h-4 w-4 text-blue-500" />}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-            <div className="p-4 bg-white border-t border-[#E2E8F0]">
-              <Button variant="ink" className="w-full">Continue Tutorial</Button>
-            </div>
-          </Card>
+          {tutorial ? (
+            <TutorialModule key={tutorial.slug} tutorial={tutorial} />
+          ) : (
+            <Card className="border-[#E2E8F0] shadow-sm overflow-hidden">
+              <CardHeader className="bg-[#FAFAF9] border-b border-[#E2E8F0] pb-6">
+                <Badge variant="outline" className="bg-white font-semibold w-fit">Tutorial</Badge>
+                <CardTitle className="text-2xl">Introduction to {category.name}</CardTitle>
+                <CardDescription>A full tutorial for this module is coming soon.</CardDescription>
+              </CardHeader>
+            </Card>
+          )}
 
           {/* Interactive Tool */}
           {isPlantScience ? (

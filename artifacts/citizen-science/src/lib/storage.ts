@@ -90,12 +90,38 @@ export const storage = {
     }
   },
 
+  // Tutorial section progress (per module): { [categorySlug]: number[] }
+  getTutorialSections: (slug: string): number[] => {
+    try {
+      const data = localStorage.getItem("cs_tutorial_sections");
+      const parsed = data ? JSON.parse(data) : {};
+      if (typeof parsed !== "object" || parsed === null) return [];
+      const value = (parsed as Record<string, unknown>)[slug];
+      if (!Array.isArray(value)) return [];
+      const indices = value.filter((n): n is number => Number.isInteger(n) && n >= 0);
+      return Array.from(new Set(indices)).sort((a, b) => a - b);
+    } catch {
+      return [];
+    }
+  },
+  setTutorialSections: (slug: string, sections: number[]) => {
+    try {
+      const data = localStorage.getItem("cs_tutorial_sections");
+      const map: Record<string, number[]> = data ? JSON.parse(data) : {};
+      map[slug] = Array.from(new Set(sections)).sort((a, b) => a - b);
+      localStorage.setItem("cs_tutorial_sections", JSON.stringify(map));
+    } catch {
+      /* ignore */
+    }
+  },
+
   // Clear all
   clearAll: () => {
     localStorage.removeItem("cs_notebook");
     localStorage.removeItem("cs_completed_steps");
     localStorage.removeItem("cs_started_experiments");
     localStorage.removeItem("cs_completed_tutorials");
+    localStorage.removeItem("cs_tutorial_sections");
     localStorage.removeItem("cs_onboarded");
   }
 };
