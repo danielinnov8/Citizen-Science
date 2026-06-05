@@ -130,7 +130,7 @@ export function ProfileDetail() {
                 <img
                   src={profile.imageUrl}
                   alt={profile.name}
-                  className="h-full w-full object-cover object-top"
+                  className="h-full w-full object-cover object-center"
                 />
               ) : (
                 <div className="h-full w-full flex items-center justify-center">
