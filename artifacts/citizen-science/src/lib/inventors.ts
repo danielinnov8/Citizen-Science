@@ -1,4 +1,5 @@
 import manuPhoto from "@assets/image_1780677287488.jpeg";
+import diamandisPhoto from "@assets/65ee191f9cc09e354404b538_Peter_Diamandis_1780697654112.webp";
 import salimPhoto from "@assets/moonshot-salim-ismail.png";
 import blundinPhoto from "@assets/moonshot-dave-blundin.webp";
 import wissnerGrossPhoto from "@assets/moonshot-alexander-wissner-gross.png";
@@ -71,8 +72,7 @@ export const MODERN_MINDS: Inventor[] = [
     field: "Exponential Innovation",
     blurb:
       "Founder of the XPRIZE Foundation and Singularity University, championing incentivized competition to solve humanity's grand challenges.",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/6/64/Peter-Diamandis-Headshot.jpg",
+    imageUrl: diamandisPhoto,
     href: "https://www.diamandis.com",
   },
   {
