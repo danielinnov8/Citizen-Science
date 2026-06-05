@@ -1114,6 +1114,9 @@ export function Landing() {
           </div>
         </section>
 
+        {/* GLOBAL NETWORK — INTERACTIVE GLOBE */}
+        <NetworkGlobe />
+
         {/* IMAGINE 2045 — CINEMATIC INTERLUDE */}
         <section className="relative overflow-hidden bg-[#0B1120] py-32 text-white lg:py-44">
           <div className="pointer-events-none absolute inset-0">
@@ -1265,9 +1268,6 @@ export function Landing() {
             </div>
           </div>
         </section>
-
-        {/* GLOBAL NETWORK — INTERACTIVE GLOBE */}
-        <NetworkGlobe />
 
         {/* DISCOVER — THE LIVE PRODUCT */}
         <section id="discover" className="bg-white">
