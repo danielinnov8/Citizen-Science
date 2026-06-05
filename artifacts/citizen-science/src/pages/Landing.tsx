@@ -1054,8 +1054,8 @@ export function Landing() {
             <div className="grid gap-6 md:grid-cols-3">
               {PILLARS.map((p, i) => (
                 <Reveal key={p.title} delay={i * 0.08}>
-                  <div className="flex h-full flex-col rounded-3xl border border-[#E2E8F0] bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
-                    <div className="icon-tile-metal mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                  <div className="group flex h-full flex-col rounded-3xl border border-[#E2E8F0] bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
+                    <div className="icon-tile-metal mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 group-hover:text-white">
                       <p.icon className="h-7 w-7" />
                     </div>
                     <h3 className="text-xl font-semibold leading-snug">{p.title}</h3>
@@ -1133,7 +1133,7 @@ export function Landing() {
               {IMPACT_AREAS.map((area, i) => (
                 <Reveal key={area.name} delay={(i % 4) * 0.06}>
                   <div className="group flex h-full flex-col rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
-                    <div className="icon-tile-metal mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <div className="icon-tile-metal mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 group-hover:text-white">
                       <area.icon className="h-6 w-6" />
                     </div>
                     <h3 className="text-lg font-semibold">{area.name}</h3>
@@ -1316,7 +1316,7 @@ export function Landing() {
                 <Reveal key={p.title} delay={i * 0.08}>
                   <Link href="/login">
                     <div className="group flex h-full flex-col rounded-3xl border border-[#E2E8F0] bg-white p-8 shadow-sm transition-all hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
-                      <div className="icon-tile-metal mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                      <div className="icon-tile-metal mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 group-hover:text-white">
                         <p.icon className="h-6 w-6" />
                       </div>
                       <h3 className="text-xl font-semibold">{p.title}</h3>
