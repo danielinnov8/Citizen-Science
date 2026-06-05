@@ -1,6 +1,6 @@
 import React from "react";
-import { useLocation } from "wouter";
-import { LogOut, Trash2, Check, Plus } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { LogOut, Trash2, Check, Plus, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -8,9 +8,37 @@ import { useAuth } from "@/lib/auth";
 import { storage } from "@/lib/storage";
 import { DEVICES } from "@/lib/devices";
 
+function SignedOutProfile() {
+  return (
+    <div className="p-6 lg:p-10 max-w-3xl mx-auto w-full animate-in fade-in duration-500">
+      <div className="mb-10">
+        <h1 className="text-3xl font-serif tracking-tight mb-2">Profile</h1>
+        <p className="text-[#64748B]">Your account and preferences live here.</p>
+      </div>
+
+      <Card className="shadow-sm border-[#E2E8F0]">
+        <CardContent className="p-10 flex flex-col items-center text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 mb-5">
+            <LogIn className="h-6 w-6" />
+          </div>
+          <h2 className="text-xl font-semibold mb-2">Sign in to manage your account</h2>
+          <p className="text-[#64748B] max-w-md mb-6">
+            Log in to view your profile, learning preferences, connected devices, and account settings.
+          </p>
+          <Button asChild>
+            <Link href="/login">
+              <LogIn className="mr-2 h-4 w-4" /> Sign in
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export function Profile() {
   const [, setLocation] = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, isAuthenticated, signOut } = useAuth();
   const [connected, setConnected] = React.useState<Record<string, boolean>>({});
 
   const toggleDevice = (id: string) => {
@@ -33,6 +61,10 @@ export function Profile() {
     await signOut();
     setLocation("/");
   };
+
+  if (!isAuthenticated) {
+    return <SignedOutProfile />;
+  }
 
   return (
     <div className="p-6 lg:p-10 max-w-3xl mx-auto w-full animate-in fade-in duration-500">

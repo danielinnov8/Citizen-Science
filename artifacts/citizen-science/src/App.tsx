@@ -69,10 +69,10 @@ function Router() {
         <ProtectedRoute><AppShell><ExperimentDetail /></AppShell></ProtectedRoute>
       </Route>
       <Route path="/directory">
-        <ProtectedRoute><AppShell><Directory /></AppShell></ProtectedRoute>
+        <AppShell><Directory /></AppShell>
       </Route>
       <Route path="/directory/:slug">
-        <ProtectedRoute><AppShell><ProfileDetail /></AppShell></ProtectedRoute>
+        <AppShell><ProfileDetail /></AppShell>
       </Route>
       <Route path="/notebook">
         <ProtectedRoute><AppShell><Notebook /></AppShell></ProtectedRoute>
@@ -81,7 +81,7 @@ function Router() {
         <ProtectedRoute><AppShell><ProgressPage /></AppShell></ProtectedRoute>
       </Route>
       <Route path="/profile">
-        <ProtectedRoute><AppShell><Profile /></AppShell></ProtectedRoute>
+        <AppShell><Profile /></AppShell>
       </Route>
 
       <Route component={NotFound} />
