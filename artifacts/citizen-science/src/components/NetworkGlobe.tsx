@@ -7,6 +7,8 @@ import {
   type MotionValue,
 } from "framer-motion";
 import * as THREE from "three";
+import earthColorUrl from "@assets/textures/earth_color.jpg";
+import earthSpecularUrl from "@assets/textures/earth_specular.jpg";
 
 /* ------------------------------------------------------------------ */
 /* Data: a spread of real cities + a network of connections between    */
@@ -122,9 +124,9 @@ interface BuiltScene {
 function buildGrid(): THREE.Group {
   const grid = new THREE.Group();
   const mat = new THREE.LineBasicMaterial({
-    color: new THREE.Color("#3b6fe0"),
+    color: new THREE.Color("#7eb0ff"),
     transparent: true,
-    opacity: 0.22,
+    opacity: 0.1,
   });
 
   // Meridians (lines of constant longitude).
@@ -150,21 +152,35 @@ function buildGrid(): THREE.Group {
 function buildScene(): BuiltScene {
   const group = new THREE.Group();
 
-  // Solid dark core that occludes the far hemisphere, so the wireframe
-  // reads as a real globe instead of a transparent ball.
-  const core = new THREE.Mesh(
-    new THREE.SphereGeometry(R * 0.985, 48, 48),
-    new THREE.MeshBasicMaterial({ color: new THREE.Color("#0a1024") }),
+  // Photorealistic Earth: equirectangular color map + specular map so the
+  // oceans catch light and the continents read clearly. Shaded via the lights
+  // added in the scene component.
+  const loader = new THREE.TextureLoader();
+  const colorMap = loader.load(earthColorUrl);
+  colorMap.colorSpace = THREE.SRGBColorSpace;
+  colorMap.anisotropy = 8;
+  const specularMap = loader.load(earthSpecularUrl);
+
+  const earth = new THREE.Mesh(
+    new THREE.SphereGeometry(R * 0.99, 96, 96),
+    new THREE.MeshPhongMaterial({
+      map: colorMap,
+      specularMap,
+      specular: new THREE.Color("#2b3a55"),
+      shininess: 18,
+      emissive: new THREE.Color("#0a1830"),
+      emissiveIntensity: 0.35,
+    }),
   );
-  group.add(core);
+  group.add(earth);
 
   // Soft atmosphere halo (slightly larger, back-side rendered).
   const halo = new THREE.Mesh(
-    new THREE.SphereGeometry(R * 1.06, 48, 48),
+    new THREE.SphereGeometry(R * 1.08, 64, 64),
     new THREE.MeshBasicMaterial({
-      color: new THREE.Color("#2563EB"),
+      color: new THREE.Color("#3b82f6"),
       transparent: true,
-      opacity: 0.06,
+      opacity: 0.12,
       side: THREE.BackSide,
     }),
   );
@@ -292,8 +308,13 @@ function GlobeScene({ progress }: { progress: MotionValue<number> }) {
         const geom = (mesh as THREE.Mesh).geometry;
         if (geom) geom.dispose();
         const mat = (mesh as THREE.Mesh).material;
-        if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
-        else if (mat) (mat as THREE.Material).dispose();
+        const mats = Array.isArray(mat) ? mat : mat ? [mat] : [];
+        for (const m of mats) {
+          const phong = m as THREE.MeshPhongMaterial;
+          phong.map?.dispose();
+          phong.specularMap?.dispose();
+          m.dispose();
+        }
       });
     };
   }, [built]);
@@ -308,7 +329,7 @@ function GlobeScene({ progress }: { progress: MotionValue<number> }) {
 
     // Gentle camera dolly so it feels like you're moving in as you scroll.
     const cam = state.camera;
-    cam.position.z += (THREE.MathUtils.lerp(3.9, 2.85, p) - cam.position.z) * Math.min(1, delta * 4);
+    cam.position.z += (THREE.MathUtils.lerp(4.9, 3.7, p) - cam.position.z) * Math.min(1, delta * 4);
     cam.lookAt(0, 0, 0);
 
     // Reveal arcs progressively and run a light pulse once an arc is drawn.
@@ -334,7 +355,14 @@ function GlobeScene({ progress }: { progress: MotionValue<number> }) {
     for (const node of built.nodes) node.scale.setScalar(s);
   });
 
-  return <primitive object={built.group} />;
+  return (
+    <>
+      <ambientLight intensity={0.55} color="#9db8ff" />
+      <directionalLight position={[5, 3, 5]} intensity={2.1} color="#fff6e8" />
+      <directionalLight position={[-6, -2, -4]} intensity={0.35} color="#3b6fe0" />
+      <primitive object={built.group} />
+    </>
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -410,7 +438,7 @@ export function NetworkGlobe() {
         <WebGLBoundary fallback={<GlobeFallback />}>
           <Canvas
             className="!absolute inset-0"
-            camera={{ position: [0, 0, 3.9], fov: 42 }}
+            camera={{ position: [0, 0, 4.9], fov: 42 }}
             dpr={[1, 2]}
             gl={{ antialias: true, alpha: true }}
           >
