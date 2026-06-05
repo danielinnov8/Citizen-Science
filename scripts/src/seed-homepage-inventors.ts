@@ -3,8 +3,10 @@
  * into the `featured_profiles` table so their homepage cards can link to real
  * in-app directory profiles (`/directory/:slug`) instead of external links.
  *
- * The first row of four are the "Moonshot Mates" — the co-hosts of the Moonshots
- * with Peter Diamandis podcast — followed by three widely recognized scientists.
+ * The homepage shows two rows: "Great Minds of the Past" (Einstein, Curie,
+ * Tesla, Darwin) and "Modern Visionaries" (the "Moonshot Mates" co-hosts of the
+ * Moonshots with Peter Diamandis podcast, plus Manu Rehani, Neil deGrasse Tyson,
+ * Jennifer Doudna, and Demis Hassabis).
  * `manu-rehani` is intentionally NOT seeded here; he is seeded with richer
  * content (patents, etc.) by `seed-profiles.ts`, and re-upserting him here would
  * overwrite that.
@@ -185,6 +187,96 @@ const INVENTORS: InsertFeaturedProfile[] = [
     relatedCategorySlugs: ["physics"],
     sources: [
       { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Marie_Curie" },
+    ],
+  },
+  {
+    slug: "nikola-tesla",
+    name: "Nikola Tesla",
+    group: "inventor",
+    field: "Electrical Engineering",
+    era: "1856–1943",
+    summary:
+      "Nikola Tesla was a Serbian-American inventor and electrical engineer whose work on alternating-current (AC) power systems became the backbone of the modern electrical grid. His prolific imagination spanned wireless power, radio, and rotating magnetic fields.",
+    contributions: [
+      "Designed the modern alternating-current (AC) electricity supply system",
+      "Invented the induction motor and the Tesla coil",
+      "Pioneered early work in wireless transmission of energy and radio",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/7/79/Tesla_circa_1890.jpeg",
+    relatedCategorySlugs: ["physics"],
+    sources: [
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Nikola_Tesla" },
+    ],
+  },
+  {
+    slug: "charles-darwin",
+    name: "Charles Darwin",
+    group: "scientist",
+    field: "Evolutionary Biology",
+    era: "1809–1882",
+    summary:
+      "Charles Darwin was an English naturalist whose theory of evolution by natural selection became the unifying foundation of the biological sciences. His observations aboard HMS Beagle reshaped how humanity understands life on Earth.",
+    contributions: [
+      "Formulated the theory of evolution by natural selection",
+      "Authored \"On the Origin of Species,\" one of the most influential works in science",
+      "Established common descent as a unifying principle of the life sciences",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/2/2e/Charles_Darwin_seated_crop.jpg",
+    relatedCategorySlugs: ["biology"],
+    sources: [
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Charles_Darwin" },
+    ],
+  },
+  {
+    slug: "jennifer-doudna",
+    name: "Jennifer Doudna",
+    group: "scientist",
+    field: "Genome Editing",
+    era: "b. 1964",
+    summary:
+      "Dr. Jennifer Doudna is an American biochemist who co-invented CRISPR-Cas9, a precise and accessible method of editing DNA. Her work has transformed genetics, medicine, and agriculture and earned her the 2020 Nobel Prize in Chemistry.",
+    contributions: [
+      "Co-invented CRISPR-Cas9 genome editing (2020 Nobel Prize in Chemistry)",
+      "Founded the Innovative Genomics Institute to apply gene editing for public good",
+      "Advanced understanding of RNA structure and function",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/7/7e/Jennifer_Doudna_by_Christopher_Michel_in_2023_01.jpg",
+    relatedCategorySlugs: ["biology"],
+    sources: [
+      {
+        title: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Jennifer_Doudna",
+      },
+    ],
+  },
+  {
+    slug: "demis-hassabis",
+    name: "Demis Hassabis",
+    group: "scientist",
+    field: "Artificial Intelligence",
+    era: "b. 1976",
+    summary:
+      "Sir Demis Hassabis is a British AI researcher and co-founder of DeepMind. Under his leadership, DeepMind built AlphaFold, which solved the decades-old problem of predicting protein structures — earning him the 2024 Nobel Prize in Chemistry.",
+    contributions: [
+      "Co-founded DeepMind, a world-leading artificial intelligence lab",
+      "Led development of AlphaFold, predicting the 3D structure of nearly all known proteins",
+      "Awarded the 2024 Nobel Prize in Chemistry for computational protein design",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/2/2b/Demis_Hassabis%2C_2024_Nobel_Prize_Laureate_in_Chemistry_7_%28cropped%29.jpg",
+    relatedCategorySlugs: ["physics"],
+    sources: [
+      {
+        title: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Demis_Hassabis",
+      },
     ],
   },
 ];

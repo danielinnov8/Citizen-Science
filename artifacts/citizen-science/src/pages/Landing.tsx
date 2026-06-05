@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CATEGORIES, getCategoryIcon } from "@/lib/categories";
 import { DEVICES } from "@/lib/devices";
-import { INVENTORS } from "@/lib/inventors";
+import { GREAT_MINDS, MODERN_MINDS, type Inventor } from "@/lib/inventors";
 import { Logo, LogoIcon } from "@/components/Logo";
 import { NetworkGlobe } from "@/components/NetworkGlobe";
 import { Flywheel } from "@/components/Flywheel";
@@ -924,6 +924,35 @@ const GRID_BG = {
   backgroundSize: "52px 52px",
 } as const;
 
+function InventorCard({ inv, delay }: { inv: Inventor; delay: number }) {
+  return (
+    <Reveal delay={delay}>
+      <Link
+        href={`/directory/${inv.slug}`}
+        className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
+      >
+        <div className="relative aspect-[4/5] overflow-hidden bg-[#F1F5F9]">
+          <img
+            src={inv.imageUrl}
+            alt={inv.name}
+            loading="lazy"
+            className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+          />
+        </div>
+        <div className="flex flex-1 flex-col p-4">
+          <h3 className="font-semibold leading-snug text-[#0F172A] transition-colors group-hover:text-blue-700">
+            {inv.name}
+          </h3>
+          <p className="mt-1 text-sm font-medium text-[#2563EB]">{inv.field}</p>
+          <p className="mt-2 line-clamp-4 text-xs leading-relaxed text-[#64748B]">
+            {inv.blurb}
+          </p>
+        </div>
+      </Link>
+    </Reveal>
+  );
+}
+
 export function Landing() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans selection:bg-blue-100 selection:text-blue-900">
@@ -1054,32 +1083,25 @@ export function Landing() {
                 </p>
               </div>
             </Reveal>
+            <Reveal>
+              <h3 className="mb-6 text-sm font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
+                Great Minds of the Past
+              </h3>
+            </Reveal>
             <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-              {INVENTORS.map((inv, i) => (
-                <Reveal key={inv.name} delay={(i % 4) * 0.06}>
-                  <Link
-                    href={`/directory/${inv.slug}`}
-                    className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
-                  >
-                    <div className="relative aspect-[4/5] overflow-hidden bg-[#F1F5F9]">
-                      <img
-                        src={inv.imageUrl}
-                        alt={inv.name}
-                        loading="lazy"
-                        className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
-                      />
-                    </div>
-                    <div className="flex flex-1 flex-col p-4">
-                      <h3 className="font-semibold leading-snug text-[#0F172A] transition-colors group-hover:text-blue-700">
-                        {inv.name}
-                      </h3>
-                      <p className="mt-1 text-sm font-medium text-[#2563EB]">{inv.field}</p>
-                      <p className="mt-2 line-clamp-4 text-xs leading-relaxed text-[#64748B]">
-                        {inv.blurb}
-                      </p>
-                    </div>
-                  </Link>
-                </Reveal>
+              {GREAT_MINDS.map((inv, i) => (
+                <InventorCard key={inv.slug} inv={inv} delay={(i % 4) * 0.06} />
+              ))}
+            </div>
+
+            <Reveal>
+              <h3 className="mb-6 mt-20 text-sm font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
+                Modern Visionaries
+              </h3>
+            </Reveal>
+            <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+              {MODERN_MINDS.map((inv, i) => (
+                <InventorCard key={inv.slug} inv={inv} delay={(i % 4) * 0.06} />
               ))}
             </div>
           </div>
