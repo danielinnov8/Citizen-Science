@@ -550,6 +550,75 @@ function buildPeople(): Person[] {
   return people;
 }
 
+// Curated profiles whose source of truth is a single authoritative page rather
+// than broad web search. These are seeded directly (no Gemini research) so the
+// record matches the person's own site exactly. Still upserted on slug, so the
+// run stays idempotent.
+interface CuratedProfile {
+  slug: string;
+  name: string;
+  group: ProfileGroup;
+  field: string;
+  era: string;
+  summary: string;
+  contributions: string[];
+  quotes: string[];
+  imageUrl: string | null;
+  relatedCategorySlugs: (typeof CATEGORY_SLUGS)[number][];
+  sources: ProfileSource[];
+}
+
+const CURATED_PROFILES: CuratedProfile[] = [
+  {
+    slug: "manu-rehani",
+    name: "Manu Rehani",
+    group: "inventor",
+    field: "Behavioral Intelligence & Dual-Use Technology",
+    era: "Contemporary",
+    summary:
+      "Manu Rehani is an Austin, Texas–based inventor, engineer, and advisor working at the intersection of behavioral intelligence, artificial intelligence, and dual-use technology. He describes his work as building behavioral intelligence for the AI-native renaissance, spanning cloud infrastructure, autonomous systems, and wearable technology. With two company exits and twelve patents to his name, he builds and advises across cognitive modeling and design for relevance fit.",
+    contributions: [
+      "Holds twelve patents spanning cloud storage, large language models, autonomous systems, and wearable intelligence.",
+      "Achieved two startup exits in behavioral intelligence and dual-use technology.",
+      "Works as an inventor, engineer, and advisor at the intersection of behavioral intelligence, AI, and dual-use technology.",
+      "Develops cognitive modeling and 'design for relevance fit' approaches for AI-native systems.",
+    ],
+    quotes: ["Behavioral intelligence for the AI-native renaissance."],
+    imageUrl: "https://www.rehani.co/optimized/manu-portrait-1600.jpg",
+    relatedCategorySlugs: ["neuroscience", "materials-science"],
+    sources: [
+      { title: "rehani.co", url: "https://rehani.co" },
+      {
+        title: "Manu Rehani — Behavioral Intelligence",
+        url: "https://rehani.co/behavioral-intelligence",
+      },
+    ],
+  },
+];
+
+async function seedCurated(profile: CuratedProfile): Promise<string> {
+  await db
+    .insert(featuredProfilesTable)
+    .values(profile)
+    .onConflictDoUpdate({
+      target: featuredProfilesTable.slug,
+      set: {
+        name: profile.name,
+        group: profile.group,
+        field: profile.field,
+        era: profile.era,
+        summary: profile.summary,
+        contributions: profile.contributions,
+        quotes: profile.quotes,
+        imageUrl: profile.imageUrl,
+        relatedCategorySlugs: profile.relatedCategorySlugs,
+        sources: profile.sources,
+        updatedAt: new Date(),
+      },
+    });
+  return `ok [curated/${profile.group}]: ${profile.name}`;
+}
+
 interface ResearchedProfile {
   field: string;
   era: string;
@@ -795,6 +864,21 @@ async function main(): Promise<void> {
   const PACE_MS = Number.isFinite(Number(process.env.PACE_MS))
     ? Number(process.env.PACE_MS)
     : 12_500;
+
+  // Seed curated profiles first (no API calls). Respect the GROUP filter if set.
+  const curated = groupFilter
+    ? CURATED_PROFILES.filter((p) => p.group === groupFilter)
+    : CURATED_PROFILES;
+  for (const profile of curated) {
+    try {
+      console.log(await seedCurated(profile));
+    } catch (err) {
+      console.error(
+        `ERROR (curated): ${profile.name}:`,
+        err instanceof Error ? err.message : err,
+      );
+    }
+  }
 
   let done = 0;
   for (const person of people) {
