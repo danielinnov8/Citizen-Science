@@ -4,11 +4,11 @@
  * in-app directory profiles (`/directory/:slug`) instead of external links.
  *
  * The homepage shows four rows: "Great Minds of the Past" (Einstein, Curie,
- * Tesla, Darwin), "Modern Visionaries" (the "Moonshot Mates" co-hosts of the
- * Moonshots with Peter Diamandis podcast, plus Manu Rehani, Neil deGrasse Tyson,
- * Jennifer Doudna, and Demis Hassabis), "Pioneers of Discovery" (Newton,
- * Galileo, Ada Lovelace, Alan Turing), and "Researchers Shaping Tomorrow" (Jane
- * Goodall, Katalin Karikó, Tim Berners-Lee, Fei-Fei Li).
+ * Tesla, Darwin), "Modern Visionaries" (eight widely-recognized living
+ * visionaries: Elon Musk, Jeff Bezos, Bill Gates, Jensen Huang, Demis Hassabis,
+ * Jennifer Doudna, Geoffrey Hinton, Sara Seager), "Pioneers of Discovery"
+ * (Newton, Galileo, Ada Lovelace, Alan Turing), and "Researchers Shaping
+ * Tomorrow" (Jane Goodall, Katalin Karikó, Tim Berners-Lee, Fei-Fei Li).
  * `manu-rehani` is intentionally NOT seeded here; he is seeded with richer
  * content (patents, etc.) by `seed-profiles.ts`, and re-upserting him here would
  * overwrite that.
@@ -31,119 +31,138 @@ import {
 
 const INVENTORS: InsertFeaturedProfile[] = [
   {
-    slug: "peter-diamandis",
-    name: "Peter Diamandis",
-    group: "thought_leader",
-    field: "Exponential Innovation",
-    era: "b. 1961",
+    slug: "elon-musk",
+    name: "Elon Musk",
+    group: "inventor",
+    field: "Space & Sustainable Energy",
+    era: "b. 1971",
     summary:
-      "Dr. Peter Diamandis is an entrepreneur and futurist who founded the XPRIZE Foundation, which uses large incentive prizes to drive breakthroughs in space, health, and the environment. He also co-founded Singularity University to educate leaders on exponential technologies.",
+      "Elon Musk is an entrepreneur and engineer who founded SpaceX and leads Tesla, two companies pushing the frontiers of spaceflight and sustainable energy. SpaceX pioneered reusable orbital rockets and dramatically lowered the cost of reaching space, while Tesla helped move electric vehicles and energy storage into the mainstream.",
     contributions: [
-      "Founded the XPRIZE Foundation, pioneering incentivized competition for grand challenges",
-      "Co-founded Singularity University and Human Longevity, Inc.",
-      "Author of \"Abundance\" and \"Bold,\" charting how technology can solve humanity's biggest problems",
+      "Founded SpaceX, which developed the first reusable orbital-class rockets",
+      "Leads Tesla, accelerating the global transition to electric vehicles and battery storage",
+      "Built Starlink, a low-Earth-orbit satellite constellation delivering broadband worldwide",
     ],
     quotes: [],
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/6/64/Peter-Diamandis-Headshot.jpg",
-    relatedCategorySlugs: ["physics"],
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Elon_Musk_-_54820081119_%28cropped%29.jpg/500px-Elon_Musk_-_54820081119_%28cropped%29.jpg",
+    relatedCategorySlugs: ["physics", "materials-science"],
     sources: [
-      { title: "diamandis.com", url: "https://www.diamandis.com" },
-      {
-        title: "Wikipedia",
-        url: "https://en.wikipedia.org/wiki/Peter_Diamandis",
-      },
+      { title: "SpaceX", url: "https://www.spacex.com" },
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Elon_Musk" },
     ],
   },
   {
-    slug: "salim-ismail",
-    name: "Salim Ismail",
-    group: "thought_leader",
-    field: "Exponential Organizations",
-    era: "b. 1965",
+    slug: "jeff-bezos",
+    name: "Jeff Bezos",
+    group: "inventor",
+    field: "Commerce & Spaceflight",
+    era: "b. 1964",
     summary:
-      "Salim Ismail is a technology strategist, speaker, and serial entrepreneur. As founding executive director of Singularity University and author of \"Exponential Organizations,\" he studies how organizations can scale rapidly by leveraging accelerating technologies.",
+      "Jeff Bezos founded Amazon, transforming it from an online bookstore into one of the world's largest technology and commerce companies and pioneering large-scale cloud computing through Amazon Web Services. In 2000 he founded the aerospace company Blue Origin to lower the cost of access to space.",
     contributions: [
-      "Founding executive director of Singularity University",
-      "Lead author of \"Exponential Organizations,\" a framework for technology-driven scaling",
-      "Founder of OpenExO, a global transformation platform",
+      "Founded Amazon, reinventing global e-commerce and logistics at planetary scale",
+      "Launched Amazon Web Services, which created the modern cloud-computing industry",
+      "Founded Blue Origin to develop reusable rockets and expand human access to space",
     ],
     quotes: [],
     imageUrl:
-      "https://www.shrm.org/content/dam/en/shrm/topics-tools/content-journeys/aihi/salim-ismail.png",
-    relatedCategorySlugs: [],
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/260202-D-PM193-2205_SECWAR_Arsenal_of_Freedom_Tour_-_Florida_%283x4_cropped_on_Bezos_and_rotated%29.jpg/500px-260202-D-PM193-2205_SECWAR_Arsenal_of_Freedom_Tour_-_Florida_%283x4_cropped_on_Bezos_and_rotated%29.jpg",
+    relatedCategorySlugs: ["physics", "astronomy"],
     sources: [
-      {
-        title: "Wikipedia",
-        url: "https://en.wikipedia.org/wiki/Salim_Ismail",
-      },
-      { title: "OpenExO", url: "https://openexo.com/community/salimismail" },
+      { title: "Blue Origin", url: "https://www.blueorigin.com" },
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Jeff_Bezos" },
     ],
   },
   {
-    slug: "dave-blundin",
-    name: "Dave Blundin",
-    group: "thought_leader",
-    field: "AI & Venture",
-    era: "Contemporary",
+    slug: "bill-gates",
+    name: "Bill Gates",
+    group: "inventor",
+    field: "Computing & Global Health",
+    era: "b. 1955",
     summary:
-      "Dave Blundin is an AI entrepreneur and investor who founded Link Ventures. Trained in MIT's AI Lab, he programmed some of the largest-scale neural networks of his era and has spent three decades building at the intersection of artificial intelligence and entrepreneurship.",
+      "Bill Gates co-founded Microsoft and helped bring personal computing to homes and offices around the world. He later turned his focus to philanthropy through the Bill & Melinda Gates Foundation, funding global health, disease eradication, sanitation, agriculture, and clean-energy innovation.",
     contributions: [
-      "Founder and managing partner of Link Ventures",
-      "Pioneered early large-scale neural networks and neural network quantization",
-      "Co-host of the Moonshots with Peter Diamandis podcast",
+      "Co-founded Microsoft and drove the personal-computing revolution",
+      "Established the Gates Foundation, investing billions in global health and vaccines",
+      "Backs clean-energy and climate-innovation initiatives through Breakthrough Energy",
     ],
     quotes: [],
     imageUrl:
-      "https://www.vestigoventures.com/wp-content/uploads/2024/05/Headshot_Color_DaveBlundin.webp",
-    relatedCategorySlugs: [],
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Bill_Gates_at_the_European_Commission_-_P067383-987995_%28cropped%29_5.jpg/500px-Bill_Gates_at_the_European_Commission_-_P067383-987995_%28cropped%29_5.jpg",
+    relatedCategorySlugs: ["human-health", "microbiology"],
     sources: [
-      {
-        title: "Link Ventures",
-        url: "https://www.linkventures.com/team/dave-blundin",
-      },
+      { title: "Gates Foundation", url: "https://www.gatesfoundation.org" },
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Bill_Gates" },
     ],
   },
   {
-    slug: "alexander-wissner-gross",
-    name: "Alexander Wissner-Gross",
+    slug: "jensen-huang",
+    name: "Jensen Huang",
+    group: "inventor",
+    field: "Accelerated Computing",
+    era: "b. 1963",
+    summary:
+      "Jensen Huang co-founded NVIDIA in 1993 and has led it ever since as CEO. Under his direction NVIDIA invented the graphics processing unit (GPU) and later pioneered accelerated and parallel computing, which became the foundational hardware of the modern artificial-intelligence era.",
+    contributions: [
+      "Co-founded NVIDIA and led the invention of the modern GPU",
+      "Drove the creation of CUDA, opening GPUs to general-purpose scientific and AI computing",
+      "Positioned NVIDIA as the core hardware engine behind the deep-learning revolution",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Jen-Hsun_Huang_2025.jpg/500px-Jen-Hsun_Huang_2025.jpg",
+    relatedCategorySlugs: ["physics", "materials-science"],
+    sources: [
+      { title: "NVIDIA", url: "https://www.nvidia.com" },
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Jensen_Huang" },
+    ],
+  },
+  {
+    slug: "geoffrey-hinton",
+    name: "Geoffrey Hinton",
     group: "scientist",
-    field: "AI & Complex Systems",
-    era: "b. 1981",
+    field: "Deep Learning",
+    era: "b. 1947",
     summary:
-      "Dr. Alexander Wissner-Gross is a computer scientist, inventor, and investor. He is best known for proposing the theory of causal entropic forces, which frames intelligent behavior as a drive to maximize future freedom of action.",
+      "Geoffrey Hinton is a cognitive psychologist and computer scientist often called the \"Godfather of AI.\" His decades of work on artificial neural networks — including backpropagation and deep learning — laid the foundations of modern artificial intelligence, earning him the 2024 Nobel Prize in Physics.",
     contributions: [
-      "Proposed the theory of causal entropic forces linking intelligence to future option-keeping",
-      "Holds multiple patents and has published across physics, AI, and complex systems",
-      "Co-host of the Moonshots with Peter Diamandis podcast",
-    ],
-    quotes: [],
-    imageUrl: "https://www.alexwg.org/images/AWG-Headshot_2024-03-18B.png",
-    relatedCategorySlugs: ["physics"],
-    sources: [{ title: "alexwg.org", url: "https://www.alexwg.org" }],
-  },
-  {
-    slug: "neil-degrasse-tyson",
-    name: "Neil deGrasse Tyson",
-    group: "scientist",
-    field: "Astrophysics",
-    era: "b. 1958",
-    summary:
-      "Neil deGrasse Tyson is an American astrophysicist and one of the world's most prominent science communicators. As director of the Hayden Planetarium and host of Cosmos and StarTalk, he has brought astronomy and the wonder of the universe to millions.",
-    contributions: [
-      "Director of the Hayden Planetarium at the American Museum of Natural History",
-      "Host of Cosmos: A Spacetime Odyssey and the StarTalk podcast",
-      "Best-selling author popularizing astrophysics for the public",
+      "Pioneered the backpropagation algorithm for training deep neural networks",
+      "Co-authored breakthrough work on deep networks that ignited the modern AI boom",
+      "Received the 2018 Turing Award and the 2024 Nobel Prize in Physics",
     ],
     quotes: [],
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/0/03/Neil_DeGrasse_Tyson_%282023%29.jpg",
-    relatedCategorySlugs: ["physics"],
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Geoffrey_Hinton_in_2026.jpg/500px-Geoffrey_Hinton_in_2026.jpg",
+    relatedCategorySlugs: ["neuroscience", "physics"],
     sources: [
       {
-        title: "Wikipedia",
-        url: "https://en.wikipedia.org/wiki/Neil_deGrasse_Tyson",
+        title: "Nobel Prize",
+        url: "https://www.nobelprize.org/prizes/physics/2024/hinton/facts/",
       },
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Geoffrey_Hinton" },
+    ],
+  },
+  {
+    slug: "sara-seager",
+    name: "Sara Seager",
+    group: "scientist",
+    field: "Exoplanets & Astrobiology",
+    era: "b. 1971",
+    summary:
+      "Sara Seager is an astrophysicist and planetary scientist at MIT and a leading figure in the search for planets beyond our solar system. Her theoretical work on exoplanet atmospheres and biosignature gases helped define how scientists detect and characterize distant worlds.",
+    contributions: [
+      "Developed foundational theory for analyzing exoplanet atmospheres and biosignatures",
+      "Pioneered methods to characterize the composition of planets orbiting distant stars",
+      "Named a MacArthur Fellow for advancing the search for life beyond Earth",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Sara_Seager_CHF-Cain-Conference-May-2016-059.jpg/500px-Sara_Seager_CHF-Cain-Conference-May-2016-059.jpg",
+    relatedCategorySlugs: ["astronomy", "physics"],
+    sources: [
+      { title: "saraseager.com", url: "https://www.saraseager.com" },
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Sara_Seager" },
     ],
   },
   {

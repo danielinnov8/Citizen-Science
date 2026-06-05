@@ -1,8 +1,3 @@
-import manuPhoto from "@assets/image_1780677287488.jpeg";
-import diamandisPhoto from "@assets/65ee191f9cc09e354404b538_Peter_Diamandis_1780697654112.webp";
-import salimPhoto from "@assets/image_1780697674289.png";
-import blundinPhoto from "@assets/moonshot-dave-blundin.webp";
-import wissnerGrossPhoto from "@assets/moonshot-alexander-wissner-gross.png";
 
 export interface Inventor {
   name: string;
@@ -62,74 +57,49 @@ export const GREAT_MINDS: Inventor[] = [
   },
 ];
 
-// Row 2 — "Modern Visionaries": the four "Moonshot Mates" (co-hosts of the
-// Moonshots with Peter Diamandis podcast), followed by Manu Rehani, Neil
-// deGrasse Tyson, and two contemporary Nobel-laureate scientists.
+// Row 2 — "Modern Visionaries": eight widely-recognized living visionaries
+// curated from our directory, spanning frontier technology, AI, biology, and
+// space — the builders and scientists shaping the world right now.
 export const MODERN_MINDS: Inventor[] = [
   {
-    name: "Peter Diamandis",
-    slug: "peter-diamandis",
-    field: "Exponential Innovation",
+    name: "Elon Musk",
+    slug: "elon-musk",
+    field: "Space & Sustainable Energy",
     blurb:
-      "Founder of the XPRIZE Foundation and Singularity University, championing incentivized competition to solve humanity's grand challenges.",
-    imageUrl: diamandisPhoto,
-    href: "https://www.diamandis.com",
-  },
-  {
-    name: "Salim Ismail",
-    slug: "salim-ismail",
-    field: "Exponential Organizations",
-    blurb:
-      "Founding executive director of Singularity University and author of \"Exponential Organizations,\" mapping how technology reshapes institutions.",
-    imageUrl: salimPhoto,
-    href: "https://openexo.com/community/salimismail",
-  },
-  {
-    name: "Dave Blundin",
-    slug: "dave-blundin",
-    field: "AI & Venture",
-    blurb:
-      "MIT-trained AI pioneer and founder of Link Ventures who built large-scale neural networks decades before the modern AI boom.",
-    imageUrl: blundinPhoto,
-    href: "https://www.linkventures.com/team/dave-blundin",
-  },
-  {
-    name: "Alexander Wissner-Gross",
-    slug: "alexander-wissner-gross",
-    field: "AI & Complex Systems",
-    blurb:
-      "Computer scientist and inventor known for the theory of causal entropic forces, linking intelligence to the drive to keep future options open.",
-    imageUrl: wissnerGrossPhoto,
-    href: "https://www.alexwg.org",
-  },
-  {
-    name: "Manu Rehani",
-    slug: "manu-rehani",
-    field: "Behavioral Intelligence & Systems",
-    blurb:
-      "Austin-based inventor, engineer, and advisor with twelve patents across cloud storage, language models, autonomous systems, and wearable intelligence.",
-    imageUrl: manuPhoto,
-    href: "https://rehani.co",
-  },
-  {
-    name: "Neil deGrasse Tyson",
-    slug: "neil-degrasse-tyson",
-    field: "Astrophysics",
-    blurb:
-      "Astrophysicist, director of the Hayden Planetarium, and one of the world's most influential communicators of science to the public.",
+      "Founder of SpaceX and Tesla, driving reusable rockets, electric vehicles, and the push toward a multi-planetary, sustainable future.",
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/0/03/Neil_DeGrasse_Tyson_%282023%29.jpg",
-    href: "https://en.wikipedia.org/wiki/Neil_deGrasse_Tyson",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Elon_Musk_-_54820081119_%28cropped%29.jpg/500px-Elon_Musk_-_54820081119_%28cropped%29.jpg",
+    href: "https://en.wikipedia.org/wiki/Elon_Musk",
   },
   {
-    name: "Jennifer Doudna",
-    slug: "jennifer-doudna",
-    field: "Genome Editing",
+    name: "Jeff Bezos",
+    slug: "jeff-bezos",
+    field: "Commerce & Spaceflight",
     blurb:
-      "Biochemist and Nobel laureate who co-invented CRISPR-Cas9 gene editing, opening a new era of precision biology and medicine.",
+      "Founder of Amazon and Blue Origin, reinventing global commerce and building the infrastructure to make spaceflight routine and affordable.",
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/7/7e/Jennifer_Doudna_by_Christopher_Michel_in_2023_01.jpg",
-    href: "https://en.wikipedia.org/wiki/Jennifer_Doudna",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/260202-D-PM193-2205_SECWAR_Arsenal_of_Freedom_Tour_-_Florida_%283x4_cropped_on_Bezos_and_rotated%29.jpg/500px-260202-D-PM193-2205_SECWAR_Arsenal_of_Freedom_Tour_-_Florida_%283x4_cropped_on_Bezos_and_rotated%29.jpg",
+    href: "https://en.wikipedia.org/wiki/Jeff_Bezos",
+  },
+  {
+    name: "Bill Gates",
+    slug: "bill-gates",
+    field: "Computing & Global Health",
+    blurb:
+      "Co-founder of Microsoft turned philanthropist, channeling the Gates Foundation toward disease eradication, clean energy, and global health.",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Bill_Gates_at_the_European_Commission_-_P067383-987995_%28cropped%29_5.jpg/500px-Bill_Gates_at_the_European_Commission_-_P067383-987995_%28cropped%29_5.jpg",
+    href: "https://en.wikipedia.org/wiki/Bill_Gates",
+  },
+  {
+    name: "Jensen Huang",
+    slug: "jensen-huang",
+    field: "Accelerated Computing",
+    blurb:
+      "Co-founder and CEO of NVIDIA, whose GPUs became the engine of the modern AI revolution and reshaped how the world computes.",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Jen-Hsun_Huang_2025.jpg/500px-Jen-Hsun_Huang_2025.jpg",
+    href: "https://en.wikipedia.org/wiki/Jensen_Huang",
   },
   {
     name: "Demis Hassabis",
@@ -138,8 +108,38 @@ export const MODERN_MINDS: Inventor[] = [
     blurb:
       "Co-founder of DeepMind and Nobel laureate whose AlphaFold cracked protein structure prediction, transforming the future of science.",
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/2/2b/Demis_Hassabis%2C_2024_Nobel_Prize_Laureate_in_Chemistry_7_%28cropped%29.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Demis_Hassabis%2C_2024_Nobel_Prize_Laureate_in_Chemistry_7_%28cropped%29.jpg/500px-Demis_Hassabis%2C_2024_Nobel_Prize_Laureate_in_Chemistry_7_%28cropped%29.jpg",
     href: "https://en.wikipedia.org/wiki/Demis_Hassabis",
+  },
+  {
+    name: "Jennifer Doudna",
+    slug: "jennifer-doudna",
+    field: "Genome Editing",
+    blurb:
+      "Biochemist and Nobel laureate who co-invented CRISPR-Cas9 gene editing, opening a new era of precision biology and medicine.",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Jennifer_Doudna_by_Christopher_Michel_in_2023_01.jpg/500px-Jennifer_Doudna_by_Christopher_Michel_in_2023_01.jpg",
+    href: "https://en.wikipedia.org/wiki/Jennifer_Doudna",
+  },
+  {
+    name: "Geoffrey Hinton",
+    slug: "geoffrey-hinton",
+    field: "Deep Learning",
+    blurb:
+      "The \"Godfather of AI\" and Nobel laureate whose work on neural networks and backpropagation laid the foundation for modern deep learning.",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Geoffrey_Hinton_in_2026.jpg/500px-Geoffrey_Hinton_in_2026.jpg",
+    href: "https://en.wikipedia.org/wiki/Geoffrey_Hinton",
+  },
+  {
+    name: "Sara Seager",
+    slug: "sara-seager",
+    field: "Exoplanets & Astrobiology",
+    blurb:
+      "MIT astrophysicist and pioneer in the search for habitable exoplanets, developing the tools to detect signs of life on distant worlds.",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Sara_Seager_CHF-Cain-Conference-May-2016-059.jpg/500px-Sara_Seager_CHF-Cain-Conference-May-2016-059.jpg",
+    href: "https://en.wikipedia.org/wiki/Sara_Seager",
   },
 ];
 
