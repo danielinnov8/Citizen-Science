@@ -37,7 +37,7 @@ export function HeroAtom() {
   return (
     <div
       ref={ref}
-      className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden"
+      className="pointer-events-none absolute inset-0 z-0 flex items-start justify-end overflow-hidden translate-x-16 -translate-y-16"
       aria-hidden="true"
     >
       <motion.div
