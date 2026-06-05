@@ -115,6 +115,22 @@ export const storage = {
     }
   },
 
+  // Sidebar collapsed preference
+  getSidebarCollapsed: (): boolean => {
+    try {
+      return localStorage.getItem("cs_sidebar_collapsed") === "true";
+    } catch {
+      return false;
+    }
+  },
+  setSidebarCollapsed: (collapsed: boolean) => {
+    try {
+      localStorage.setItem("cs_sidebar_collapsed", collapsed ? "true" : "false");
+    } catch {
+      /* ignore */
+    }
+  },
+
   // Clear all
   clearAll: () => {
     localStorage.removeItem("cs_notebook");
