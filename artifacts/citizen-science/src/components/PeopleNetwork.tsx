@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "wouter";
 import { Users } from "lucide-react";
-import { MODERN_MINDS, FRONTIER_MINDS, type Inventor } from "@/lib/inventors";
+import { NETWORK_MINDS, FRONTIER_MINDS, type Inventor } from "@/lib/inventors";
 
 // The living people from our directory (historical figures excluded).
-const PEOPLE: Inventor[] = [...MODERN_MINDS, ...FRONTIER_MINDS];
+const PEOPLE: Inventor[] = [...NETWORK_MINDS, ...FRONTIER_MINDS];
 
 const INNER_COUNT = 5;
 const AUTO_MS = 2600;
