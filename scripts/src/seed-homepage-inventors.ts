@@ -3,10 +3,12 @@
  * into the `featured_profiles` table so their homepage cards can link to real
  * in-app directory profiles (`/directory/:slug`) instead of external links.
  *
- * The homepage shows two rows: "Great Minds of the Past" (Einstein, Curie,
- * Tesla, Darwin) and "Modern Visionaries" (the "Moonshot Mates" co-hosts of the
+ * The homepage shows four rows: "Great Minds of the Past" (Einstein, Curie,
+ * Tesla, Darwin), "Modern Visionaries" (the "Moonshot Mates" co-hosts of the
  * Moonshots with Peter Diamandis podcast, plus Manu Rehani, Neil deGrasse Tyson,
- * Jennifer Doudna, and Demis Hassabis).
+ * Jennifer Doudna, and Demis Hassabis), "Pioneers of Discovery" (Newton,
+ * Galileo, Ada Lovelace, Alan Turing), and "Researchers Shaping Tomorrow" (Jane
+ * Goodall, Katalin Karikó, Tim Berners-Lee, Fei-Fei Li).
  * `manu-rehani` is intentionally NOT seeded here; he is seeded with richer
  * content (patents, etc.) by `seed-profiles.ts`, and re-upserting him here would
  * overwrite that.
@@ -277,6 +279,183 @@ const INVENTORS: InsertFeaturedProfile[] = [
         title: "Wikipedia",
         url: "https://en.wikipedia.org/wiki/Demis_Hassabis",
       },
+    ],
+  },
+  {
+    slug: "isaac-newton",
+    name: "Isaac Newton",
+    group: "scientist",
+    field: "Physics & Mathematics",
+    era: "1643–1727",
+    summary:
+      "Sir Isaac Newton was an English mathematician and physicist whose laws of motion and universal gravitation unified the heavens and the Earth under a single set of principles. His work defined classical mechanics for centuries.",
+    contributions: [
+      "Formulated the three laws of motion and the law of universal gravitation",
+      "Co-invented calculus, independently of Leibniz",
+      "Authored \"Philosophiæ Naturalis Principia Mathematica,\" a foundation of modern physics",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/f/f7/Portrait_of_Sir_Isaac_Newton%2C_1689_%28brightened%29.jpg",
+    relatedCategorySlugs: ["physics"],
+    sources: [
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Isaac_Newton" },
+    ],
+  },
+  {
+    slug: "galileo-galilei",
+    name: "Galileo Galilei",
+    group: "scientist",
+    field: "Astronomy & Physics",
+    era: "1564–1642",
+    summary:
+      "Galileo Galilei was an Italian astronomer and physicist often called the \"father of observational astronomy.\" His telescopic discoveries and insistence on evidence helped launch the scientific revolution.",
+    contributions: [
+      "Improved the telescope and discovered Jupiter's four largest moons",
+      "Provided key observational support for the heliocentric model",
+      "Pioneered the experimental, evidence-based method of modern science",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/c/cc/Galileo.arp.300pix.jpg",
+    relatedCategorySlugs: ["astronomy", "physics"],
+    sources: [
+      {
+        title: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Galileo_Galilei",
+      },
+    ],
+  },
+  {
+    slug: "ada-lovelace",
+    name: "Ada Lovelace",
+    group: "scientist",
+    field: "Computing",
+    era: "1815–1852",
+    summary:
+      "Ada Lovelace was an English mathematician who worked with Charles Babbage on his proposed Analytical Engine. She is regarded as the first computer programmer for recognizing that such a machine could go beyond pure calculation.",
+    contributions: [
+      "Wrote the first published algorithm intended for a machine",
+      "Foresaw that computers could manipulate symbols, not just numbers",
+      "Bridged mathematics and imagination, laying conceptual groundwork for computer science",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/4/4c/Ada_Lovelace_daguerreotype_by_Antoine_Claudet_1843_-_cropped.png",
+    relatedCategorySlugs: [],
+    sources: [
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Ada_Lovelace" },
+    ],
+  },
+  {
+    slug: "alan-turing",
+    name: "Alan Turing",
+    group: "scientist",
+    field: "Computer Science",
+    era: "1912–1954",
+    summary:
+      "Alan Turing was a British mathematician and logician widely considered the father of theoretical computer science and artificial intelligence. His wartime codebreaking at Bletchley Park helped turn the tide of World War II.",
+    contributions: [
+      "Formalized computation with the concept of the Turing machine",
+      "Proposed the Turing test as a benchmark for machine intelligence",
+      "Led codebreaking efforts that cracked the German Enigma cipher",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/c/ce/Alan_turing_header.jpg",
+    relatedCategorySlugs: [],
+    sources: [
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Alan_Turing" },
+    ],
+  },
+  {
+    slug: "jane-goodall",
+    name: "Jane Goodall",
+    group: "scientist",
+    field: "Primatology & Conservation",
+    era: "1934–2025",
+    summary:
+      "Dame Jane Goodall was a British primatologist whose decades of study of wild chimpanzees transformed our understanding of animal behavior and the human-animal boundary. She became one of the world's most influential conservationists.",
+    contributions: [
+      "Discovered that chimpanzees make and use tools, redefining \"man the toolmaker\"",
+      "Conducted the longest-running field study of wild chimpanzees, at Gombe",
+      "Founded the Jane Goodall Institute and the Roots & Shoots youth program",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/9/98/Deputy_Secretary_Higginbottom_Poses_for_a_Photo_With_Dr._Jane_Goodall_and_the_State_Department%27s_Global_Health_Diplomacy_Director_Jordan_in_Washington_%2822365513310%29_%282%29_%28cropped_2%29.jpg",
+    relatedCategorySlugs: ["biology"],
+    sources: [
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Jane_Goodall" },
+    ],
+  },
+  {
+    slug: "katalin-kariko",
+    name: "Katalin Karikó",
+    group: "scientist",
+    field: "mRNA Biochemistry",
+    era: "b. 1955",
+    summary:
+      "Dr. Katalin Karikó is a Hungarian-American biochemist whose decades of perseverance on messenger RNA made modern mRNA vaccines possible. She shared the 2023 Nobel Prize in Physiology or Medicine for this work.",
+    contributions: [
+      "Pioneered nucleoside modifications that made mRNA safe and effective as a therapeutic",
+      "Enabled the mRNA COVID-19 vaccines developed during the pandemic",
+      "Awarded the 2023 Nobel Prize in Physiology or Medicine",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/2/27/Katalin_Karik%C3%B3_by_Michel_2024_02.jpg",
+    relatedCategorySlugs: ["human-health", "biology"],
+    sources: [
+      {
+        title: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Katalin_Karik%C3%B3",
+      },
+    ],
+  },
+  {
+    slug: "tim-berners-lee",
+    name: "Tim Berners-Lee",
+    group: "inventor",
+    field: "Computer Science",
+    era: "b. 1955",
+    summary:
+      "Sir Tim Berners-Lee is a British computer scientist who invented the World Wide Web in 1989. He created the first web browser and server and chose to make the underlying technology free and open to all.",
+    contributions: [
+      "Invented the World Wide Web, including HTTP, HTML, and the URL",
+      "Built the first web browser and web server",
+      "Founded the World Wide Web Consortium (W3C) to keep the web open",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/d/d1/Tim_Berners-Lee_at_the_2025_Web_Summit_%28Cropped%29.jpg",
+    relatedCategorySlugs: [],
+    sources: [
+      {
+        title: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Tim_Berners-Lee",
+      },
+    ],
+  },
+  {
+    slug: "fei-fei-li",
+    name: "Fei-Fei Li",
+    group: "scientist",
+    field: "Artificial Intelligence",
+    era: "b. 1976",
+    summary:
+      "Dr. Fei-Fei Li is a computer scientist and a leading figure in artificial intelligence. Her creation of ImageNet helped ignite the deep-learning revolution, and she is a prominent advocate for human-centered, ethical AI.",
+    contributions: [
+      "Created ImageNet, the dataset that catalyzed modern deep learning",
+      "Co-directs the Stanford Institute for Human-Centered AI (HAI)",
+      "Champions diversity and ethics in AI through AI4ALL and policy work",
+    ],
+    quotes: [],
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/c/c7/Fei-Fei_Li_at_AI_for_Good_2017.jpg",
+    relatedCategorySlugs: [],
+    sources: [
+      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Fei-Fei_Li" },
     ],
   },
 ];

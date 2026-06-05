@@ -7,7 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CATEGORIES, getCategoryIcon } from "@/lib/categories";
 import { DEVICES } from "@/lib/devices";
-import { GREAT_MINDS, MODERN_MINDS, type Inventor } from "@/lib/inventors";
+import {
+  GREAT_MINDS,
+  MODERN_MINDS,
+  PIONEERS,
+  FRONTIER_MINDS,
+  type Inventor,
+} from "@/lib/inventors";
 import { Logo, LogoIcon } from "@/components/Logo";
 import { NetworkGlobe } from "@/components/NetworkGlobe";
 import { Flywheel } from "@/components/Flywheel";
@@ -1101,6 +1107,28 @@ export function Landing() {
             </Reveal>
             <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
               {MODERN_MINDS.map((inv, i) => (
+                <InventorCard key={inv.slug} inv={inv} delay={(i % 4) * 0.06} />
+              ))}
+            </div>
+
+            <Reveal>
+              <h3 className="mb-6 mt-20 text-sm font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
+                Pioneers of Discovery
+              </h3>
+            </Reveal>
+            <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+              {PIONEERS.map((inv, i) => (
+                <InventorCard key={inv.slug} inv={inv} delay={(i % 4) * 0.06} />
+              ))}
+            </div>
+
+            <Reveal>
+              <h3 className="mb-6 mt-20 text-sm font-semibold uppercase tracking-[0.18em] text-[#94A3B8]">
+                Researchers Shaping Tomorrow
+              </h3>
+            </Reveal>
+            <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+              {FRONTIER_MINDS.map((inv, i) => (
                 <InventorCard key={inv.slug} inv={inv} delay={(i % 4) * 0.06} />
               ))}
             </div>
