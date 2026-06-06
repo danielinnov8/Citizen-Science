@@ -1061,7 +1061,7 @@ export function Landing() {
               </h1>
             </Reveal>
             <Reveal delay={0.12}>
-              <p className="mx-auto mt-8 max-w-3xl text-xl font-light leading-relaxed text-white/80 lg:text-2xl">
+              <p className="mx-auto mt-8 max-w-3xl text-xl font-light leading-relaxed text-white/80 lg:max-w-none lg:whitespace-nowrap lg:text-2xl">
                 What if every person on Earth could help solve humanity's greatest challenges?
               </p>
             </Reveal>
