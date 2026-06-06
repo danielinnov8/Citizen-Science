@@ -34,6 +34,8 @@ import { CATEGORIES } from "@/lib/categories";
 import { EXPERIMENTS } from "@/lib/experiments";
 import { getGreatMindStory, buildStoryFromProfile } from "@/lib/greatMinds";
 import { GreatMindStory } from "@/components/GreatMindStory";
+import { getLivingMindStory } from "@/lib/livingMinds";
+import { LivingMindStory } from "@/components/LivingMindStory";
 
 const GROUP_LABELS: Record<string, string> = {
   scientist: "Scientist",
@@ -109,6 +111,18 @@ export function ProfileDetail() {
   const story = getGreatMindStory(slug);
   if (story) {
     return <GreatMindStory story={story} profile={profile ?? undefined} />;
+  }
+
+  // Living scientists & inventors get a parallel cinematic layout tuned for
+  // present-tense storytelling (current work, ongoing impact). Like the
+  // historical stories, the authored content is decoupled from the DB and
+  // simply enriches with the profile row once it loads. Figures without
+  // authored content fall through to the DB-built / plain layout below.
+  const livingStory = getLivingMindStory(slug);
+  if (livingStory) {
+    return (
+      <LivingMindStory story={livingStory} profile={profile ?? undefined} />
+    );
   }
 
   // No hand-authored story → if the DB row carries rich story content
