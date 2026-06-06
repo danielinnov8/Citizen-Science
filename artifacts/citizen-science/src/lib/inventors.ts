@@ -2,7 +2,7 @@ import manuPhoto from "@assets/image_1780677287488.jpeg";
 import diamandisPhoto from "@assets/65ee191f9cc09e354404b538_Peter_Diamandis_1780697654112.webp";
 import salimPhoto from "@assets/image_1780697674289.png";
 import blundinPhoto from "@assets/moonshot-dave-blundin.webp";
-import wissnerGrossPhoto from "@assets/moonshot-alexander-wissner-gross.png";
+import wissnerGrossPhoto from "@assets/Alex_W_G_1780704314284.png";
 
 export interface Inventor {
   name: string;
