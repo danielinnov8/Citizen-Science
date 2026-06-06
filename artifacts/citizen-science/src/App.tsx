@@ -22,6 +22,7 @@ import { ProfileDetail } from "@/pages/ProfileDetail";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import Brand from "@/pages/Brand";
+import Pricing from "@/pages/Pricing";
 
 import { AppShell } from "@/components/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
       <Route path="/brand" component={Brand} />
+      <Route path="/pricing" component={Pricing} />
       
       {/* Protected Routes */}
       <Route path="/onboarding">

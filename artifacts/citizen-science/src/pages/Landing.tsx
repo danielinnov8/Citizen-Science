@@ -1024,6 +1024,7 @@ export function Landing() {
             <a href="#participate" className="transition-colors hover:text-white">Participate</a>
             <a href="#impact" className="transition-colors hover:text-white">Impact</a>
             <a href="#community" className="transition-colors hover:text-white">Community</a>
+            <Link href="/pricing" className="transition-colors hover:text-white">Pricing</Link>
           </nav>
           <div className="flex items-center gap-4">
             <Link href="/login" className="hidden sm:inline text-sm font-medium text-white/70 transition-colors hover:text-white">
@@ -1609,6 +1610,7 @@ export function Landing() {
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-white">Company</h4>
                 <ul className="mt-4 space-y-3 text-sm">
+                  <li><Link href="/pricing" className="transition-colors hover:text-white">Pricing</Link></li>
                   <li><Link href="/brand" className="transition-colors hover:text-white">Brand Guidelines</Link></li>
                   <li><Link href="/login" className="transition-colors hover:text-white">Sign In / Join</Link></li>
                   <li><a href="mailto:56289968+danielinnov8@users.noreply.github.com" className="transition-colors hover:text-white">Contact</a></li>
