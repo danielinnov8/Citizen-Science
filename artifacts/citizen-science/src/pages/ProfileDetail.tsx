@@ -40,7 +40,7 @@ const GROUP_LABELS: Record<string, string> = {
 };
 
 const IMAGE_FOCAL_BY_SLUG: Record<string, string> = {
-  "manu-rehani": "object-[70%_center]",
+  "manu-rehani": "object-[85%_center]",
 };
 
 function initials(name: string): string {
