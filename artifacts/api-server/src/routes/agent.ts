@@ -1,4 +1,12 @@
-import { Router, type IRouter, type Request, type Response } from "express";
+import {
+  Router,
+  type IRouter,
+  type Request,
+  type Response,
+  type CookieOptions,
+} from "express";
+import { randomBytes } from "node:crypto";
+import type { User } from "@workspace/db";
 import {
   analyzeFieldNotes,
   streamChat,
@@ -7,6 +15,12 @@ import {
 } from "@workspace/integrations-gemini-ai-server";
 import { requireAuth } from "../middlewares/requireAuth";
 import { rateLimit } from "../middlewares/rateLimit";
+import { getUserBySession, SESSION_COOKIE } from "../lib/auth/session";
+import {
+  recordCopilotUsage,
+  isUnlimitedPlan,
+  COPILOT_FREE_DAILY_LIMIT,
+} from "../lib/usage/copilot";
 import { LABS } from "../lib/labs";
 import { PARTNERS } from "../lib/partners";
 import { getScientistDirectory, type ScientistSummary } from "../lib/scientists";
@@ -16,6 +30,30 @@ import { VideoMarkerStripper } from "../lib/youtube/marker";
 
 // A video must clear this strict relevance bar (0-100) before it is shown.
 const VIDEO_RELEVANCE_THRESHOLD = 90;
+
+// Signed cookie used to meter anonymous (logged-out) visitors per browser, so
+// the daily copilot quota can't be sidestepped simply by chatting as a guest.
+const ANON_COOKIE = "cs_anon";
+const ANON_COOKIE_TTL_MS = 1000 * 60 * 60 * 24 * 400; // ~13 months
+
+// Resolve a stable per-browser anonymous id, issuing a signed cookie the first
+// time we see a guest. Must be called before SSE headers are flushed.
+function ensureAnonId(req: Request, res: Response): string {
+  const existing = req.signedCookies?.[ANON_COOKIE];
+  if (typeof existing === "string" && existing.length > 0) return existing;
+
+  const id = randomBytes(16).toString("base64url");
+  const opts: CookieOptions = {
+    httpOnly: true,
+    secure: req.secure,
+    sameSite: "lax",
+    signed: true,
+    path: "/",
+    maxAge: ANON_COOKIE_TTL_MS,
+  };
+  res.cookie(ANON_COOKIE, id, opts);
+  return id;
+}
 
 interface VerifiedVideo {
   id: string;
@@ -190,6 +228,46 @@ router.post("/agent/chat", rateLimit({ windowMs: 10 * 60 * 1000, max: 40 }), asy
   if (messages.length === 0) {
     res.status(400).json({ error: "messages array is required" });
     return;
+  }
+
+  // Enforce the daily copilot quota before doing any expensive work. Paid plans
+  // are unlimited; free accounts and anonymous guests are metered per UTC day.
+  // This runs before SSE headers are flushed so we can return a plain 429 (and
+  // set the guest cookie) when the quota is exhausted.
+  let currentUser: User | null = null;
+  const sid = req.signedCookies?.[SESSION_COOKIE];
+  if (typeof sid === "string" && sid.length > 0) {
+    try {
+      currentUser = await getUserBySession(sid);
+    } catch (err) {
+      req.log?.warn({ err }, "copilot usage: session lookup failed");
+    }
+  }
+
+  if (!isUnlimitedPlan(currentUser?.plan)) {
+    const isGuest = !currentUser;
+    const subjectKey = currentUser
+      ? `user:${currentUser.id}`
+      : `guest:${ensureAnonId(req, res)}`;
+
+    try {
+      const used = await recordCopilotUsage(subjectKey);
+      if (used > COPILOT_FREE_DAILY_LIMIT) {
+        const message = isGuest
+          ? `You've reached the ${COPILOT_FREE_DAILY_LIMIT}-question daily limit for guests. Create a free account to keep exploring, or come back tomorrow.`
+          : `You've reached your free daily limit of ${COPILOT_FREE_DAILY_LIMIT} copilot questions. Upgrade to Researcher for unlimited access, or come back tomorrow.`;
+        res.status(429).json({
+          error: message,
+          limitReached: true,
+          limit: COPILOT_FREE_DAILY_LIMIT,
+          upgradeHref: isGuest ? "/login" : "/pricing",
+        });
+        return;
+      }
+    } catch (err) {
+      // Never let a metering failure block the copilot — fail open.
+      req.log?.warn({ err }, "copilot usage metering failed; allowing request");
+    }
   }
 
   // Inject the compact, cached directory of featured scientists so the model

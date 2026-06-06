@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, Sparkles, Wand2, RotateCcw, ChevronRight, AlertCircle, ExternalLink, FlaskConical, Youtube, Tag, UserRound } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, RotateCcw, ChevronRight, AlertCircle, ExternalLink, FlaskConical, Youtube, Tag, UserRound, Lock } from "lucide-react";
 import { useListFeaturedProfiles } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -303,6 +303,7 @@ export function Agent() {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [limitInfo, setLimitInfo] = useState<{ message: string; href: string } | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -351,6 +352,7 @@ export function Agent() {
     if (!trimmed || isStreaming) return;
 
     setError(null);
+    setLimitInfo(null);
     const userMsg: ChatMessage = { id: newId(), role: "user", content: trimmed };
     const assistantMsg: ChatMessage = { id: newId(), role: "assistant", content: "" };
     const next = [...history, userMsg, assistantMsg];
@@ -370,6 +372,27 @@ export function Agent() {
         }),
         signal: controller.signal,
       });
+
+      if (res.status === 429) {
+        let data: { error?: string; limitReached?: boolean; upgradeHref?: string } = {};
+        try {
+          data = await res.json();
+        } catch {
+          /* ignore */
+        }
+        setMessages(prev => prev.filter(m => m.id !== assistantMsg.id));
+        if (data.limitReached) {
+          setLimitInfo({
+            message:
+              data.error ||
+              "You've reached today's free copilot limit. Upgrade for unlimited access.",
+            href: data.upgradeHref || "/pricing",
+          });
+        } else {
+          setError(data.error || "Too many requests. Please slow down and try again shortly.");
+        }
+        return;
+      }
 
       if (!res.ok || !res.body) {
         throw new Error(`Request failed (${res.status})`);
@@ -620,6 +643,38 @@ export function Agent() {
             <div className="mt-4 flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
               <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <span>{error}</span>
+            </div>
+          )}
+
+          {limitInfo && (
+            <div className="mt-4 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50/90 to-violet-50/90 p-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-sm">
+                  <Lock className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-[#0F172A]">Daily limit reached</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-[#475569]">{limitInfo.message}</p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <Link
+                      href={limitInfo.href}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#0F172A] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1E293B]"
+                      data-testid="copilot-limit-cta"
+                    >
+                      {limitInfo.href === "/login" ? "Create a free account" : "See plans & upgrade"}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                    {limitInfo.href !== "/pricing" && (
+                      <Link
+                        href="/pricing"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-4 py-2 text-sm font-medium text-[#334155] transition-colors hover:border-blue-300"
+                      >
+                        View pricing
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

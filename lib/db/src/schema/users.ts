@@ -7,6 +7,9 @@ export const usersTable = pgTable("users", {
   passwordHash: text("password_hash"),
   googleId: text("google_id").unique(),
   image: text("image"),
+  // Subscription tier. "free" (Explorer) is metered; any other value is treated
+  // as an unlimited/paid plan. Defaults to "free" for every new account.
+  plan: text("plan").notNull().default("free"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
