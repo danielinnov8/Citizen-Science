@@ -9,7 +9,7 @@ export function Topbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#E2E8F0] bg-white/80 backdrop-blur-md">
-      <div className="container mx-auto flex h-14 max-w-7xl items-center justify-between px-4 lg:px-8">
+      <div className="flex h-14 items-center justify-between px-4">
         <Link href={isAuthenticated ? "/dashboard" : "/"} className="flex items-center">
           <Logo variant="full" />
         </Link>
