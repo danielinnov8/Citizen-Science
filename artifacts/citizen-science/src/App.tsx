@@ -23,6 +23,7 @@ import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import Brand from "@/pages/Brand";
 import Pricing from "@/pages/Pricing";
+import Incorporation from "@/pages/Incorporation";
 import { Xprize } from "@/pages/Xprize";
 
 import { AppShell } from "@/components/AppShell";
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/brand" component={Brand} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/incorporation" component={Incorporation} />
       {import.meta.env.DEV && <Route path="/xprize" component={Xprize} />}
       
       {/* Protected Routes */}
