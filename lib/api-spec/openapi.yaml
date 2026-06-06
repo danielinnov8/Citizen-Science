@@ -286,6 +286,53 @@ components:
         - scientist
         - inventor
         - thought_leader
+    ProfileTimelineEntry:
+      type: object
+      properties:
+        year:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - year
+        - title
+        - detail
+    ProfileStoryContribution:
+      type: object
+      properties:
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+        - title
+        - detail
+    ProfileStoryTheme:
+      type: object
+      properties:
+        accent:
+          type: string
+        accentSoft:
+          type: string
+        accentDeep:
+          type: string
+        heroFrom:
+          type: string
+        heroTo:
+          type: string
+        motif:
+          type: string
+        heroVariant:
+          type: string
+      required:
+        - accent
+        - accentSoft
+        - accentDeep
+        - heroFrom
+        - heroTo
+        - motif
     FeaturedProfileSummary:
       type: object
       properties:
@@ -350,6 +397,36 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ProfilePatent"
+        tagline:
+          type: ["string", "null"]
+        lifespan:
+          type: ["string", "null"]
+        birthplace:
+          type: ["string", "null"]
+        biography:
+          type: array
+          items:
+            type: string
+        timeline:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProfileTimelineEntry"
+        storyContributions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProfileStoryContribution"
+        legacy:
+          type: array
+          items:
+            type: string
+        didYouKnow:
+          type: array
+          items:
+            type: string
+        storyTheme:
+          anyOf:
+            - $ref: "#/components/schemas/ProfileStoryTheme"
+            - type: "null"
       required:
         - id
         - slug
@@ -364,3 +441,12 @@ components:
         - relatedCategorySlugs
         - sources
         - patents
+        - tagline
+        - lifespan
+        - birthplace
+        - biography
+        - timeline
+        - storyContributions
+        - legacy
+        - didYouKnow
+        - storyTheme

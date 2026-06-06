@@ -8,3 +8,4 @@
 - [R3F / WebGL on Replit preview](r3f-webgl-on-replit.md) — Canvas throws on WebGL ctx fail; wrap in error boundary; headless preview can't render/screenshot WebGL; MotionValue via ref.
 - [attached_assets in Docker build](attached-assets-docker-build.md) — web app @assets imports are real build inputs; keep attached_assets in .dockerignore context AND COPY it; deploy-only ENOENT.
 - [Copilot quota metering](copilot-quota-metering.md) — public copilot route means quota must meter guests (anon cookie) too, not just logged-in users, or logout bypasses the cap.
+- [Great-mind story scaling](great-mind-story-scaling.md) — cinematic figure pages render from frontend OR DB; storyTheme left null so frontend derives palette from field; render falls back if DB down.

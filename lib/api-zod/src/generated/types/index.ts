@@ -16,4 +16,7 @@ export * from "./messageResponse";
 export * from "./profileGroup";
 export * from "./profilePatent";
 export * from "./profileSource";
+export * from "./profileStoryContribution";
+export * from "./profileStoryTheme";
+export * from "./profileTimelineEntry";
 export * from "./registerInput";

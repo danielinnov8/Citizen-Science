@@ -32,7 +32,7 @@ import { useToast } from "@/hooks/use-toast";
 import { storage } from "@/lib/storage";
 import { CATEGORIES } from "@/lib/categories";
 import { EXPERIMENTS } from "@/lib/experiments";
-import { getGreatMindStory } from "@/lib/greatMinds";
+import { getGreatMindStory, buildStoryFromProfile } from "@/lib/greatMinds";
 import { GreatMindStory } from "@/components/GreatMindStory";
 
 const GROUP_LABELS: Record<string, string> = {
@@ -103,12 +103,24 @@ export function ProfileDetail() {
     (error as { status?: number } | undefined)?.status === 404;
 
   // Historical "great minds" get the cinematic, story-driven layout. The
-  // authored content is decoupled from the DB, so this renders regardless of
-  // DB state and simply enriches with the profile row (related categories,
+  // hand-authored content is decoupled from the DB, so this renders regardless
+  // of DB state and simply enriches with the profile row (related categories,
   // sources, patents) once it loads.
   const story = getGreatMindStory(slug);
   if (story) {
     return <GreatMindStory story={story} profile={profile ?? undefined} />;
+  }
+
+  // No hand-authored story → if the DB row carries rich story content
+  // (biography, timeline, …), build the same cinematic layout from it. This is
+  // how the cinematic treatment scales to the rest of the historical directory
+  // without hand-writing every page. Lightly-seeded / living profiles return
+  // null here and fall through to the standard layout below.
+  if (profile) {
+    const dbStory = buildStoryFromProfile(profile);
+    if (dbStory) {
+      return <GreatMindStory story={dbStory} profile={profile} />;
+    }
   }
 
   if (isLoading) {

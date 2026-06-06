@@ -21,6 +21,41 @@ export interface ProfilePatent {
 // pre-existing rows stay valid).
 export type ProfileGroup = "scientist" | "inventor" | "thought_leader";
 
+// ---- Cinematic "story" fields (Task #44) ----
+// Rich, long-form content that powers the cinematic `/directory/:slug` layout
+// for deceased historical figures. These columns are OPTIONAL: a profile is
+// only rendered with the cinematic layout once `biography` is populated, so
+// living/lightly-seeded rows keep the standard profile layout. All of this is
+// decoupled from the hand-authored frontend module (`greatMinds.ts`) — the page
+// reads beautifully whether the content comes from the DB or from code.
+
+// A single dated moment in a figure's life, shown on the story timeline.
+export interface ProfileTimelineEntry {
+  year: string;
+  title: string;
+  detail: string;
+}
+
+// A titled contribution card. Distinct from the flat `contributions` string[]
+// (used by the standard layout); the cinematic layout renders title + detail.
+export interface ProfileStoryContribution {
+  title: string;
+  detail: string;
+}
+
+// Per-person visual theme. Mirrors the frontend `StoryTheme` shape. When null,
+// the frontend derives a sensible default from the figure's `field`, so storing
+// a theme here is purely an optional override.
+export interface ProfileStoryTheme {
+  accent: string;
+  accentSoft: string;
+  accentDeep: string;
+  heroFrom: string;
+  heroTo: string;
+  motif: string;
+  heroVariant?: string;
+}
+
 export const featuredProfilesTable = pgTable("featured_profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
   slug: text("slug").notNull().unique(),
@@ -41,6 +76,22 @@ export const featuredProfilesTable = pgTable("featured_profiles", {
     .default([]),
   sources: jsonb("sources").$type<ProfileSource[]>().notNull().default([]),
   patents: jsonb("patents").$type<ProfilePatent[]>().notNull().default([]),
+  // ---- Cinematic story fields (Task #44) — optional, default-empty ----
+  tagline: text("tagline"),
+  lifespan: text("lifespan"),
+  birthplace: text("birthplace"),
+  biography: jsonb("biography").$type<string[]>().notNull().default([]),
+  timeline: jsonb("timeline")
+    .$type<ProfileTimelineEntry[]>()
+    .notNull()
+    .default([]),
+  storyContributions: jsonb("story_contributions")
+    .$type<ProfileStoryContribution[]>()
+    .notNull()
+    .default([]),
+  legacy: jsonb("legacy").$type<string[]>().notNull().default([]),
+  didYouKnow: jsonb("did_you_know").$type<string[]>().notNull().default([]),
+  storyTheme: jsonb("story_theme").$type<ProfileStoryTheme | null>(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

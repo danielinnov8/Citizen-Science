@@ -61,6 +61,27 @@ export const ProfileGroup = {
   thought_leader: "thought_leader",
 } as const;
 
+export interface ProfileTimelineEntry {
+  year: string;
+  title: string;
+  detail: string;
+}
+
+export interface ProfileStoryContribution {
+  title: string;
+  detail: string;
+}
+
+export interface ProfileStoryTheme {
+  accent: string;
+  accentSoft: string;
+  accentDeep: string;
+  heroFrom: string;
+  heroTo: string;
+  motif: string;
+  heroVariant?: string;
+}
+
 export interface FeaturedProfileSummary {
   id: string;
   slug: string;
@@ -87,4 +108,16 @@ export interface FeaturedProfile {
   relatedCategorySlugs: string[];
   sources: ProfileSource[];
   patents: ProfilePatent[];
+  /** @nullable */
+  tagline: string | null;
+  /** @nullable */
+  lifespan: string | null;
+  /** @nullable */
+  birthplace: string | null;
+  biography: string[];
+  timeline: ProfileTimelineEntry[];
+  storyContributions: ProfileStoryContribution[];
+  legacy: string[];
+  didYouKnow: string[];
+  storyTheme: ProfileStoryTheme | null;
 }

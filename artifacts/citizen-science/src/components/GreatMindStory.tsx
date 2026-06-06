@@ -744,25 +744,31 @@ export function GreatMindStory({
               <h1 className="font-serif text-white tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[0.95]">
                 {story.name}
               </h1>
-              <p className="mt-5 max-w-xl text-lg sm:text-xl text-white/75 leading-relaxed font-serif italic">
-                {story.tagline}
-              </p>
+              {story.tagline && (
+                <p className="mt-5 max-w-xl text-lg sm:text-xl text-white/75 leading-relaxed font-serif italic">
+                  {story.tagline}
+                </p>
+              )}
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/80">
                 <span className="inline-flex items-center gap-2">
                   <Beaker className="h-4 w-4" style={{ color: theme.accent }} />
                   {story.field}
                 </span>
-                <span className="inline-flex items-center gap-2">
-                  <CalendarDays
-                    className="h-4 w-4"
-                    style={{ color: theme.accent }}
-                  />
-                  {story.lifespan}
-                </span>
-                <span className="inline-flex items-center gap-2">
-                  <MapPin className="h-4 w-4" style={{ color: theme.accent }} />
-                  {story.birthplace}
-                </span>
+                {story.lifespan && (
+                  <span className="inline-flex items-center gap-2">
+                    <CalendarDays
+                      className="h-4 w-4"
+                      style={{ color: theme.accent }}
+                    />
+                    {story.lifespan}
+                  </span>
+                )}
+                {story.birthplace && (
+                  <span className="inline-flex items-center gap-2">
+                    <MapPin className="h-4 w-4" style={{ color: theme.accent }} />
+                    {story.birthplace}
+                  </span>
+                )}
               </div>
               <div className="mt-7">
                 <span
@@ -775,36 +781,38 @@ export function GreatMindStory({
             </div>
 
             {/* Portrait */}
-            <motion.div style={{ y: portraitY }} className="relative mx-auto">
-              <div
-                className="absolute -inset-3 rounded-[2rem] opacity-40 blur-2xl"
-                style={{ background: theme.accent }}
-              />
-              <div
-                className="relative aspect-[4/5] w-[18rem] sm:w-[20rem] rounded-[1.75rem] overflow-hidden"
-                style={{
-                  border: `1px solid ${theme.accent}66`,
-                  boxShadow: "0 30px 60px -20px rgba(0,0,0,0.6)",
-                }}
-              >
-                <img
-                  src={story.imageUrl}
-                  alt={story.name}
-                  className="h-full w-full object-cover"
-                />
+            {story.imageUrl && (
+              <motion.div style={{ y: portraitY }} className="relative mx-auto">
                 <div
-                  className="absolute inset-0 mix-blend-soft-light opacity-40"
+                  className="absolute -inset-3 rounded-[2rem] opacity-40 blur-2xl"
                   style={{ background: theme.accent }}
                 />
                 <div
-                  className="absolute inset-0"
+                  className="relative aspect-[4/5] w-[18rem] sm:w-[20rem] rounded-[1.75rem] overflow-hidden"
                   style={{
-                    background:
-                      "linear-gradient(to top, rgba(0,0,0,0.45), transparent 55%)",
+                    border: `1px solid ${theme.accent}66`,
+                    boxShadow: "0 30px 60px -20px rgba(0,0,0,0.6)",
                   }}
-                />
-              </div>
-            </motion.div>
+                >
+                  <img
+                    src={story.imageUrl}
+                    alt={story.name}
+                    className="h-full w-full object-cover"
+                  />
+                  <div
+                    className="absolute inset-0 mix-blend-soft-light opacity-40"
+                    style={{ background: theme.accent }}
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(to top, rgba(0,0,0,0.45), transparent 55%)",
+                    }}
+                  />
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </div>
@@ -936,9 +944,11 @@ export function GreatMindStory({
                     >
                       {String(i + 1).padStart(2, "0")}
                     </div>
-                    <h3 className="font-semibold text-lg text-[#0F172A] mb-2">
-                      {c.title}
-                    </h3>
+                    {c.title && (
+                      <h3 className="font-semibold text-lg text-[#0F172A] mb-2">
+                        {c.title}
+                      </h3>
+                    )}
                     <p className="text-[#475569] leading-relaxed">{c.detail}</p>
                   </div>
                 </Reveal>

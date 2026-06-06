@@ -117,4 +117,35 @@ export const GetFeaturedProfileResponse = zod.object({
       url: zod.string(),
     }),
   ),
+  tagline: zod.string().nullable(),
+  lifespan: zod.string().nullable(),
+  birthplace: zod.string().nullable(),
+  biography: zod.array(zod.string()),
+  timeline: zod.array(
+    zod.object({
+      year: zod.string(),
+      title: zod.string(),
+      detail: zod.string(),
+    }),
+  ),
+  storyContributions: zod.array(
+    zod.object({
+      title: zod.string(),
+      detail: zod.string(),
+    }),
+  ),
+  legacy: zod.array(zod.string()),
+  didYouKnow: zod.array(zod.string()),
+  storyTheme: zod.union([
+    zod.object({
+      accent: zod.string(),
+      accentSoft: zod.string(),
+      accentDeep: zod.string(),
+      heroFrom: zod.string(),
+      heroTo: zod.string(),
+      motif: zod.string(),
+      heroVariant: zod.string().optional(),
+    }),
+    zod.null(),
+  ]),
 });

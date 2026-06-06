@@ -8,6 +8,9 @@
 import type { ProfileGroup } from "./profileGroup";
 import type { ProfilePatent } from "./profilePatent";
 import type { ProfileSource } from "./profileSource";
+import type { ProfileStoryContribution } from "./profileStoryContribution";
+import type { ProfileStoryTheme } from "./profileStoryTheme";
+import type { ProfileTimelineEntry } from "./profileTimelineEntry";
 
 export interface FeaturedProfile {
   id: string;
@@ -24,4 +27,16 @@ export interface FeaturedProfile {
   relatedCategorySlugs: string[];
   sources: ProfileSource[];
   patents: ProfilePatent[];
+  /** @nullable */
+  tagline: string | null;
+  /** @nullable */
+  lifespan: string | null;
+  /** @nullable */
+  birthplace: string | null;
+  biography: string[];
+  timeline: ProfileTimelineEntry[];
+  storyContributions: ProfileStoryContribution[];
+  legacy: string[];
+  didYouKnow: string[];
+  storyTheme: ProfileStoryTheme | null;
 }
