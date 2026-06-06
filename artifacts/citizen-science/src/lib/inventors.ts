@@ -87,14 +87,14 @@ export const MODERN_MINDS: Inventor[] = [
     href: "https://en.wikipedia.org/wiki/Jeff_Bezos",
   },
   {
-    name: "Bill Gates",
-    slug: "bill-gates",
-    field: "Computing & Global Health",
+    name: "Carolyn Bertozzi",
+    slug: "carolyn-bertozzi",
+    field: "Chemical Biology",
     blurb:
-      "Co-founder of Microsoft turned philanthropist, channeling the Gates Foundation toward disease eradication, clean energy, and global health.",
+      "Nobel laureate who founded bioorthogonal chemistry — reactions that run safely inside living systems — opening new frontiers in medicine, diagnostics, and the chemistry of life.",
     imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Bill_Gates_at_the_European_Commission_-_P067383-987995_%28cropped%29_5.jpg/500px-Bill_Gates_at_the_European_Commission_-_P067383-987995_%28cropped%29_5.jpg",
-    href: "https://en.wikipedia.org/wiki/Bill_Gates",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Carolyn_Bertozzi_by_Christopher_Michel_in_2022_4.jpg/500px-Carolyn_Bertozzi_by_Christopher_Michel_in_2022_4.jpg",
+    href: "https://en.wikipedia.org/wiki/Carolyn_Bertozzi",
   },
   {
     name: "Jensen Huang",

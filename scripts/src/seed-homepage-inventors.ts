@@ -5,13 +5,13 @@
  *
  * The homepage shows four rows: "Great Minds of the Past" (Einstein, Curie,
  * Tesla, Darwin), "Modern Visionaries" (eight widely-recognized living
- * visionaries: Elon Musk, Jeff Bezos, Bill Gates, Jensen Huang, Demis Hassabis,
- * Jennifer Doudna, Geoffrey Hinton, Sara Seager), "Pioneers of Discovery"
- * (Newton, Galileo, Ada Lovelace, Alan Turing), and "Researchers Shaping
- * Tomorrow" (Jane Goodall, Katalin Karikó, Tim Berners-Lee, Fei-Fei Li).
- * `manu-rehani` is intentionally NOT seeded here; he is seeded with richer
- * content (patents, etc.) by `seed-profiles.ts`, and re-upserting him here would
- * overwrite that.
+ * visionaries: Elon Musk, Jeff Bezos, Carolyn Bertozzi, Jensen Huang, Demis
+ * Hassabis, Jennifer Doudna, Geoffrey Hinton, Sara Seager), "Pioneers of
+ * Discovery" (Newton, Galileo, Ada Lovelace, Alan Turing), and "Researchers
+ * Shaping Tomorrow" (Jane Goodall, Katalin Karikó, Tim Berners-Lee, Fei-Fei Li).
+ * `manu-rehani` and `carolyn-bertozzi` are intentionally NOT seeded here; they
+ * are seeded with richer content by `seed-profiles.ts`, and re-upserting them
+ * here would overwrite that.
  *
  * Unlike `seed-profiles.ts`, this seed uses hand-authored, fact-checked content
  * (no Gemini grounded research) so it is fully deterministic and not subject to
@@ -72,28 +72,6 @@ const INVENTORS: InsertFeaturedProfile[] = [
     sources: [
       { title: "Blue Origin", url: "https://www.blueorigin.com" },
       { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Jeff_Bezos" },
-    ],
-  },
-  {
-    slug: "bill-gates",
-    name: "Bill Gates",
-    group: "inventor",
-    field: "Computing & Global Health",
-    era: "b. 1955",
-    summary:
-      "Bill Gates co-founded Microsoft and helped bring personal computing to homes and offices around the world. He later turned his focus to philanthropy through the Bill & Melinda Gates Foundation, funding global health, disease eradication, sanitation, agriculture, and clean-energy innovation.",
-    contributions: [
-      "Co-founded Microsoft and drove the personal-computing revolution",
-      "Established the Gates Foundation, investing billions in global health and vaccines",
-      "Backs clean-energy and climate-innovation initiatives through Breakthrough Energy",
-    ],
-    quotes: [],
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Bill_Gates_at_the_European_Commission_-_P067383-987995_%28cropped%29_5.jpg/500px-Bill_Gates_at_the_European_Commission_-_P067383-987995_%28cropped%29_5.jpg",
-    relatedCategorySlugs: ["human-health", "microbiology"],
-    sources: [
-      { title: "Gates Foundation", url: "https://www.gatesfoundation.org" },
-      { title: "Wikipedia", url: "https://en.wikipedia.org/wiki/Bill_Gates" },
     ],
   },
   {

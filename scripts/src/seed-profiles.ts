@@ -168,7 +168,6 @@ const LIVING_SCIENTISTS: string[] = [
 const LIVING_INVENTORS: string[] = [
   "Elon Musk",
   "Jeff Bezos",
-  "Bill Gates",
   "Steve Wozniak",
   "Vint Cerf",
   "Robert Kahn",
