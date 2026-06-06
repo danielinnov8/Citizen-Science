@@ -20,12 +20,27 @@ import { useAuth } from "@/lib/auth";
 import { storage } from "@/lib/storage";
 import { EXPERIMENTS } from "@/lib/experiments";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { BadgeTile } from "@/components/Logo";
 
 interface NavItem {
   icon: typeof LayoutDashboard;
   label: string;
   href: string;
   public: boolean;
+}
+
+/**
+ * SidebarBadge — the shared glossy badge (same treatment + size as the logo
+ * mark) used for every sidebar icon button. Centralizing it here means any
+ * future sidebar button automatically matches the logo with no extra styling.
+ * It lives inside a `group` link/button, so it lifts slightly on hover.
+ */
+function SidebarBadge({ icon: Icon }: { icon: typeof LayoutDashboard }) {
+  return (
+    <BadgeTile className="shrink-0 transition-transform duration-150 group-hover:scale-105">
+      <Icon className="relative h-4 w-4" />
+    </BadgeTile>
+  );
 }
 
 interface NavGroup {
@@ -129,14 +144,14 @@ export function Sidebar() {
       <Link
         href={item.href}
         className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+          "group flex items-center gap-3 rounded-lg py-1.5 px-1 text-sm font-medium transition-colors",
           collapsed && "justify-center",
           active
             ? "bg-blue-50 text-blue-700"
             : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]",
         )}
       >
-        <item.icon className="h-4 w-4 shrink-0" />
+        <SidebarBadge icon={item.icon} />
         {!collapsed && item.label}
       </Link>
     );
@@ -175,12 +190,11 @@ export function Sidebar() {
                 <Link
                   href="/agent"
                   className={cn(
-                    "flex items-center justify-center h-10 w-10 mx-auto rounded-lg text-white shadow-sm transition-transform hover:scale-105",
-                    "bg-gradient-to-br from-blue-600 to-violet-600",
-                    copilotActive && "ring-2 ring-blue-300 ring-offset-2",
+                    "group flex items-center justify-center rounded-lg py-1.5 px-1 transition-colors",
+                    copilotActive ? "bg-blue-50" : "hover:bg-[#F1F5F9]",
                   )}
                 >
-                  <Sparkles className="h-4 w-4" />
+                  <SidebarBadge icon={Sparkles} />
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right">Science Copilot</TooltipContent>
@@ -189,17 +203,18 @@ export function Sidebar() {
             <Link
               href="/agent"
               className={cn(
-                "group flex items-center gap-3 rounded-xl px-3.5 py-3 text-white shadow-sm transition-all hover:shadow-md",
-                "bg-gradient-to-br from-blue-600 to-violet-600",
-                copilotActive && "ring-2 ring-blue-300 ring-offset-2",
+                "group flex items-center gap-3 rounded-lg py-1.5 px-1 transition-colors",
+                copilotActive
+                  ? "bg-blue-50 text-blue-700"
+                  : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]",
               )}
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
-                <Sparkles className="h-4 w-4" />
-              </span>
+              <SidebarBadge icon={Sparkles} />
               <span className="flex-1 min-w-0">
-                <span className="block text-sm font-semibold leading-tight">Science Copilot</span>
-                <span className="block text-[11px] text-white/75 leading-tight">Ask anything</span>
+                <span className="block text-sm font-semibold leading-tight text-[#0F172A]">
+                  Science Copilot
+                </span>
+                <span className="block text-[11px] text-[#94A3B8] leading-tight">Ask anything</span>
               </span>
               <ArrowRight className="h-4 w-4 shrink-0 opacity-70 transition-transform group-hover:translate-x-0.5" />
             </Link>
