@@ -115,6 +115,31 @@ export const storage = {
     }
   },
 
+  // Claimed profiles (directory)
+  getClaimedProfiles: (): string[] => {
+    try {
+      const data = localStorage.getItem("cs_claimed_profiles");
+      const parsed = data ? JSON.parse(data) : [];
+      return Array.isArray(parsed)
+        ? parsed.filter((s): s is string => typeof s === "string")
+        : [];
+    } catch {
+      return [];
+    }
+  },
+  isProfileClaimed: (slug: string): boolean => {
+    return storage.getClaimedProfiles().includes(slug);
+  },
+  claimProfile: (slug: string) => {
+    const claimed = storage.getClaimedProfiles();
+    if (!claimed.includes(slug)) {
+      localStorage.setItem(
+        "cs_claimed_profiles",
+        JSON.stringify([...claimed, slug]),
+      );
+    }
+  },
+
   // Sidebar collapsed preference
   getSidebarCollapsed: (): boolean => {
     try {
@@ -138,6 +163,7 @@ export const storage = {
     localStorage.removeItem("cs_started_experiments");
     localStorage.removeItem("cs_completed_tutorials");
     localStorage.removeItem("cs_tutorial_sections");
+    localStorage.removeItem("cs_claimed_profiles");
     localStorage.removeItem("cs_onboarded");
   }
 };
