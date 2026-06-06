@@ -87,6 +87,14 @@ export function Sidebar() {
   const { isAuthenticated, user } = useAuth();
   const [collapsed, setCollapsed] = React.useState(() => storage.getSidebarCollapsed());
 
+  // Individual profile pages (`/directory/:slug`) are immersive, full-width
+  // story pages — collapse the sidebar on arrival to let the hero breathe, and
+  // restore the user's saved preference once they navigate elsewhere.
+  const isProfilePage = /^\/directory\/[^/]+$/.test(location);
+  React.useEffect(() => {
+    setCollapsed(isProfilePage ? true : storage.getSidebarCollapsed());
+  }, [isProfilePage]);
+
   const toggleCollapsed = () => {
     setCollapsed((prev) => {
       const next = !prev;

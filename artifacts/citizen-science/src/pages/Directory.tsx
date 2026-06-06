@@ -31,6 +31,12 @@ function initials(name: string): string {
     .join("");
 }
 
+// Per-person crop overrides for off-center source photos. Defaults to
+// `object-top` for everyone else.
+const IMAGE_FOCAL_BY_SLUG: Record<string, string> = {
+  "manu-rehani": "object-[85%_center]",
+};
+
 function ProfileCard({ p }: { p: FeaturedProfileSummary }) {
   return (
     <Link
@@ -43,7 +49,9 @@ function ProfileCard({ p }: { p: FeaturedProfileSummary }) {
             src={p.imageUrl}
             alt={p.name}
             loading="lazy"
-            className="h-full w-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500"
+            className={`h-full w-full object-cover ${
+              IMAGE_FOCAL_BY_SLUG[p.slug] ?? "object-top"
+            } group-hover:scale-[1.03] transition-transform duration-500`}
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center">
