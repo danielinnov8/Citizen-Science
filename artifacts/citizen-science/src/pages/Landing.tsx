@@ -1052,7 +1052,7 @@ export function Landing() {
             <Reveal>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
                 <Sparkles className="h-3.5 w-3.5 text-blue-300" />
-                Future Vision · A Citizen Science Initiative
+                Future Vision XPRIZE
               </span>
             </Reveal>
             <Reveal delay={0.05}>
