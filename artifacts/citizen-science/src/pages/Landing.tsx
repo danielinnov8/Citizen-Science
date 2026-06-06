@@ -1016,7 +1016,7 @@ export function Landing() {
         <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
           <div className="flex items-center gap-2 font-semibold text-lg tracking-tight">
             <LogoIcon className="h-8 w-8" />
-            <span>Citizen Science™</span>
+            <span>Citizen Science</span>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
             <a href="#vision" className="transition-colors hover:text-white">Vision</a>
@@ -1052,13 +1052,12 @@ export function Landing() {
             <Reveal>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
                 <Sparkles className="h-3.5 w-3.5 text-blue-300" />
-                Future Vision · A Citizen Science™ Initiative
+                Future Vision · A Citizen Science Initiative
               </span>
             </Reveal>
             <Reveal delay={0.05}>
               <h1 className="mt-8 font-serif text-5xl leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
                 Humanity's<br className="hidden sm:block" /> Research Network
-                <span className="align-super text-2xl text-blue-300 lg:text-3xl">™</span>
               </h1>
             </Reveal>
             <Reveal delay={0.12}>
@@ -1461,7 +1460,7 @@ export function Landing() {
             <Reveal>
               <div className="mx-auto mb-16 max-w-2xl text-center">
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
-                  Join Humanity's Research Network™
+                  Join Humanity's Research Network
                 </span>
                 <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
                   There's a way in for everyone.
@@ -1504,7 +1503,7 @@ export function Landing() {
             </Reveal>
             <Reveal delay={0.06}>
               <h2 className="mx-auto mt-6 max-w-3xl font-serif text-4xl leading-[1.12] tracking-tight lg:text-6xl">
-                We are building Humanity's Research Network™.
+                We are building Humanity's Research Network.
               </h2>
             </Reveal>
             <Reveal delay={0.12}>
@@ -1523,7 +1522,7 @@ export function Landing() {
             </Reveal>
             <Reveal delay={0.24}>
               <p className="mt-10 font-serif text-lg italic text-white/60">
-                Turning Human Curiosity into Collective Intelligence™
+                Turning Human Curiosity into Collective Intelligence
               </p>
             </Reveal>
           </div>
@@ -1537,7 +1536,7 @@ export function Landing() {
             <div className="lg:w-[34%]">
               <Logo variant="full" theme="dark" />
               <p className="mt-5 max-w-sm text-sm leading-relaxed">
-                Humanity's Research Network™ — turning everyday curiosity into
+                Humanity's Research Network — turning everyday curiosity into
                 collective intelligence. We give anyone, anywhere the tools to
                 run real experiments and contribute to the frontier of science.
               </p>
@@ -1625,7 +1624,7 @@ export function Landing() {
         <div className="border-t border-white/10">
           <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-xs md:flex-row lg:px-8">
             <p className="order-2 md:order-1">
-              &copy; {new Date().getFullYear()} Citizen Science™. All rights reserved.
+              &copy; {new Date().getFullYear()} Citizen Science. All rights reserved.
             </p>
             <p className="order-1 flex items-center gap-1.5 md:order-2">
               <MapPin className="h-3.5 w-3.5" />
