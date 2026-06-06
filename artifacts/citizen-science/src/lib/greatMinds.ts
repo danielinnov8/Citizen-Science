@@ -6,6 +6,8 @@
 // before the directory DB is provisioned/seeded. Where a DB row exists, the
 // profile page merges in its related categories, sources, and patents.
 
+import einsteinPhoto from "@assets/albert-einstein.jpg";
+
 export interface StoryTimelineEntry {
   year: string;
   title: string;
@@ -75,8 +77,7 @@ export const GREAT_MIND_STORIES: Record<string, GreatMindStory> = {
     birthplace: "Ulm, Germany",
     tagline:
       "The patent clerk who rewrote space, time, and gravity — and taught the universe to bend.",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/2/28/Albert_Einstein_Head_cleaned.jpg",
+    imageUrl: einsteinPhoto,
     theme: {
       accent: "#2563EB",
       accentSoft: "#EFF4FF",

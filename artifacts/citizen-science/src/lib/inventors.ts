@@ -1,4 +1,5 @@
 import manuPhoto from "@assets/image_1780677287488.jpeg";
+import einsteinPhoto from "@assets/albert-einstein.jpg";
 import diamandisPhoto from "@assets/65ee191f9cc09e354404b538_Peter_Diamandis_1780697654112.webp";
 import salimPhoto from "@assets/image_1780697674289.png";
 import blundinPhoto from "@assets/moonshot-dave-blundin.webp";
@@ -26,8 +27,7 @@ export const GREAT_MINDS: Inventor[] = [
     field: "Theoretical Physics",
     blurb:
       "Developed the theory of relativity and reshaped our understanding of space, time, and energy — a defining mind of modern science.",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/2/28/Albert_Einstein_Head_cleaned.jpg",
+    imageUrl: einsteinPhoto,
     href: "https://en.wikipedia.org/wiki/Albert_Einstein",
   },
   {
