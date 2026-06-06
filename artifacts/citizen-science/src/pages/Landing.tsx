@@ -1110,7 +1110,10 @@ export function Landing() {
             </Reveal>
             <Reveal delay={0.06}>
               <h2 className="mx-auto mt-6 max-w-3xl font-serif text-4xl leading-[1.1] tracking-tight lg:text-5xl">
-                The Greatest Untapped Resource Isn't Technology. It's People.
+                The Greatest Untapped Resource Isn't Technology.
+                <span className="mt-5 block italic text-blue-600 lg:mt-7">
+                  It's People.
+                </span>
               </h2>
             </Reveal>
             <Reveal delay={0.12}>
