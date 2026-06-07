@@ -125,9 +125,11 @@ export function HeroAtom() {
               );
             })}
 
-            {/* Nucleus */}
-            <circle r="14" fill="#93C5FD" fillOpacity="0.18" />
-            <circle r="7" fill="#BFDBFE" fillOpacity="0.85" />
+            {/* Nucleus — the center node; hidden on mobile */}
+            <g className="hidden md:block">
+              <circle r="14" fill="#93C5FD" fillOpacity="0.18" />
+              <circle r="7" fill="#BFDBFE" fillOpacity="0.85" />
+            </g>
           </svg>
         </motion.div>
       </motion.div>
