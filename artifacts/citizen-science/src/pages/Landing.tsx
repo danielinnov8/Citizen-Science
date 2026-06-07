@@ -430,7 +430,7 @@ function AskAgent() {
   const currentPlaceholder = ALL_PROMPTS[placeholderIndex];
 
   return (
-    <section className="relative w-full border-y border-[#E2E8F0] bg-gradient-to-b from-white via-[#FAFBFF] to-white">
+    <section className="relative w-full overflow-x-clip border-y border-[#E2E8F0] bg-gradient-to-b from-white via-[#FAFBFF] to-white">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-200/60 to-transparent" />
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-gradient-to-br from-blue-200/30 via-violet-200/20 to-emerald-200/20 blur-3xl rounded-full pointer-events-none" />
 
