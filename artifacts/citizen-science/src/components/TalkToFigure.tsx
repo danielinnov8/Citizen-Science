@@ -41,6 +41,18 @@ const PLAYBACK_RATE = 0.8;
 const SPEAK_RMS = 0.02;
 const HANGOVER_MS = 1200;
 
+// How long after Albert stops speaking to keep ignoring microphone input. The
+// speech recognizer hears Albert's own voice from the speakers and may still be
+// finalizing the tail of it just after he goes quiet; dropping that window
+// prevents him from transcribing himself and answering his own words.
+const ECHO_GUARD_MS = 1500;
+
+// Fallback echo guard used only when the RMS analyser is unavailable (no
+// WebAudio / no audio track) and so can't tell us when Albert is speaking. We
+// estimate his speech duration from the reply length at ~10 chars/sec (TTS at
+// PLAYBACK_RATE 0.8) and suppress the mic for that window plus the base guard.
+const SPEAK_CHARS_PER_SEC = 10;
+
 interface Transcript {
   id: string;
   role: "user" | "assistant";
@@ -142,6 +154,16 @@ export function TalkToFigure({
   const audioCtxRef = useRef<AudioContext | null>(null);
   const speakRafRef = useRef<number | null>(null);
 
+  // Half-duplex echo guard. `avatarSpeakingRef` is true while Albert is talking;
+  // `recognitionMuteUntilRef` extends a short cooldown after he stops. While
+  // either is active, microphone transcripts are dropped so his own voice from
+  // the speakers is never fed back as a user turn.
+  const avatarSpeakingRef = useRef(false);
+  const recognitionMuteUntilRef = useRef(0);
+  // True while the RMS analyser loop is running and is the source of truth for
+  // "Albert is speaking". When false we fall back to a reply-length estimate.
+  const analyserActiveRef = useRef(false);
+
   const speechSupported = !!getSpeechRecognition();
 
   // -------------------------------------------------------------------------
@@ -159,6 +181,12 @@ export function TalkToFigure({
         /* ignore */
       }
       recognitionRef.current = null;
+
+      // Reset the half-duplex echo guard so stale state can't leak across a
+      // reconnect (e.g. a new session reusing the component instance).
+      avatarSpeakingRef.current = false;
+      recognitionMuteUntilRef.current = 0;
+      analyserActiveRef.current = false;
 
       // Stop the speech-detection analyser loop and release its audio context.
       if (speakRafRef.current != null) {
@@ -224,13 +252,22 @@ export function TalkToFigure({
     setAudioBlocked(false);
     setVideoActive(false);
     endedRef.current = false;
+    avatarSpeakingRef.current = false;
+    recognitionMuteUntilRef.current = 0;
+    analyserActiveRef.current = false;
 
     // Ask for the microphone up front (while we still have the click's user
     // gesture) so push-to-talk is ready immediately. Denial is non-fatal — the
     // visitor can still type. Keep the stream open for the whole session (the
     // mic stays on, as requested) and release it on teardown in endSession.
     try {
-      const mic = await navigator.mediaDevices?.getUserMedia({ audio: true });
+      const mic = await navigator.mediaDevices?.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
       if (mic) micStreamRef.current = mic;
       setMicDenied(false);
     } catch {
@@ -313,12 +350,20 @@ export function TalkToFigure({
               const now = performance.now();
               if (rms > SPEAK_RMS) lastVoiceAt = now;
               const speaking = now - lastVoiceAt < HANGOVER_MS;
+              // Drive the half-duplex echo guard: suppress the mic while Albert
+              // speaks and for ECHO_GUARD_MS after, so his own voice can't be
+              // transcribed and sent back to him.
+              avatarSpeakingRef.current = speaking;
+              if (speaking) {
+                recognitionMuteUntilRef.current = now + ECHO_GUARD_MS;
+              }
               if (speaking !== shown) {
                 shown = speaking;
                 setVideoActive(speaking);
               }
               speakRafRef.current = requestAnimationFrame(tick);
             };
+            analyserActiveRef.current = true;
             speakRafRef.current = requestAnimationFrame(tick);
           } else {
             // No WebAudio / no audio track — fall back to always showing video.
@@ -448,6 +493,15 @@ export function TalkToFigure({
           ...prev,
           { id: newId(), role: "assistant", text: data.reply },
         ]);
+        // Fallback echo guard: when the RMS analyser isn't running to detect when
+        // Albert is speaking, estimate his speech duration from the reply length
+        // and suppress the mic for that window so it can't transcribe his voice
+        // and feed it back as a user turn.
+        if (!analyserActiveRef.current && data.reply) {
+          const speakMs = (data.reply.length / SPEAK_CHARS_PER_SEC) * 1000;
+          recognitionMuteUntilRef.current =
+            performance.now() + ECHO_GUARD_MS + speakMs;
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong.");
       } finally {
@@ -491,6 +545,17 @@ export function TalkToFigure({
     // after each phrase; it stays on until the user explicitly turns it off.
     rec.continuous = true;
     rec.onresult = (e) => {
+      // Half-duplex guard. Drop anything the recognizer heard if the user has
+      // turned the mic off, or while Albert is speaking / within the cooldown
+      // after — otherwise his own voice from the speakers gets transcribed and
+      // sent back, and he talks to himself.
+      if (
+        !listeningRef.current ||
+        avatarSpeakingRef.current ||
+        performance.now() < recognitionMuteUntilRef.current
+      ) {
+        return;
+      }
       // With continuous mode, results accumulate; send each finalized phrase.
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const r = e.results[i];
