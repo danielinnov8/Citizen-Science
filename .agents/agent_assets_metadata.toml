@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "Ux4wEZPEMPOfpu-hNGQIE"
+uri = "file://attached_assets/albert-einstein.jpg"
+type = "image"
+title = "Albert Einstein"
