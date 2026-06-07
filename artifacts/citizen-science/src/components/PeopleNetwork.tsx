@@ -224,6 +224,11 @@ export function PeopleNetwork() {
           {edgesToRender.map((e, i) => (
             <motion.line
               key={i}
+              // Spokes to the central hub are hidden on mobile, where the hub
+              // node itself is hidden, so no lines dangle into an empty center.
+              className={
+                e.a === "hub" || e.b === "hub" ? "hidden md:inline" : undefined
+              }
               x1={e.p1.x}
               y1={e.p1.y}
               x2={e.p2.x}
@@ -272,8 +277,8 @@ export function PeopleNetwork() {
           })}
         </svg>
 
-        {/* Central hub */}
-        <div className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-[radial-gradient(circle_at_50%_40%,#3B82F6,#7C3AED)] text-center text-white shadow-[0_18px_50px_-12px_rgba(124,58,237,0.65)] ring-1 ring-white/25 md:h-24 md:w-24">
+        {/* Central hub — hidden on mobile (declutters the small viewport) */}
+        <div className="absolute left-1/2 top-1/2 hidden h-20 w-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-[radial-gradient(circle_at_50%_40%,#3B82F6,#7C3AED)] text-center text-white shadow-[0_18px_50px_-12px_rgba(124,58,237,0.65)] ring-1 ring-white/25 md:flex md:h-24 md:w-24">
           <span className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-blue-500/20" />
           <Users className="h-6 w-6 text-white/95 md:h-7 md:w-7" strokeWidth={1.75} />
           <span className="mt-0.5 text-[8px] font-semibold uppercase tracking-[0.16em] text-white/80 md:text-[9px]">

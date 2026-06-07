@@ -750,7 +750,7 @@ export function GreatMindStory({
             className="grid lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-14 items-center"
           >
             {/* Text */}
-            <div>
+            <div className="order-2 lg:order-1">
               <div
                 className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider mb-6"
                 style={{
@@ -835,7 +835,10 @@ export function GreatMindStory({
 
             {/* Portrait */}
             {story.imageUrl && (
-              <motion.div style={{ y: portraitY }} className="relative mx-auto">
+              <motion.div
+                style={{ y: portraitY }}
+                className="relative mx-auto order-1 lg:order-2"
+              >
                 <div
                   className="absolute -inset-3 rounded-[2rem] opacity-40 blur-2xl"
                   style={{ background: theme.accent }}
