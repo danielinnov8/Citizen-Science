@@ -42,7 +42,17 @@ routes fail per-request instead. The Proxy binds methods to the real instance �
 drizzle/pg use private fields that are unreachable if `this` is the Proxy, so
 never drop the `.bind(target)`.
 
-**Cloud Run env vars (app boots without them now, but auth needs them):**
-`DATABASE_URL` (a real Postgres must still be provisioned + migrated for login to
-work), `SESSION_SECRET`, `GEMINI_API_KEY`, `GOOGLE_CLIENT_ID`,
-`GOOGLE_CLIENT_SECRET`, and `PUBLIC_BASE_URL`.
+**Cloud Run env vars (app boots without them now, but features need them):**
+Replit Secrets do NOT propagate to the user's own Cloud Run service — they must
+be set in the Cloud Run "Variables & Secrets" panel (runtime, not Docker build
+args; the build only needs `PORT`+`BASE_PATH`). Deploy is GitHub-sync → fresh
+Cloud Run build, NOT Replit Publish.
+- `DATABASE_URL` (a real Postgres must still be provisioned + migrated for login),
+  `SESSION_SECRET`, `GEMINI_API_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+  `PUBLIC_BASE_URL`.
+- `D_ID_API_KEY` — required for the "Talk to Albert" live avatar. A missing key
+  is the cause of the in-app "live avatar isn't configured yet" message.
+- `YOUTUBE_API_KEY` — required for the copilot's verified-video cards.
+- `PUBLIC_BASE_URL` is doubly important for the avatar: D-ID downloads the
+  self-hosted portrait from a URL built off `PUBLIC_BASE_URL`, so a wrong/missing
+  value breaks the avatar even when `D_ID_API_KEY` is valid.
