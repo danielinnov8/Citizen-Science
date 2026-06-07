@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Link } from "wouter";
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import {
@@ -24,6 +24,9 @@ import type {
   GreatMindStory as GreatMindStoryData,
   StoryMotif,
 } from "@/lib/greatMinds";
+import { getTalkableFigure, useAvatarFigure } from "@/lib/talkable";
+import { TalkToFigure } from "@/components/TalkToFigure";
+import { MessageCircle } from "lucide-react";
 
 function hostname(url: string): string {
   try {
@@ -616,6 +619,23 @@ export function GreatMindStory({
   const { theme } = story;
   const heroVariant = theme.heroVariant;
 
+  // ----- Live "Talk to {figure}" avatar experience -----
+  const [talkOpen, setTalkOpen] = useState(false);
+  const talkable = getTalkableFigure(story.slug);
+  const { data: avatarCap } = useAvatarFigure(talkable ? story.slug : undefined);
+  // Show the button when the figure is talkable; the server confirms whether it
+  // is actually available (keys configured). Until the capability check
+  // resolves we optimistically render based on the static talkable config.
+  const showTalk = !!talkable;
+  const talkAvailable = avatarCap ? avatarCap.available : false;
+  const firstName = talkable?.firstName ?? story.name.split(" ")[0];
+  const avatarProviders = avatarCap?.providers ?? [];
+
+  function handleTalkClick() {
+    // The live experience is open to everyone — no sign-in required.
+    setTalkOpen(true);
+  }
+
   // Merge DB-backed enrichment when available, falling back to authored content.
   const relatedCategorySlugs =
     profile?.relatedCategorySlugs && profile.relatedCategorySlugs.length > 0
@@ -638,6 +658,7 @@ export function GreatMindStory({
   ).slice(0, 4);
 
   return (
+    <>
     <div className="w-full animate-in fade-in duration-500 pb-32">
       {/* ===== Cinematic hero ===== */}
       <div
@@ -770,7 +791,7 @@ export function GreatMindStory({
                   </span>
                 )}
               </div>
-              <div className="mt-7">
+              <div className="mt-7 flex flex-wrap items-center gap-4">
                 <span
                   className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-medium text-white/90"
                   style={{ border: `1px solid ${theme.accent}55` }}
@@ -778,6 +799,38 @@ export function GreatMindStory({
                   {story.era}
                 </span>
               </div>
+
+              {showTalk && (
+                <div className="mt-8">
+                  <button
+                    onClick={handleTalkClick}
+                    disabled={!!avatarCap && !talkAvailable}
+                    className="group inline-flex items-center gap-2.5 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition-all hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                    style={{
+                      background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentDeep})`,
+                      boxShadow: `0 18px 40px -12px ${theme.accent}99`,
+                    }}
+                  >
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span
+                        className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
+                        style={{ background: "#fff" }}
+                      />
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+                    </span>
+                    <MessageCircle className="h-4 w-4" />
+                    Talk to {firstName}
+                  </button>
+                  <p className="mt-2.5 text-xs text-white/55">
+                    {!avatarCap
+                      ? "A live, AI re-creation — speak face to face."
+                      : talkAvailable
+                        ? "A live, AI re-creation — speak face to face."
+                        : (avatarCap.reason ??
+                          "The live avatar isn't available right now.")}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Portrait */}
@@ -1197,5 +1250,18 @@ export function GreatMindStory({
         </div>
       </div>
     </div>
+
+    {talkOpen && talkable && (
+      <TalkToFigure
+        slug={story.slug}
+        name={avatarCap?.name ?? story.name}
+        firstName={firstName}
+        portraitUrl={story.imageUrl}
+        accent={theme.accent}
+        providers={avatarProviders}
+        onClose={() => setTalkOpen(false)}
+      />
+    )}
+    </>
   );
 }

@@ -17,6 +17,9 @@
     },
     {
       "path": "./lib/integrations-gemini-ai-server"
+    },
+    {
+      "path": "./lib/integrations-avatar-server"
     }
   ]
 }
