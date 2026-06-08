@@ -654,6 +654,24 @@ function RmmEquation({
 function MarketsHero({ y }: { y: MotionValue<number> }) {
   const tag =
     "pointer-events-none absolute select-none font-mono tracking-tight";
+  // Enlarged, overlapping sine waves — abstract red/blue signal field.
+  const sinePath = (cy: number, amp: number, cycles: number, phase: number) => {
+    const steps = 160;
+    let d = "";
+    for (let i = 0; i <= steps; i++) {
+      const x = -40 + (i / steps) * 1280;
+      const t = (i / steps) * cycles * Math.PI * 2 + phase;
+      const y2 = cy + amp * Math.sin(t);
+      d += `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y2.toFixed(1)} `;
+    }
+    return d.trim();
+  };
+  const waves = [
+    { stroke: "#3b82f6", cy: 300, amp: 138, cycles: 1.4, phase: 0, w: 2.2, o: 0.3 },
+    { stroke: "#ef4444", cy: 318, amp: 162, cycles: 1.1, phase: 1.7, w: 2.2, o: 0.28 },
+    { stroke: "#60a5fa", cy: 286, amp: 108, cycles: 2.1, phase: 0.8, w: 1.5, o: 0.15 },
+    { stroke: "#f87171", cy: 336, amp: 188, cycles: 0.8, phase: 3.0, w: 1.5, o: 0.12 },
+  ];
   return (
     <>
       <div
@@ -692,37 +710,22 @@ function MarketsHero({ y }: { y: MotionValue<number> }) {
               <feGaussianBlur stdDeviation="1.6" />
             </filter>
           </defs>
-          {/* Abstract drifting signal curves — soft and low-contrast */}
+          {/* Enlarged, overlapping sine waves — abstract red/blue signal field */}
           <g
             fill="none"
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"
             filter="url(#ma-soft)"
           >
-            <path
-              d="M-60 252 C 240 300, 420 218, 640 270 C 880 326, 1040 224, 1260 268"
-              stroke="#60a5fa"
-              strokeWidth="2"
-              opacity="0.16"
-            />
-            <path
-              d="M-60 320 C 200 262, 360 384, 600 322 C 840 262, 1000 366, 1260 300"
-              stroke="#3b82f6"
-              strokeWidth="2"
-              opacity="0.3"
-            />
-            <path
-              d="M-60 362 C 220 424, 380 300, 620 362 C 860 424, 1020 300, 1260 352"
-              stroke="#ef4444"
-              strokeWidth="2"
-              opacity="0.28"
-            />
-            <path
-              d="M-60 430 C 260 388, 440 470, 660 420 C 900 366, 1060 452, 1260 408"
-              stroke="#f87171"
-              strokeWidth="1.5"
-              opacity="0.14"
-            />
+            {waves.map((w, i) => (
+              <path
+                key={i}
+                d={sinePath(w.cy, w.amp, w.cycles, w.phase)}
+                stroke={w.stroke}
+                strokeWidth={w.w}
+                opacity={w.o}
+              />
+            ))}
           </g>
         </svg>
 
