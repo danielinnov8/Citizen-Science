@@ -637,10 +637,10 @@ export default function Incorporation() {
               Back to home
             </Link>
             <Link
-              href="/pricing"
+              href="/cap-table"
               className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
             >
-              View pricing
+              View the cap table
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -652,6 +652,7 @@ export default function Incorporation() {
         <div className="container mx-auto max-w-7xl px-4 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <Logo variant="full" theme="dark" />
           <div className="flex flex-wrap justify-center gap-6 text-sm">
+            <Link href="/cap-table" className="hover:text-white transition-colors">Cap table</Link>
             <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
