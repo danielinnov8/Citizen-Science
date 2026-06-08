@@ -1,4 +1,5 @@
 - [Single-origin Cloud Run](single-origin-cloud-run.md) — Cloud Run image serves SPA + API from one origin so SameSite=Lax cookies work; build/redirect/env gotchas.
+- [Neon migrate on boot](neon-migrate-on-boot.md) — schema auto-applies via versioned drizzle migrations at API startup; idempotent baseline + esbuild path + cold-start gate gotchas.
 - [Replit AI proxy not on Cloud Run](replit-ai-proxy-not-on-cloud-run.md) — OpenAI-via-Replit-proxy routes throw outside Replit; use own GEMINI_API_KEY for deployed AI calls.
 - [Gemini Google Search grounding](gemini-search-grounding.md) — enable via googleSearch tool; thinkingBudget:0 silently disables search — keep thinking ON when grounding.
 - [Gemini free-tier daily cap](gemini-free-tier-daily-cap.md) — own GEMINI_API_KEY ~20 req/day; 429 RESOURCE_EXHAUSTED blocks live testing, not a code bug.

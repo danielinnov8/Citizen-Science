@@ -51,13 +51,11 @@ never drop the `.bind(target)`.
 - Consequence: querying Replit's "production" tells you nothing about Neon. To
   inspect/repair real prod you must connect with the Neon connection string.
 
-**Neon schema is migrated MANUALLY — Cloud Run builds never touch it.** A
-GitHub-sync → Cloud Run build only rebuilds/redeploys the container; it does not
-run migrations. Replit Publish's schema-diff flow does NOT apply (that's Replit
-Deployments + Replit Postgres only). To change the Neon schema, run drizzle push
-against the Neon URL (e.g. `DATABASE_URL="<neon>" pnpm --filter @workspace/db run push`)
-or ship versioned `drizzle-kit generate`/`migrate` SQL as a deploy step. Adding
-the nullable/defaulted story columns is backwards-compatible (safe).
+**Neon schema now auto-migrates at API boot** (see `neon-migrate-on-boot.md`).
+The Cloud Run *build* still never touches the DB; the running container applies
+committed versioned drizzle migrations on startup against its `DATABASE_URL`
+(= Neon). Replit Publish's schema-diff flow still does NOT apply. To change the
+schema: `pnpm --filter @workspace/db run generate`, commit the SQL, deploy.
 
 **Data self-heals via seed-on-boot, schema does not.** `seedFeaturedProfiles`
 runs at app boot against whatever `DATABASE_URL` Cloud Run has (= Neon): if the

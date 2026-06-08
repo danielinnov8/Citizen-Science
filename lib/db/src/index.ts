@@ -49,3 +49,4 @@ export const pool: pg.Pool = lazyProxy(() => {
 });
 
 export * from "./schema";
+export { runMigrations } from "./migrate";

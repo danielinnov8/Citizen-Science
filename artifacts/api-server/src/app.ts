@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { awaitMigrations } from "./lib/startup/migrations";
 
 const app: Express = express();
 
@@ -37,6 +38,19 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.SESSION_SECRET));
+
+// Hold DB-backed requests until schema migrations have settled, so a cold-start
+// deploy never serves a route against a not-yet-migrated schema (e.g. the prod
+// DB before the latest columns are added). /healthz is exempt so readiness/
+// liveness probes pass immediately while migrations run. Once settled this is a
+// no-op, so steady-state latency is unaffected.
+app.use("/api", (req, res, next) => {
+  if (req.path === "/healthz") {
+    next();
+    return;
+  }
+  void awaitMigrations().then(() => next());
+});
 
 app.use("/api", router);
 
