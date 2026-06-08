@@ -1,0 +1,2360 @@
+[
+  {
+    "slug": "ada-lovelace",
+    "name": "Ada Lovelace",
+    "group": "scientist",
+    "field": "Computing",
+    "era": "1815–1852",
+    "summary": "Ada Lovelace was an English mathematician who worked with Charles Babbage on his proposed Analytical Engine. She is regarded as the first computer programmer for recognizing that such a machine could go beyond pure calculation.",
+    "contributions": [
+      "Wrote the first published algorithm intended for a machine",
+      "Foresaw that computers could manipulate symbols, not just numbers",
+      "Bridged mathematics and imagination, laying conceptual groundwork for computer science"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Ada_Lovelace_daguerreotype_by_Antoine_Claudet_1843_-_cropped.png",
+    "relatedCategorySlugs": [],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Ada_Lovelace",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "akira-yoshino",
+    "name": "Akira Yoshino",
+    "group": "scientist",
+    "field": "Chemistry",
+    "era": "b. 1948",
+    "summary": "Akira Yoshino is a Japanese chemist and Nobel laureate, recognized for his pivotal role in developing the first safe and commercially viable lithium-ion battery (LIB). His innovations enabled the portable electronic revolution and are crucial for electric vehicles and renewable energy storage. He currently serves as an honorary fellow at Asahi Kasei Corporation and a professor at Meijo University.",
+    "contributions": [
+      "Invented the first safe, production-viable lithium-ion battery (LIB).",
+      "Developed a carbonaceous anode, utilizing petroleum coke, to replace metallic lithium, which enhanced battery safety and lifespan.",
+      "Introduced the aluminum foil current collector, functional separator membrane, and a positive temperature coefficient (PTC) device to improve battery safety and performance.",
+      "Conceived the coil-wound structure for lithium-ion batteries, enabling high current discharge despite low electrolyte conductivity.",
+      "Secured the basic patent for the LIB in 1985, which paved the way for its commercialization in 1991."
+    ],
+    "quotes": [
+      "\"It is very important to think every day.\"",
+      "\"There are many fields that haven't yet been discovered and I want (younger researchers) to challenge the unknown and pave new ways, without following the paths of others.\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/49/Akira_Yoshino_20170920_%28cropped_2%29.jpg",
+    "relatedCategorySlugs": [
+      "chemistry",
+      "materials-science"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHL88ZbWCVqccrH_V-H4M4X1_yHuEUE9u-fuqnaXxYtclqVjFQFWK8LQPXyNCbz1EHzRhZGBLiJVsK4Cxc5_Nmsqp7gIZY-fbkr5yV9t_74XmW7pY1G-i5vVHSC5bNXWJj3E9ri8oc=",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG-574bGAtk7Gb97p8OmNFYJ1QMB6K2EzePUMn5WqWwgIdy5VfyO2rMQi505G9iGhhqBQpLL3sadiL_goLs6EHqzo6mtgXEwhitRJdvYsbZoASleQBKe95VmQK6r3L8Zt8VHZNx4legHJEQ3iK3",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH-LJHNQhKS7a7kMqt6oUwIWh7_KX1YLqrBqBaRajfzq_olM2EP3OlVUwLOoIQamLryaWOo_h-mnYNnrkxjRdHdZPRMobz8SVgP6S9FJF061ck5elNslAYcyyxPvQ-g-3kkIkQ=",
+        "title": "oist.jp"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFdQgkoGAgH347DXuvKzJ-b8NRZHfQLnE3UK4m9znHtV6GXj2WuEC_8CuFUgLjQ1UnxOWg6OL22nBTilMz01RquNJGe_Aj4hGkwmVF-7Ul1q6kIyNsIJ0S6uvoTDenPdNN7tXOi1S8RKKoldl2SmateEaOhQ1DVMbVLiuI0xWrRC4ZhaTSTBj-jt5hbn5_LAPBTfrU4U-g=",
+        "title": "epo.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGxaUT4p1pUdjvYgbMX-RdzubbY5mtX-DViNW4-sN-ULQXQuJEPhZ9kHCVOMEyJJZXScVDEwifj9fz0BA_bCPe9OJncupzSklZloOuFoj-u3GFHey5EVIdHQ-NCUFxALRpn2coK",
+        "title": "nae.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGmZtDRkWFipZ25isrCBAItnM-9HsvNep4T1HCdXjLsh-0xzP136JNe8QuJrmztQK2SQNVHRiwIB7bM0jeigHvK5CT_BX7CbBFktJzWSkX12JFBegnmNX8mUjcO6ees0WWM8fus-KTnKEnga5CsNWM-Phe7aywq09u6aXqkxn9Rib2LETO3XaF0ufF_gjKnZPI3Qd6wOPQ=",
+        "title": "nobelprize.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFk4kuLyOoPlLciiYBsbr61WUCM6h1eWggRkIooKrMiJB4HIh3ivIfGDrImh_4E6o4cy8768KzxmjpTTByRfCuH5q4OLA7eyBe-dJokkppi79bQUXI9fNfMvYVYXduZWwm_rfR6o6hMnt9uo0Jq5FPwUNdfLBivVl4S7l-Izn4=",
+        "title": "nobelprize.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQERbnv-zehz1L6bEsVKnBuOtDiLcEyX1uY4puZnY3Lneag69gbri0U1preRgimkTo1CJe5PjojG69u8ExdebTM1ptI92FXEXFHPWtIclrEJqOg9i0uOBLT6BSSCfwYZW8rbizQ9r1A=",
+        "title": "youtube.com"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "alan-turing",
+    "name": "Alan Turing",
+    "group": "scientist",
+    "field": "Computer Science",
+    "era": "1912–1954",
+    "summary": "Alan Turing was a British mathematician and logician widely considered the father of theoretical computer science and artificial intelligence. His wartime codebreaking at Bletchley Park helped turn the tide of World War II.",
+    "contributions": [
+      "Formalized computation with the concept of the Turing machine",
+      "Proposed the Turing test as a benchmark for machine intelligence",
+      "Led codebreaking efforts that cracked the German Enigma cipher"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Alan_turing_header.jpg",
+    "relatedCategorySlugs": [],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Alan_Turing",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "albert-einstein",
+    "name": "Albert Einstein",
+    "group": "scientist",
+    "field": "Theoretical Physics",
+    "era": "1879–1955",
+    "summary": "Albert Einstein was a German-born theoretical physicist whose theory of relativity transformed our understanding of space, time, gravity, and energy. His work laid much of the foundation of modern physics and made him a global symbol of scientific genius.",
+    "contributions": [
+      "Developed the special and general theories of relativity",
+      "Explained the photoelectric effect, foundational to quantum theory (1921 Nobel Prize in Physics)",
+      "Derived the mass–energy equivalence, E = mc²"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/28/Albert_Einstein_Head_cleaned.jpg",
+    "relatedCategorySlugs": [
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Albert_Einstein",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "alexander-wissner-gross",
+    "name": "Alexander Wissner-Gross",
+    "group": "scientist",
+    "field": "AI & Complex Systems",
+    "era": "b. 1981",
+    "summary": "Dr. Alexander Wissner-Gross is a computer scientist, inventor, and investor. He is best known for proposing the theory of causal entropic forces, which frames intelligent behavior as a drive to maximize future freedom of action.",
+    "contributions": [
+      "Proposed the theory of causal entropic forces linking intelligence to future option-keeping",
+      "Holds multiple patents and has published across physics, AI, and complex systems",
+      "Co-host of the Moonshots with Peter Diamandis podcast"
+    ],
+    "quotes": [],
+    "imageUrl": "https://www.alexwg.org/images/AWG-Headshot_2024-03-18B.png",
+    "relatedCategorySlugs": [
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://www.alexwg.org",
+        "title": "alexwg.org"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "andrea-ghez",
+    "name": "Andrea Ghez",
+    "group": "scientist",
+    "field": "Astrophysics",
+    "era": "b. 1965",
+    "summary": "Andrea Ghez is an American astrophysicist renowned for her groundbreaking research on the center of the Milky Way galaxy. She shared the 2020 Nobel Prize in Physics for the co-discovery of a supermassive compact object, now recognized as a black hole, at the galactic center. Her work utilizes advanced high spatial resolution imaging techniques to study stellar dynamics, providing crucial evidence for the existence and role of supermassive black holes in galaxy evolution.",
+    "contributions": [
+      "Co-discovered the supermassive black hole, Sagittarius A*, at the center of the Milky Way galaxy.",
+      "Pioneered the use of high-resolution imaging techniques, including infrared speckle imaging and adaptive optics, for astronomical observations.",
+      "Leads the UCLA Galactic Center Group, focusing on understanding the physics of gravity near black holes and their role in galaxy formation.",
+      "Provided pivotal evidence for the existence of supermassive black holes and their influence on galactic evolution."
+    ],
+    "quotes": [
+      "Gravity wins over all other known forces.",
+      "Black holes are very exotic objects. Technically, a black hole puts a huge amount of mass inside of zero volume. So our understanding of the center of black holes doesn't make sense, which is a big clue to physicists that we don't have our physics quite right.",
+      "I feel more passionate about the teaching side of my job than I have ever been, because it's so important to convince the younger generation that their ability to question and think is crucial to the future of the world."
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Andrea_Ghez.jpg",
+    "relatedCategorySlugs": [
+      "astronomy",
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEc8WsReSi-20gT2tLN6sXKTiiHFJHNshGMuNPxj405pUcr6eONMJf-4S0SJbxyhoAJ1UYeNhIwsTBeR0T8Irwie1L8Q81CkxCmoz3fvkYliCfBzLG2WRHZadXUw7hsQmJnG4E8asV9",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFKV7OkbbkQEeeHQYNP8_NYxIbl_pzqHDWlY1NiZZWWaT5JVVUZKkLB21XsY-wIeVhNYW4JDHWxbxDQjlts67fEkDv-qmtFVgddw1z9tf1VxrvhZH6PSCUbPmHW7KJct8g973UI-ul4vXjChnItbblx1En5ZYwWh44NbW7MlBVOpQWniuA=",
+        "title": "womenshistory.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFxjvkqMYgz16TWBDLmDRLtS5yhaXgaybnYIYLzYmXhOrw-RccjpEVwC8Oc6DSalLiF6FY57q4UxzwtCIkLMzO0EyjNZFq9VW8xfawTW25p_cbrzrh4sJUsTTjrnQ==",
+        "title": "ucla.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGjHSQ5p9iNlMP8MIMneWX4CQUv4SezuTtM4PyzS_hfRVmlDzmWO9oSxxzsvobXdUi5FxDrhVrgtngoPy-GD0mz_OAEYeT-W5e4Pdhe0iPawo8et3OAvsOKHSEQMQkt4cp9JhviXSF8L3VfJg==",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFax12Y80cF_r2-oVYPGYilp8tJfYY06UZgOlfI-wV0UyW63_UcQjTmym99MdmjSqEvtsR0WK1zzSenV34Z-v3pWHkuoRVb5EHlxQdqmUnfXIjGWS02LkNc1GrC-WAasG7Vhi8hfhb7MAODUh-2z4vBRAvNDak=",
+        "title": "macfound.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG7YqVI0dRHkr6S3KVnbM1pWkzssVD8gxoqZodXXE7-Nvw4ketkVmBQlND_CcPl6x_3XWSZs3MBLfBdbKYKrJdh6XG4rItzXbUVnD8RytJy89i1FcS-Dge0_Oza4Me9gc4uFd0Z-3c8TO2tmpk=",
+        "title": "wisc.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGPRu22HCriY0FxdQRRVKr9IwwTAMEQaO5fvp75okZ21NAde7dXtGQxpna1oNqpbRWDpVEt3RU-BT95IHE86Qv8MTC-tPA1MQk9SLzvTuINUMoqJOL03vkDnOCxQjlz8NYM4va-wqphite30Zdpj6rL",
+        "title": "amacad.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEHhaqrCAR-uorx_UN6sNikp0ZzmSdIWvcX4Arlkkrx8b7Lr0GxLC-9t82-MUv9jgopd-dVj6EIPeAeOel4uLgyLZ94M9wv7ET5yuG6COAgQtcXLrFpEHSsEGsjgUs1O2jOc6Qoxp5Fo0jsPehafA==",
+        "title": "azquotes.com"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "arthur-ashkin",
+    "name": "Arthur Ashkin",
+    "group": "scientist",
+    "field": "Physics",
+    "era": "b. 1922",
+    "summary": "Arthur Ashkin is an American physicist and Nobel laureate known for inventing optical tweezers, a groundbreaking tool that uses laser beams to trap and manipulate microscopic particles, atoms, viruses, and living cells. His work on radiation pressure of light revolutionized the ability to study delicate biological materials without physical contact. He was awarded the Nobel Prize in Physics in 2018 for this invention, which has significant applications in biology, medicine, quantum optics, and nanoengineering.",
+    "contributions": [
+      "Invented optical tweezers for manipulating microscopic objects with laser light",
+      "Pioneered the optical trapping and manipulation of neutral particles using radiation pressure",
+      "Applied optical tweezers to biological systems, including living cells, viruses, bacteria, and DNA",
+      "Co-discovered the photorefractive effect in piezoelectric crystals",
+      "Conducted early research in nonlinear optics, optical fibers, and parametric oscillators"
+    ],
+    "quotes": [
+      "\"When I described catching living things with light people said, 'Don't exaggerate, Ashkin'!\"",
+      "\"I was interested in science since I was a kid, so I tell my wife that's the only thing that I'm really good at.\"",
+      "\"I'm making cheap electricity.\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Arthur_Ashkin_EM1B5678_%2844417135450%29.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "human-health",
+      "biology"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEw3DuRXDsdGcv_B8rLbm-_f3Z-q3Lf7HAncJIcBMgV3ww51FC0odST59mClEkqGh6Ie3oK9dqqcvrYTIP2aW5Ij0MzUE9QP1eu-NUt6bGsGIQ-h2qL_yEydZVeo0BX1uP0gCXcRkLLvbxx90ljGZSQJAntI3tvM-AlEpl5n0RZS4s=",
+        "title": "nokia.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHHuLQfZnMJCF3qgLweyopWXQa0Du-9PutGxuw-bLcd-DhCiGy5kICrzMT9d58jAhH-z4fcw8T1OS4ftPGxBDMsFxgU26TbcePEQXfVwpPz8pNEILEA8MLTFGSaiWIa2F9z_zvCWi2t4sQbHUkCjll_iWzi31YrTa0TLlY=",
+        "title": "nobelprize.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGvNZ8poq7tG55St3SFCrMtEATdQXUNehKzYjv_R8X7CSXu3zp831u6FXcjCGb7aZDk_kDlfEcl3sAGgMv76hqc8Ph1prpmw9dxhywQi25c8mWs_lp3LWgT1fV9F5yuyNLJlJ3Gcrc=",
+        "title": "youtube.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGAjoO4g2CgUqOlEVShL518vVXkE5hNKd8JCuSc8IGNC5ZLSwZoObJrseXfapxrPAyky0fC9Tr-vVz0hJZ7fmZnsibaXbX99jH0wmZ187yx0R0W8fcJCfAQSpCp_O3YjS2OYHu1XGefg1rjwoTfdxg7hEBLJHtVTUtZ9me1Crd8vj8XRSg0k79UuK2kmhZj_ro6YEgKgVPdzgBsc0QeUw64LAgAfNrW1sIhBrUSvefHIq6xzZnT-urdXJZwF10=",
+        "title": "columbia.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEzAKWiQJ8VlEAOsX0F-d8EKDkBgd1CkJGLj0ZjDDhwvAsQ4fVnieC5_oKVTnLSBO6RNmuLAXdDSLrJEHIBiiwqmpHDPiE3Yi7W6x70YKXZwW8gR8NJDNFgn5ycNIxKPYXz2n4RsMj2j3vBesbdegZzD_jFop-xupAEKn972SRQ29P25gV8BmAHtZAtC7_K1YEW_Tkpa4kGetOlKETqEMZYADhjKC4=",
+        "title": "businessinsider.com"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "barry-barish",
+    "name": "Barry Barish",
+    "group": "scientist",
+    "field": "Physics",
+    "era": "b. 1936",
+    "summary": "Barry Barish is an American experimental physicist and Nobel Laureate, primarily recognized for his pivotal role in the Laser Interferometer Gravitational-wave Observatory (LIGO). His leadership at LIGO led to the first direct observation of gravitational waves, confirming a major prediction of Einstein's Theory of Relativity and opening a new era in astronomy. He also made significant contributions to high-energy particle physics, including experiments that revealed the quark substructure of nucleons.",
+    "contributions": [
+      "Led the Laser Interferometer Gravitational-wave Observatory (LIGO) to the first direct detection of gravitational waves.",
+      "Awarded the 2017 Nobel Prize in Physics for decisive contributions to the LIGO detector and the observation of gravitational waves.",
+      "Conducted pioneering experiments in high-energy neutrino physics, revealing the quark substructure of nucleons.",
+      "Provided crucial evidence for the existence of weak neutral currents.",
+      "Directed the MACRO experiment, contributing evidence for neutrino mass and oscillations."
+    ],
+    "quotes": [
+      "I didn't know if I would succeed. I was afraid I would fail, but because I tried, I had a breakthrough.",
+      "The actual size of the signal was about one thousandth the size of a proton!",
+      "I have somewhat ambivalent feelings about the recognition of individuals when so much of this was a team effort."
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f6/05-0367-92D.hr.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGvwj9Mlhglmg5eqeSzeiGAHKzmXJlqQ0TG76L4UOyDd8tw_ckMoSbSNbKzKwk2FzzdTT49zqWQgn3fmIbTvts2BH6rzmolcTWlbkeiJt9R5mwtHk_9-7e2gPpihAnR1-kn-O4gAw==",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG_wUUyMS3MMVjDHHlv8Z9WQ1DykT3P5Av9algfdoUdHSR6heFl-TRtLZ17CggAmfvuDA4B7B77aZFlZ9loh38hGW0-dPqbhJ_d4eAXH0aIaO2A1QMsmqxUtcUsrEJK4yC5zwwlSbYLWl7x1bPGuqZO3XGx2vx24XXOIkpbLfy5nekwGI4ye6elYc0QDAp0taUxvZpqNMsLGOHy1suvCEXqc9AhrTN7PHsPhbeK7bA=",
+        "title": "stonybrook.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGlyBGwEhIFKjnp6tXUzhYoIGAxz2B8piLqZsJUup8MWVwFebs65MQoF_Foll7-1h_V7G9iiJ-iU6cCarMNrgAd5WQRLpyUurAl8R4VznXIL4OJlxkzkvViToVsxMuRbpln51er0JJjPBJga9i8UEl0DOpyJaZjGw==",
+        "title": "nobelprize.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHkoVsH6kR1Ea6X_zn6eLFtUhqBIPUQLRaJnJn4eADhDhUOn6Qo4cx1tHh2uFChbzKOBH1LZgUw_oov_kmfYERxR9souoZ8EIpDZbBkKCacRcWbEagptT4NyMK_IMtg8AVguwkUPPD5LtVyk9c=",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGOISOhXigBBI4mxcT-gFIquWfN_BYKCXj_PHMhMcsRgoLhj2HKoexj0oLL7QjngZtuU5WXkd_Bru4G6GR283gAYjkezdKHIG1FNl-AgdH3CvEsl0swjrgFA22BfVmUScYsZqRcHhD_TDwEZ6ruHg==",
+        "title": "nationalmedals.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFGZ7T4E_NNhOEAY9LhFGrNSZh7_W20IRBPjJsoWhYOyN57InTF4djgy9Hrpu-E5VJuZtoz42HXSX227Mbwn3WfJTYypCkE0aWbOkdr62l21GCoE4DIpbkByTS_5Xssf_LmDHkIcjb6etGANoiDxLFF3zOLWHzE0g9cTMuokk6DRhdgU6tyvTo=",
+        "title": "substack.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGn4Av93Ldb7xSVr6Qlg805WCqMsJjZM_Gkp8YyD9joi5nPWcPYzlmu3ZZSYY3DWuqxG9UfoBv7M73eA8JjQ-W26lnVAIBO0EuJqc1xCNDgDbXchIZsrW0DIwaZIGmi9x-yVtAF5qIRp0dbr83320GG5VvwrNWONIvfpFKGEuO9jASHJOobXHbwS09WXC4-wUFF",
+        "title": "caltech.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHoXtj1DPXzELWrzj5smjcEnRu1rJR6GxEWn3KffuOeSjIIAPwNV3xIBY_c9BEUw7CVlzzQUFn-tuxbspeXwcUUXeLGEQxnQZDlcbNsMfVkZxMPWIjKCLHu_WtfGFdb1GJXimPHU27Xs3nPdUU11d8rHLtIJBDXhiq51uOf8TD23GOoBx1QympJ",
+        "title": "berkeley.edu"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "carolyn-bertozzi",
+    "name": "Carolyn Bertozzi",
+    "group": "scientist",
+    "field": "Chemical Biology",
+    "era": "b. 1966",
+    "summary": "Carolyn Bertozzi is an American chemist renowned for pioneering bioorthogonal chemistry, a field that allows chemical reactions to occur within living systems without interfering with their natural processes. Her groundbreaking work has significantly advanced the study of glycans (cell surface sugars) and their roles in diseases. She was a co-recipient of the 2022 Nobel Prize in Chemistry for her contributions to click chemistry and bioorthogonal chemistry, which have opened new avenues for drug development and targeted therapies, especially in cancer treatment.",
+    "contributions": [
+      "Coined the term and founded the field of bioorthogonal chemistry, enabling chemical reactions within living organisms.",
+      "Developed click reactions that function inside living cells to map molecules and cellular functions.",
+      "Advanced the understanding of cell surface sugars (glycans) and their involvement in diseases like cancer, inflammation, and viral infections.",
+      "Invented targeted enzyme therapeutics for immuno-oncology.",
+      "Developed Lysosome Targeting Chimeras (LYTACs) for extracellular targeted protein degradation.",
+      "Pioneered site-specific bioconjugation methods for synthesizing next-generation antibody-drug conjugates."
+    ],
+    "quotes": [
+      "\"Your purpose as a scientist is not to achieve fame or money. The main goal is to make discoveries and gift them to humanity.\"",
+      "\"When the world is in trouble, chemistry comes to the rescue.\"",
+      "\"If you learned something from it, it's not a failure.\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Carolyn_Bertozzi_by_Christopher_Michel_in_2022_4.jpg/3840px-Carolyn_Bertozzi_by_Christopher_Michel_in_2022_4.jpg",
+    "relatedCategorySlugs": [
+      "chemistry",
+      "biology",
+      "human-health"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFhENuD39y4r9wqXJXdfBpqYOXPbAzolNzNBJ-It0umEvK2O9KKMGRsfQASWvSM0veiaaCu2WYoWfDEEymF1Ii_NLVQ-hJsNbDA1v6l6wk45kk9kiELT_ZFIIT2t7oE_56oJwElhA==",
+        "title": "youtube.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE_AFRVlAl4lKXLQha5fhAgHu3qeGwz5-7HIITg_E57GlTnv5-DgDCjp-Dh1BtTZQWLgo8wXT3AQ6Nj_P71ekYWqsC1FlPz3oozTU6u_fXlSu3qZX8pKtSx3J9yQ8tyPC1pL69hneTk_Itx-EnWwH5sH6HbbmQPDJQSuVLbeA==",
+        "title": "nobelprize.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQENqOsbuom6h7dLuTjo5Aze0KVMevbO6MNJ3hblTnZkrwnpMrWucI8UTe99UbPDuOEOwnIy9bY-h3ci8dEiFOZAgFDTkKqp3TkRs-8hgq7RcpUVxYXf_DqpMmBXr3rJlYEX8sItNH4dZJM=",
+        "title": "wikiquote.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGHeupq49D1etgNTH1QNsmsO2DGNyz38lr8OJCxlPBkxqzsn_1IisDRrHAmacSYCzqs7H2Zj_hsXiQ1MRA3NVNFJipN_7CFqY4ObiGpODkNdW2BPOHts6J6TpgBMFGae817w5YxDZK7kPqC1FbhujDNR99qQYbtgOLVtcbf7m7l",
+        "title": "nobelprize.org"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "charles-darwin",
+    "name": "Charles Darwin",
+    "group": "scientist",
+    "field": "Evolutionary Biology",
+    "era": "1809–1882",
+    "summary": "Charles Darwin was an English naturalist whose theory of evolution by natural selection became the unifying foundation of the biological sciences. His observations aboard HMS Beagle reshaped how humanity understands life on Earth.",
+    "contributions": [
+      "Formulated the theory of evolution by natural selection",
+      "Authored \"On the Origin of Species,\" one of the most influential works in science",
+      "Established common descent as a unifying principle of the life sciences"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Charles_Darwin_seated_crop.jpg",
+    "relatedCategorySlugs": [
+      "biology"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Charles_Darwin",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "dave-blundin",
+    "name": "Dave Blundin",
+    "group": "thought_leader",
+    "field": "AI & Venture",
+    "era": "Contemporary",
+    "summary": "Dave Blundin is an AI entrepreneur and investor who founded Link Ventures. Trained in MIT's AI Lab, he programmed some of the largest-scale neural networks of his era and has spent three decades building at the intersection of artificial intelligence and entrepreneurship.",
+    "contributions": [
+      "Founder and managing partner of Link Ventures",
+      "Pioneered early large-scale neural networks and neural network quantization",
+      "Co-host of the Moonshots with Peter Diamandis podcast"
+    ],
+    "quotes": [],
+    "imageUrl": "https://www.vestigoventures.com/wp-content/uploads/2024/05/Headshot_Color_DaveBlundin.webp",
+    "relatedCategorySlugs": [],
+    "sources": [
+      {
+        "url": "https://www.linkventures.com/team/dave-blundin",
+        "title": "Link Ventures"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "dean-kamen",
+    "name": "Dean Kamen",
+    "group": "inventor",
+    "field": "Biomedical Engineering",
+    "era": "b. 1951",
+    "summary": "Dean Kamen is an American inventor and entrepreneur with hundreds of patents. He created early wearable medical devices and the Segway personal transporter, and founded FIRST to inspire young people in science and engineering.",
+    "contributions": [
+      "Invented the first wearable insulin pump and a portable dialysis machine",
+      "Created the Segway personal transporter and the iBot stair-climbing wheelchair",
+      "Founded FIRST (For Inspiration and Recognition of Science and Technology)"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/72/Dean_Kamen_at_MAGNET_in_Cleveland_-_2025_%28cropped%29.jpg",
+    "relatedCategorySlugs": [
+      "human-health"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Dean_Kamen",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [
+      {
+        "url": "https://patents.google.com/patent/US6779621",
+        "year": "2004",
+        "title": "Riderless stabilization of a balancing transporter (Segway)",
+        "number": "US 6,779,621"
+      }
+    ],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "demis-hassabis",
+    "name": "Demis Hassabis",
+    "group": "scientist",
+    "field": "Artificial Intelligence",
+    "era": "b. 1976",
+    "summary": "Sir Demis Hassabis is a British AI researcher and co-founder of DeepMind. Under his leadership, DeepMind built AlphaFold, which solved the decades-old problem of predicting protein structures — earning him the 2024 Nobel Prize in Chemistry.",
+    "contributions": [
+      "Co-founded DeepMind, a world-leading artificial intelligence lab",
+      "Led development of AlphaFold, predicting the 3D structure of nearly all known proteins",
+      "Awarded the 2024 Nobel Prize in Chemistry for computational protein design"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Demis_Hassabis%2C_2024_Nobel_Prize_Laureate_in_Chemistry_7_%28cropped%29.jpg",
+    "relatedCategorySlugs": [
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Demis_Hassabis",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "donna-strickland",
+    "name": "Donna Strickland",
+    "group": "scientist",
+    "field": "Physics",
+    "era": "since the 1980s",
+    "summary": "Donna Strickland is a Canadian optical physicist and a pioneer in the field of pulsed lasers. She was awarded the Nobel Prize in Physics in 2018, along with her Ph.D. supervisor Gérard Mourou, for their co-invention of chirped pulse amplification. Her groundbreaking work has led to the development of the most intense laser pulses ever created, with wide-ranging applications in medicine and industry.",
+    "contributions": [
+      "Co-invented chirped pulse amplification (CPA) with Gérard Mourou",
+      "Developed a method for generating high-intensity, ultra-short optical pulses",
+      "Paved the way for applications in laser eye surgery (LASIK)",
+      "Enabled precise laser micromachining for small glass parts, such as those used in cell phones",
+      "Authored more than 90 publications in laser technology"
+    ],
+    "quotes": [
+      "\"We wondered if it was a prank. But then I knew it was the right day, and it would have been a cruel prank.\"",
+      "\"I see myself as a scientist, not a woman in science.\"",
+      "\"I think everybody in the world should be told that do what you love and what you think you are good at.\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/38/Donna_Strickland_EM1B5760_%2846183560632%29_%28cropped%29.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "materials-science"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGIHRzdYGXQaDAF8uNth24DYyYzE6d4EZz7t92ypVmEcrvpXLVHdiq7vM8s2DQ5_tsLJJzKTpLBqy_RuwobombrmgEwzx6DeS23XX-UflrB_s7wD_xL70-KIesavENSWqb9lxqkL5uiDZe2Ov8=",
+        "title": "nih.gov"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGN_usvYGfvvNBHWne0rKKldvFGSOBSz2IzpIQ5kst78kkFBT1YaL-CO1eDWhHdjNpf5esr-VP7VRYcJudgAxfsUw804tHeU7dIYfGodePLX0W3r5g6eDnUjU6fviz1jqKBGyEu7S-rF7w27W8FkjDMdl8=",
+        "title": "uwaterloo.ca"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE--0zgCAsHvMecgqbYG_Lbp0gB0vz4vDbxYr0t0V1CkIPXcgzLb8VfTWVo2CcWtjf3_9Uh680RUT06igD1KKuGgGpooogiJNrv_AM3_rx6IZUE9ZbslBb6k8er6rDIMCdIUulcDrzfAEo=",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGENSq29uzu4QbAlqoazjCz5xudAmQdsLrtnH4UyGFBMu5Gf9qPPqGco2vZz0R9xzhliFc8ZUuzjR8IcsYk72gnS_sFFh9M52UWGp1-Zx3s884UEZq7l8S-rWb_Yr75h2aFru7DxZMDKfZSo86mv6yMK33IMfJNLnLNmNuB9h3oNvFcIPk4SnfyOg==",
+        "title": "nobelprize.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHu8rDoWvKgFAT4epObvXLpYkXAnxG7fjdaCESRyfSl6rudHe6ZR8csQz7VgmC3if2neKAnmu3gtOfqOT2dSzlMEkYLRye6HlBou47dLJvuw8pyBkSwMYAKXgwHzKnVlPLcFxlkQ3gdkAnq3EcEcjiN",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGn7QkBBz1U3vqUoHKl9CJzvBNyNACeI1nfOBQnp0j_W8UXN-S0tYMmxurM89xO-Qd_0duhWe66wjYCQbXvp8ROgiIYZz3eHiP74mJ4S6uI7RaiYQkVhHc0pff6z8x09_b9VYZ66hB-P1uh70VjsfJNCaqwmla6YDCe",
+        "title": "thecanadianencyclopedia.ca"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEQLakV_8jtKfYB9fEMvUqmCIovMh4BCmUKkhDkMKRWC6XluEzrdgA4LmKKtj4TjdE7ZyAP7oIsRI7m29E0k59ReEdyoTEoEw5TvbV1owUuBou-jLw6FfB5vwS4pi_DzSPAAbN3oHaXQ7qObh1CVTQm7Svo8golut1iRIGdOUvr9-6sQA==",
+        "title": "rochester.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHbvGuPhaFR1czM7izHd84VyiWCkb_a7ShLHDl8Vcp50az-Ru_5KtB9iLU575uuUmjjn1iEGR9UnXP1U8BB34skFiDUlL09Uvuh2vTXvcqL5FKpbrCd_Wi0FyWphNVroM6ky_4kkfNGQQ--7D3oFAFM6JA57wexxise0Q==",
+        "title": "nd.edu"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "drew-weissman",
+    "name": "Drew Weissman",
+    "group": "scientist",
+    "field": "Immunology, RNA Biology",
+    "era": "b. 1959",
+    "summary": "Drew Weissman is an American immunologist and physician, renowned for his collaborative work with Katalin Karikó on modified messenger RNA (mRNA) technology. Their groundbreaking discoveries enabled the development of highly effective mRNA vaccines, most notably for COVID-19. This pivotal research led to them being jointly awarded the 2023 Nobel Prize in Physiology or Medicine, transforming vaccine development and opening new avenues for various mRNA-based therapeutics.",
+    "contributions": [
+      "Discovered nucleoside base modifications that allow mRNA to avoid detection by the innate immune system.",
+      "Developed lipid nanoparticle (LNP) delivery techniques to protect mRNA and facilitate its entry into cells.",
+      "Pioneered the foundational technology for the Pfizer-BioNTech and Moderna COVID-19 mRNA vaccines.",
+      "Actively researches mRNA therapeutics for next-generation vaccines against various pathogens (e.g., pan-coronavirus, universal flu, herpes), gene editing, and treatments for cancer and autoimmune diseases."
+    ],
+    "quotes": [
+      "\"I've spent my entire career working on equity — getting vaccines and therapies available to the entire world.\"",
+      "\"My dream has been to develop something that helps people and I think I've done that.\"",
+      "\"You have to tolerate frustration to be able to work in a lab. But when you do make a finding, even if it's a little finding, because of all of the frustration and all of the difficulty getting it, it makes it that much more important. It's really, you know, kind of an inner joy.\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Drew_Weissman%2C_2023_Nobel_Laureate_in_Medicine_%28cropped%29.jpg",
+    "relatedCategorySlugs": [
+      "human-health",
+      "microbiology",
+      "biology"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFqCAIl_TEkWEqh1cA9SkjFlalX4uWFRXTPCNP9WKDSS2pd9wfZ8H7DA1Wfmzar9qsyZH9xHxui6s9AJRu8KaM7T_dblMq1tt6HrqrhqNzMn2ZkL4-tqs2_zQrKlUfW-ywW0PJmrcNwsmlyjoiYjA==",
+        "title": "pennmedicine.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGvI7wAlfbyftDr1kXAppkij9xAlVTEBsrZRphMhs6ujU2Lc0HSPzQOq691YN01LBrqSngxyU7fKxxfhAn8s2QHpUN69Ad7uK4a9pVi_EnzXcCD7rya2dHOrrrQuQsCYjOr0nkJGA==",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGALzzf3afHfWcx9U7WHwJgeBRfXd_ZwjEoe5azgq7RtUHEc3QoeH5HE43PyOwbN9V3uV30MrxdYuPDjwNZq1f9BsH9gKi7u0cBte0xoO_Gm2uBuNszWHeluzo8nUIUG7ofKpkJYaDHlBbRat4=",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGmLoNNae3Iz0ezTy0UEv_e-gsA3-Luj5Z3vsUh3jsHA4ogdwGKiLXAZpuV3ukqU3pBxmIUqLNv-Bv7yDNuZQToVX-TEwBaZl4KHb5fhEyScNtCNylP78dyG1pWvxkAFkmsEGHXN6E1SLsg3-azZL4S3XT0odporQsdjq459TWeGPIPD3-K",
+        "title": "brandeis.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFKAEGXudIQfOapueWGkxvtYL7eDqpXkQlmd_PSdQ1fIQwm_ZzOZP-IdkZQviifnRYmP8eB-0e5aoLYN6YhQLXQfxm-HRhrZdmj3jJU9igFfBhpVxa9i5IOAu1CEzbnr3iaHGFrOuL3sQ==",
+        "title": "invent.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFXFYboAhIs5izHhHYpjPsvk2WWmA_IpnOj2zLTXufJAFpUQ4m9ghr_f6BbcMWuK-Fs2K69ESle3Jx8kUGKqQrw-rn9rC7m1dUYojFioyFypOv2WnK_tnCA-k_rqFaPhiCMdOqFELPZPrN5_dE_dw==",
+        "title": "duke.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGmTClcTjpr-wM3vKuDMKqyh8DLGP8JHEW9BVyJKc_01u_SrcrrL4miF9Ez313kS-B2gKa_yeeYnlUDsK9LIV81pKwI3Uy2EU_zxocFW-jY7cHSSYRo0DmpxtOOug_WFkVL887uJ8gh28dMlw0q8tFcXSU=",
+        "title": "yale.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF8nb_hI8FS4B0vKKz2kEXtXYneP7dMYXV2PvWOJPo5xHNcSc_oQ5_BQ7GF00cJWNJ90IsC1tgPvRbJiAQOhSH3iIFpnii2-c-0loYoNKqBs6o7Fvi3VwdPVJ7-lnKXYAr7VTqbXTi27-lN1GmLFYIPrzqYWR7mUJF43IqE64pHlflsbOfBV_Q=",
+        "title": "frontiersofknowledgeawards-fbbva.es"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "elon-musk",
+    "name": "Elon Musk",
+    "group": "inventor",
+    "field": "Space & Sustainable Energy",
+    "era": "b. 1971",
+    "summary": "Elon Musk is an entrepreneur and engineer who founded SpaceX and leads Tesla, two companies pushing the frontiers of spaceflight and sustainable energy. SpaceX pioneered reusable orbital rockets and dramatically lowered the cost of reaching space, while Tesla helped move electric vehicles and energy storage into the mainstream.",
+    "contributions": [
+      "Founded SpaceX, which developed the first reusable orbital-class rockets",
+      "Leads Tesla, accelerating the global transition to electric vehicles and battery storage",
+      "Built Starlink, a low-Earth-orbit satellite constellation delivering broadband worldwide"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Elon_Musk_-_54820081119_%28cropped%29.jpg/500px-Elon_Musk_-_54820081119_%28cropped%29.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "materials-science"
+    ],
+    "sources": [
+      {
+        "url": "https://www.spacex.com",
+        "title": "SpaceX"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Elon_Musk",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "emmanuelle-charpentier",
+    "name": "Emmanuelle Charpentier",
+    "group": "scientist",
+    "field": "Microbiology, Genetics, Biochemistry",
+    "era": "b. 1968",
+    "summary": "Emmanuelle Charpentier is a French microbiologist, geneticist, and biochemist, best known for her co-discovery of the CRISPR-Cas9 genetic scissors. Her groundbreaking research, which earned her a share of the 2020 Nobel Prize in Chemistry, laid the foundation for genome editing. This revolutionary technology has had a profound impact on life sciences, biotechnology, and medicine, opening new possibilities for treating diseases and developing resilient crops.",
+    "contributions": [
+      "Co-discovery of the CRISPR-Cas9 system, a molecular tool for gene editing",
+      "Deciphering the molecular mechanisms of the bacterial CRISPR-Cas9 immune system",
+      "Discovery of tracrRNA, an RNA molecule crucial for the function of the CRISPR-Cas system",
+      "Co-founding of CRISPR Therapeutics and ERS Genomics to develop CRISPR-Cas gene editing for biomedical applications"
+    ],
+    "quotes": [
+      "\"I haven't changed, and I won't change. The scientist that I am got me here, and that is the scientist that I want to remain.\"",
+      "\"It's not about publishing in high-impact journals. It's about solid work.\"",
+      "\"My wish is that this will provide a positive message to the young girls who would like to follow the path of science…\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/66/Emmanuelle_Charpentier.jpg",
+    "relatedCategorySlugs": [
+      "microbiology",
+      "human-health",
+      "chemistry"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFWsVKo6Nqb6HmLE2Cd_fjpUt8wHUymPspLFQtDSyxLCzZkCmNkn8sr7HKBUcd-F3b7bQBDlFBm6Gp6ST3FgCPLLAPeR8JSbRhCtuz4t8inGy-sWNpojQLHAGlBOHJIRI_KcL9Z14Y9TaCZgfqVwdO9IBBBduYK",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE4dHOBhvWV_p1Rjn__AZM_9cWs_c36XljjS0BnGLgJbCZgwjpcI6sDaXJS2yaJXtyzcwIEK8b233pVrB0qn0v7AFfxeHqehY2_qCbzSzz1uBxgvB_8sY2sL5Wg_dLJbO51VPMBXX61vSWoYg1uM4s=",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGgYZaw_VGJptZ9LeKh-4NceoX-1n58FeJ2ItiFtftdfQm7ahqznJ-IJ4umkmFec6JgwQx_cmomptbfR4xq8puojG3Op8s6dWhpb5HlHH6mxfK310mnGKGv5shln_JbRCQkBzAGzkdUqLnZ2GUqPPPfIuU=",
+        "title": "invent.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFChGozCQ7f-uBSHR_ATTOfvEgYFfH-I0hZkBdryAEsm7x1aIcxcKM9ij51tULhEa11jAX9J7cMCfMqH8WlezbaA23X8e6Zg1Mww-N5x5s8MjU_M-UuOTgjH_QE3VihFw6l0g==",
+        "title": "emmanuelle-charpentier.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFNwVjhW_vB9zczTZdE_OmwCwpXwY1bwNNxZR2rj9udAj2swEqiiKKhFeGQvauioDPQscLmQsYbWygxmZGyB-ZOubfYasATFy4qE8ICdlfXkztimLb2Hz-lPYrRiUXnW8jOAqpKiFV1aL518jIwOEvhgQ==",
+        "title": "amacad.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFNxXeLse8LI24yyL0P4bOCYdCQaABNaub6zvMwywuBlwLvYCPV9lIRGWH2sqC8NaVVz8-Ws3-srdg-T_HC27QCAWMw78u-90tqL2eaGeEHxSM4yKrJUkZ2y2dGn0tK6Yfa2AE-GUCGeZMz1Cf2No3IPjv1ZFr0Hc_meD4R5x45n0k7ieZ5lsTBGpSQAj2TuG04JEHZUILnAUec9w==",
+        "title": "stjude.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFcxhCfVfriM1Yn1nd-qnY7_JSfh4MXTTJ3oY3im6J2PDco2CqYclLXmYmxtbaVTAz1kLGLzehGXvAM1RFvEBlcxyBjDgcc2TX6X5dhXbEZBLUJRYm4IT2SZli3fB2Oy2k5_Xz3R2Lxhl4MARC4mtxuSoU=",
+        "title": "synthego.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGF8EEwtQrLoGfG3j4D8bCeFUhJYc-vACW374IRunlVCdSqbtWFyA4UtIZ9UygBbSMxywtffJ0EmckmwSnJ6yVDFjkrZRsDsR5Z99XKvmWpOg_4iW-COz4zpWv_iIDP1IEfWZ-tww==",
+        "title": "emmanuelle-charpentier.org"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "federico-faggin",
+    "name": "Federico Faggin",
+    "group": "inventor",
+    "field": "Microelectronics",
+    "era": "b. 1941",
+    "summary": "Federico Faggin is an Italian-American physicist and engineer who led the design of the Intel 4004, the world's first commercial microprocessor. He pioneered the silicon-gate technology that made modern chips possible and later co-founded companies advancing microprocessor and touch technology.",
+    "contributions": [
+      "Led the design of the Intel 4004, the first commercial microprocessor",
+      "Developed silicon-gate MOS technology, foundational to modern chips",
+      "Co-founded Zilog and created the Z80 microprocessor"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Federico_Faggin_%28cropped%29.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "materials-science"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Federico_Faggin",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [
+      {
+        "url": "https://patents.google.com/patent/US5543590",
+        "year": "1996",
+        "title": "Object position detector with edge motion feature (touchpad)",
+        "number": "US 5,543,590"
+      },
+      {
+        "url": "https://patents.google.com/patent/US8089470",
+        "year": "2012",
+        "title": "Finger/stylus touch pad",
+        "number": "US 8,089,470"
+      }
+    ],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "fei-fei-li",
+    "name": "Fei-Fei Li",
+    "group": "scientist",
+    "field": "Artificial Intelligence",
+    "era": "b. 1976",
+    "summary": "Dr. Fei-Fei Li is a computer scientist and a leading figure in artificial intelligence. Her creation of ImageNet helped ignite the deep-learning revolution, and she is a prominent advocate for human-centered, ethical AI.",
+    "contributions": [
+      "Created ImageNet, the dataset that catalyzed modern deep learning",
+      "Co-directs the Stanford Institute for Human-Centered AI (HAI)",
+      "Champions diversity and ethics in AI through AI4ALL and policy work"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Fei-Fei_Li_at_AI_for_Good_2017.jpg",
+    "relatedCategorySlugs": [],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Fei-Fei_Li",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "frances-arnold",
+    "name": "Frances Arnold",
+    "group": "scientist",
+    "field": "Chemistry",
+    "era": "b. 1956",
+    "summary": "Frances Arnold is an American chemical engineer and Nobel laureate recognized for her groundbreaking work in directed evolution. She pioneered methods to engineer enzymes with new and enhanced properties, revolutionizing the creation of sustainable chemicals, biofuels, and pharmaceuticals. Her innovations harness nature's evolutionary processes to design novel biological systems.",
+    "contributions": [
+      "Pioneered the development of directed evolution for enzyme engineering.",
+      "Created new enzymes for the production of biofuels and renewable chemicals.",
+      "Developed enzymes for pharmaceutical and consumer product manufacturing.",
+      "Introduced enzymes that catalyze reactions not found in nature."
+    ],
+    "quotes": [
+      "\"Life—the biological world—is the greatest chemist, and evolution is her design process.\"",
+      "\"Proteins aren't designed, they're evolved.\"",
+      "\"Curiosity fuels discovery. Never stop asking 'Why?'\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/28/Frances_Arnold_in_2021_at_Caltech_01_%28cropped%29.jpg",
+    "relatedCategorySlugs": [
+      "chemistry",
+      "biology",
+      "human-health"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFOg0Y72uH3Iu9wy32SgrUltc8i5DmYM0YtDjQDThLd3xfDc1QHpxpeRSm77bVD-o81KpPrI-HewXrJisEtQkN0U3p20pDoeyNWkseiMdIQlPMcik7uN8n67YgvjgIs01D3w4krGfQmJgjtxxmJ7p8cEgGE18sk4BLHSFtyMlFgmsWZUBP0M0vMYsiHvw==",
+        "title": "santafe.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEtP5wjuoSWTEAFHs7xX2fEVJkDGsO3L7XIAzhf4PHv4UCzdNZH0u4U0MlTw3p7wy4M2_07JIm-PSEK9vRqhK3EXKQKnRudl6KvtA0Y42jyMwLYKm_0tj6ydzqXUYf1tHHZq-uh5S7AiEGuThxLjkmEqyIUi58=",
+        "title": "yale.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF2nQbwPEyeIDEDRUjz26Gh-asE3Upcpa8e0ubNbrWf4pZ1_nC2TVc2jPLeezCOCFqbXFHNIvGWHMYq1-sUK0-CVwDDKjTMopdNPTYNIC8YZYfhHuurd_e0Gbh8Fx86517qDmb9VfgeDx4mmueDuto-Rd0Oeq2Z9L77VuUVGCJtP_mz_LqRTA==",
+        "title": "nobelprize.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFoq4qK_aHs23UTosfgXDsinwywiUVfBQj9IhyK8sWIXsUHxvfPvuZ9w9iHScAm_2wxtlYsoFCpbjaR_Vzoi7dMum3G_JKEy9vbBJr3F-VOpmjrN7kTRUrpVHIoHzpH2DjHl3uXejUN5ihmaA==",
+        "title": "nih.gov"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFPTAPQhkuzOT9Cja3PWAvmbLmsWgzLNrJ7dsVZ-Sv_WgnJwYNoTUkUz8sYdJeGDAPyxVbfiDebkpZ3kYS1GafZVUAS-tmN9FXXi-ry3VvU8dGH0pHQlZXDuZAwSRmp_RTOn6syp8biFH3UnYskxvnSHhG3RycH-Xhz9NBr-LX8vSJEXDnbpyH8RpiguLD2cSNndAbfSlliw5-Ohj8p",
+        "title": "umaine.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGfEkQWwg-YvdZBszr8crto0HM20EjaiU9HIrq9sOMj4KfUdDFIOAw5cCBi4lHrCV261caYZHR6IJGv9khKgXzsah-aA09Bj-nAjgtHBssimY20V-wx6SMOyidYYuZb1eEmy2LVgVvb_TJVVsLJ",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHxktdNRUd6v--mD9jdxcMXnYDDTd4fixzWiuEQwJ_FC6t2Qq0FyHwC5RqGsdJIHU4u7nG4v_e6jy8hdYDQL-_zgKn7FECVzPK2S7MovAIoTBFvdTRLIcy1EGMGKcGyEJRkTlBt-19D3Vkx8rMyq02HJdlM8-xGQSxjyOUaOQ==",
+        "title": "invent.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHpDSTFRolzEpqCq1z8vTYepPxvB_KcVlU-DpHN609rWstKMRVAUvuyaYgGyRjxP900ntvbAMvpwY2MFwU8yZ0FY89EfFiw1bKwzXrIGrJoUVe8ToiRTMqIeihGKo6-wb27sR4fAjM=",
+        "title": "wikipedia.org"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "galileo-galilei",
+    "name": "Galileo Galilei",
+    "group": "scientist",
+    "field": "Astronomy & Physics",
+    "era": "1564–1642",
+    "summary": "Galileo Galilei was an Italian astronomer and physicist often called the \"father of observational astronomy.\" His telescopic discoveries and insistence on evidence helped launch the scientific revolution.",
+    "contributions": [
+      "Improved the telescope and discovered Jupiter's four largest moons",
+      "Provided key observational support for the heliocentric model",
+      "Pioneered the experimental, evidence-based method of modern science"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Galileo.arp.300pix.jpg",
+    "relatedCategorySlugs": [
+      "astronomy",
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Galileo_Galilei",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "geoffrey-hinton",
+    "name": "Geoffrey Hinton",
+    "group": "scientist",
+    "field": "Deep Learning",
+    "era": "b. 1947",
+    "summary": "Geoffrey Hinton is a cognitive psychologist and computer scientist often called the \"Godfather of AI.\" His decades of work on artificial neural networks — including backpropagation and deep learning — laid the foundations of modern artificial intelligence, earning him the 2024 Nobel Prize in Physics.",
+    "contributions": [
+      "Pioneered the backpropagation algorithm for training deep neural networks",
+      "Co-authored breakthrough work on deep networks that ignited the modern AI boom",
+      "Received the 2018 Turing Award and the 2024 Nobel Prize in Physics"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Geoffrey_Hinton_in_2026.jpg/500px-Geoffrey_Hinton_in_2026.jpg",
+    "relatedCategorySlugs": [
+      "neuroscience",
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://www.nobelprize.org/prizes/physics/2024/hinton/facts/",
+        "title": "Nobel Prize"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Geoffrey_Hinton",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "gerard-mourou",
+    "name": "Gérard Mourou",
+    "group": "scientist",
+    "field": "Physics, Electrical Engineering, Lasers",
+    "era": "b. 1944",
+    "summary": "Gérard Mourou is a French physicist who, along with Donna Strickland, co-invented chirped pulse amplification (CPA), a technique used to create ultrashort, high-intensity laser pulses. This groundbreaking work revolutionized the field of optics and has had significant applications in medicine, such as LASIK eye surgery, and various scientific and industrial fields. He was awarded the 2018 Nobel Prize in Physics for this invention and is also known for initiating the Extreme Light Infrastructure (ELI) project in Europe.",
+    "contributions": [
+      "Co-invented Chirped Pulse Amplification (CPA) for generating high-intensity, ultrashort laser pulses",
+      "Pioneered femtosecond ophthalmology, which led to the development of LASIK eye surgery technology",
+      "Founded the Center for Ultrafast Optical Science (CUOS) at the University of Michigan",
+      "Initiated the Extreme Light Infrastructure (ELI) project in Europe",
+      "Discovered that high-power laser beams in the atmosphere can create 'filaments' that act as waveguides"
+    ],
+    "quotes": [
+      "\"Be passionate, be bold and be willing to think outside the box.\"",
+      "\"I always believed that science should be used to unify people and I'm a strong believer in this and it's like music and everybody speaks the same language and science is the same thing.\"",
+      "\"The passion of lights, in fact, comes from the laser. The first time I've seen the lasers, I said “Wow”, I couldn't believe, to see this light, so well behaved, this beam of light, with pure colours. That was direct captivating for me and kept me ongoing for 45 years.\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ed/G%C3%A9rard_Mourou%2C_2014.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "materials-science",
+      "human-health"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGUtZdFDVGjKFXMX3EslcowjRX2rtr1w_n0DlF0Ohi38PJ_x-SA_gl1Fvs2BsW3k6Wj3OEllz7y54aQXOYXZ4sq-j8NBDM97QkT7QPXQZbsTIQMn4J_G8EZPiX6bufhnCN9qV3-YS5SijW_YWFP",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH_E4pNVHw47TLosLqesVbOWb_lZJu7338Fb1tCo4edQuUBPmlTQ0_CrfmX4H7vj8VN7ngRZZgIKzIaIV1TaU_iHGCqmJoRQ0_D9Sc-1UMLIvkEpIKrXKRMudsSD92WGqeBaN1yY8OdBHsAN48Ub6fjdiw=",
+        "title": "lindau-nobel.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEV8rcgIXf1iU314OBQWuSGAE1slmjR2nyeyBwlvk2MAS-7mFWOI8XkxhctZIobvIFIeIyJ6keNLBSxcvJIQADKkw37Y1LFrp0Bgu5BTtFDrCKXCJS55Ic1fRwszAnNqhbtOVbDwSlr25CylbFzosZpM3r_NvcJU2JCMISqowU-xi0k",
+        "title": "umich.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQETAT2qzPBK4vW2N90Jq7yQtK-f6_sdCHofUynPOfVkkZw-p5FHKp2jQqcgoMLOsQ-iL3N9-bPwW1l_3tUAzYL9OaSW6H9CHNAR7eqtRZgKiMLsMaSlugCfiSVr4RIPFXsE6TU8GtVsV-V_lw==",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHLw0cQuWKeFJpS7UL_MToiu7_rtWP3uhdA144oWRLahTNGBkKObJ401MNM7vkoIO7eUGs-Bz2vb2HOuGXfnfdtIvbIBWwVWbzSO1Zwn55XKVgmoE1D1u3dCB-7VDbL03CwAVrH14RF2_8uabK7iQusjhVeXwQaDJQAzpURekwXj6uzHF34guXGm-jv4GJG7-iT-sl_R-XzTMREmrLuJeZZmLKCHFwNiuWlDfDAorOyfWTtnLG-E4afPFhAUCXJeQd3MaLWoAyuz0W3IpEX_ZucBgzBLaZI9qeDLn_47BfDrFOrV0KuSfJCArdZGw==",
+        "title": "cityu.edu.hk"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFQcc9QO4lR_HLHP_7BVKuD12qLjG0acCIJLWd3JXn6YQ1T_hpTtodG_Krk1f5Dl2C17Xz2sRCxm32L4PY6FJ7nb0OipQGwDxbAijLtb1i7Jv8s3ZngoJuB4wE7xl8XEV1j4N1EHWppAGUYspKAcqn7FdiNd5JoAwYdLXwhnjpF2TOy2SN-wyrdp25L3zPOrrOJQc2Rm7Wf5rQKk8HuIPuqYs3sopKZ1Tua4T4u2Ls=",
+        "title": "uconn.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH1bjYbr_Mscz-hoAwDGaXZjLGAoxmSgj8SW1_B2Fg3pNMDBkGY0OyKp2hh0-oK6C1cp61RmZAGMLPmF3XuwOGpg3ZXTypEdmRiUeqyoOK3ZyVvNaJ7PzqTB2yHIF2cpfE4mxTYC5w0df1pMpOjFpuTU3HkEJO6coQqA4pciiaYxpkxhfyRXAj9zl1UtQIeyeXvy0mL_i93wA==",
+        "title": "umich.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHTIXr8uXLJCypdKZvtbBdowOVOKjXAmTkOj_PHWCvEpIgpRCBnEAdNYh1zd_ANyplVRzI00Ld1dUajU32VCUc8PgMFpGPyqM50n64N8wCCBGfrlfnPX0yt9R8hEiycoyu7LZsQGtdg83eBOROjYqIpnI8MNumObZDQ",
+        "title": "harvard.edu"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "hedy-lamarr",
+    "name": "Hedy Lamarr",
+    "group": "inventor",
+    "field": "Communications",
+    "era": "1914–2000",
+    "summary": "Hedy Lamarr was an Austrian-American actress and inventor. During World War II she co-invented a frequency-hopping spread-spectrum system to prevent the jamming of radio-guided torpedoes — a concept that became foundational to modern Wi-Fi, GPS, and Bluetooth.",
+    "contributions": [
+      "Co-invented a frequency-hopping spread-spectrum communication system",
+      "Her patent laid the groundwork for Wi-Fi, GPS, and Bluetooth",
+      "Posthumously inducted into the National Inventors Hall of Fame"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/8/83/Hedy_Lamarr_Publicity_Photo_for_The_Heavenly_Body_1944.jpg",
+    "relatedCategorySlugs": [],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Hedy_Lamarr",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [
+      {
+        "url": "https://patents.google.com/patent/US2292387A",
+        "year": "1942",
+        "title": "Secret Communication System (frequency hopping)",
+        "number": "US 2,292,387"
+      }
+    ],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "isaac-newton",
+    "name": "Isaac Newton",
+    "group": "scientist",
+    "field": "Physics & Mathematics",
+    "era": "1643–1727",
+    "summary": "Sir Isaac Newton was an English mathematician and physicist whose laws of motion and universal gravitation unified the heavens and the Earth under a single set of principles. His work defined classical mechanics for centuries.",
+    "contributions": [
+      "Formulated the three laws of motion and the law of universal gravitation",
+      "Co-invented calculus, independently of Leibniz",
+      "Authored \"Philosophiæ Naturalis Principia Mathematica,\" a foundation of modern physics"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Portrait_of_Sir_Isaac_Newton%2C_1689_%28brightened%29.jpg",
+    "relatedCategorySlugs": [
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Isaac_Newton",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "james-dyson",
+    "name": "James Dyson",
+    "group": "inventor",
+    "field": "Industrial Design",
+    "era": "b. 1947",
+    "summary": "Sir James Dyson is a British inventor and industrial designer best known for reinventing everyday machines. After building thousands of prototypes, he perfected the bagless cyclonic vacuum cleaner and went on to rethink fans, hand dryers, and lighting.",
+    "contributions": [
+      "Invented the first bagless cyclonic vacuum cleaner after 5,127 prototypes",
+      "Developed bladeless Air Multiplier fans and the Airblade hand dryer",
+      "Founded the James Dyson Foundation to support young engineers"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/67/Sir_James_Dyson_CBE_FREng_FRS.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "materials-science"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/James_Dyson",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [
+      {
+        "url": "https://patents.google.com/patent/US4593429",
+        "year": "1986",
+        "title": "Vacuum cleaning appliance (Dual Cyclone)",
+        "number": "US 4,593,429"
+      }
+    ],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "jane-goodall",
+    "name": "Jane Goodall",
+    "group": "scientist",
+    "field": "Primatology & Conservation",
+    "era": "1934–2025",
+    "summary": "Dame Jane Goodall was a British primatologist whose decades of study of wild chimpanzees transformed our understanding of animal behavior and the human-animal boundary. She became one of the world's most influential conservationists.",
+    "contributions": [
+      "Discovered that chimpanzees make and use tools, redefining \"man the toolmaker\"",
+      "Conducted the longest-running field study of wild chimpanzees, at Gombe",
+      "Founded the Jane Goodall Institute and the Roots & Shoots youth program"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/98/Deputy_Secretary_Higginbottom_Poses_for_a_Photo_With_Dr._Jane_Goodall_and_the_State_Department%27s_Global_Health_Diplomacy_Director_Jordan_in_Washington_%2822365513310%29_%282%29_%28cropped_2%29.jpg",
+    "relatedCategorySlugs": [
+      "biology"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Jane_Goodall",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "jeff-bezos",
+    "name": "Jeff Bezos",
+    "group": "inventor",
+    "field": "Commerce & Spaceflight",
+    "era": "b. 1964",
+    "summary": "Jeff Bezos founded Amazon, transforming it from an online bookstore into one of the world's largest technology and commerce companies and pioneering large-scale cloud computing through Amazon Web Services. In 2000 he founded the aerospace company Blue Origin to lower the cost of access to space.",
+    "contributions": [
+      "Founded Amazon, reinventing global e-commerce and logistics at planetary scale",
+      "Launched Amazon Web Services, which created the modern cloud-computing industry",
+      "Founded Blue Origin to develop reusable rockets and expand human access to space"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/260202-D-PM193-2205_SECWAR_Arsenal_of_Freedom_Tour_-_Florida_%283x4_cropped_on_Bezos_and_rotated%29.jpg/500px-260202-D-PM193-2205_SECWAR_Arsenal_of_Freedom_Tour_-_Florida_%283x4_cropped_on_Bezos_and_rotated%29.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://www.blueorigin.com",
+        "title": "Blue Origin"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Jeff_Bezos",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "jennifer-doudna",
+    "name": "Jennifer Doudna",
+    "group": "scientist",
+    "field": "Genome Editing",
+    "era": "b. 1964",
+    "summary": "Dr. Jennifer Doudna is an American biochemist who co-invented CRISPR-Cas9, a precise and accessible method of editing DNA. Her work has transformed genetics, medicine, and agriculture and earned her the 2020 Nobel Prize in Chemistry.",
+    "contributions": [
+      "Co-invented CRISPR-Cas9 genome editing (2020 Nobel Prize in Chemistry)",
+      "Founded the Innovative Genomics Institute to apply gene editing for public good",
+      "Advanced understanding of RNA structure and function"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Jennifer_Doudna_by_Christopher_Michel_in_2023_01.jpg",
+    "relatedCategorySlugs": [
+      "biology"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Jennifer_Doudna",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "jensen-huang",
+    "name": "Jensen Huang",
+    "group": "inventor",
+    "field": "Accelerated Computing",
+    "era": "b. 1963",
+    "summary": "Jensen Huang co-founded NVIDIA in 1993 and has led it ever since as CEO. Under his direction NVIDIA invented the graphics processing unit (GPU) and later pioneered accelerated and parallel computing, which became the foundational hardware of the modern artificial-intelligence era.",
+    "contributions": [
+      "Co-founded NVIDIA and led the invention of the modern GPU",
+      "Drove the creation of CUDA, opening GPUs to general-purpose scientific and AI computing",
+      "Positioned NVIDIA as the core hardware engine behind the deep-learning revolution"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Jen-Hsun_Huang_2025.jpg/500px-Jen-Hsun_Huang_2025.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "materials-science"
+    ],
+    "sources": [
+      {
+        "url": "https://www.nvidia.com",
+        "title": "NVIDIA"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Jensen_Huang",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "katalin-kariko",
+    "name": "Katalin Karikó",
+    "group": "scientist",
+    "field": "mRNA Biochemistry",
+    "era": "b. 1955",
+    "summary": "Dr. Katalin Karikó is a Hungarian-American biochemist whose decades of perseverance on messenger RNA made modern mRNA vaccines possible. She shared the 2023 Nobel Prize in Physiology or Medicine for this work.",
+    "contributions": [
+      "Pioneered nucleoside modifications that made mRNA safe and effective as a therapeutic",
+      "Enabled the mRNA COVID-19 vaccines developed during the pandemic",
+      "Awarded the 2023 Nobel Prize in Physiology or Medicine"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/27/Katalin_Karik%C3%B3_by_Michel_2024_02.jpg",
+    "relatedCategorySlugs": [
+      "human-health",
+      "biology"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Katalin_Karik%C3%B3",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "kip-thorne",
+    "name": "Kip Thorne",
+    "group": "scientist",
+    "field": "Physics",
+    "era": "since the 1960s",
+    "summary": "Kip Thorne is an American theoretical physicist and Nobel laureate renowned for his foundational work in relativistic astrophysics and gravitational physics. He co-founded the LIGO project, which achieved the first direct detection of gravitational waves, confirming a major prediction of Einstein's general relativity. Thorne is also known for his efforts in popularizing science through influential books and his role as a scientific advisor for major films.",
+    "contributions": [
+      "Co-recipient of the 2017 Nobel Prize in Physics for decisive contributions to the LIGO detector and the observation of gravitational waves.",
+      "Co-founded the Laser Interferometer Gravitational-Wave Observatory (LIGO) Project.",
+      "Pioneering theoretical work on gravitational waves and their astrophysical sources.",
+      "Developed the 'Hoop Conjecture' theory for black hole formation.",
+      "Co-authored the classic textbook \"Gravitation\" (1973).",
+      "Advised on the physics of wormholes for Carl Sagan's novel \"Contact\" and served as scientific advisor for films like \"Interstellar\"."
+    ],
+    "quotes": [
+      "\"Everything likes to live where it will age the most slowly, and gravity pulls it there.\"",
+      "\"Gravitational waves will bring us exquisitely accurate maps of black holes - maps of their space-time.\"",
+      "\"Closed timelike curve is the jargon for time travel. It means you go out, come back and meet yourself in the past.\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Kip_Thorne_by_Christopher_Michel_2022.jpg/3840px-Kip_Thorne_by_Christopher_Michel_2022.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG8P2S8CmszNMmhpcr2ZhpdFI_5Gpp6Y_-w8d1AoPG9xo4-qChSiRgWvTiRyiM_dBJfDnGbu35irdhjX-F7_JB_ocxze8yBktMF4YzPY2wm6_aQia0IToYCVaLCph6V0ZEPOOE=",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGBwHxM6wBB_t5u3giXfmwmR1gS4TcQvajgjG-Iec6YOpNgbAdyRpfSK8Sv3JQca4P0jGnKHYXxdZu-ZTLpJ0A6jcEXnu4txLz5KSak3NmEJ8AMWnyvkYivPfddZEo63WTEOuoit-EKR3hY",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFGiRrjvMKuTR5VnOdVn-Zjg94nFwqdrnGgJEdDEKvCOrVRq48M9cy5l7-XJbQrvoxyAh7lGz6t5EBFhVBIaMv-Bi3ElsgOmrIwh-5Bq-TcDnx7CSs2BDxyXNX9IoXWSPBACUVBJTrjEbAgQC5LKifWG-PksaVC",
+        "title": "londonspeakerbureau.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFhidtpJS44koTG0q05O4MxgvqAdzvafmHWlEJs9nz4IxS6H6faAoK7iTznKF7OfcgvhV0De-qopVvtZYIlLTgQOvnxI7EexK2CmA3x3oncSjU7pe-W9FvJ6vnqf-y6zRZTGtPQsLE30uJ0Z53D_kYcwng=",
+        "title": "caltech.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG-yyiYoLTKvI-qPTgoOl39ikUxzc2DFYpuJhrLVYsCzRfI8PjEz3lb8JvqHnDic8nwA2TlAZpjMvy_wdaEf2CcktvtayA_WIul_xdDhTw9mCjxQeU-JDAhz9d1ZjhCbt13aRXp-HlpuPA=",
+        "title": "famousscientists.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHtrLs00ZSTOTFjoVxIDsc_Qomsu78VcXVRx6CKDSQ9Pmcozuyxu18NXAg5XpDEPHacnImkEkGhofYc02C0QCgBSqTShBs5Xi81TUW959IVHmZznv6BztKTHLuSk0QMleobFxBW31Vyj6okbhoNtXcN4cnglxmN0kUBECrIS8Pqyhr6dkOMMbpZDw==",
+        "title": "study.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFUO5kgBBdpdNY6qATZfOBK2aKmxSfgq66PXAKcCdOcgKeshsGjGtbJ6oYllRnZFIfXktpeAbA0cxqU6CXQs7_7NDEpQNbJAe7zSmf5ReH2pgVDqjIpJCUNMUEXcNtQry0YeZMr3MFQsHLzfwq8QI6QZinI6A==",
+        "title": "goodreads.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHWF34RRbtBA_jcnuk4Ocy8q4n7ywsyixAq_cXGGOG0QCdSWwZMGAP_dNPrWPs_cHgzmkYyhS-utpDcfwZSkQPnTFleIYy7xRMS7sU0LmY9H6upaAv6soRaJkYUjTbGdWcHmQsU6g==",
+        "title": "quotefancy.com"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "lonnie-johnson",
+    "name": "Lonnie Johnson",
+    "group": "inventor",
+    "field": "Aerospace Engineering",
+    "era": "b. 1949",
+    "summary": "Lonnie Johnson is an American aerospace and mechanical engineer who worked on NASA missions including Galileo and Cassini. He is widely known for inventing the Super Soaker water gun and now develops advanced energy and battery technologies.",
+    "contributions": [
+      "Invented the Super Soaker, one of the best-selling toys of all time",
+      "Worked as an engineer on NASA's Galileo and Cassini missions",
+      "Develops next-generation energy conversion and battery systems"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Lonnie_Johnson%2C_Office_of_Naval_Research_%28crop%29.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "materials-science"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Lonnie_Johnson_(inventor)",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [
+      {
+        "url": "https://patents.google.com/patent/US5150819",
+        "year": "1992",
+        "title": "Double tank pinch trigger pump water gun (Super Soaker)",
+        "number": "US 5,150,819"
+      }
+    ],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "m-stanley-whittingham",
+    "name": "M. Stanley Whittingham",
+    "group": "scientist",
+    "field": "Chemistry, Materials Science",
+    "era": "b. 1941, active since the 1970s",
+    "summary": "M. Stanley Whittingham is a British-American chemist and a distinguished professor known for his pioneering work in the development of lithium-ion batteries. His research on intercalation chemistry and the creation of the first rechargeable lithium metal battery laid the foundation for the widespread use of these batteries in modern electronics and electric vehicles. He was jointly awarded the Nobel Prize in Chemistry in 2019 for this transformative contribution to energy storage.",
+    "contributions": [
+      "Discovered intercalation electrodes and thoroughly described intercalation reactions in rechargeable batteries in the 1970s.",
+      "Invented the first rechargeable lithium metal battery (LMB), patented in 1977, which used a titanium disulfide cathode and a lithium-aluminum anode.",
+      "Pioneered the application of intercalation chemistry for energy storage materials.",
+      "Contributed significantly to the development of lithium-ion battery technology, leading to the 2019 Nobel Prize in Chemistry.",
+      "Founded the journal *Solid State Ionics* in 1981 and served as its editor for 20 years.",
+      "Leads ongoing research into multi-electron intercalation reactions to increase battery storage capacity."
+    ],
+    "quotes": [
+      "\"Use your imagination! Don't just go by the book and don't believe what you read in the literature. Really imagine the future. Come up with new ideas and pursue those. Don't let people put those ideas down. Believe in yourself and discuss your ideas with others. Don't follow what your boss tells you to do, necessarily.\"",
+      "\"Open data is the only way to move the world forward, learning from give and take to find new ways to connect the dots and have new insights, that is what electrochemistry has done already for hundreds of years.\"",
+      "\"The lithium is the jam in the sandwich.\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/8/84/Stanley_Whittingham_2020_%283x4_cropped%29.jpg",
+    "relatedCategorySlugs": [
+      "chemistry",
+      "materials-science"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH1D0Ni_JdgB_QEdBltTdFHoo1_kDVP-CAYlZCB8yV_9Vq6XgxflCR-86OxCrnicDTf1fKGSSgdIfA3oeTH23yaEmuioXR2ULGatDKg7dbkioZb9ofWJ9oMjGh83a68xy0rC0YmseE9HNWid41YbQQ=",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE6AnThoQMqEKBzYagviJqwFt5Dl0b4BigAczRGUgVQN5jGQlHXBM7H9Czli2eSZqymP0WXwKamAEZwjdLQvJBBpSx4g0ixWYXkbV9ADNJfDfEjJ-dO2gZiIiJmfY6wO1u5zKTgCDc_eEU1edkRpQ==",
+        "title": "norm2026.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEB44q1iQWInfVWDjTFArcShGIX1NXZDYiEI1gUaIpstXEHWsAHZb1qRgnAjegc6iXjwdUnRMmUfZh36kL_OgVAstL7g4JaqUi6RtTzclArR6N6RmJ97K2dfglUqoBflYKwSL3WPakn_lhdIbFL5ez5Dg==",
+        "title": "aurumbureau.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH393yo9Et987zGtqaBY4VX_6_jSN-LDGwVJZTneYQa0PlXGLtlH4xrESrUev33oANTP2i3W10udy1wmXVNtNXKOdRC-1kacbvOaBaWIo1lHv8nR1swtx1zmgLJQJ-tFR0-mg==",
+        "title": "electrochem.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFqnC3_wcAFBLMfdREl4P-kQ2xjJ_k4NrCk2aalalPk1CjK-_KBI86M-EJrxnR1pn7DvrGYuE-yu_4Pyf8NojnLdcWzL9h3Z_3FtEV8OCJEbX3qiAVAA014-WOIB8b7G7HL55uPGdc8VL1c7iVn_1AbtECnBpY=",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGywFn89XEDqkTywtY1srma2TGUDf_EQQvErGHTMNWhU0_8F6ImP_Eqxgd8utGjzjXW239VzcB1-h-klXDinT2e-u5zelWR5OskpyxFJ-f7GGrQZ7L9wOqITibhMRXWmfKp2Xgl_zya5EfM8Am3-na3QuEeHWzv1N9md0QcflMJ83aeiSkIuLi-SOi2wi1EBkLeMQg6EKqm1yPKKhpbldBPwrKy",
+        "title": "binghamton.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEybC9W0oPTE7i1140Cx2rGw0A5ah4z_KpFreQXpOkpZCrSgxfu0rrzNlDbJZAy7rVe7HzdvvklD-0GVWyUhAz1S2CEevjeFY8a-W5q3uqg1lCUz5EYy871eedUqSVY5uUTQu0dV5rmSUpO3FdKCBT2PK7Ajo7VnBkZTQXuz_Z-9vXIejeKLKY5nU8K068Pm39Nbw6WT_M=",
+        "title": "nobelprize.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEkNcLKbImX1Vi5nBaAJgtFOgNC1JyW2C6djfdZukceIq6uhHvBdPjRgDaWo32tLzX0FzdqcXUXOuzaE4CVXb3NYmpFvsNZKsFXYi7VUW-JoyjghC8g-MgUxY7qOAgkTNYjVIcQMxKgZxCtBFvA8fZSrJ4KBFX-mfAFKZxYJeE=",
+        "title": "nobelprize.org"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "manu-prakash",
+    "name": "Manu Prakash",
+    "group": "inventor",
+    "field": "Frugal Science",
+    "era": "21st century",
+    "summary": "Manu Prakash is a Stanford bioengineer and pioneer of \"frugal science\" — building powerful scientific tools that cost almost nothing so that anyone, anywhere, can do real research. His inventions put laboratory-grade capability into the hands of communities worldwide.",
+    "contributions": [
+      "Invented the Foldscope, a durable paper microscope that costs about $1",
+      "Created the Paperfuge, a hand-powered centrifuge inspired by a child's whirligig",
+      "Champion of the \"frugal science\" movement for ultra-low-cost research tools"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Manu_Prakash_at_TED.jpg",
+    "relatedCategorySlugs": [
+      "microbiology",
+      "biology"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Manu_Prakash",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [
+      {
+        "url": "https://patents.google.com/patent/US9696535B2",
+        "year": "2017",
+        "title": "Foldscope — ultra-low-cost folding microscope",
+        "number": "US 9,696,535"
+      },
+      {
+        "url": "https://patents.google.com/patent/US11331665B2",
+        "year": "2022",
+        "title": "Paperfuge — paper-based centrifugation platform",
+        "number": "US 11,331,665"
+      }
+    ],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "manu-rehani",
+    "name": "Manu Rehani",
+    "group": "inventor",
+    "field": "Behavioral Intelligence & Dual-Use Technology",
+    "era": "Contemporary",
+    "summary": "Manu Rehani is an Austin, Texas–based inventor, engineer, and advisor working at the intersection of behavioral intelligence, artificial intelligence, and dual-use technology. He describes his work as building behavioral intelligence for the AI-native renaissance, spanning cloud infrastructure, autonomous systems, and wearable technology. With two company exits and twelve patents to his name, he builds and advises across cognitive modeling and design for relevance fit.",
+    "contributions": [
+      "Holds twelve patents spanning cloud storage, large language models, autonomous systems, and wearable intelligence.",
+      "Achieved two startup exits in behavioral intelligence and dual-use technology.",
+      "Works as an inventor, engineer, and advisor at the intersection of behavioral intelligence, AI, and dual-use technology.",
+      "Develops cognitive modeling and 'design for relevance fit' approaches for AI-native systems."
+    ],
+    "quotes": [
+      "Behavioral intelligence for the AI-native renaissance."
+    ],
+    "imageUrl": "https://www.rehani.co/optimized/manu-portrait-1600.jpg",
+    "relatedCategorySlugs": [
+      "neuroscience",
+      "materials-science"
+    ],
+    "sources": [
+      {
+        "url": "https://rehani.co",
+        "title": "rehani.co"
+      },
+      {
+        "url": "https://rehani.co/behavioral-intelligence",
+        "title": "Manu Rehani — Behavioral Intelligence"
+      }
+    ],
+    "patents": [
+      {
+        "url": "https://patents.google.com/patent/US9787454",
+        "year": "2017",
+        "title": "Storage system for pervasive and mobile content",
+        "number": "US 9,787,454"
+      },
+      {
+        "url": "https://patents.google.com/patent/US9667513",
+        "year": "2017",
+        "title": "Real-time autonomous organization",
+        "number": "US 9,667,513"
+      },
+      {
+        "url": "https://patents.google.com/patent/US9269353",
+        "year": "2016",
+        "title": "Methods and systems for measuring semantics in communications",
+        "number": "US 9,269,353"
+      },
+      {
+        "url": "https://patents.google.com/patent/US9020807",
+        "year": "2015",
+        "title": "Format for displaying text analytics results",
+        "number": "US 9,020,807"
+      },
+      {
+        "url": "https://patents.google.com/patent/US8996359",
+        "year": "2015",
+        "title": "Taxonomy and application of language analysis and processing",
+        "number": "US 8,996,359"
+      },
+      {
+        "url": "https://patents.google.com/patent/US8952796",
+        "year": "2015",
+        "title": "Enactive perception device",
+        "number": "US 8,952,796"
+      },
+      {
+        "url": "https://patents.google.com/patent/US8577718",
+        "year": "2013",
+        "title": "Methods and systems for identifying, quantifying, analyzing, and optimizing the level of engagement of components within a defined ecosystem or context",
+        "number": "US 8,577,718"
+      }
+    ],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "marie-curie",
+    "name": "Marie Curie",
+    "group": "scientist",
+    "field": "Radioactivity",
+    "era": "1867–1934",
+    "summary": "Marie Curie was a Polish-French physicist and chemist who pioneered research on radioactivity — a term she coined. She was the first woman to win a Nobel Prize and the first person to win Nobel Prizes in two different sciences.",
+    "contributions": [
+      "Pioneered the theory of radioactivity and discovered the elements polonium and radium",
+      "First person to win Nobel Prizes in two sciences — Physics (1903) and Chemistry (1911)",
+      "Developed mobile radiography units to treat wounded soldiers in World War I"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Marie_Curie_c._1920s.jpg",
+    "relatedCategorySlugs": [
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Marie_Curie",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "neil-degrasse-tyson",
+    "name": "Neil deGrasse Tyson",
+    "group": "scientist",
+    "field": "Astrophysics",
+    "era": "b. 1958",
+    "summary": "Neil deGrasse Tyson is an American astrophysicist and one of the world's most prominent science communicators. As director of the Hayden Planetarium and host of Cosmos and StarTalk, he has brought astronomy and the wonder of the universe to millions.",
+    "contributions": [
+      "Director of the Hayden Planetarium at the American Museum of Natural History",
+      "Host of Cosmos: A Spacetime Odyssey and the StarTalk podcast",
+      "Best-selling author popularizing astrophysics for the public"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/0/03/Neil_DeGrasse_Tyson_%282023%29.jpg",
+    "relatedCategorySlugs": [
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Neil_deGrasse_Tyson",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "nikola-tesla",
+    "name": "Nikola Tesla",
+    "group": "inventor",
+    "field": "Electrical Engineering",
+    "era": "1856–1943",
+    "summary": "Nikola Tesla was a Serbian-American inventor and electrical engineer whose work on alternating-current (AC) power systems became the backbone of the modern electrical grid. His prolific imagination spanned wireless power, radio, and rotating magnetic fields.",
+    "contributions": [
+      "Designed the modern alternating-current (AC) electricity supply system",
+      "Invented the induction motor and the Tesla coil",
+      "Pioneered early work in wireless transmission of energy and radio"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/79/Tesla_circa_1890.jpeg",
+    "relatedCategorySlugs": [
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Nikola_Tesla",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "peter-diamandis",
+    "name": "Peter Diamandis",
+    "group": "thought_leader",
+    "field": "Exponential Innovation",
+    "era": "b. 1961",
+    "summary": "Dr. Peter Diamandis is an entrepreneur and futurist who founded the XPRIZE Foundation, which uses large incentive prizes to drive breakthroughs in space, health, and the environment. He also co-founded Singularity University to educate leaders on exponential technologies.",
+    "contributions": [
+      "Founded the XPRIZE Foundation, pioneering incentivized competition for grand challenges",
+      "Co-founded Singularity University and Human Longevity, Inc.",
+      "Author of \"Abundance\" and \"Bold,\" charting how technology can solve humanity's biggest problems"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/64/Peter-Diamandis-Headshot.jpg",
+    "relatedCategorySlugs": [
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://www.diamandis.com",
+        "title": "diamandis.com"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Peter_Diamandis",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "radia-perlman",
+    "name": "Radia Perlman",
+    "group": "inventor",
+    "field": "Network Engineering",
+    "era": "b. 1951",
+    "summary": "Radia Perlman is an American computer scientist often called the \"Mother of the Internet.\" Her invention of the Spanning Tree Protocol made it possible to build large, reliable networks, shaping the foundations of how modern data networks operate.",
+    "contributions": [
+      "Invented the Spanning Tree Protocol (STP) underpinning modern Ethernet networks",
+      "Made major contributions to network routing and security",
+      "Author of influential textbooks on network protocols"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/Radia_Perlman_2009.jpg",
+    "relatedCategorySlugs": [],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Radia_Perlman",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [
+      {
+        "url": "https://patents.google.com/patent/US5086428",
+        "year": "1992",
+        "title": "Reliable broadcast of information in a wide area network (Spanning Tree Protocol)",
+        "number": "US 5,086,428"
+      },
+      {
+        "url": "https://patents.google.com/patent/US7339900B2",
+        "year": "2008",
+        "title": "Method and apparatus for preventing spanning tree loops during traffic overload conditions",
+        "number": "US 7,339,900"
+      }
+    ],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "rainer-weiss",
+    "name": "Rainer Weiss",
+    "group": "scientist",
+    "field": "Physics",
+    "era": "b. 1932",
+    "summary": "Rainer Weiss is a German-American physicist renowned for his foundational work in gravitational physics and astrophysics. He is a co-founder of the Laser Interferometer Gravitational-Wave Observatory (LIGO) project and is credited with inventing the laser interferometric technique crucial for detecting gravitational waves. His pioneering research also includes measurements of the cosmic microwave background radiation and contributions to the COBE satellite. In 2017, he was awarded the Nobel Prize in Physics for his pivotal role in the direct observation of gravitational waves.",
+    "contributions": [
+      "Invented the laser interferometric technique, which is fundamental to the operation of LIGO.",
+      "Co-founded the NSF LIGO (gravitational-wave detection) project.",
+      "Made pioneering measurements of the spectrum of the cosmic microwave background radiation.",
+      "Served as a co-founder and science advisor for the NASA Cosmic Background Explorer (COBE) satellite.",
+      "Awarded the 2017 Nobel Prize in Physics for decisive contributions to the LIGO detector and the observation of gravitational waves.",
+      "Developed the concept behind LIGO as an exercise for a general relativity course in 1967."
+    ],
+    "quotes": [
+      "\"For reasons probably related to the popular vision of Albert Einstein and, also, the threat posed by black holes in comic books and science fiction, our gravitational wave discoveries have had an amazing public impact.\"",
+      "\"What was done is measure directly, with exquisitely sensitive instruments, gravitational waves predicted about 100 years ago by Albert Einstein.\"",
+      "\"A gravitational wave is a very slight stretching in one dimension.\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/41/Rainer_Weiss_EM1B8841_%2824027015857%29.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGwpWOywS3DzT71m5wUHgikjTlq1g7Tu3W-WQF3j2Dyq5tPqwI3VByu6AmT0ymo9QFYspoU2k-M2FJl_JDwsKiaNH21p1O6M_UVl5MV1aQikKPV_HDxl_l9cZCfDxJ_sVpRK02w",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHO45VGnQeRYHKLWsduRFuLVOK1vMQ29Vb588A9ypxEpvYBOgl5iLmRA-zSgY9Xs63HOWxrTiQKRlWs2TWAUMmcT769fJ_NVso-tFZnTeIZItUexB8zZahJbIwGzSnMYRmb5vliXnjP",
+        "title": "mit.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFSXl2iX3T3obrX4HiMyrrQWr1dBLaqTjx80qM5wkaW9hCGFSsXhEMiDHQ-Lysb-ChsWfG5pwmhtgflem-CjdW8VXfxIf-WoRKo5Moz6tfuNcM0G4Q4edxW3ubEbpPqn6D2OoaNPAhdEWEuBSAEb6_jDNwOHUUJP9kM2GUHK20fJ-P-Mi1mxnDd9gZN9q-0ISFmcQh479HvQSMELLdvocYqUenhB1He",
+        "title": "northwestern.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGlIsePanBmNJTWWE8NsAPd-kKI2V6JAEPAVN9ibotWnKPzqrtRM-7qbrgFYQUe2uaPrP_1eoNDenD6GRJZgOjf_8iFdtH7NdSD2XcuVjmSiVek2amokc8Dm33j5FO0qFNecYjtTziBWDr4BJMAEXjH7l9mGJLiTe9j",
+        "title": "whatshouldireadnext.com"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "reinhard-genzel",
+    "name": "Reinhard Genzel",
+    "group": "scientist",
+    "field": "Astrophysics",
+    "era": "b. 1952",
+    "summary": "Reinhard Genzel is a German astrophysicist, co-director of the Max Planck Institute for Extraterrestrial Physics, and an emeritus professor at the University of California, Berkeley. He was awarded the 2020 Nobel Prize in Physics, shared with Andrea Ghez and Roger Penrose, for his groundbreaking work on the discovery of a supermassive compact object at the center of our galaxy. His research focuses on infrared and submillimetre astronomy, developing sensitive instruments to study active galaxies and the evolution of massive black holes.",
+    "contributions": [
+      "Co-discovery of a supermassive black hole, Sagittarius A*, at the center of the Milky Way Galaxy.",
+      "Pioneering observations of the motions of stars at the Galactic center using infrared and submillimetre astronomy.",
+      "Development of advanced ground- and space-based instruments, including adaptive optics and interferometry, for high-resolution astronomical observations.",
+      "Provided strong evidence for the existence and mass of the supermassive black hole by measuring stellar velocities and orbits.",
+      "Conducted research into the formation and evolution of galaxies, particularly focusing on active galaxies and their central regions.",
+      "Demonstrated the gravitational redshift on a star orbiting the galactic center, consistent with Einstein's theory of General Relativity."
+    ],
+    "quotes": [
+      "\"Completely unexpected and, wow, I'm on cloud 17.\"",
+      "\"We can sense the motions of stars which are orbiting the black hole with exquisite precision.\"",
+      "\"In my life, I've learned not to be interested in — and not to ask questions about — things that I know there are no answers to.\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Reinhard_Genzel.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEfeEgqaDKzrZhz5Ju5k0TUJkHAobNMYHwrWA1EU9r8sUgSq4PkeuUfqAcuB-ih5kaO9vV4YWuJ8MTAFHtxleoZE1eUSmpk2gt9FK-9h7It5S6qDbi1EzR5UeYkP7oO4HavfhXaEixf",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGh4EiTtUN3ANSkp6g99AUXFqqRNss_JMCwa4pMdujwuzbN4oCRJExDm-AD2Y9U4_MbO423MGCKgZPnMAhphd_Bw5VgOzWG46-i_iEBsL3CThwFRcd9oNqFWBWeawo9ln0eo-8gacUVSMjjkYyx-A==",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFwomlLj2cqDisxjvQZr05ZxyfJeGMy5fUT1bcrhamd79xcB_6JPoBFdgvG5gKJIQtQDB0dMj3kuDkHu_DSfAjcMpkdd35XEaOg5GqM5Wmrmz96IGiDIhD3Kvc4-QHguIRy3pEnwlNtSoNNq_kGSHaXIQ==",
+        "title": "berkeley.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG5WCf_CPcDSqePMwca3wRhD2R5hxj13glVBUT6fCpCfXnwiui73slCTlMtKyH_c-IZEtjTa8VyWloDbOJokKyGAJhot6KrKn6vwNi_3B28FpjgypHs5ajuHZyg-0aa7xDpXXIsvvKS9Yfd0JYBEadA9NUdX5oQ-3bUhG6N5YKm1EBg5-Bo",
+        "title": "berkeley.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHCCw3cHEWSi_SnGf-8L2D3EM4mGmAaNVrJ6VA-jJwJ5ZJ4xnw08lhsbi_rBImGSxzxKdmk7i1JarmblIMy44wqKSAS7jiBWHBC6owCgS5H9Gllp4agpjKyOFfBGSV_xs3EW0F9dErSAnd50sP48Rv70hYU",
+        "title": "mpg.de"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHgh-ofyoeqmKe16TNCGjY4LPg6aFLvgATir3yVwwvpZbqs2pZkBGo1SkTBRWuaGI416derfzhplhgSEdpEk-2eTG4kq4di-sCmcPp7AmOxRBRmm0rscHsPI7DwE8oA",
+        "title": "esfri.eu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHX9jwBMuk4omVxjLi2t47z5OSlbgj416drq2AM2HJzN-l_i3rDE2BChmfOyF4t6XtCeoupURoixPU6IvhLLfwxxsEmtRqYs4KgCvsKVr3qxaaGYRVP4d83GaL3_TA4hCp52hQ5Gbc2kbv4LgksPAAs5muNvTk=",
+        "title": "berkeley.edu"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGlAxhihcP7LOPr3IPQb5fvY01UlLfplfI8NmG5r2B_T-HEu71wt6au6HY_DpbVckHB35aJzvNh3jpKoMGbcb0KafElV3ZxwGmr6W1fON0nNwYImQnSlDOpzQNChvQvpezuaV8nS-TF4X3wFqY5lcn8",
+        "title": "royalsociety.org"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "roger-penrose",
+    "name": "Roger Penrose",
+    "group": "scientist",
+    "field": "Physics",
+    "era": "b. 1931",
+    "summary": "Sir Roger Penrose is a British mathematician and mathematical physicist renowned for his groundbreaking contributions to general relativity and cosmology. He was awarded half of the 2020 Nobel Prize in Physics for his discovery that black hole formation is a robust prediction of the general theory of relativity. His work has profoundly shaped our understanding of the universe, from the nature of space-time to the mysteries of consciousness.",
+    "contributions": [
+      "Developed, with Stephen Hawking, the Penrose–Hawking singularity theorems, demonstrating the inevitability of singularities within black holes and the Big Bang.",
+      "Introduced twistor theory, a new mathematical framework for uniting relativity and quantum theory.",
+      "Discovered Penrose tiling, aperiodic tilings that exhibit fivefold rotational symmetry and later observed in quasicrystals.",
+      "Developed Penrose diagrams, a method for mapping the regions of space-time surrounding a black hole.",
+      "Proposed the cosmic censorship hypothesis, suggesting that singularities are 'hidden' from external observers."
+    ],
+    "quotes": [
+      "Intelligence cannot be present without understanding. No computer has any awareness of what it does.",
+      "We have a closed circle of consistency here: the laws of physics produce complex systems, and these complex systems lead to consciousness, which then produces mathematics, which can then encode in a succinct and inspiring way the very underlying laws of physics that gave rise to it."
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Roger_Penrose_at_Festival_della_Scienza_Oct_29_2011.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEYIby4Xf8_AYvwS4vX1_G1EJatYYHMZjlbaeVfmM1hbXiDxJ6g1aodca_pYemgGtyU_VpXn5P_qK6rjhC2Zd5K_rF7sHz7ovfQb_MOIEQu3MtmR791hMbE1WApO2ATyggmJUHYpI4=",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHk5DanfSiWoTKGtYrWxk987ELuhlW-r5MVtfU0OEGyBoqqtJ8KpE1hNyGm0keNa4VKq0Z4SbGQ45n7TH4cgtUYOOiYaDdQ8xc0QzIP7u6kZbyBAujyaq51He24-3t_d0dEFMvrANcA5wPkCzu-",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGxttFmnXSlcwUHiFPUbxTWJ1sAKXuE_W6Lyd8mvX5JiAQqkOKt7EAXD9pH-slvHup9r90yEBzmT-iv9s4RI6sSOcbLh2tlP_CqZd7pbKx_5duNpkmEPqJ2inwaUjFKInXc1u1AvjukizCikpvsN_IBXviMG_U=",
+        "title": "deveresociety.co.uk"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFtTaijN2JsQecj4uksGzCdYnyLNJD-D8klxXMDeJFiyagJr37cr13dxy4M9kU8xcScCakQWvMKxloLxFl_6bZVOaLOj4KRtLz7ebXcFRENR5IyMcGU3m6u1n51AOwfPWJCij59lC8k-fvXfufRAWIk4XFzXJRy_Lxs9UZhEe3Afa_Rkn5hs2wJJ6My5INVfI3-YDD0ajA1Nt9iQ-oOfxOTCKfb",
+        "title": "ox.ac.uk"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHT7pA4NjtdBWV1pvZ0q7nymWmqpGKKIyl2KrpLNMZINktj--atyr9PvskIWhwBqRgvmQLMPb9bGiWuxRr0O6m0TuCUOvp-y-a_mwmYVcppXKRQ9-Qr4CgqsWR0zEXiYHcSJNuwIKyY2qftnOJdHM5XAJpFMBk=",
+        "title": "st-andrews.ac.uk"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGrq_Y-GyqYcliAYmRhMssH__9_Z9RpTjOdoHe32Spd2dQ6UftV0HVaOjQTCpBhzcyKumJELplvzp6JynCDeUDLVXj2l6VcmmfZVvb1I-RFidmW2ys1NtX8A4_Rsas-cBkLhYuf7MUqtGDEGGF4eRpYfnIWk-idfG_cYM_lJRgDOokiDNPHliFyobod_GnSFBCjlA4yF4w=",
+        "title": "quantamagazine.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG7VoGdOnoT8QSv8umaavxaIp6pRIOw-WpFrnwnusk7qHE1MFnqQi_dAGHZHluAPZyKYlDUFwiwKayqr-wT3XxNgLCG-jB3rJL9fvw1_bXKUsmpOKKyQUsEqTGosexLTOaoAHK8VpAhl1Lu9zRzw8I=",
+        "title": "royalsociety.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFAoRwZm-nSuAVSvXMafaNslsq3LB0Twy-Ce0p_47xl6oO_-q6XhVB4MBBRPtp5_cTm4ftbxfMTUVtnmtEpIbzYwt3Ja7yz91-VX-yeUnhrN372oZ6btZ-tIUegkgMX1jy-OPK93MUblF0gMRe4-_xHlSqX1oV5YaRlCCtA0x5OvZ4EgW_-Ol0SXUoBDnzvbaFtwZxAkVeUYs-eHbr_KxiHVV_82TwkZtqnbbsBh4NnsMgkBUUKlToiA5rz-4qYw4GxjVA=",
+        "title": "qmul.ac.uk"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "salim-ismail",
+    "name": "Salim Ismail",
+    "group": "thought_leader",
+    "field": "Exponential Organizations",
+    "era": "b. 1965",
+    "summary": "Salim Ismail is a technology strategist, speaker, and serial entrepreneur. As founding executive director of Singularity University and author of \"Exponential Organizations,\" he studies how organizations can scale rapidly by leveraging accelerating technologies.",
+    "contributions": [
+      "Founding executive director of Singularity University",
+      "Lead author of \"Exponential Organizations,\" a framework for technology-driven scaling",
+      "Founder of OpenExO, a global transformation platform"
+    ],
+    "quotes": [],
+    "imageUrl": "https://www.shrm.org/content/dam/en/shrm/topics-tools/content-journeys/aihi/salim-ismail.png",
+    "relatedCategorySlugs": [],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Salim_Ismail",
+        "title": "Wikipedia"
+      },
+      {
+        "url": "https://openexo.com/community/salimismail",
+        "title": "OpenExO"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "sara-seager",
+    "name": "Sara Seager",
+    "group": "scientist",
+    "field": "Exoplanets & Astrobiology",
+    "era": "b. 1971",
+    "summary": "Sara Seager is an astrophysicist and planetary scientist at MIT and a leading figure in the search for planets beyond our solar system. Her theoretical work on exoplanet atmospheres and biosignature gases helped define how scientists detect and characterize distant worlds.",
+    "contributions": [
+      "Developed foundational theory for analyzing exoplanet atmospheres and biosignatures",
+      "Pioneered methods to characterize the composition of planets orbiting distant stars",
+      "Named a MacArthur Fellow for advancing the search for life beyond Earth"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Sara_Seager_CHF-Cain-Conference-May-2016-059.jpg/500px-Sara_Seager_CHF-Cain-Conference-May-2016-059.jpg",
+    "relatedCategorySlugs": [
+      "astronomy",
+      "physics"
+    ],
+    "sources": [
+      {
+        "url": "https://www.saraseager.com",
+        "title": "saraseager.com"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Sara_Seager",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "svante-paabo",
+    "name": "Svante Pääbo",
+    "group": "scientist",
+    "field": "Evolutionary Genetics",
+    "era": "b. 1955",
+    "summary": "Svante Pääbo is a Swedish geneticist and Nobel Laureate, widely recognized as one of the founders of paleogenetics. He is celebrated for pioneering methods to extract and analyze ancient DNA from extinct organisms, significantly advancing our understanding of human evolution. His groundbreaking work includes sequencing the Neanderthal genome and discovering the Denisovans, revealing complex interbreeding events with early modern humans.",
+    "contributions": [
+      "Co-founding the scientific discipline of paleogenetics.",
+      "Developing pioneering techniques for extracting and sequencing ancient DNA from archaeological and paleontological remains.",
+      "Achieving the first sequencing of the Neanderthal genome.",
+      "Discovering the Denisovans, a previously unknown hominin group, through ancient DNA analysis.",
+      "Demonstrating that gene flow occurred between Neanderthals and Homo sapiens, contributing Neanderthal DNA to present-day non-African populations.",
+      "Identifying genetic differences between modern humans and extinct hominins that may underlie human-specific traits, such as those related to cognitive and language abilities."
+    ],
+    "quotes": [
+      "The dirty little secret of genomics is that we still know next to nothing about how a genome translates into the particularities of a living and breathing individual.”",
+      "From a genomic perspective, we are all Africans.”",
+      "Neanderthals are not totally extinct. In some of us they live on, a little bit.\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/90/Professor_Svante_Paabo_ForMemRS_%28cropped%29_%28cropped%29.jpg",
+    "relatedCategorySlugs": [
+      "biology",
+      "human-health",
+      "neuroscience"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHgDx1GzSiLMIfFTZ5VjsGiSJ8iSLGYAhLOxaXguC-usvFFohLhvbGWZNh8chqiQe4B4X1XGl8A5L3fFiqcu3lW4UF273KZ3P_MpZHL7vgOAhRJKK1nVevbDT-aDctAt8NmKALoigfRZcKW6Gan5rQd0Q4_JV8=",
+        "title": "goodreads.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFyMvbDx8KEBqP0XP0Zx9fNoGSt9-X3WfTyfYjO7R90Hv3mcY-pBnB4KHJDhxF6HAs5GMvbBJub9IbahgzevbmhK9rOG3krzaAopv9udpLeWDoYuUUzmHrOwHVywxUwUUvaNswVCtTRUp6m737pkz1KENdrM3WGKk8Yt1H8pDEYtYmtseBmpj648fasXoXnqRT_ci56UItg",
+        "title": "goodreads.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGwU0gPOWHFG--kZ0wXvJygD7B_rPgiTLX9wMLBbs7isLoec-C_hwLqVNDmnh-MeBNT28W8UonsCr22k5JDkOB4M8awdp9_zhPbziFQmhHmx2I1FXpY4EVtsBk4j6gN2RvqNIbTzedMDngGwls=",
+        "title": "azquotes.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFQQmX0R9N1SQ9mgxdO4Fv3PGHY7ciDR5Z-8c9RRFybTd8dALp1E_eyofgpK66QuBwJ2T_i5fxLAOdYJ_qX-cYy7yqVUJFixyte-VRM51EjPA8nTLcGnp_mMD0qVVkwpaaM7LR_cRYx7XjxsvIj2z25s5NIPWAOW5guJiQI5ISvI9mi7xIV1LgzC4vvYakaKQ8uH-T8d6r0ZBpd",
+        "title": "quotefancy.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGZrxXd1SKFq7C_o111zWpgDqec-SiWobIoCxXGrPtyWoy6bKHipEGWnTYzW_WxnmINOw4nNduFyp4wjaNl-DfGwMpudNt4sGp4B86HwYTZw3u52UWgaCz4HGRDmPIxBQ==",
+        "title": "azquotes.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFeAdIm0_bWdhN4gcp68969oBa0iAYYmurINGnbdbN-OfB5w5sRifEPoarF5V6S6RWxQH1BvSEv9hwq9t77REUiAvZtDMyBQImAc_JZaTjC2Q9HfOgoVlmaTwTbLJTRw56qbAA=",
+        "title": "ted.com"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "tasuku-honjo",
+    "name": "Tasuku Honjo",
+    "group": "scientist",
+    "field": "Immunology",
+    "era": "b. 1942",
+    "summary": "Tasuku Honjo is a Japanese physician-scientist and immunologist who was awarded the 2018 Nobel Prize in Physiology or Medicine. He is renowned for his identification of programmed cell death protein 1 (PD-1), a pivotal discovery that paved the way for the development of effective cancer immunotherapies. His groundbreaking work has significantly transformed the landscape of cancer treatment and research.",
+    "contributions": [
+      "Identified programmed cell death protein 1 (PD-1) in 1992, which functions as a brake on T-cells and is crucial for cancer immunotherapy.",
+      "Discovered activation-induced cytidine deaminase (AID), an enzyme essential for class switch recombination and somatic hypermutation of immunoglobulin genes.",
+      "Elucidated the basic conceptual framework and molecular mechanism of immunoglobulin class switch recombination.",
+      "Molecularly identified key immune-regulatory cytokines, including IL-4 and IL-5.",
+      "Demonstrated that PD-1 inhibition enhances anti-tumor responses, leading to the development of PD-1 blockade cancer therapies.",
+      "Contributed to developmental biology by identifying RBP-J as a Notch signaling target."
+    ],
+    "quotes": [
+      "\"Questioning assumptions is the foundation of scientific progress.\"",
+      "\"Discoveries are often born out of failure, so don't be discouraged by setbacks.\"",
+      "\"My motto is 'research what you want to know.'\""
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Tasuku_Honjo_201311.jpg",
+    "relatedCategorySlugs": [
+      "biology",
+      "human-health"
+    ],
+    "sources": [
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG0CyaX5-R053atNs8orTmdBPJGbaNKMAoCRlC_XVymws9aiZMvOQXTi67p9O_uu4NW17Y2NI3oov4s6M8fu9iBEdfLk3TKJ1VQLKjS4JoYSD-_25ddUWD97lMDyMQivzrIbsWK",
+        "title": "wikipedia.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQETrQe-EpfAwrF9gmH5Eg3gAA-lTlqp_c7E_a9miJRD__SQI33d2fMLA-B_0CIGn3_D_WamYCZv3TG-hiBv1jGgNEZGVcsz4vvH3CnOP5DCi6m4qw3OciRNfuTaoyIds_eiRTSMKqDDtaWNtg==",
+        "title": "britannica.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHg-2Bt606shtxalaO9TbGmAKane92MEE-q0E8Fi1-4FjP2v06d2rZeewgPoFgr9NNjNCGdDMs0FQYHjNfjTeXXz85aBb_NIT0WVrPRzO4j2Vlmgb8t7epKwU9dVmtC9gxLxnyP5R6xWRwkyu9Vg5-c3SbmVoAFe4IQG2cY6NTK3zKLcudHMdW78SBuY3ssMKqWf5jmhom4AvxK",
+        "title": "oncology-central.com"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH8mqdZRcSf0IgDfoiYIsaX_COMhC8Kbguu3P3wJLDtMqa9ZMwtdSRPvHnPvqMMIiAi-YSXFuyQHrRrbq3WZXJTIJLSzTeC75cjfgsBSMqAhB_cVvO7kOU8NIMgznM92ypMiSEOgN15X_tXcfL1eJFDQeS_H2TCDk6spPilUJL7jkp-98453OJEAt1aAPofZvriUSPMxlXJi9WTF0bsMca3b5N_wQkHQ0_tadrZLe9R8H4=",
+        "title": "cancerresearchuk.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHCqts9hciAROlc2X77_lH3xjgF6K_IO--l-3iliYc6bguh27Y45DiEspx74HmuYvRj76pAKr61i-hU94E2rytyVXEDOARX9RQsycn1xG-TZ0j2wkpOPRgvoQhU31VFpmnkJlY07gETFTXot7BrmIg=",
+        "title": "kyotoprize.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQErLBR03BqMkLQ52cAsKE9Be1TkoxnKxCxRtVdNFt6T9xSTJTqXZQAyaQVD7ROmGVI_1xk-fV7Vc5FTYq5_JUpug-s3F2cjM4rCfLN91TTiNPzi8JsiRdD8NyamTyWWbd-ODui6gBE=",
+        "title": "kyoto-u.ac.jp"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH1dcs4fr_iI89c6XtmWXWz8pQRgfuAzor6qvVQs1clAqJjTKZ1XpvKlOKSczHIwbvFpqvxXhcBuoGWXGcACssltVdAlJtn3LW8SAXXsxPYm6g_DZheaeBls7jUEMDS_JpNlliIFVW9e7LFHdGAVB-eTlm1vnL91EzffG6t0MYHuKVd9utU43ENRZm7v2W7aDF4",
+        "title": "aacr.org"
+      },
+      {
+        "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEIfcU3fu5gmBHVwSrx1L-aLIn-5fyhegkVSg2noKlspGWUkPA3U5d5IAmvlZOZZHpezJRXaj0_Zjyjurx55cr8W5566tfcqHzUa5uvcfYPWxI_LffDid72ytEV0W9BMgbhLOnfy-Au-40=",
+        "title": "sitcancer.org"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  },
+  {
+    "slug": "tim-berners-lee",
+    "name": "Tim Berners-Lee",
+    "group": "inventor",
+    "field": "Computer Science",
+    "era": "b. 1955",
+    "summary": "Sir Tim Berners-Lee is a British computer scientist who invented the World Wide Web in 1989. He created the first web browser and server and chose to make the underlying technology free and open to all.",
+    "contributions": [
+      "Invented the World Wide Web, including HTTP, HTML, and the URL",
+      "Built the first web browser and web server",
+      "Founded the World Wide Web Consortium (W3C) to keep the web open"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Tim_Berners-Lee_at_the_2025_Web_Summit_%28Cropped%29.jpg",
+    "relatedCategorySlugs": [],
+    "sources": [
+      {
+        "url": "https://en.wikipedia.org/wiki/Tim_Berners-Lee",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null
+  }
+]
