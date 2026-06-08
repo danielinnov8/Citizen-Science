@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Film,
   ArrowLeft,
+  RotateCcw,
 } from "lucide-react";
 import {
   COMPETITION,
@@ -19,7 +20,32 @@ import {
   computeReadiness,
   daysUntil,
   type ReqStatus,
+  type XprizeGroup,
+  type XprizeRequirement,
 } from "@/lib/xprize";
+
+// Persisted user check-offs for the readiness dashboard. Maps a requirement id
+// to the user's intent: true = checked (Ready), false = explicitly un-checked
+// (To do). Absent = fall back to the default status authored in xprize.ts.
+const CHECKS_KEY = "cs.xprizeChecks";
+type Overrides = Record<string, boolean>;
+
+// Authored default status per requirement id — used to prune overrides that
+// match the default, so check state only persists when it actually differs.
+const DEFAULT_STATUS: Record<string, ReqStatus> = Object.fromEntries(
+  REQUIREMENT_GROUPS.flatMap((g) => g.items.map((it) => [it.id, it.status])),
+);
+
+function loadOverrides(): Overrides {
+  try {
+    const raw = localStorage.getItem(CHECKS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as unknown;
+    return parsed && typeof parsed === "object" ? (parsed as Overrides) : {};
+  } catch {
+    return {};
+  }
+}
 
 const STATUS_META: Record<
   ReqStatus,
@@ -95,8 +121,49 @@ function ScoreRing({ score }: { score: number }) {
 }
 
 export function Xprize() {
-  const summary = React.useMemo(() => computeReadiness(), []);
+  const [overrides, setOverrides] = React.useState<Overrides>(() => loadOverrides());
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(CHECKS_KEY, JSON.stringify(overrides));
+    } catch {
+      // ignore write failures (private mode, quota, etc.)
+    }
+  }, [overrides]);
+
+  // Apply the user's check-offs on top of the authored defaults.
+  const effectiveGroups = React.useMemo<XprizeGroup[]>(
+    () =>
+      REQUIREMENT_GROUPS.map((g) => ({
+        ...g,
+        items: g.items.map((it) => {
+          const o = overrides[it.id];
+          const status: ReqStatus = o === true ? "met" : o === false ? "todo" : it.status;
+          return { ...it, status };
+        }),
+      })),
+    [overrides],
+  );
+
+  const summary = React.useMemo(() => computeReadiness(effectiveGroups), [effectiveGroups]);
   const deadlineDays = daysUntil(KEY_DATES[0].iso);
+
+  const toggle = React.useCallback((item: XprizeRequirement) => {
+    // `item.status` here is already the effective status, so flip from it.
+    const next = item.status !== "met";
+    const def = DEFAULT_STATUS[item.id];
+    // Dropping back to the authored default is a no-op — don't persist it.
+    const isDefault = (next && def === "met") || (!next && def === "todo");
+    setOverrides((prev) => {
+      const updated = { ...prev };
+      if (isDefault) delete updated[item.id];
+      else updated[item.id] = next;
+      return updated;
+    });
+  }, []);
+
+  const hasChecks = Object.keys(overrides).length > 0;
+  const resetChecks = React.useCallback(() => setOverrides({}), []);
 
   return (
     <div className="min-h-[100dvh] bg-[#F8FAFC] text-[#0F172A] font-sans">
@@ -190,8 +257,23 @@ export function Xprize() {
         )}
 
         {/* Requirement groups */}
-        <div className="mt-10 space-y-8">
-          {REQUIREMENT_GROUPS.map((group) => (
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-[#64748B]">
+            Click the status icon on any requirement to check it off — the readiness score updates
+            live.
+          </p>
+          {hasChecks && (
+            <button
+              type="button"
+              onClick={resetChecks}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm font-medium text-[#475569] shadow-sm transition-colors hover:bg-[#F8FAFC]"
+            >
+              <RotateCcw className="h-3.5 w-3.5" /> Reset checks
+            </button>
+          )}
+        </div>
+        <div className="mt-4 space-y-8">
+          {effectiveGroups.map((group) => (
             <section key={group.id}>
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#94A3B8]">
                 {group.label}
@@ -208,7 +290,20 @@ export function Xprize() {
                         (idx > 0 ? " border-t border-[#F1F5F9]" : "")
                       }
                     >
-                      <Icon className={"mt-0.5 h-5 w-5 shrink-0 " + meta.text} />
+                      <button
+                        type="button"
+                        onClick={() => toggle(item)}
+                        aria-pressed={item.status === "met"}
+                        aria-label={
+                          item.status === "met"
+                            ? `Mark "${item.title}" as not ready`
+                            : `Mark "${item.title}" as ready`
+                        }
+                        title={item.status === "met" ? "Mark as not ready" : "Mark as ready"}
+                        className="mt-0.5 shrink-0 rounded-full transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                      >
+                        <Icon className={"h-5 w-5 " + meta.text} />
+                      </button>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="font-semibold text-[#0F172A]">{item.title}</h3>
