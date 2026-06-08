@@ -1,0 +1,14 @@
+Understanding cNLP:
+How Computers Determine the Story Between the Words
+
+In simple terms, we take a piece of writing and break it down into smaller parts to understand each piece and how they fit together. It's like looking at a puzzle to see why each piece is important and how it influences the big picture. Now, with emotion-aware AI, we're going even further. We're not just identifying what's being said; we're starting to understand how it's felt. This means our technology doesn't just see words and their meanings—it begins to recognize the emotions behind them, giving us a fuller, more human understanding of the text.
+
+Dividing Content into Tokens: Think of a piece of content, like a paragraph or a page in a book, being split up into smaller parts. These parts are called tokens. They can be anything - like the sounds we make when we speak, the symbols we see in writing, individual letters, whole words, or even entire sentences and paragraphs.
+
+Measuring the Meaning of Each Token: For each of these tokens, the computer tries to figure out what it means. This is simply the generally accepted significance of a token in a given context. In case of a word it's the dictionary meaning with a word cloud of synonyms. This value is called a Probable Measure of Meaning (PMM).
+
+Calculating Proximity for Other Tokens: Now, let’s say we pick one specific token (let's call this the target token) and we want to know more about it in a given sub-context. The computer then looks at other tokens that are close to our target token - maybe the words that come right before or after it. This is like finding out who are the neighbors of this token and how frequently do they show up as neighbors in a particular context. This value is called the Probability Function (PF) for each neighboring token.
+
+Modifying PMMs Based on Proximity: After finding these neighboring tokens, the computer then adjusts their PMMs based on how often they show up as neighbors.
+
+Creating a Relative Measure of Meaning (RMM) for the Target Token: Finally, the computer uses these adjusted PMMs of the neighboring tokens, along with the PMM of our target token, to come up with a new measure. This new measure, called the Relative Measure of Meaning (RMM), tells us how important our target token is in the context of the whole content, considering the tokens around it.
