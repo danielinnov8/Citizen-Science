@@ -147,6 +147,10 @@ export function TalkToFigure({
   // after a silence, so we auto-restart while this is true — the mic stays on
   // across turns until the user explicitly toggles it off.
   const listeningRef = useRef(false);
+  // Ensures the mic is auto-enabled only ONCE when the session first goes live.
+  // Without this guard, re-renders (e.g. while `thinking` toggles) would re-fire
+  // the auto-start effect and turn the mic back on after the user muted it.
+  const autoMicStartedRef = useRef(false);
 
   // WebAudio analyser that taps the live audio track to detect when Albert is
   // actually speaking (so the still portrait can show while he listens). The
@@ -255,6 +259,7 @@ export function TalkToFigure({
     avatarSpeakingRef.current = false;
     recognitionMuteUntilRef.current = 0;
     analyserActiveRef.current = false;
+    autoMicStartedRef.current = false;
 
     // Ask for the microphone up front (while we still have the click's user
     // gesture) so push-to-talk is ready immediately. Denial is non-fatal — the
@@ -593,6 +598,22 @@ export function TalkToFigure({
       setListening(false);
     }
   }, [send]);
+
+  // Auto-enable the mic once the conversation is live, so the visitor can just
+  // start talking instead of hunting for the mute button. Fires only once per
+  // session (autoMicStartedRef) and never overrides an explicit mute.
+  useEffect(() => {
+    if (
+      conn === "live" &&
+      speechSupported &&
+      !micDenied &&
+      !autoMicStartedRef.current &&
+      !listeningRef.current
+    ) {
+      autoMicStartedRef.current = true;
+      toggleListening();
+    }
+  }, [conn, speechSupported, micDenied, toggleListening]);
 
   // Countdown timer; auto-ends at the cap.
   useEffect(() => {
