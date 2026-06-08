@@ -36,6 +36,13 @@ function hostname(url: string): string {
   }
 }
 
+// Per-figure focal point for the hero portrait crop. Some source photos are
+// wide landscape shots where the subject sits off-center, so the default
+// object-center crop cuts them off; these tune the focal point.
+const PORTRAIT_FOCAL_BY_SLUG: Record<string, string> = {
+  "manu-rehani": "object-[70%_center]",
+};
+
 function Reveal({
   children,
   delay = 0,
@@ -600,6 +607,152 @@ function ChalkboardHero({ y }: { y: MotionValue<number> }) {
   );
 }
 
+// Manu Rehani — behavioral intelligence read as markets: red and blue
+// moving-average curves crossing over a faint price series on a dark
+// trading-terminal field, strewn with numbers and equations.
+function MarketsHero({ y }: { y: MotionValue<number> }) {
+  const num = "pointer-events-none absolute select-none font-mono tracking-tight";
+  const pricePts = Array.from({ length: 90 }, (_, i) => {
+    const x = (i / 89) * 1200;
+    const base = 340 - Math.sin(i / 8) * 78 - Math.cos(i / 3.1) * 22;
+    const jitter = ((i * 47) % 19) - 9;
+    return `${x.toFixed(1)},${(base + jitter).toFixed(1)}`;
+  }).join(" ");
+  return (
+    <>
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundColor: "#05080f",
+          backgroundImage:
+            "radial-gradient(70% 60% at 22% 36%, rgba(59,130,246,0.22), transparent 60%), radial-gradient(60% 60% at 84% 70%, rgba(239,68,68,0.16), transparent 60%), linear-gradient(165deg, #0a1020 0%, #070a14 55%, #04060c 100%)",
+        }}
+      />
+      {/* Glow orbs anchoring the two trend colors */}
+      <div
+        className="pointer-events-none absolute left-[26%] top-[40%] h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[70px]"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(96,165,250,0.45), rgba(37,99,235,0.14) 55%, transparent 72%)",
+        }}
+      />
+      <div
+        className="pointer-events-none absolute right-[16%] top-[58%] h-56 w-56 rounded-full blur-[70px]"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(248,113,113,0.42), rgba(239,68,68,0.12) 55%, transparent 72%)",
+        }}
+      />
+
+      <motion.div style={{ y }} className="absolute inset-0" aria-hidden="true">
+        <svg
+          className="absolute inset-0 h-full w-full"
+          viewBox="0 0 1200 600"
+          preserveAspectRatio="xMidYMid slice"
+          fill="none"
+        >
+          <defs>
+            <filter id="ma-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2.4" result="b" />
+              <feMerge>
+                <feMergeNode in="b" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          {/* Terminal grid */}
+          <g stroke="#9fb3d1" strokeWidth="1" opacity="0.08">
+            {Array.from({ length: 13 }).map((_, i) => (
+              <line key={`v${i}`} x1={i * 100} y1={0} x2={i * 100} y2={600} />
+            ))}
+            {Array.from({ length: 7 }).map((_, i) => (
+              <line key={`h${i}`} x1={0} y1={i * 100} x2={1200} y2={i * 100} />
+            ))}
+          </g>
+          {/* Faint underlying price series */}
+          <polyline points={pricePts} stroke="#60a5fa" strokeWidth="1" opacity="0.26" />
+          {/* Blue moving average */}
+          <path
+            d="M0 300 C 150 342, 280 384, 420 350 C 560 320, 660 362, 800 318 C 960 270, 1060 228, 1200 282"
+            stroke="#3b82f6"
+            strokeWidth="3"
+            strokeLinecap="round"
+            opacity="0.9"
+            filter="url(#ma-glow)"
+          />
+          {/* Red moving average */}
+          <path
+            d="M0 364 C 150 322, 250 300, 380 332 C 520 366, 600 280, 760 250 C 900 226, 1010 272, 1200 238"
+            stroke="#ef4444"
+            strokeWidth="3"
+            strokeLinecap="round"
+            opacity="0.9"
+            filter="url(#ma-glow)"
+          />
+          {/* Crossover markers */}
+          {[
+            [300, 318],
+            [470, 348],
+            [792, 300],
+          ].map(([cx, cy], i) => (
+            <circle
+              key={i}
+              cx={cx}
+              cy={cy}
+              r={5}
+              fill="#fbbf24"
+              opacity="0.8"
+              filter="url(#ma-glow)"
+            />
+          ))}
+        </svg>
+
+        {/* Scattered numbers */}
+        <span className={`${num} left-[6%] top-[12%] text-sm sm:text-base text-sky-300`} style={{ opacity: 0.5 }}>
+          1,284.50
+        </span>
+        <span className={`${num} left-[20%] top-[24%] text-xs sm:text-sm text-emerald-300`} style={{ opacity: 0.45 }}>
+          +12.4%
+        </span>
+        <span className={`${num} right-[10%] top-[14%] text-sm sm:text-base text-rose-300`} style={{ opacity: 0.5 }}>
+          −3.18%
+        </span>
+        <span className={`${num} right-[22%] top-[31%] text-xs sm:text-sm text-sky-300`} style={{ opacity: 0.4 }}>
+          σ = 0.182
+        </span>
+        <span className={`${num} left-[8%] bottom-[20%] text-xs sm:text-sm text-rose-300`} style={{ opacity: 0.45 }}>
+          MA(50)
+        </span>
+        <span className={`${num} left-[17%] bottom-[14%] text-xs sm:text-sm text-sky-300`} style={{ opacity: 0.45 }}>
+          MA(200)
+        </span>
+        <span className={`${num} right-[8%] bottom-[26%] text-xs sm:text-sm text-slate-300`} style={{ opacity: 0.4 }}>
+          n = 200 · α = 0.12
+        </span>
+
+        {/* Equations */}
+        <span className={`${num} left-[5%] top-[35%] text-base sm:text-2xl text-sky-200`} style={{ opacity: 0.16 }}>
+          EMAₜ = α·pₜ + (1−α)·EMAₜ₋₁
+        </span>
+        <span className={`${num} right-[5%] top-[45%] text-base sm:text-2xl text-rose-200`} style={{ opacity: 0.15 }}>
+          SMAₙ = (1∕n) Σ pᵢ
+        </span>
+        <span className={`${num} left-[10%] bottom-[31%] text-sm sm:text-xl text-slate-200`} style={{ opacity: 0.13 }}>
+          P(aₜ | sₜ) = softmax(Q(sₜ, a))
+        </span>
+        <span className={`${num} right-[7%] bottom-[13%] text-sm sm:text-xl text-slate-200`} style={{ opacity: 0.12 }}>
+          σ = √( Σ(x − μ)² ∕ n )
+        </span>
+        <span className={`${num} left-[40%] top-[8%] text-sm sm:text-xl text-slate-200`} style={{ opacity: 0.12 }}>
+          E[X] = Σ xᵢ p(xᵢ)
+        </span>
+      </motion.div>
+
+      <HeroDressing fade="rgba(4,6,12,0.74)" grain={0.08} />
+    </>
+  );
+}
+
 export function GreatMindStory({
   story,
   profile,
@@ -686,6 +839,8 @@ export function GreatMindStory({
           <ElectricHero y={motifY} />
         ) : heroVariant === "naturalist" ? (
           <NaturalistHero y={motifY} />
+        ) : heroVariant === "markets" ? (
+          <MarketsHero y={motifY} />
         ) : (
           <>
             {/* Fine grid that dissolves toward the edges */}
@@ -853,7 +1008,9 @@ export function GreatMindStory({
                   <img
                     src={story.imageUrl}
                     alt={story.name}
-                    className="h-full w-full object-cover"
+                    className={`h-full w-full object-cover ${
+                      PORTRAIT_FOCAL_BY_SLUG[story.slug] ?? "object-center"
+                    }`}
                   />
                   <div
                     className="absolute inset-0 mix-blend-soft-light opacity-40"

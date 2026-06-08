@@ -43,7 +43,7 @@ export interface StoryTheme {
   // Optional special hero treatment. "chalkboard" renders a dark slate
   // chalkboard with the figure's famous equations sketched in chalk instead of
   // the default colored mesh-gradient hero.
-  heroVariant?: "chalkboard" | "radium" | "electric" | "naturalist";
+  heroVariant?: "chalkboard" | "radium" | "electric" | "naturalist" | "markets";
 }
 
 export interface GreatMindStory {
@@ -1121,6 +1121,12 @@ export function deriveStoryTheme(field: string): StoryTheme {
   return theme;
 }
 
+// Bespoke hero treatments for specific living figures whose page deserves a
+// hand-tuned cinematic banner beyond the field-derived default.
+const BESPOKE_HERO_BY_SLUG: Record<string, StoryTheme["heroVariant"]> = {
+  "manu-rehani": "markets",
+};
+
 const STORY_MOTIFS: readonly StoryMotif[] = [
   "relativity",
   "radioactivity",
@@ -1212,6 +1218,10 @@ export function buildStoryFromProfile(
         motif: coerceMotif(profile.storyTheme.motif, "relativity"),
       }
     : deriveStoryTheme(profile.field);
+
+  // Bespoke per-figure hero treatment overrides the field-derived default.
+  const bespokeHero = BESPOKE_HERO_BY_SLUG[profile.slug];
+  if (bespokeHero) theme.heroVariant = bespokeHero;
 
   const contributions: StoryContribution[] =
     profile.storyContributions && profile.storyContributions.length > 0
