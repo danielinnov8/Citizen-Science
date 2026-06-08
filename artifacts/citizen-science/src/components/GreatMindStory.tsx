@@ -607,17 +607,53 @@ function ChalkboardHero({ y }: { y: MotionValue<number> }) {
   );
 }
 
-// Manu Rehani — behavioral intelligence read as markets: red and blue
-// moving-average curves crossing over a faint price series on a dark
-// trading-terminal field, strewn with numbers and equations.
+// Manu Rehani's cited Relevance Memory Model, typeset faithfully in HTML so it
+// can be tinted to sit subtly on the dark hero.
+function RmmEquation({
+  className = "",
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap italic font-serif ${className}`}
+      style={style}
+    >
+      <span>
+        RMM(token<sub>N</sub>)
+      </span>
+      <span>=</span>
+      <span>
+        PMM(token<sub>N</sub>)
+      </span>
+      <span>×</span>
+      {/* 1 / 2d */}
+      <span className="inline-flex flex-col items-center leading-none not-italic">
+        <span className="px-1">1</span>
+        <span className="border-t border-current px-1">2d</span>
+      </span>
+      {/* Σ with limits */}
+      <span className="inline-flex flex-col items-center leading-none not-italic text-[0.5em] -mx-0.5">
+        <span>d</span>
+        <span className="text-[2.1em] leading-none">Σ</span>
+        <span>i=−d</span>
+      </span>
+      <span>
+        ( (PMM(token<sub>N−1</sub>) × PF(token<sub>N</sub>, token<sub>N−1</sub>))
+        <sub>i</sub> )
+      </span>
+    </span>
+  );
+}
+
+// Manu Rehani — behavioral intelligence rendered abstractly: soft red and blue
+// signal curves drifting across a dark field, anchored by the actual cited
+// Relevance Memory Model equation.
 function MarketsHero({ y }: { y: MotionValue<number> }) {
-  const num = "pointer-events-none absolute select-none font-mono tracking-tight";
-  const pricePts = Array.from({ length: 90 }, (_, i) => {
-    const x = (i / 89) * 1200;
-    const base = 340 - Math.sin(i / 8) * 78 - Math.cos(i / 3.1) * 22;
-    const jitter = ((i * 47) % 19) - 9;
-    return `${x.toFixed(1)},${(base + jitter).toFixed(1)}`;
-  }).join(" ");
+  const tag =
+    "pointer-events-none absolute select-none font-mono tracking-tight";
   return (
     <>
       <div
@@ -625,22 +661,22 @@ function MarketsHero({ y }: { y: MotionValue<number> }) {
         style={{
           backgroundColor: "#05080f",
           backgroundImage:
-            "radial-gradient(70% 60% at 22% 36%, rgba(59,130,246,0.22), transparent 60%), radial-gradient(60% 60% at 84% 70%, rgba(239,68,68,0.16), transparent 60%), linear-gradient(165deg, #0a1020 0%, #070a14 55%, #04060c 100%)",
+            "radial-gradient(72% 60% at 24% 34%, rgba(59,130,246,0.14), transparent 62%), radial-gradient(64% 60% at 82% 72%, rgba(239,68,68,0.10), transparent 62%), linear-gradient(165deg, #0a1020 0%, #070a14 55%, #04060c 100%)",
         }}
       />
-      {/* Glow orbs anchoring the two trend colors */}
+      {/* Soft color anchors, kept faint */}
       <div
-        className="pointer-events-none absolute left-[26%] top-[40%] h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[70px]"
+        className="pointer-events-none absolute left-[28%] top-[42%] h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[90px]"
         style={{
           background:
-            "radial-gradient(circle, rgba(96,165,250,0.45), rgba(37,99,235,0.14) 55%, transparent 72%)",
+            "radial-gradient(circle, rgba(96,165,250,0.28), rgba(37,99,235,0.08) 55%, transparent 72%)",
         }}
       />
       <div
-        className="pointer-events-none absolute right-[16%] top-[58%] h-56 w-56 rounded-full blur-[70px]"
+        className="pointer-events-none absolute right-[18%] top-[60%] h-64 w-64 rounded-full blur-[90px]"
         style={{
           background:
-            "radial-gradient(circle, rgba(248,113,113,0.42), rgba(239,68,68,0.12) 55%, transparent 72%)",
+            "radial-gradient(circle, rgba(248,113,113,0.24), rgba(239,68,68,0.07) 55%, transparent 72%)",
         }}
       />
 
@@ -652,103 +688,66 @@ function MarketsHero({ y }: { y: MotionValue<number> }) {
           fill="none"
         >
           <defs>
-            <filter id="ma-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="2.4" result="b" />
-              <feMerge>
-                <feMergeNode in="b" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
+            <filter id="ma-soft" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="1.6" />
             </filter>
           </defs>
-          {/* Terminal grid */}
-          <g stroke="#9fb3d1" strokeWidth="1" opacity="0.08">
-            {Array.from({ length: 13 }).map((_, i) => (
-              <line key={`v${i}`} x1={i * 100} y1={0} x2={i * 100} y2={600} />
-            ))}
-            {Array.from({ length: 7 }).map((_, i) => (
-              <line key={`h${i}`} x1={0} y1={i * 100} x2={1200} y2={i * 100} />
-            ))}
-          </g>
-          {/* Faint underlying price series */}
-          <polyline points={pricePts} stroke="#60a5fa" strokeWidth="1" opacity="0.26" />
-          {/* Blue moving average */}
-          <path
-            d="M0 300 C 150 342, 280 384, 420 350 C 560 320, 660 362, 800 318 C 960 270, 1060 228, 1200 282"
-            stroke="#3b82f6"
-            strokeWidth="3"
+          {/* Abstract drifting signal curves — soft and low-contrast */}
+          <g
+            fill="none"
             strokeLinecap="round"
-            opacity="0.9"
-            filter="url(#ma-glow)"
-          />
-          {/* Red moving average */}
-          <path
-            d="M0 364 C 150 322, 250 300, 380 332 C 520 366, 600 280, 760 250 C 900 226, 1010 272, 1200 238"
-            stroke="#ef4444"
-            strokeWidth="3"
-            strokeLinecap="round"
-            opacity="0.9"
-            filter="url(#ma-glow)"
-          />
-          {/* Crossover markers */}
-          {[
-            [300, 318],
-            [470, 348],
-            [792, 300],
-          ].map(([cx, cy], i) => (
-            <circle
-              key={i}
-              cx={cx}
-              cy={cy}
-              r={5}
-              fill="#fbbf24"
-              opacity="0.8"
-              filter="url(#ma-glow)"
+            vectorEffect="non-scaling-stroke"
+            filter="url(#ma-soft)"
+          >
+            <path
+              d="M-60 252 C 240 300, 420 218, 640 270 C 880 326, 1040 224, 1260 268"
+              stroke="#60a5fa"
+              strokeWidth="2"
+              opacity="0.16"
             />
-          ))}
+            <path
+              d="M-60 320 C 200 262, 360 384, 600 322 C 840 262, 1000 366, 1260 300"
+              stroke="#3b82f6"
+              strokeWidth="2"
+              opacity="0.3"
+            />
+            <path
+              d="M-60 362 C 220 424, 380 300, 620 362 C 860 424, 1020 300, 1260 352"
+              stroke="#ef4444"
+              strokeWidth="2"
+              opacity="0.28"
+            />
+            <path
+              d="M-60 430 C 260 388, 440 470, 660 420 C 900 366, 1060 452, 1260 408"
+              stroke="#f87171"
+              strokeWidth="1.5"
+              opacity="0.14"
+            />
+          </g>
         </svg>
 
-        {/* Scattered numbers */}
-        <span className={`${num} left-[6%] top-[12%] text-sm sm:text-base text-sky-300`} style={{ opacity: 0.5 }}>
-          1,284.50
-        </span>
-        <span className={`${num} left-[20%] top-[24%] text-xs sm:text-sm text-emerald-300`} style={{ opacity: 0.45 }}>
-          +12.4%
-        </span>
-        <span className={`${num} right-[10%] top-[14%] text-sm sm:text-base text-rose-300`} style={{ opacity: 0.5 }}>
-          −3.18%
-        </span>
-        <span className={`${num} right-[22%] top-[31%] text-xs sm:text-sm text-sky-300`} style={{ opacity: 0.4 }}>
-          σ = 0.182
-        </span>
-        <span className={`${num} left-[8%] bottom-[20%] text-xs sm:text-sm text-rose-300`} style={{ opacity: 0.45 }}>
-          MA(50)
-        </span>
-        <span className={`${num} left-[17%] bottom-[14%] text-xs sm:text-sm text-sky-300`} style={{ opacity: 0.45 }}>
-          MA(200)
-        </span>
-        <span className={`${num} right-[8%] bottom-[26%] text-xs sm:text-sm text-slate-300`} style={{ opacity: 0.4 }}>
-          n = 200 · α = 0.12
-        </span>
+        {/* The actual cited equation — the centerpiece, kept quiet */}
+        <RmmEquation
+          className="left-1/2 top-[13%] -translate-x-1/2 text-[0.62rem] sm:text-sm md:text-base text-slate-100"
+          style={{ position: "absolute", opacity: 0.34 }}
+        />
 
-        {/* Equations */}
-        <span className={`${num} left-[5%] top-[35%] text-base sm:text-2xl text-sky-200`} style={{ opacity: 0.16 }}>
-          EMAₜ = α·pₜ + (1−α)·EMAₜ₋₁
+        {/* A couple of faint, authentic accents */}
+        <span
+          className={`${tag} hidden sm:block left-[6%] bottom-[18%] text-xs uppercase tracking-[0.25em] text-sky-200`}
+          style={{ opacity: 0.32 }}
+        >
+          Design for Relevance Fit
         </span>
-        <span className={`${num} right-[5%] top-[45%] text-base sm:text-2xl text-rose-200`} style={{ opacity: 0.15 }}>
-          SMAₙ = (1∕n) Σ pᵢ
-        </span>
-        <span className={`${num} left-[10%] bottom-[31%] text-sm sm:text-xl text-slate-200`} style={{ opacity: 0.13 }}>
-          P(aₜ | sₜ) = softmax(Q(sₜ, a))
-        </span>
-        <span className={`${num} right-[7%] bottom-[13%] text-sm sm:text-xl text-slate-200`} style={{ opacity: 0.12 }}>
-          σ = √( Σ(x − μ)² ∕ n )
-        </span>
-        <span className={`${num} left-[40%] top-[8%] text-sm sm:text-xl text-slate-200`} style={{ opacity: 0.12 }}>
-          E[X] = Σ xᵢ p(xᵢ)
+        <span
+          className={`${tag} hidden sm:block left-[40%] bottom-[24%] text-xs text-rose-200`}
+          style={{ opacity: 0.3 }}
+        >
+          PF(token<sub>N</sub>, token<sub>N−1</sub>)
         </span>
       </motion.div>
 
-      <HeroDressing fade="rgba(4,6,12,0.74)" grain={0.08} />
+      <HeroDressing fade="rgba(4,6,12,0.74)" grain={0.07} />
     </>
   );
 }
