@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import {
   COMPETITION,
+  CATEGORIES,
   KEY_DATES,
   EVALUATION_CRITERIA,
   RIGHTS,
@@ -210,8 +211,10 @@ export function Xprize() {
             </div>
             <p className="mt-4 text-sm text-[#64748B]">
               {summary.met + summary.partial}/{summary.total} scored requirements addressed. The
-              biggest gaps are registration and producing the actual submission package (export,
-              treatment, cover sheet). Acknowledgements and "later" steps aren't scored.
+              technical mandates (Gemini API + Google Cloud) are already met, but the biggest gaps
+              are business viability (real users + verifiable revenue) and AI-native operations —
+              two of the three equally-weighted judging criteria — plus packaging the submission
+              (repo, description, demo video).
             </p>
           </div>
         </div>
@@ -255,6 +258,23 @@ export function Xprize() {
             submission deadline.
           </p>
         )}
+
+        {/* Categories */}
+        <section className="mt-8">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#94A3B8]">
+            Five categories — pick one
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map((c) => (
+              <span
+                key={c}
+                className="rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm font-medium text-[#334155] shadow-sm"
+              >
+                {c}
+              </span>
+            ))}
+          </div>
+        </section>
 
         {/* Requirement groups */}
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
@@ -352,8 +372,7 @@ export function Xprize() {
             ))}
           </div>
           <p className="mt-3 text-xs text-[#94A3B8]">
-            YouTube engagement (views, likes, comments, shares) is also factored in, but audience
-            size won't give a significant advantage.
+            All three criteria are weighted equally. Each project is eligible for at most one prize.
           </p>
         </section>
 

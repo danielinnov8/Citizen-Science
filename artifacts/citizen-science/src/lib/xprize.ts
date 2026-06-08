@@ -1,10 +1,10 @@
-// Future Vision XPRIZE — readiness data.
+// Build with Gemini XPRIZE — readiness data.
 //
-// Source: official competition rules at https://futurevisionxprize.com/rules
-// (Peter Diamandis / XPRIZE Foundation / Google / Range). This drives the
-// dev-only /xprize readiness dashboard. Statuses reflect this project's current
-// state and are intentionally honest — most submission materials are not yet
-// produced, so the score is meant to show what's left, not to flatter.
+// Source: official competition rules at https://www.geminixprize.com/rules
+// (XPRIZE × Google, administered on Devpost). This drives the dev-only /xprize
+// readiness dashboard. Statuses reflect this project's current state and are
+// intentionally honest — the prize requires a real, revenue-generating,
+// AI-native business, so the score is meant to show what's left, not to flatter.
 
 export type ReqStatus = "met" | "partial" | "todo" | "atrisk" | "na";
 
@@ -27,15 +27,25 @@ export interface XprizeGroup {
 }
 
 export const COMPETITION = {
-  name: "Future Vision XPRIZE",
-  tagline: "World's largest film competition — a hopeful, technology-forward vision of humanity's future",
-  organizers: "Peter Diamandis · XPRIZE Foundation · Google · Range",
-  prizePool: "$3.5M+",
-  grandPrize: "$2.5M production funding + $100k cash",
-  rulesUrl: "https://futurevisionxprize.com/rules",
-  siteUrl: "https://futurevisionxprize.com/",
-  hashtag: "#FutureVisionXPRIZE",
+  name: "Build with Gemini XPRIZE",
+  tagline:
+    "A $2M global hackathon to launch a real, AI-native business — real users and real revenue — in 90 days",
+  organizers: "XPRIZE × Google · administered on Devpost",
+  prizePool: "$2M (25 winners)",
+  grandPrize: "$500k (1st) + $200k (2nd)",
+  rulesUrl: "https://www.geminixprize.com/rules",
+  siteUrl: "https://www.geminixprize.com",
+  hashtag: "#BuildWithGemini",
 } as const;
+
+// The five competition categories — every submission picks exactly one.
+export const CATEGORIES: string[] = [
+  "Education & Human Potential",
+  "Entrepreneurship & Job Creation",
+  "Small Business Services",
+  "Money & Financial Access",
+  "Professional Services",
+];
 
 export interface KeyDate {
   label: string;
@@ -44,42 +54,53 @@ export interface KeyDate {
 }
 
 export const KEY_DATES: KeyDate[] = [
-  { label: "Submission deadline", iso: "2026-08-15", note: "Video + treatment + cover sheet due." },
-  { label: "Finalist script draft", iso: "2026-09-10", note: "Top 10 finalists develop a first-draft script." },
-  { label: "Winner announcement", iso: "2026-09-25", note: "Moonshot Gathering, in person in Los Angeles." },
+  {
+    label: "Submission deadline",
+    iso: "2026-08-17",
+    note: "Project, demo video & revenue evidence due — 1:00 PM PT.",
+  },
+  {
+    label: "Judging period",
+    iso: "2026-08-18",
+    note: "Judges review repos, demos & business traction (through Sep 15).",
+  },
+  {
+    label: "Finalist pitch & winners",
+    iso: "2026-09-25",
+    note: "Live finals in Los Angeles; winners announced.",
+  },
 ];
 
-// Judging dimensions (informational — not scored on this dashboard).
+// The three equally-weighted judging criteria (informational — not separately
+// scored on this dashboard).
 export const EVALUATION_CRITERIA: { title: string; detail: string }[] = [
   {
-    title: "Concept quality & execution",
-    detail: "Is the story compelling and well-realized within production constraints?",
+    title: "Business Viability",
+    detail:
+      "Launch a real business with real users and verifiable revenue (Stripe export, bank statement, or P&L) during the 90-day window — projections don't count.",
   },
   {
-    title: "Scale & ambition",
-    detail: "Does the vision think big enough about humanity's future?",
+    title: "AI-Native Operations",
+    detail:
+      "Run the business through AI agents in production, executing key decisions with minimal human intervention. The hardest criterion to fake — and the most important to win.",
   },
   {
-    title: "Mission alignment",
-    detail: "Does it genuinely portray a technology-enabled future where everyone can thrive?",
-  },
-  {
-    title: "Technology-forward storytelling",
-    detail: "Is advanced technology meaningfully integrated into the narrative?",
+    title: "Category Impact",
+    detail:
+      "Meaningfully move the needle in your chosen category — either redefine how something works, or reach a scale where widespread adoption is credible.",
   },
 ];
 
 export const RIGHTS = {
   keep: [
-    "Full ownership of your original work",
-    "Control of your YouTube channel",
-    "Right to promote your work",
+    "Full ownership of your code, product, and business IP (including moral rights)",
+    "Right to use open-source software and third-party contractors, as long as you own the result",
+    "You keep running, growing, and commercializing your business",
   ],
   grant: [
-    "Range exclusivity from submission through Sep 25, 2026",
-    "First right of development for Range during the competition",
-    "Competition may feature your work in official playlists / promotion",
-    "Google producing credit(s) if selected for feature development (terms negotiated in good faith)",
+    "A license for the Sponsor / Devpost to display and promote your submission",
+    "Submission must be your sole, original work — no other party's rights or IP violated",
+    "Repo access for judging: public (licensed), or private shared with testing@devpost.com & judging@hacker.fund",
   ],
 };
 
@@ -90,187 +111,171 @@ export const REQUIREMENT_GROUPS: XprizeGroup[] = [
     items: [
       {
         id: "worldwide",
-        title: "Open worldwide (no sanctioned regions)",
-        rule: "Open globally except US-embargoed regions: Crimea, Cuba, Iran, North Korea, Syria.",
-        note: "Assumed met — confirm no team member resides in a sanctioned region.",
+        title: "Open worldwide",
+        rule: "The competition is open to entrants worldwide.",
+        note: "Assumed met — confirm no entrant is in an excluded/sanctioned region.",
         status: "met",
         counts: true,
       },
       {
         id: "age",
-        title: "Participants 18+ to claim prize money",
-        rule: "Must be 18+ to receive prizes; minors may enter with guardian consent and support.",
-        note: "Confirm everyone who would receive prize money is 18+.",
-        status: "todo",
-        counts: true,
-      },
-      {
-        id: "no-conflicts",
-        title: "No conflicting exclusivity deals",
-        rule: "Participants must not have exclusive / first-look deals that preclude participation.",
-        note: "Confirm no existing studio/first-look commitments on this concept.",
-        status: "todo",
-        counts: true,
-      },
-      {
-        id: "no-experience",
-        title: "No professional experience required",
-        rule: "Fresh voices welcome regardless of filmmaking background.",
-        note: "No barrier — informational.",
+        title: "Individuals at the age of majority",
+        rule: "Individual entrants must be at least the age of majority where they reside at time of entry.",
+        note: "Met — founding team are adults.",
         status: "met",
-        counts: false,
-      },
-    ],
-  },
-  {
-    id: "registration",
-    label: "Registration",
-    items: [
-      {
-        id: "register",
-        title: "Register on the official competition site",
-        rule: "Complete registration (contact, background, initial project info) to enter.",
-        note: "Not done yet — this is the gating first step and unlocks the rest.",
-        status: "todo",
         counts: true,
       },
       {
-        id: "sponsor-trailer",
-        title: "Obtain the 15-sec sponsor trailer",
-        rule: "After registering, you receive a required 15s sponsor trailer to append to the video.",
-        note: "Blocked until registration is complete.",
-        status: "todo",
+        id: "small-org",
+        title: "Individual or small organization (< 25 employees)",
+        rule: "Eligible: individuals, or organizations (corp, nonprofit, LLC, partnership) with fewer than 25 employees, organized at time of entry.",
+        note: "Met — small founding team.",
+        status: "met",
+        counts: true,
+      },
+      {
+        id: "new-project",
+        title: "Newly created project",
+        rule: "Projects must be newly created after the submission period opened (May 19, 2026). Any pre-existing templates/boilerplate/code must be disclosed and explained.",
+        note: "RISK: Citizen Science predates May 19, 2026. Either build a fresh project for the hackathon or clearly disclose the pre-existing work and substantially build on it — verify eligibility carefully.",
+        status: "atrisk",
         counts: true,
       },
     ],
   },
   {
-    id: "video",
-    label: "Video submission",
+    id: "technical",
+    label: "Technical requirements",
     items: [
       {
-        id: "length",
-        title: "≤ 3 minutes (+ 15s sponsor trailer)",
-        rule: "Max 3:00 of content, plus the appended 15-second sponsor trailer.",
-        note: "We have a Launch Film artifact — verify the final cut is ≤ 3:00 before export.",
+        id: "gemini-api",
+        title: "Uses the Gemini API for ≥ 1 LLM call",
+        rule: "Projects with LLM functionality must use the Gemini API for at least one LLM call in the deployed application.",
+        note: "Met — the science copilot, field-notes analyzer, and talking-avatar brain all call the Gemini API in production.",
+        status: "met",
+        counts: true,
+      },
+      {
+        id: "google-cloud",
+        title: "Uses ≥ 1 Google Cloud product",
+        rule: "A project must use at least one product from Google Cloud (Cloud Run, Vertex AI, etc.).",
+        note: "Met — the app is deployed on Google Cloud Run.",
+        status: "met",
+        counts: true,
+      },
+      {
+        id: "working-link",
+        title: "Working project link",
+        rule: "Provide access to a working project (live site, functioning demo, or test build); include login credentials if it's gated.",
+        note: "Met — the app is deployed and reachable; provide guest access or judge test credentials.",
+        status: "met",
+        counts: true,
+      },
+    ],
+  },
+  {
+    id: "submission",
+    label: "Submission package",
+    items: [
+      {
+        id: "category",
+        title: "Select one of the five categories",
+        rule: "Choose the single competition category your project competes in.",
+        note: "Education & Human Potential is the natural fit — confirm and select at submission.",
+        status: "todo",
+        counts: true,
+      },
+      {
+        id: "repo",
+        title: "Public code repository URL",
+        rule: "Submit a repo URL containing all source code; public (with licensing) or private and shared with testing@devpost.com & judging@hacker.fund.",
+        note: "Not done — prepare a clean repo and set the right access for judges.",
+        status: "todo",
+        counts: true,
+      },
+      {
+        id: "description",
+        title: "Written project description",
+        rule: "A text description of how the project meets the requirements and its relevance to the chosen category.",
+        note: "Not yet written.",
+        status: "todo",
+        counts: true,
+      },
+      {
+        id: "demo-video",
+        title: "Demo video (< 3 minutes)",
+        rule: "A demonstration video under 3 minutes, uploaded to YouTube, Vimeo, or Youku, in English or subtitled.",
+        note: "We have a Launch Film artifact — trim the final cut to < 3:00, ensure English narration/subtitles, and upload.",
         status: "partial",
         counts: true,
       },
+    ],
+  },
+  {
+    id: "business",
+    label: "Business viability (judged)",
+    items: [
       {
-        id: "type",
-        title: "Trailer or short film",
-        rule: "Acceptable formats: trailer or short film; any approach (live action, animation, AI, hybrid).",
-        note: "Our cinematic launch film fits this format.",
-        status: "met",
-        counts: true,
-      },
-      {
-        id: "format",
-        title: "MP4 / MOV, 1080p minimum",
-        rule: "Technical format must be MP4 or MOV at ≥1080p resolution.",
-        note: "Currently a browser-rendered React/Framer video — must be EXPORTED to MP4/MOV ≥1080p.",
-        status: "todo",
-        counts: true,
-      },
-      {
-        id: "general-audience",
-        title: "General-audience appropriate",
-        rule: "No explicit violence, language, or sexual content.",
-        note: "Content is wholesome / science-positive — met.",
-        status: "met",
-        counts: true,
-      },
-      {
-        id: "english",
-        title: "English voiced or subtitled",
-        rule: "All submissions must be voiced or subtitled in English.",
-        note: "Confirm the film has English VO or subtitles before export.",
-        status: "todo",
-        counts: true,
-      },
-      {
-        id: "original",
-        title: "100% original — no copyrighted/brand material",
-        rule: "All content original. No copyrighted characters/worlds/storylines, no recognizable brands/IP without permission, licensed stock only.",
-        note: "RISK: the web app uses real people's portraits & names (Einstein, Turing, etc.) and device brand names (Apple Watch, Fitbit…). Ensure NONE of these appear in the FILM unless cleared, and that all music/footage is original or licensed.",
+        id: "real-users",
+        title: "Real, active users",
+        rule: "Demonstrate a real, active (ideally paying) user base, with a high-level breakdown of who they are and any testimonials.",
+        note: "GAP: the prototype has real auth but no real user base yet — needs genuine users acquired during the build window.",
         status: "atrisk",
         counts: true,
       },
       {
-        id: "endcard",
-        title: "Append the sponsor end card",
-        rule: "Videos must include the provided 15s sponsor end card (XPRIZE, PHD Ventures, Google, Range).",
-        note: "Add the official end card once received via registration.",
+        id: "revenue",
+        title: "Verifiable revenue",
+        rule: "Generate real revenue, proven with hard evidence: a Stripe dashboard export, corporate bank statement, or documented P&L ledger.",
+        note: "GAP: no payments/monetization yet — would need to ship paid plans and actually collect revenue.",
+        status: "atrisk",
+        counts: true,
+      },
+      {
+        id: "revenue-by-month",
+        title: "Revenue broken out by month (May–Aug)",
+        rule: "Report revenue for each calendar month of the build period: May, June, July, and August 2026.",
+        note: "Blocked until revenue exists; start tracking by month now.",
+        status: "todo",
+        counts: true,
+      },
+      {
+        id: "costs",
+        title: "Total costs disclosed",
+        rule: "Report total costs during the hackathon (excluding marketing/acquisition), with a one-sentence description of what they cover.",
+        note: "Track hosting, AI API usage, and any contractor costs from now.",
+        status: "todo",
+        counts: true,
+      },
+      {
+        id: "marketing-spend",
+        title: "Marketing & acquisition spend disclosed",
+        rule: "Report total marketing and customer-acquisition spend during the build period — must be disclosed even if zero.",
+        note: "Track spend (or report $0).",
         status: "todo",
         counts: true,
       },
     ],
   },
   {
-    id: "written",
-    label: "Written materials",
+    id: "ai-native",
+    label: "AI-native operations (judged)",
     items: [
       {
-        id: "treatment",
-        title: "Treatment (up to 12 pages)",
-        rule: "Every submission needs a treatment of no more than 12 pages.",
+        id: "ai-runs-business",
+        title: "AI agents run the business in production",
+        rule: "The core product and business workflow must be operated by AI agents making key execution decisions with minimal human intervention — ideally end-to-end (sales, support, fulfillment, billing).",
+        note: "GAP: the app uses AI features, but the business itself is not yet run autonomously by AI agents — this is the highest-leverage, hardest-to-fake criterion.",
+        status: "atrisk",
+        counts: true,
+      },
+      {
+        id: "ai-narrative",
+        title: "AI-native written narrative (500–1000 words)",
+        rule: "A case study explaining daily human-vs-AI tasks, operational workflows, and the economic opportunities created beyond the founding layer.",
         note: "Not yet written.",
         status: "todo",
         counts: true,
-      },
-      {
-        id: "coversheet",
-        title: "1-page cover sheet",
-        rule: "Logline (1 sentence) + Synopsis (≤300 words) + Personal Statement (≤300 words).",
-        note: "Not yet written.",
-        status: "todo",
-        counts: true,
-      },
-      {
-        id: "written-english",
-        title: "Written materials in English",
-        rule: "All written submissions must be in English.",
-        note: "Trivially satisfiable once materials are drafted — informational.",
-        status: "na",
-        counts: false,
-      },
-    ],
-  },
-  {
-    id: "youtube",
-    label: "YouTube & distribution",
-    items: [
-      {
-        id: "unlisted",
-        title: "Submit via unlisted YouTube link",
-        rule: "Publish as an unlisted YouTube video and submit the link through the competition site.",
-        note: "Do this at submission time (after export + sponsor card).",
-        status: "todo",
-        counts: true,
-      },
-      {
-        id: "hashtag",
-        title: "Include #FutureVisionXPRIZE",
-        rule: "The hashtag must appear in the video title or description.",
-        note: "Add to title/description when publishing.",
-        status: "todo",
-        counts: true,
-      },
-      {
-        id: "desc",
-        title: "Link competition site + tag partners",
-        rule: "Description must link the official site and should tag competition partners.",
-        note: "Add to description when publishing.",
-        status: "todo",
-        counts: true,
-      },
-      {
-        id: "public",
-        title: "Go public after content review",
-        rule: "After review, publish on your own channel with public visibility.",
-        note: "Later step — happens after the competition reviews your unlisted submission.",
-        status: "na",
-        counts: false,
       },
     ],
   },
