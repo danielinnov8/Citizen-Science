@@ -25,6 +25,7 @@ import Brand from "@/pages/Brand";
 import Pricing from "@/pages/Pricing";
 import Incorporation from "@/pages/Incorporation";
 import CapTable from "@/pages/CapTable";
+import PreExisting from "@/pages/PreExisting";
 import { Xprize } from "@/pages/Xprize";
 
 import { AppShell } from "@/components/AppShell";
@@ -52,6 +53,7 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/incorporation" component={Incorporation} />
       <Route path="/cap-table" component={CapTable} />
+      <Route path="/pre-existing" component={PreExisting} />
       {import.meta.env.DEV && <Route path="/xprize" component={Xprize} />}
       
       {/* Protected Routes */}
