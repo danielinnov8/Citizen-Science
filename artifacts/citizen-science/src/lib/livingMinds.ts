@@ -11,6 +11,14 @@
 
 import type { StoryTimelineEntry, StoryContribution } from "@/lib/greatMinds";
 import starmanRoadster from "@assets/starman-tesla-roadster.jpg";
+import diamandisPhoto from "@assets/65ee191f9cc09e354404b538_Peter_Diamandis_1780697654112.webp";
+import salimPhoto from "@assets/image_1780697674289.png";
+import blundinPhoto from "@assets/moonshot-dave-blundin.webp";
+import wissnerGrossPhoto from "@assets/Alex_W_G_1780704314284.png";
+import diamandisCover from "@assets/generated_images/cover-peter-diamandis.png";
+import salimCover from "@assets/generated_images/cover-salim-ismail.png";
+import blundinCover from "@assets/generated_images/cover-dave-blundin.png";
+import wissnerGrossCover from "@assets/generated_images/cover-alexander-wissner-gross.png";
 
 // Field-themed background patterns suited to modern science & technology. Each
 // motif is rendered faintly behind the hero so every living profile feels
@@ -1702,6 +1710,481 @@ export const LIVING_MIND_STORIES: Record<string, LivingMindStory> = {
       {
         title: "the Jane Goodall Institute",
         url: "https://janegoodall.org/",
+      },
+    ],
+  },
+
+  "peter-diamandis": {
+    slug: "peter-diamandis",
+    name: "Peter Diamandis",
+    field: "Exponential Innovation",
+    era: "Working Today",
+    born: "Born 1961 · Bronx, New York",
+    base: "Santa Monica, California",
+    tagline:
+      "Turning humanity's grand challenges into incentive prizes — and betting that the future is better, and faster, than we think.",
+    imageUrl: diamandisPhoto,
+    theme: {
+      accent: "#F59E0B",
+      accentSoft: "#FEF3C7",
+      accentDeep: "#B45309",
+      heroFrom: "#0A0E1A",
+      heroTo: "#1A1206",
+      motif: "space",
+      heroImage: diamandisCover,
+    },
+    biography: [
+      "Peter Diamandis was a space-obsessed kid in the Bronx who never grew out of it. The son of Greek immigrants, he trained as a physician at Harvard Medical School and earned degrees in molecular genetics and aerospace engineering at MIT — but his real fixation was getting humanity off the planet. When the established space industry told him it was impossible to do cheaply, he decided to change the incentives instead of waiting for permission.",
+      "In 1994 he launched the XPRIZE: a $10 million purse for the first private team to fly a reusable crewed spacecraft to the edge of space twice in two weeks. For years he had no money to back the prize. He raised it anyway, and in 2004 SpaceShipOne claimed it — proving that a small, well-aimed incentive could mobilize tens of millions of dollars of private R&D and ignite an entire commercial spaceflight industry.",
+      "Since then Diamandis has turned incentive competition and 'exponential thinking' into a career, founding or co-founding a constellation of organizations across space, longevity, education, and venture capital. Through his books with Steven Kotler — Abundance, BOLD, and The Future Is Faster Than You Think — he has become one of the most relentless public optimists in technology, arguing that exponential tools now let small teams take on problems once reserved for governments.",
+    ],
+    buildingNow: [
+      {
+        title: "XPRIZE Foundation",
+        detail:
+          "Chairs the foundation as it runs nine-figure global competitions — from carbon removal to healthspan — that pay out only when a team actually solves the problem.",
+      },
+      {
+        title: "Abundance360 & Singularity",
+        detail:
+          "Runs the Abundance360 community and helped found Singularity University to teach founders and leaders how to wield exponentially-accelerating technologies.",
+      },
+      {
+        title: "Healthspan & Longevity",
+        detail:
+          "Backs longevity ventures such as Fountain Life and Human Longevity, pushing early-detection diagnostics and the goal of adding healthy decades to human life.",
+      },
+      {
+        title: "Moonshots",
+        detail:
+          "Co-hosts the Moonshots podcast with investor Dave Blundin, dissecting the frontier technologies — AI, robotics, biotech — reshaping the next decade.",
+      },
+    ],
+    timeline: [
+      {
+        year: "1987",
+        title: "International Space University",
+        detail:
+          "Co-founds ISU as a graduate student, before finishing medical school, to train the people who would build the space economy.",
+      },
+      {
+        year: "1994",
+        title: "Launches the XPRIZE",
+        detail:
+          "Announces a $10M prize for private suborbital spaceflight — with the prize money not yet raised.",
+      },
+      {
+        year: "2004",
+        title: "Ansari XPRIZE Won",
+        detail:
+          "SpaceShipOne reaches space twice in two weeks, launching the commercial spaceflight era.",
+      },
+      {
+        year: "2008",
+        title: "Singularity University",
+        detail:
+          "Co-founds Singularity University with Ray Kurzweil to spread exponential-technology thinking.",
+      },
+      {
+        year: "2012",
+        title: "Abundance",
+        detail:
+          "Publishes Abundance: The Future Is Better Than You Think, his data-driven case for techno-optimism.",
+      },
+      {
+        year: "2020",
+        title: "The Future Is Faster Than You Think",
+        detail:
+          "Maps how converging exponential technologies will reinvent whole industries this decade.",
+      },
+    ],
+    contributions: [
+      {
+        title: "The Incentive Prize, Reinvented",
+        detail:
+          "Revived the centuries-old prize model for the modern era, showing that a well-designed purse can unlock R&D investment many times larger than the award itself.",
+      },
+      {
+        title: "Catalyzing Commercial Spaceflight",
+        detail:
+          "The Ansari XPRIZE is widely credited with helping seed the private spaceflight industry that followed.",
+      },
+      {
+        title: "The Abundance Mindset",
+        detail:
+          "Popularized a rigorous, evidence-based optimism — the argument that exponential technologies are steadily raising the global standard of living.",
+      },
+      {
+        title: "Exponential Entrepreneurship",
+        detail:
+          "Through Singularity University, Abundance360, and BOLD Capital, built institutions that train founders to aim at billion-person problems.",
+      },
+    ],
+    quotes: [
+      "The best way to predict the future is to create it yourself.",
+      "The world's biggest problems are the world's biggest business opportunities.",
+      "The day before a major breakthrough, it's still a crazy idea.",
+    ],
+    impact: [
+      "Showed that a single, well-aimed incentive can mobilize entire industries to solve problems markets had ignored.",
+      "Helped move spaceflight, longevity, and carbon removal from government-only ambitions to open competitions anyone can enter.",
+      "Reframed the future for a generation of founders — from scarcity and decline to abundance built by exponential tools.",
+    ],
+    didYouKnow: [
+      "He pitched the XPRIZE for years before he had the prize money, ultimately insuring the payout so the competition could launch.",
+      "He co-founded the Zero Gravity Corporation, which flies passengers on parabolic 'weightless' flights — and once flew Stephen Hawking in zero-g.",
+      "He holds both an MD from Harvard and aerospace engineering training from MIT.",
+    ],
+    relatedCategorySlugs: ["astronomy", "physics"],
+    sources: [
+      { title: "diamandis.com", url: "https://www.diamandis.com" },
+      { title: "XPRIZE Foundation", url: "https://www.xprize.org" },
+      {
+        title: "Peter Diamandis — Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Peter_Diamandis",
+      },
+    ],
+  },
+
+  "salim-ismail": {
+    slug: "salim-ismail",
+    name: "Salim Ismail",
+    field: "Exponential Organizations",
+    era: "Working Today",
+    born: "Born 1965 · India",
+    base: "OpenExO · Global",
+    tagline:
+      "Decoding why technology accelerates exponentially while our institutions still crawl forward in a straight line.",
+    imageUrl: salimPhoto,
+    theme: {
+      accent: "#06B6D4",
+      accentSoft: "#CFFAFE",
+      accentDeep: "#0E7490",
+      heroFrom: "#04161A",
+      heroTo: "#02292E",
+      motif: "web",
+      heroImage: salimCover,
+    },
+    biography: [
+      "Salim Ismail is a technologist and author who has spent his career studying a single uncomfortable gap: digital technologies now improve exponentially, doubling in capability again and again, while most companies and governments still plan and grow in slow, linear increments. That mismatch, he argues, is why incumbents keep getting blindsided by small teams that seemed to come from nowhere.",
+      "After building and selling startups — including PubSub Concepts, an early real-time search pioneer — Ismail ran Brickhouse, Yahoo's internal incubator, where he watched how hard it is for a large organization to behave like a nimble one. He went on to become the founding executive director of Singularity University, helping shape the curriculum that introduced thousands of leaders to exponential technologies.",
+      "In 2014 he distilled his thesis into the bestseller Exponential Organizations, co-authored with Michael Malone and Yuri van Geest. The book identified the shared traits of companies growing 10x faster than their peers and gave them a name: ExOs. He now leads OpenExO, a global community that helps organizations redesign themselves around a Massive Transformative Purpose and the leverage of technology, community, and data.",
+    ],
+    buildingNow: [
+      {
+        title: "OpenExO",
+        detail:
+          "Leads a worldwide network of coaches and transformation specialists helping companies, nonprofits, and governments restructure for exponential growth.",
+      },
+      {
+        title: "The ExO Operating Model",
+        detail:
+          "Continues to refine the ExO framework — Massive Transformative Purpose plus a set of external and internal attributes that let small teams scale like giants.",
+      },
+      {
+        title: "Teaching Exponential Leadership",
+        detail:
+          "Keynotes and advises leaders worldwide on how to spot exponential disruption early and adapt before it arrives.",
+      },
+    ],
+    timeline: [
+      {
+        year: "2000s",
+        title: "PubSub Concepts",
+        detail:
+          "Co-founds an early real-time search and notification company, ahead of the live web.",
+      },
+      {
+        year: "2008",
+        title: "Brickhouse at Yahoo",
+        detail:
+          "Runs Yahoo's internal incubator, studying why big companies struggle to innovate.",
+      },
+      {
+        year: "2009",
+        title: "Singularity University",
+        detail:
+          "Becomes founding executive director, shaping its exponential-technology curriculum.",
+      },
+      {
+        year: "2014",
+        title: "Exponential Organizations",
+        detail:
+          "Publishes the bestseller naming and decoding the 10x-growth company.",
+      },
+      {
+        year: "2017",
+        title: "Founds OpenExO",
+        detail:
+          "Launches a global platform to put the ExO model into practice across industries.",
+      },
+    ],
+    contributions: [
+      {
+        title: "The Exponential Organization (ExO)",
+        detail:
+          "Defined the organizational archetype whose impact is disproportionately large relative to its size, thanks to its use of technology and community.",
+      },
+      {
+        title: "Massive Transformative Purpose",
+        detail:
+          "Coined the idea that the most scalable organizations are pulled forward by a single, aspirational purpose far bigger than themselves.",
+      },
+      {
+        title: "A Playbook for Reinvention",
+        detail:
+          "Turned abstract talk of 'disruption' into a concrete set of attributes leaders can audit and adopt.",
+      },
+    ],
+    quotes: [
+      "Our technologies are exponential, but our organizations are still linear.",
+      "If you're not disrupting yourself, someone else is — and they'll do it faster than you expect.",
+      "The biggest companies of the future will be the ones that learn to scale as fast as the technology around them.",
+    ],
+    impact: [
+      "Gave leaders a shared language for why nimble startups so often outrun far larger, better-funded incumbents.",
+      "Pushed thousands of organizations to anchor themselves to a purpose and to leverage community, algorithms, and data instead of headcount.",
+      "Helped mainstream 'exponential thinking' inside boardrooms, not just Silicon Valley.",
+    ],
+    didYouKnow: [
+      "His book Exponential Organizations argues the best companies behave less like factories and more like platforms that others build on.",
+      "He helped build Singularity University's flagship programs from the very beginning.",
+      "He frames an organization's purpose — its 'MTP' — as the single most important design decision a founder makes.",
+    ],
+    relatedCategorySlugs: ["physics", "neuroscience"],
+    sources: [
+      { title: "OpenExO", url: "https://openexo.com" },
+      {
+        title: "Salim Ismail — Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Salim_Ismail",
+      },
+    ],
+  },
+
+  "dave-blundin": {
+    slug: "dave-blundin",
+    name: "Dave Blundin",
+    field: "AI & Venture",
+    era: "Working Today",
+    born: "Born in Massachusetts",
+    base: "Cambridge, Massachusetts",
+    tagline:
+      "An MIT engineer who trained neural networks decades before the boom — and now funds the founders building the AI era.",
+    imageUrl: blundinPhoto,
+    theme: {
+      accent: "#22C55E",
+      accentSoft: "#DCFCE7",
+      accentDeep: "#15803D",
+      heroFrom: "#04140A",
+      heroTo: "#07210F",
+      motif: "neural",
+      heroImage: blundinCover,
+    },
+    biography: [
+      "Dave Blundin is a serial entrepreneur and venture investor whose fascination with artificial intelligence began long before it was fashionable. As an electrical engineering and computer science student at MIT in the late 1980s, he worked on neural networks at a time when most of the field had written them off — building pattern-recognition systems on hardware a tiny fraction as powerful as a modern phone.",
+      "That early conviction became a career-long pattern: spot a technology while it is still dismissed, then build or back the company that rides it as it goes exponential. Over three decades Blundin has founded, co-founded, and incubated dozens of data-driven companies, many of them through Cogo Labs, the Cambridge startup foundry he created to turn raw engineering talent and large datasets into businesses.",
+      "Through Link Ventures, the firm he founds and leads, Blundin has become an early backer of machine-learning and data companies, often investing at the moment a market is about to inflect. More recently he has become a prominent public voice on the AI transition, co-hosting the Moonshots podcast with Peter Diamandis and arguing that the steepest part of the curve is still ahead.",
+    ],
+    buildingNow: [
+      {
+        title: "Link Ventures",
+        detail:
+          "Leads the venture firm as it backs early-stage AI, data, and software founders, frequently before their markets are obvious.",
+      },
+      {
+        title: "Cogo Labs",
+        detail:
+          "Runs the startup foundry he built to pair young engineers with large datasets and spin out new data-driven companies.",
+      },
+      {
+        title: "Moonshots",
+        detail:
+          "Co-hosts the Moonshots podcast with Peter Diamandis, breaking down how AI, robotics, and biotech are compounding into the next decade.",
+      },
+    ],
+    timeline: [
+      {
+        year: "1980s",
+        title: "Neural Networks at MIT",
+        detail:
+          "Studies EECS at MIT and works on neural networks years before the deep-learning era.",
+      },
+      {
+        year: "1990s",
+        title: "First Companies",
+        detail:
+          "Begins a long run of founding and operating technology startups out of the Boston/Cambridge ecosystem.",
+      },
+      {
+        year: "2005",
+        title: "Cogo Labs",
+        detail:
+          "Builds a startup foundry to systematically launch data-driven companies.",
+      },
+      {
+        year: "2010s",
+        title: "Link Ventures",
+        detail:
+          "Founds and grows a venture firm focused on data and machine-learning startups.",
+      },
+      {
+        year: "2024",
+        title: "Moonshots",
+        detail:
+          "Teams up with Peter Diamandis to chart the frontier of exponential technology for a public audience.",
+      },
+    ],
+    contributions: [
+      {
+        title: "Early Conviction in Neural Networks",
+        detail:
+          "Bet on learning machines decades before the modern AI boom validated the approach.",
+      },
+      {
+        title: "A Company-Building Engine",
+        detail:
+          "Through Cogo Labs, turned the act of starting data-driven companies into a repeatable, talent-plus-data process.",
+      },
+      {
+        title: "Capital for the AI Era",
+        detail:
+          "As an investor, has helped fund a generation of machine-learning and data founders at the earliest, riskiest stage.",
+      },
+    ],
+    quotes: [
+      "We're at the steepest part of the curve — and most people are still extrapolating in a straight line.",
+      "The biggest returns come from believing in a technology while everyone else still thinks it's a toy.",
+    ],
+    impact: [
+      "Helped prove out neural networks and data-driven entrepreneurship long before they became the center of the technology economy.",
+      "Channeled capital and engineering talent into the founders building the current wave of AI.",
+      "Brought a working investor's view of the AI transition to a broad public through Moonshots.",
+    ],
+    didYouKnow: [
+      "He was working on neural networks at MIT when the field was deeply out of fashion.",
+      "His foundry model treats company creation almost like an experiment: combine talented engineers with a large dataset and iterate.",
+      "He co-hosts one of the most widely followed podcasts on exponential technology.",
+    ],
+    relatedCategorySlugs: ["neuroscience", "physics"],
+    sources: [
+      { title: "Link Ventures", url: "https://www.linkventures.com" },
+      {
+        title: "Dave Blundin — Link Ventures",
+        url: "https://www.linkventures.com/team/dave-blundin",
+      },
+    ],
+  },
+
+  "alexander-wissner-gross": {
+    slug: "alexander-wissner-gross",
+    name: "Alexander Wissner-Gross",
+    field: "AI & Complex Systems",
+    era: "Working Today",
+    born: "Born 1981 · United States",
+    base: "Cambridge, Massachusetts",
+    tagline:
+      "Asking whether intelligence itself is a physical force — the drive to keep as many futures open as possible.",
+    imageUrl: wissnerGrossPhoto,
+    theme: {
+      accent: "#A855F7",
+      accentSoft: "#F3E8FF",
+      accentDeep: "#7C3AED",
+      heroFrom: "#0E0518",
+      heroTo: "#1E0A2E",
+      motif: "neural",
+      heroImage: wissnerGrossCover,
+    },
+    biography: [
+      "Alexander Wissner-Gross is a scientist, inventor, and investor who works at the seam between physics and artificial intelligence. He graduated first in his class at MIT with a triple major in physics, electrical engineering, and mathematics, then earned a PhD in physics from Harvard — and has spent his career chasing a single audacious question: can intelligence be described not as a mysterious property of brains, but as a physical force with an equation behind it?",
+      "In 2013 he proposed an answer. With co-author Cameron Freer, he introduced the idea of 'causal entropic forces': a mathematical principle suggesting that intelligent behavior naturally emerges when a system acts to maximize its future freedom of action — keeping as many possible futures available as it can. To demonstrate it he built Entropica, a software engine that, given only that single rule, spontaneously taught itself to balance poles, use tools, and cooperate.",
+      "Alongside that theoretical work, Wissner-Gross is a prolific inventor and a researcher on the limits and trajectory of computing — from the carbon footprint of web search to the data needed to reach AI milestones and the prospects for planetary-scale intelligence. He advises and invests in AI companies, holds numerous patents, and is a frequent voice on where machine intelligence is genuinely headed.",
+    ],
+    buildingNow: [
+      {
+        title: "A Physics of Intelligence",
+        detail:
+          "Continues to develop and test the idea that intelligent behavior can be derived from a single thermodynamic drive to maximize future options.",
+      },
+      {
+        title: "Frontiers of Computation",
+        detail:
+          "Researches the physical limits of computing and AI — the energy, data, and hardware required to reach the next milestones.",
+      },
+      {
+        title: "Advising & Investing in AI",
+        detail:
+          "Backs and advises artificial-intelligence ventures, bringing a first-principles, physics-grounded lens to where the field is going.",
+      },
+    ],
+    timeline: [
+      {
+        year: "2003",
+        title: "Top of His Class at MIT",
+        detail:
+          "Graduates first in his class with a triple major in physics, EE, and mathematics.",
+      },
+      {
+        year: "2007",
+        title: "Harvard PhD in Physics",
+        detail:
+          "Completes doctoral research bridging physics and computation.",
+      },
+      {
+        year: "2013",
+        title: "Causal Entropic Forces",
+        detail:
+          "Publishes the theory in Physical Review Letters and unveils the Entropica demonstration.",
+      },
+      {
+        year: "2013",
+        title: "'A New Equation for Intelligence'",
+        detail:
+          "His TED talk popularizes the idea that intelligence maximizes future freedom of action.",
+      },
+      {
+        year: "Ongoing",
+        title: "Inventor & Investor",
+        detail:
+          "Builds a portfolio of patents and advises a range of AI and deep-tech companies.",
+      },
+    ],
+    contributions: [
+      {
+        title: "Causal Entropic Forces (F = T ∇Sτ)",
+        detail:
+          "Formalized the proposal that a single principle — maximize future entropy, and thus future options — can give rise to intelligent-looking behavior.",
+      },
+      {
+        title: "Entropica",
+        detail:
+          "Built a software engine that, from that one rule alone, learned to balance objects, use tools, and cooperate — with no task-specific programming.",
+      },
+      {
+        title: "Mapping AI's Physical Limits",
+        detail:
+          "Research on the energy, data, and computation behind machine intelligence, framing AI progress as a physical, measurable trajectory.",
+      },
+    ],
+    quotes: [
+      "Intelligence is a physical process that tries to maximize future freedom of action.",
+      "Perhaps intelligence isn't something we have to design — perhaps it's something that emerges when a system keeps its options open.",
+    ],
+    impact: [
+      "Offered a strikingly simple candidate principle for intelligence, connecting thermodynamics, physics, and AI in one equation.",
+      "Inspired researchers to explore 'empowerment' and option-maximizing objectives as drivers of autonomous behavior.",
+      "Reframed AI progress as a physical phenomenon with measurable limits, not just a software story.",
+    ],
+    didYouKnow: [
+      "His Entropica engine learned to balance a pole and use tools from a single rule: keep future options open.",
+      "He graduated first in his class at MIT while juggling three majors at once.",
+      "His causal-entropic-force equation is often written compactly as F = T ∇Sτ.",
+    ],
+    relatedCategorySlugs: ["physics", "neuroscience"],
+    sources: [
+      { title: "alexwg.org", url: "https://www.alexwg.org" },
+      {
+        title: "Alexander Wissner-Gross — Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Alexander_Wissner-Gross",
       },
     ],
   },

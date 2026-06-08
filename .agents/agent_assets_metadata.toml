@@ -1,5 +1,28 @@
 uploads = []
-generated = []
+
+[[generated]]
+id = "8BXKRAmZaiG77wLXFHD5T"
+uri = "file://attached_assets/generated_images/cover-peter-diamandis.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "b7HAsF4XeTrfnQhnoc6nl"
+uri = "file://attached_assets/generated_images/cover-salim-ismail.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "LDqF1rU6VC82KEHSTYj2Q"
+uri = "file://attached_assets/generated_images/cover-dave-blundin.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "wBYvXQK6-m_hTmRqRz_Vn"
+uri = "file://attached_assets/generated_images/cover-alexander-wissner-gross.png"
+type = "image"
+title = "generated_image"
 
 [[outputs]]
 id = "Ux4wEZPEMPOfpu-hNGQIE"
