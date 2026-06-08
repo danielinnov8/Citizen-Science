@@ -71,10 +71,10 @@ function Router() {
         <AppShell><Category /></AppShell>
       </Route>
       <Route path="/experiments">
-        <ProtectedRoute><AppShell><Experiments /></AppShell></ProtectedRoute>
+        <AppShell><Experiments /></AppShell>
       </Route>
       <Route path="/experiments/:id">
-        <ProtectedRoute><AppShell><ExperimentDetail /></AppShell></ProtectedRoute>
+        <AppShell><ExperimentDetail /></AppShell>
       </Route>
       <Route path="/directory">
         <AppShell><Directory /></AppShell>
