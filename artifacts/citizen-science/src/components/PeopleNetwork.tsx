@@ -2,10 +2,26 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "wouter";
 import { Users } from "lucide-react";
-import { NETWORK_MINDS, FRONTIER_MINDS, type Inventor } from "@/lib/inventors";
+import {
+  NETWORK_MINDS,
+  FRONTIER_MINDS,
+  MODERN_MINDS,
+  type Inventor,
+} from "@/lib/inventors";
 
-// The living people from our directory (historical figures excluded).
-const PEOPLE: Inventor[] = [...NETWORK_MINDS, ...FRONTIER_MINDS];
+// The living people from our directory (historical figures excluded). We weave
+// the original network core together with the wider roster of modern visionaries
+// and frontier researchers so the mesh reads as a broad, living network — every
+// node links to a real, seeded directory profile. De-duped by slug because a few
+// figures appear in more than one curated list.
+const PEOPLE: Inventor[] = (() => {
+  const seen = new Set<string>();
+  return [...NETWORK_MINDS, ...FRONTIER_MINDS, ...MODERN_MINDS].filter((p) => {
+    if (seen.has(p.slug)) return false;
+    seen.add(p.slug);
+    return true;
+  });
+})();
 
 const INNER_COUNT = 5;
 const AUTO_MS = 2600;
