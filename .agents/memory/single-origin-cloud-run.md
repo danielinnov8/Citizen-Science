@@ -42,6 +42,29 @@ routes fail per-request instead. The Proxy binds methods to the real instance �
 drizzle/pg use private fields that are unreachable if `this` is the Proxy, so
 never drop the `.bind(target)`.
 
+**Three separate databases — do not conflate them (cost a wrong diagnosis once):**
+- Replit DEV `DATABASE_URL` = Replit-managed Postgres (host suffix `helium`).
+- Replit "production" via `executeSql({environment:"production"})` = Replit's
+  managed prod replica. **This is NOT what Cloud Run uses.**
+- Cloud Run PROD = the user's own **Neon** Postgres, set as `DATABASE_URL` in the
+  Cloud Run Variables & Secrets panel. The agent has no access to it from Replit.
+- Consequence: querying Replit's "production" tells you nothing about Neon. To
+  inspect/repair real prod you must connect with the Neon connection string.
+
+**Neon schema is migrated MANUALLY — Cloud Run builds never touch it.** A
+GitHub-sync → Cloud Run build only rebuilds/redeploys the container; it does not
+run migrations. Replit Publish's schema-diff flow does NOT apply (that's Replit
+Deployments + Replit Postgres only). To change the Neon schema, run drizzle push
+against the Neon URL (e.g. `DATABASE_URL="<neon>" pnpm --filter @workspace/db run push`)
+or ship versioned `drizzle-kit generate`/`migrate` SQL as a deploy step. Adding
+the nullable/defaulted story columns is backwards-compatible (safe).
+
+**Data self-heals via seed-on-boot, schema does not.** `seedFeaturedProfiles`
+runs at app boot against whatever `DATABASE_URL` Cloud Run has (= Neon): if the
+table is empty it bulk-inserts the committed snapshot. So once Neon's schema has
+the columns, the next deploy/restart auto-populates the 49 profiles — only the
+one-time schema migration is manual.
+
 **Cloud Run env vars (app boots without them now, but features need them):**
 Replit Secrets do NOT propagate to the user's own Cloud Run service — they must
 be set in the Cloud Run "Variables & Secrets" panel (runtime, not Docker build
