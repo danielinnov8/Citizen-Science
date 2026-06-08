@@ -8,10 +8,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { EXPERIMENTS } from "@/lib/experiments";
 import { storage } from "@/lib/storage";
+import { CnlpEquationLab } from "@/components/CnlpEquationLab";
+
+// Interactive labs render a bespoke component instead of the standard
+// materials + procedure layout. Keyed by experiment id.
+const INTERACTIVE_LABS: Record<string, React.ComponentType> = {
+  "cnlp-rmm-lab": CnlpEquationLab,
+};
 
 export function ExperimentDetail() {
   const { id } = useParams();
   const { toast } = useToast();
+
+  const InteractiveLab = id ? INTERACTIVE_LABS[id] : undefined;
+
   const exp = EXPERIMENTS.find(e => e.id === id);
 
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
@@ -19,11 +29,14 @@ export function ExperimentDetail() {
 
   useEffect(() => {
     if (exp) {
+      if (exp.interactive) return;
       storage.startExperiment(exp.id);
       const steps = storage.getCompletedSteps().filter(s => s.experimentId === exp.id).map(s => s.stepIndex);
       setCompletedSteps(steps);
     }
   }, [exp]);
+
+  if (InteractiveLab && exp?.interactive) return <InteractiveLab />;
 
   if (!exp) return <div className="p-10">Experiment not found</div>;
 

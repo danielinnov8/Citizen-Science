@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import type { FeaturedProfile } from "@workspace/api-client-react";
 import { CATEGORIES } from "@/lib/categories";
-import { EXPERIMENTS } from "@/lib/experiments";
+import { selectFootstepExperiments } from "@/lib/experiments";
 import type { LivingMindStory as LivingMindStoryData, LivingMotif } from "@/lib/livingMinds";
 
 function hostname(url: string): string {
@@ -367,9 +367,10 @@ export function LivingMindStory({
     .map((s) => CATEGORIES.find((c) => c.slug === s))
     .filter((c): c is (typeof CATEGORIES)[number] => Boolean(c));
 
-  const relatedExperiments = EXPERIMENTS.filter((e) =>
-    relatedCategorySlugs.includes(e.categoryId),
-  ).slice(0, 4);
+  const relatedExperiments = selectFootstepExperiments(
+    story.slug,
+    relatedCategorySlugs,
+  );
 
   return (
     <div className="w-full animate-in fade-in duration-500 pb-32">

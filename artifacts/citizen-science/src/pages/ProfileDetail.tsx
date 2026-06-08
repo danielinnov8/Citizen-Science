@@ -31,7 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { storage } from "@/lib/storage";
 import { CATEGORIES } from "@/lib/categories";
-import { EXPERIMENTS } from "@/lib/experiments";
+import { selectFootstepExperiments } from "@/lib/experiments";
 import { getGreatMindStory, buildStoryFromProfile } from "@/lib/greatMinds";
 import { GreatMindStory } from "@/components/GreatMindStory";
 import { getLivingMindStory } from "@/lib/livingMinds";
@@ -193,9 +193,10 @@ export function ProfileDetail() {
     .map((s) => CATEGORIES.find((c) => c.slug === s))
     .filter((c): c is (typeof CATEGORIES)[number] => Boolean(c));
 
-  const relatedExperiments = EXPERIMENTS.filter((e) =>
-    profile.relatedCategorySlugs.includes(e.categoryId),
-  ).slice(0, 4);
+  const relatedExperiments = selectFootstepExperiments(
+    profile.slug,
+    profile.relatedCategorySlugs,
+  );
 
   return (
     <div className="p-6 lg:p-10 max-w-5xl mx-auto w-full animate-in fade-in duration-500 pb-32">

@@ -13,9 +13,35 @@ export interface Experiment {
   estimatedTime: string;
   materials: string[];
   steps: ExperimentStep[];
+  // When set, this is a bespoke in-browser interactive lab rendered by a custom
+  // component (see INTERACTIVE_LABS in ExperimentDetail) instead of the standard
+  // materials + procedure layout. Interactive labs are surfaced only through a
+  // figure's signature list (see SIGNATURE_EXPERIMENTS), never the generic
+  // category match, so they don't leak onto unrelated profiles.
+  interactive?: boolean;
+  // Optional one-line description shown on footstep cards in place of the
+  // category/time line for interactive labs.
+  summary?: string;
 }
 
 export const EXPERIMENTS: Experiment[] = [
+  // ---------------------------------------------------------------------------
+  // Signature interactive lab — Manu Rehani's cNLP "Relative Measure of Meaning"
+  // equation, broken down into a guided, quiz-driven walkthrough.
+  // ---------------------------------------------------------------------------
+  {
+    id: "cnlp-rmm-lab",
+    slug: "cnlp-relative-measure-of-meaning",
+    title: "Decode Meaning: The cNLP Equation",
+    categoryId: "neuroscience",
+    difficulty: "Intermediate",
+    estimatedTime: "15 min",
+    interactive: true,
+    summary:
+      "Reconstruct Manu Rehani's Relative Measure of Meaning (RMM) step by step — from tokens to context-aware meaning.",
+    materials: [],
+    steps: [],
+  },
   // Plant Science
   {
     id: "exp-plant-1",
@@ -198,3 +224,35 @@ export const EXPERIMENTS: Experiment[] = [
     }
   ])
 ];
+
+// Bespoke "Follow in Their Footsteps" labs attached to specific figures by slug.
+// These are surfaced on a figure's profile regardless of category, and are
+// excluded from the generic category-based match so they only ever appear where
+// intended.
+export const SIGNATURE_EXPERIMENTS: Record<string, string[]> = {
+  "manu-rehani": ["cnlp-rmm-lab"],
+};
+
+// Pick the "Follow in Their Footsteps" experiments for a profile. A figure's
+// bespoke signature labs come first; the generic category match fills the rest.
+// Interactive labs NEVER surface via the category match — only for the figure
+// they're attached to — so they don't leak onto unrelated profiles. Used by
+// every profile renderer (GreatMindStory, LivingMindStory, and the fallback
+// ProfileDetail layout) so the behaviour stays consistent.
+export function selectFootstepExperiments(
+  slug: string | undefined,
+  relatedCategorySlugs: string[],
+  limit = 4,
+): Experiment[] {
+  const signatureIds = (slug && SIGNATURE_EXPERIMENTS[slug]) || [];
+  const signatureExperiments = signatureIds
+    .map((id) => EXPERIMENTS.find((e) => e.id === id))
+    .filter((e): e is Experiment => Boolean(e));
+  const categoryExperiments = EXPERIMENTS.filter(
+    (e) =>
+      !e.interactive &&
+      !signatureIds.includes(e.id) &&
+      relatedCategorySlugs.includes(e.categoryId),
+  );
+  return [...signatureExperiments, ...categoryExperiments].slice(0, limit);
+}

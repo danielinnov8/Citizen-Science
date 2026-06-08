@@ -50,6 +50,9 @@ export interface GreatMindStory {
   slug: string;
   name: string;
   field: string;
+  // Hero pill label. Defaults to "Great Minds of the Past" in the component;
+  // contemporary/living figures built from the DB get "Modern Visionaries".
+  eyebrow?: string;
   era: string; // descriptive era, e.g. "Modern Physics"
   lifespan: string; // e.g. "1879 – 1955"
   birthplace: string;
@@ -1192,6 +1195,21 @@ function summaryToBiography(summary: string): string[] {
   ].filter(Boolean);
 }
 
+// A DB profile row describes a living/contemporary figure (not a historical
+// "great mind of the past") when its era reads as present-tense or when its
+// lifespan lacks a closed "YYYY – YYYY" range (historical figures always carry
+// a death year; the living do not). Used to pick the hero pill label.
+function isContemporaryProfile(
+  era: string,
+  lifespan: string | null | undefined,
+): boolean {
+  if (/\b(contemporary|present|living|today|current|21st)\b/i.test(era)) {
+    return true;
+  }
+  if (lifespan && !/\d{4}\s*[–-]\s*\d{4}/.test(lifespan)) return true;
+  return false;
+}
+
 // Build a cinematic `GreatMindStory` from a database profile row. Returns null
 // when the row has no rich story content yet (no biography and no summary), so
 // the caller can fall back to the standard profile layout. Every rich section
@@ -1232,6 +1250,9 @@ export function buildStoryFromProfile(
     slug: profile.slug,
     name: profile.name,
     field: profile.field,
+    eyebrow: isContemporaryProfile(profile.era, profile.lifespan)
+      ? "Modern Visionaries"
+      : "Great Minds of the Past",
     era: profile.era,
     lifespan: profile.lifespan ?? "",
     birthplace: profile.birthplace ?? "",

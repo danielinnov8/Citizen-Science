@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import type { FeaturedProfile } from "@workspace/api-client-react";
 import { CATEGORIES } from "@/lib/categories";
-import { EXPERIMENTS } from "@/lib/experiments";
+import { selectFootstepExperiments } from "@/lib/experiments";
 import type {
   GreatMindStory as GreatMindStoryData,
   StoryMotif,
@@ -808,9 +808,12 @@ export function GreatMindStory({
     .map((s) => CATEGORIES.find((c) => c.slug === s))
     .filter((c): c is (typeof CATEGORIES)[number] => Boolean(c));
 
-  const relatedExperiments = EXPERIMENTS.filter((e) =>
-    relatedCategorySlugs.includes(e.categoryId),
-  ).slice(0, 4);
+  // Bespoke labs attached directly to this figure (e.g. Manu Rehani's cNLP
+  // equation lab) come first; the generic category match fills the rest.
+  const relatedExperiments = selectFootstepExperiments(
+    story.slug,
+    relatedCategorySlugs,
+  );
 
   return (
     <>
@@ -917,7 +920,7 @@ export function GreatMindStory({
                 }}
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                Great Minds of the Past
+                {story.eyebrow ?? "Great Minds of the Past"}
               </div>
               <h1 className="font-serif text-white tracking-tight text-5xl sm:text-6xl lg:text-7xl leading-[0.95]">
                 {story.name}
@@ -1363,9 +1366,26 @@ export function GreatMindStory({
                     className="group block bg-white rounded-xl border p-4 transition-colors hover:shadow-sm"
                     style={{ borderColor: `${theme.accent}26` }}
                   >
-                    <div className="font-semibold text-[#0F172A]">{e.title}</div>
+                    <div className="flex items-center gap-2">
+                      <div className="font-semibold text-[#0F172A]">
+                        {e.title}
+                      </div>
+                      {e.interactive && (
+                        <span
+                          className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                          style={{
+                            color: theme.accentDeep,
+                            background: `${theme.accent}1f`,
+                          }}
+                        >
+                          Interactive
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-[#64748B] mt-1">
-                      {e.difficulty} · {e.estimatedTime}
+                      {e.interactive && e.summary
+                        ? e.summary
+                        : `${e.difficulty} · ${e.estimatedTime}`}
                     </div>
                   </Link>
                 </Reveal>
