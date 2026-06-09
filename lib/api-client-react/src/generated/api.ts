@@ -18,6 +18,7 @@ import type {
 
 import type {
   AuthUser,
+  CreditBalance,
   Error,
   FeaturedProfile,
   FeaturedProfileSummary,
@@ -756,6 +757,83 @@ export function useGetFeaturedProfile<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetFeaturedProfileQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the credit balance for the caller — a signed-in user or, when logged out, the anonymous guest identified by the browser's anon cookie. Credits meter all AI features (copilot chat, web-grounded research, field-notes analysis, and the talking avatar).
+
+ * @summary Get the current credit balance
+ */
+export const getGetCreditBalanceUrl = () => {
+  return `/api/billing/credits`;
+};
+
+export const getCreditBalance = async (
+  options?: RequestInit,
+): Promise<CreditBalance> => {
+  return customFetch<CreditBalance>(getGetCreditBalanceUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetCreditBalanceQueryKey = () => {
+  return [`/api/billing/credits`] as const;
+};
+
+export const getGetCreditBalanceQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCreditBalance>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCreditBalance>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetCreditBalanceQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCreditBalance>>
+  > = ({ signal }) => getCreditBalance({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCreditBalance>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCreditBalanceQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCreditBalance>>
+>;
+export type GetCreditBalanceQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get the current credit balance
+ */
+
+export function useGetCreditBalance<
+  TData = Awaited<ReturnType<typeof getCreditBalance>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCreditBalance>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCreditBalanceQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

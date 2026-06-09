@@ -4,6 +4,7 @@ import { ArrowRight, Sparkles, Wand2, RotateCcw, ChevronRight, AlertCircle, Exte
 import { useListFeaturedProfiles } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { CreditMeter, useCreditBalance } from "@/components/CreditMeter";
 import { CATEGORIES } from "@/lib/categories";
 import { LABS, labUrl } from "@/lib/labs";
 import { PARTNERS, partnerUrl } from "@/lib/partners";
@@ -304,6 +305,7 @@ export function Agent() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [limitInfo, setLimitInfo] = useState<{ message: string; href: string } | null>(null);
+  const { refetch: refetchCredits } = useCreditBalance();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -372,6 +374,24 @@ export function Agent() {
         }),
         signal: controller.signal,
       });
+
+      if (res.status === 402) {
+        let data: { error?: string; outOfCredits?: boolean; isGuest?: boolean; upgradeHref?: string } = {};
+        try {
+          data = await res.json();
+        } catch {
+          /* ignore */
+        }
+        setMessages(prev => prev.filter(m => m.id !== assistantMsg.id));
+        setLimitInfo({
+          message:
+            data.error ||
+            "You're out of credits. Top up or upgrade your plan to keep going.",
+          href: data.upgradeHref || (data.isGuest ? "/login" : "/pricing"),
+        });
+        void refetchCredits();
+        return;
+      }
 
       if (res.status === 429) {
         let data: { error?: string; limitReached?: boolean; upgradeHref?: string } = {};
@@ -482,6 +502,8 @@ export function Agent() {
     } finally {
       setIsStreaming(false);
       abortRef.current = null;
+      // The request just spent credits — refresh the meter so the balance is current.
+      void refetchCredits();
     }
   }
 
@@ -547,17 +569,20 @@ export function Agent() {
             </p>
           </div>
         </div>
-        {messages.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReset}
-            className="border-[#E2E8F0] text-[#475569] gap-1.5"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            New chat
-          </Button>
-        )}
+        <div className="flex items-center gap-3">
+          <CreditMeter variant="compact" className="hidden sm:inline-flex" />
+          {messages.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReset}
+              className="border-[#E2E8F0] text-[#475569] gap-1.5"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              New chat
+            </Button>
+          )}
+        </div>
       </header>
 
       {showGuestInvite && (
@@ -653,7 +678,7 @@ export function Agent() {
                   <Lock className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-sm font-semibold text-[#0F172A]">Daily limit reached</h3>
+                  <h3 className="text-sm font-semibold text-[#0F172A]">Out of credits</h3>
                   <p className="mt-1 text-sm leading-relaxed text-[#475569]">{limitInfo.message}</p>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <Link

@@ -17,6 +17,9 @@ import {
 } from "@workspace/integrations-avatar-server";
 import { rateLimit } from "../middlewares/rateLimit";
 import { getAvatarPersona, isTalkable } from "../lib/avatar/personas";
+import { resolveBillingSubject } from "../lib/credits/subject";
+import { consumeCredits, hasCreditsAvailable } from "../lib/credits/credits";
+import { creditsForUsage } from "../lib/credits/plans";
 
 // These are paid, per-minute third-party APIs, so we hard-cap every live
 // conversation. The client also shows a countdown and ends gracefully, but the
@@ -43,6 +46,11 @@ interface AvatarSession {
   // ungated, so ownership is enforced by possession of the unguessable session
   // id (a capability token), not by user identity.
   userId: string | null;
+  // Billing subject resolved at session start, so each spoken turn meters
+  // credits against the right account (user or guest browser) without re-reading
+  // cookies on every /say.
+  subjectKey: string;
+  monthlyGrant: number;
   figureSlug: string;
   figureName: string;
   personaPrompt: string;
@@ -194,6 +202,27 @@ router.post(
       return;
     }
 
+    // Gate on credits before starting a (paid) live session. Resolve the subject
+    // here (user or guest), and stash it on the session so each /say meters the
+    // right account. Fail-open if the credit lookup errors.
+    const subject = await resolveBillingSubject(req, res);
+    try {
+      const ok = await hasCreditsAvailable(subject.subjectKey, subject.monthlyGrant);
+      if (!ok) {
+        res.status(402).json({
+          error: subject.isGuest
+            ? "You've used up this month's guest credits. Create a free account for more."
+            : "You're out of credits. Top up or upgrade your plan to start a live conversation.",
+          outOfCredits: true,
+          isGuest: subject.isGuest,
+          upgradeHref: subject.isGuest ? "/login" : "/pricing",
+        });
+        return;
+      }
+    } catch (err) {
+      req.log?.warn({ err }, "credit pre-check failed; allowing avatar session");
+    }
+
     const provider = getAvatarProvider(requestedProviderId);
     if (!provider) {
       res.status(400).json({ error: "Unknown avatar provider." });
@@ -222,6 +251,8 @@ router.post(
       const session: AvatarSession = {
         id,
         userId: req.user?.id ?? null,
+        subjectKey: subject.subjectKey,
+        monthlyGrant: subject.monthlyGrant,
         figureSlug: persona.slug,
         figureName: persona.name,
         personaPrompt: persona.personaPrompt,
@@ -354,6 +385,21 @@ router.post(
       return;
     }
 
+    // Gate each spoken turn on the session subject's credit balance.
+    try {
+      const ok = await hasCreditsAvailable(s.subjectKey, s.monthlyGrant);
+      if (!ok) {
+        res.status(402).json({
+          error: "You're out of credits. Top up or upgrade your plan to keep the conversation going.",
+          outOfCredits: true,
+          upgradeHref: "/pricing",
+        });
+        return;
+      }
+    } catch (err) {
+      req.log?.warn({ err }, "credit pre-check failed; allowing avatar say");
+    }
+
     const userTurn: AvatarConversationTurn = {
       role: "user",
       content: text.slice(0, MAX_USER_TEXT),
@@ -363,11 +409,13 @@ router.post(
     // 1) Generate the persona reply. streamChat is a generator; accumulate the
     // full text server-side (the avatar speaks the whole line at once).
     let reply = "";
+    let usageTokens = 0;
     try {
       for await (const chunk of streamChat(s.personaPrompt, promptMessages, {
         maxOutputTokens: REPLY_MAX_TOKENS,
       })) {
         if (chunk.text) reply += chunk.text;
+        if (chunk.usage) usageTokens = chunk.usage.totalTokens;
       }
     } catch (err) {
       req.log?.error({ err }, "avatar persona reply failed");
@@ -406,6 +454,14 @@ router.post(
     s.history.push(userTurn, { role: "assistant", content: reply });
     if (s.history.length > HISTORY_TURNS * 2) {
       s.history = s.history.slice(-HISTORY_TURNS * 2);
+    }
+
+    // Meter the spoken turn against the session's subject. Fail-open.
+    try {
+      const cost = creditsForUsage("avatar", usageTokens);
+      await consumeCredits(s.subjectKey, s.monthlyGrant, cost);
+    } catch (meterErr) {
+      req.log?.warn({ err: meterErr }, "credit deduction failed after avatar say");
     }
 
     res.json({ reply, expiresAt: s.expiresAt });

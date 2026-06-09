@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mic, MicOff, Send, Loader2, PhoneOff, Radio, Volume2 } from "lucide-react";
+import { X, Mic, MicOff, Send, Loader2, PhoneOff, Radio, Volume2, Zap, ArrowRight } from "lucide-react";
 import type { AvatarProviderInfo } from "@/lib/talkable";
 
 // ---------------------------------------------------------------------------
@@ -122,6 +123,9 @@ export function TalkToFigure({
   const [conn, setConn] = useState<ConnState>("idle");
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  // Out-of-credits state: when an AI call returns 402 we surface a dedicated
+  // prompt with a CTA to pricing/sign-up instead of a generic error line.
+  const [creditLimit, setCreditLimit] = useState<{ message: string; href: string } | null>(null);
   const [transcript, setTranscript] = useState<Transcript[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
@@ -251,6 +255,7 @@ export function TalkToFigure({
   // -------------------------------------------------------------------------
   const start = useCallback(async () => {
     setError(null);
+    setCreditLimit(null);
     setConn("connecting");
     setStatusMessage(`Waking ${firstName}…`);
     setAudioBlocked(false);
@@ -288,6 +293,22 @@ export function TalkToFigure({
 
       if (res.status === 401) {
         throw new Error("Please sign in to start a live conversation.");
+      }
+      if (res.status === 402) {
+        let data: { error?: string; isGuest?: boolean; upgradeHref?: string } = {};
+        try {
+          data = (await res.json()) as typeof data;
+        } catch {
+          /* ignore */
+        }
+        setCreditLimit({
+          message:
+            data.error ||
+            "You're out of credits. Top up or upgrade your plan to keep talking.",
+          href: data.upgradeHref || (data.isGuest ? "/login" : "/pricing"),
+        });
+        endSession("error");
+        return;
       }
       if (!res.ok) {
         let msg = `Couldn't start the conversation (${res.status}).`;
@@ -479,6 +500,22 @@ export function TalkToFigure({
         if (res.status === 410) {
           setError("This conversation has ended.");
           endSession("ended");
+          return;
+        }
+        if (res.status === 402) {
+          let data: { error?: string; isGuest?: boolean; upgradeHref?: string } = {};
+          try {
+            data = (await res.json()) as typeof data;
+          } catch {
+            /* ignore */
+          }
+          setCreditLimit({
+            message:
+              data.error ||
+              "You're out of credits. Top up or upgrade your plan to keep talking.",
+            href: data.upgradeHref || (data.isGuest ? "/login" : "/pricing"),
+          });
+          endSession("error");
           return;
         }
         if (!res.ok) {
@@ -741,10 +778,27 @@ export function TalkToFigure({
                   {statusMessage && (
                     <p className="max-w-xs text-sm text-white/80">{statusMessage}</p>
                   )}
-                  {error && (
+                  {error && !creditLimit && (
                     <p className="max-w-xs text-sm text-red-300">{error}</p>
                   )}
-                  {conn === "error" && (
+                  {creditLimit && (
+                    <div className="max-w-xs rounded-2xl border border-white/15 bg-white/10 p-4 text-center backdrop-blur">
+                      <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white">
+                        <Zap className="h-4 w-4" />
+                      </div>
+                      <p className="text-sm font-semibold text-white">Out of credits</p>
+                      <p className="mt-1 text-xs leading-relaxed text-white/70">{creditLimit.message}</p>
+                      <Link
+                        href={creditLimit.href}
+                        className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-transform hover:scale-105"
+                        data-testid="avatar-credit-cta"
+                      >
+                        {creditLimit.href === "/login" ? "Create a free account" : "See plans & top up"}
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  )}
+                  {conn === "error" && !creditLimit && (
                     <button
                       onClick={start}
                       className="rounded-full bg-white/15 px-4 py-2 text-sm font-medium hover:bg-white/25"

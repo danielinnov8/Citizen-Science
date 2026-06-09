@@ -39,5 +39,13 @@ does NOT apply (Cloud Run + own Neon, not Replit Deployments).
 
 **How to apply:** add a schema change → `pnpm --filter @workspace/db run generate`
 → commit the new SQL + meta → deploy. The new migration applies automatically on
-the next boot. Only the original baseline needed hand-editing for idempotency;
-incremental migrations generate cleanly (all DBs are at baseline afterward).
+the next boot.
+
+**Incremental migrations also need idempotency if you `push` to dev first.**
+`drizzle-kit push` creates the table WITHOUT recording it in the migration
+journal, so the next boot's migrator re-runs the generated `CREATE TABLE` and
+fails with `relation "..." already exists` (it crashes the whole migration step).
+Hand-edit each new migration's `CREATE TABLE`/`CREATE INDEX`/`ADD COLUMN` to the
+`IF NOT EXISTS` form (do NOT touch `meta/`). Prefer this over relying on a clean
+generate — the original "incremental migrations generate cleanly" assumption only
+holds when you never `push` between generate and boot.

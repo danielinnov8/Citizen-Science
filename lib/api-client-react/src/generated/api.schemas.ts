@@ -121,3 +121,19 @@ export interface FeaturedProfile {
   didYouKnow: string[];
   storyTheme: ProfileStoryTheme | null;
 }
+
+export interface CreditBalance {
+  /** The plan id ("free", "researcher", "pioneer") or "guest". */
+  plan: string;
+  isGuest: boolean;
+  /** Credits granted per month for this plan. */
+  monthlyGrant: number;
+  /** Credits left from this month's grant. */
+  monthlyRemaining: number;
+  /** Non-expiring top-up credits remaining. */
+  topupBalance: number;
+  /** monthlyRemaining + topupBalance. */
+  totalRemaining: number;
+  /** When the monthly grant next resets (start of next UTC month). */
+  renewalDate: string;
+}

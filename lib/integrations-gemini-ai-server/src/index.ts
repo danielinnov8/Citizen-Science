@@ -16,4 +16,6 @@ export type {
   ResearchOptions,
   VideoCandidate,
   VideoRelevanceResult,
+  UsageInfo,
+  AnalyzeFieldNotesOptions,
 } from "./client";

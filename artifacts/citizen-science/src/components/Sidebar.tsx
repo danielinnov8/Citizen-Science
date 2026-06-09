@@ -21,6 +21,7 @@ import { storage } from "@/lib/storage";
 import { EXPERIMENTS } from "@/lib/experiments";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BadgeTile } from "@/components/Logo";
+import { CreditMeter } from "@/components/CreditMeter";
 
 interface NavItem {
   icon: typeof LayoutDashboard;
@@ -270,6 +271,9 @@ export function Sidebar() {
               </div>
             ))}
           </nav>
+
+          {/* Credit balance — live AI usage meter, links to plans for top-up/upgrade. */}
+          {!collapsed && <CreditMeter className="mt-1" />}
 
           {/* Live activity stats — interconnects the sidebar with the user's
               experiments and notebook so progress is always visible. */}

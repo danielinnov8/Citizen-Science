@@ -3,10 +3,7 @@ import {
   type IRouter,
   type Request,
   type Response,
-  type CookieOptions,
 } from "express";
-import { randomBytes } from "node:crypto";
-import type { User } from "@workspace/db";
 import {
   analyzeFieldNotes,
   streamChat,
@@ -15,12 +12,12 @@ import {
 } from "@workspace/integrations-gemini-ai-server";
 import { requireAuth } from "../middlewares/requireAuth";
 import { rateLimit } from "../middlewares/rateLimit";
-import { getUserBySession, SESSION_COOKIE } from "../lib/auth/session";
+import { resolveBillingSubject } from "../lib/credits/subject";
 import {
-  recordCopilotUsage,
-  isUnlimitedPlan,
-  COPILOT_FREE_DAILY_LIMIT,
-} from "../lib/usage/copilot";
+  consumeCredits,
+  hasCreditsAvailable,
+} from "../lib/credits/credits";
+import { creditsForUsage } from "../lib/credits/plans";
 import { LABS } from "../lib/labs";
 import { PARTNERS } from "../lib/partners";
 import { getScientistDirectory, type ScientistSummary } from "../lib/scientists";
@@ -30,30 +27,6 @@ import { VideoMarkerStripper } from "../lib/youtube/marker";
 
 // A video must clear this strict relevance bar (0-100) before it is shown.
 const VIDEO_RELEVANCE_THRESHOLD = 90;
-
-// Signed cookie used to meter anonymous (logged-out) visitors per browser, so
-// the daily copilot quota can't be sidestepped simply by chatting as a guest.
-const ANON_COOKIE = "cs_anon";
-const ANON_COOKIE_TTL_MS = 1000 * 60 * 60 * 24 * 400; // ~13 months
-
-// Resolve a stable per-browser anonymous id, issuing a signed cookie the first
-// time we see a guest. Must be called before SSE headers are flushed.
-function ensureAnonId(req: Request, res: Response): string {
-  const existing = req.signedCookies?.[ANON_COOKIE];
-  if (typeof existing === "string" && existing.length > 0) return existing;
-
-  const id = randomBytes(16).toString("base64url");
-  const opts: CookieOptions = {
-    httpOnly: true,
-    secure: req.secure,
-    sameSite: "lax",
-    signed: true,
-    path: "/",
-    maxAge: ANON_COOKIE_TTL_MS,
-  };
-  res.cookie(ANON_COOKIE, id, opts);
-  return id;
-}
 
 interface VerifiedVideo {
   id: string;
@@ -230,44 +203,29 @@ router.post("/agent/chat", rateLimit({ windowMs: 10 * 60 * 1000, max: 40 }), asy
     return;
   }
 
-  // Enforce the daily copilot quota before doing any expensive work. Paid plans
-  // are unlimited; free accounts and anonymous guests are metered per UTC day.
-  // This runs before SSE headers are flushed so we can return a plain 429 (and
-  // set the guest cookie) when the quota is exhausted.
-  let currentUser: User | null = null;
-  const sid = req.signedCookies?.[SESSION_COOKIE];
-  if (typeof sid === "string" && sid.length > 0) {
-    try {
-      currentUser = await getUserBySession(sid);
-    } catch (err) {
-      req.log?.warn({ err }, "copilot usage: session lookup failed");
+  // Enforce the credit balance before doing any expensive work. AI usage is
+  // metered in credits drawn from the subject's monthly grant + top-ups; guests
+  // are metered per browser via the anon cookie. This runs before SSE headers
+  // are flushed so we can return a structured 402 (and set the guest cookie)
+  // when credits are exhausted. Actual token usage is deducted after the stream.
+  const subject = await resolveBillingSubject(req, res);
+  try {
+    const ok = await hasCreditsAvailable(subject.subjectKey, subject.monthlyGrant);
+    if (!ok) {
+      const message = subject.isGuest
+        ? "You've used up this month's guest credits. Create a free account for more, or come back next month."
+        : "You're out of credits. Slow down a little, top up your credits, or upgrade your plan to keep going.";
+      res.status(402).json({
+        error: message,
+        outOfCredits: true,
+        isGuest: subject.isGuest,
+        upgradeHref: subject.isGuest ? "/login" : "/pricing",
+      });
+      return;
     }
-  }
-
-  if (!isUnlimitedPlan(currentUser?.plan)) {
-    const isGuest = !currentUser;
-    const subjectKey = currentUser
-      ? `user:${currentUser.id}`
-      : `guest:${ensureAnonId(req, res)}`;
-
-    try {
-      const used = await recordCopilotUsage(subjectKey);
-      if (used > COPILOT_FREE_DAILY_LIMIT) {
-        const message = isGuest
-          ? `You've reached the ${COPILOT_FREE_DAILY_LIMIT}-question daily limit for guests. Create a free account to keep exploring, or come back tomorrow.`
-          : `You've reached your free daily limit of ${COPILOT_FREE_DAILY_LIMIT} copilot questions. Upgrade to Researcher for unlimited access, or come back tomorrow.`;
-        res.status(429).json({
-          error: message,
-          limitReached: true,
-          limit: COPILOT_FREE_DAILY_LIMIT,
-          upgradeHref: isGuest ? "/login" : "/pricing",
-        });
-        return;
-      }
-    } catch (err) {
-      // Never let a metering failure block the copilot — fail open.
-      req.log?.warn({ err }, "copilot usage metering failed; allowing request");
-    }
+  } catch (err) {
+    // Never let a metering failure block the copilot — fail open.
+    req.log?.warn({ err }, "credit pre-check failed; allowing request");
   }
 
   // Inject the compact, cached directory of featured scientists so the model
@@ -304,6 +262,10 @@ router.post("/agent/chat", rateLimit({ windowMs: 10 * 60 * 1000, max: 40 }), asy
   // [[video?:...]] marker. Resolved (search + verify) after the text stream.
   let videoTopic: string | null = null;
 
+  // Gemini token usage for this reply, captured from the stream's trailing
+  // usage chunk and converted to credits once the stream completes.
+  let usageTokens = 0;
+
   // Run one streaming pass. `useSearch` enables Google Search grounding so
   // replies can cite live web sources; sources arrive as a trailing chunk.
   const runStream = async (useSearch: boolean) => {
@@ -334,6 +296,9 @@ router.post("/agent/chat", rateLimit({ windowMs: 10 * 60 * 1000, max: 40 }), asy
         // Cited web sources may point at Amazon too — tag those links as well.
         const sources = chunk.sources.map(s => ({ ...s, url: tagAmazonUrl(s.url) }));
         send({ sources });
+      }
+      if (chunk.usage) {
+        usageTokens = chunk.usage.totalTokens;
       }
     }
 
@@ -397,6 +362,16 @@ router.post("/agent/chat", rateLimit({ windowMs: 10 * 60 * 1000, max: 40 }), asy
       send({ error: "The science copilot is unavailable right now. Please try again." });
     }
   } finally {
+    // Meter the reply: deduct credits from token usage (fixed fallback if the
+    // provider reported none) only when we actually produced a reply. Fail-open.
+    if (sentAny) {
+      const cost = creditsForUsage("chat", usageTokens);
+      try {
+        await consumeCredits(subject.subjectKey, subject.monthlyGrant, cost);
+      } catch (meterErr) {
+        req.log?.warn({ err: meterErr }, "credit deduction failed after chat");
+      }
+    }
     if (!clientGone) res.end();
   }
 });
@@ -412,8 +387,37 @@ router.post("/agent/process-observation", requireAuth, async (req: Request, res:
     return;
   }
 
+  // Gate on credits before the (paid) analysis call. This route is auth-gated,
+  // so the subject is always a real user.
+  const subject = await resolveBillingSubject(req, res);
   try {
-    const data = await analyzeFieldNotes(rawText);
+    const ok = await hasCreditsAvailable(subject.subjectKey, subject.monthlyGrant);
+    if (!ok) {
+      res.status(402).json({
+        error:
+          "You're out of credits. Top up your credits or upgrade your plan to analyze more field notes.",
+        outOfCredits: true,
+        upgradeHref: "/pricing",
+      });
+      return;
+    }
+  } catch (err) {
+    req.log?.warn({ err }, "credit pre-check failed; allowing field-notes request");
+  }
+
+  try {
+    let usageTokens = 0;
+    const data = await analyzeFieldNotes(rawText, {
+      onUsage: (u) => {
+        usageTokens = u.totalTokens;
+      },
+    });
+    const cost = creditsForUsage("fieldNotes", usageTokens);
+    try {
+      await consumeCredits(subject.subjectKey, subject.monthlyGrant, cost);
+    } catch (meterErr) {
+      req.log?.warn({ err: meterErr }, "credit deduction failed after field-notes");
+    }
     res.json({ success: true, data });
   } catch (err) {
     req.log?.error({ err }, "field note analysis failed");

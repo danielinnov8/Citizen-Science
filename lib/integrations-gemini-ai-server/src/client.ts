@@ -27,6 +27,36 @@ export function isGeminiConfigured(): boolean {
   return !!process.env.GEMINI_API_KEY;
 }
 
+// Token usage reported by Gemini for a single call, surfaced so callers can
+// meter consumption (e.g. convert tokens to billing credits). `totalTokens`
+// includes prompt + response + thinking + tool tokens when available.
+export interface UsageInfo {
+  totalTokens: number;
+  promptTokens: number;
+  candidatesTokens: number;
+}
+
+// Normalize the SDK's usageMetadata into a flat UsageInfo, or null when the
+// response didn't report any usage (callers then apply a fixed fallback cost).
+function toUsageInfo(
+  meta:
+    | {
+        totalTokenCount?: number;
+        promptTokenCount?: number;
+        candidatesTokenCount?: number;
+      }
+    | undefined,
+): UsageInfo | null {
+  if (!meta) return null;
+  const totalTokens = meta.totalTokenCount ?? 0;
+  if (totalTokens <= 0) return null;
+  return {
+    totalTokens,
+    promptTokens: meta.promptTokenCount ?? 0,
+    candidatesTokens: meta.candidatesTokenCount ?? 0,
+  };
+}
+
 export interface Measurement {
   name: string;
   value: string;
@@ -84,7 +114,16 @@ Rules:
 
 Only use information present in the notes. Never fabricate values. Respond with JSON only.`;
 
-export async function analyzeFieldNotes(rawText: string): Promise<FieldNoteAnalysis> {
+export interface AnalyzeFieldNotesOptions {
+  // Invoked with the call's token usage when Gemini reports it, so the caller
+  // can meter consumption. Never called when usage is unavailable.
+  onUsage?: (usage: UsageInfo) => void;
+}
+
+export async function analyzeFieldNotes(
+  rawText: string,
+  options: AnalyzeFieldNotesOptions = {},
+): Promise<FieldNoteAnalysis> {
   const trimmed = rawText.trim();
   if (!trimmed) {
     throw new Error("rawText must not be empty");
@@ -100,6 +139,9 @@ export async function analyzeFieldNotes(rawText: string): Promise<FieldNoteAnaly
       maxOutputTokens: 8192,
     },
   });
+
+  const usage = toUsageInfo(response.usageMetadata);
+  if (usage) options.onUsage?.(usage);
 
   const text = response.text;
   if (!text) {
@@ -274,10 +316,13 @@ export interface StreamChatOptions {
 }
 
 // A streamed chat yields incremental text deltas and, when grounding is on, a
-// single trailing chunk carrying the de-duplicated web sources.
+// single trailing chunk carrying the de-duplicated web sources. The very last
+// chunk also carries the call's token usage when Gemini reports it, so callers
+// can meter consumption after the stream completes.
 export interface StreamChatChunk {
   text?: string;
   sources?: WebSource[];
+  usage?: UsageInfo;
 }
 
 // Stream a multi-turn chat completion from Gemini, yielding text deltas.
@@ -325,11 +370,19 @@ export async function* streamChat(
 
   const sources: WebSource[] = [];
   const seen = new Set<string>();
+  let usage: UsageInfo | null = null;
 
   for await (const chunk of stream) {
     const text = chunk.text;
     if (text) {
       yield { text };
+    }
+
+    // usageMetadata is reported cumulatively; the final chunk carries the
+    // call's full token count. Keep the latest non-empty value.
+    const chunkUsage = toUsageInfo(chunk.usageMetadata);
+    if (chunkUsage) {
+      usage = chunkUsage;
     }
 
     if (options.useSearch) {
@@ -349,5 +402,9 @@ export async function* streamChat(
 
   if (sources.length > 0) {
     yield { sources };
+  }
+
+  if (usage) {
+    yield { usage };
   }
 }

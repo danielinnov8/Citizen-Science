@@ -7,6 +7,7 @@
  */
 
 export * from "./authUser";
+export * from "./creditBalance";
 export * from "./error";
 export * from "./featuredProfile";
 export * from "./featuredProfileSummary";

@@ -149,3 +149,28 @@ export const GetFeaturedProfileResponse = zod.object({
     zod.null(),
   ]),
 });
+
+/**
+ * Returns the credit balance for the caller — a signed-in user or, when logged out, the anonymous guest identified by the browser's anon cookie. Credits meter all AI features (copilot chat, web-grounded research, field-notes analysis, and the talking avatar).
+
+ * @summary Get the current credit balance
+ */
+export const GetCreditBalanceResponse = zod.object({
+  plan: zod
+    .string()
+    .describe(
+      'The plan id (\"free\", \"researcher\", \"pioneer\") or \"guest\".',
+    ),
+  isGuest: zod.boolean(),
+  monthlyGrant: zod
+    .number()
+    .describe("Credits granted per month for this plan."),
+  monthlyRemaining: zod
+    .number()
+    .describe("Credits left from this month's grant."),
+  topupBalance: zod.number().describe("Non-expiring top-up credits remaining."),
+  totalRemaining: zod.number().describe("monthlyRemaining + topupBalance."),
+  renewalDate: zod.coerce
+    .date()
+    .describe("When the monthly grant next resets (start of next UTC month)."),
+});

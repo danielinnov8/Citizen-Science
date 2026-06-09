@@ -14,6 +14,8 @@ tags:
     description: Authentication operations
   - name: profiles
     description: Featured scientists & inventors directory
+  - name: billing
+    description: Credit balance and usage-based billing
 paths:
   /healthz:
     get:
@@ -188,6 +190,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /billing/credits:
+    get:
+      operationId: getCreditBalance
+      tags: [billing]
+      summary: Get the current credit balance
+      description: >
+        Returns the credit balance for the caller — a signed-in user or, when
+        logged out, the anonymous guest identified by the browser's anon cookie.
+        Credits meter all AI features (copilot chat, web-grounded research,
+        field-notes analysis, and the talking avatar).
+      responses:
+        "200":
+          description: The caller's credit balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreditBalance"
 components:
   schemas:
     HealthStatus:
@@ -450,3 +469,35 @@ components:
         - legacy
         - didYouKnow
         - storyTheme
+    CreditBalance:
+      type: object
+      properties:
+        plan:
+          type: string
+          description: The plan id ("free", "researcher", "pioneer") or "guest".
+        isGuest:
+          type: boolean
+        monthlyGrant:
+          type: integer
+          description: Credits granted per month for this plan.
+        monthlyRemaining:
+          type: integer
+          description: Credits left from this month's grant.
+        topupBalance:
+          type: integer
+          description: Non-expiring top-up credits remaining.
+        totalRemaining:
+          type: integer
+          description: monthlyRemaining + topupBalance.
+        renewalDate:
+          type: string
+          format: date-time
+          description: When the monthly grant next resets (start of next UTC month).
+      required:
+        - plan
+        - isGuest
+        - monthlyGrant
+        - monthlyRemaining
+        - topupBalance
+        - totalRemaining
+        - renewalDate

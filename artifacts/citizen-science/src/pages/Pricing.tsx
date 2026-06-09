@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Check, Sparkles, Compass, FlaskConical, GraduationCap, Building2, Mail, Crown, Star, Megaphone, Infinity as InfinityIcon, MessageCircle, Rocket } from "lucide-react";
+import { ArrowRight, Check, Sparkles, Compass, FlaskConical, Rocket, Mail, Crown, Star, Megaphone, Infinity as InfinityIcon, MessageCircle, Zap } from "lucide-react";
 import { LogoIcon, Logo } from "@/components/Logo";
-
-type BillingPeriod = "monthly" | "annual";
 
 const GRID_BG = {
   backgroundImage:
@@ -17,31 +15,33 @@ type Tier = {
   name: string;
   tagline: string;
   icon: React.ComponentType<{ className?: string }>;
-  monthly: number | null;
-  annual: number | null;
-  customLabel?: string;
-  cta: { label: string; href: string; external?: boolean };
+  monthly: number;
+  credits: number;
+  cta: { label: string; href: string };
   featured?: boolean;
   features: string[];
 };
 
 const CONTACT_EMAIL = "56289968+danielinnov8@users.noreply.github.com";
 
+// Monthly credit grants mirror the server's PLAN_MONTHLY_CREDITS. Credits meter
+// every AI feature (copilot chat, web research, field-notes, talking avatar) at
+// roughly 1 credit per 1,000 Gemini tokens.
 const TIERS: Tier[] = [
   {
-    id: "explorer",
-    name: "Explorer",
+    id: "free",
+    name: "Free",
     tagline: "For the curious. Start exploring real science, free forever.",
     icon: Compass,
     monthly: 0,
-    annual: 0,
+    credits: 200,
     cta: { label: "Get started free", href: "/login" },
     features: [
+      "~200 AI credits / month",
       "All 14 science categories",
       "Scientists & inventors directory",
       "Starter experiment library",
       "Personal field notebook",
-      "AI copilot — ~10 questions / day",
       "No credit card required",
     ],
   },
@@ -50,74 +50,62 @@ const TIERS: Tier[] = [
     name: "Researcher",
     tagline: "For dedicated learners who want the full toolkit.",
     icon: FlaskConical,
-    monthly: 9,
-    annual: 84,
+    monthly: 20,
+    credits: 2000,
     cta: { label: "Start researching", href: "/login" },
     featured: true,
     features: [
-      "Everything in Explorer",
-      "Unlimited AI copilot",
+      "~2,000 AI credits / month",
       "Web-grounded answers + verified video",
       "Full experiment & lab library",
-      "Curated video library by topic",
+      "Talking-avatar conversations",
       "Advanced notebook analysis",
       "Full progress tracking",
     ],
   },
   {
-    id: "educator",
-    name: "Educator",
-    tagline: "For teachers running Citizen Science with a classroom.",
-    icon: GraduationCap,
-    monthly: 29,
-    annual: 290,
-    cta: { label: "Set up your class", href: "/login" },
+    id: "pioneer",
+    name: "Pioneer",
+    tagline: "For power users and builders pushing the frontier.",
+    icon: Rocket,
+    monthly: 100,
+    credits: 12000,
+    cta: { label: "Go Pioneer", href: "/login" },
     features: [
+      "~12,000 AI credits / month",
       "Everything in Researcher",
-      "Student cohorts & rosters",
-      "Classroom dashboard",
-      "Assignments & shared experiments",
-      "Bulk student seats",
-      "Progress reporting",
+      "Highest monthly credit allotment",
+      "Priority access to new labs & features",
+      "Best value per credit",
+      "Early access to the roadmap",
     ],
   },
-  {
-    id: "institution",
-    name: "Institution",
-    tagline: "For universities, labs, and research partners.",
-    icon: Building2,
-    monthly: null,
-    annual: null,
-    customLabel: "Custom",
-    cta: { label: "Contact us", href: `mailto:${CONTACT_EMAIL}`, external: true },
-    features: [
-      "Everything in Educator",
-      "API access & data partnerships",
-      "White-labeling options",
-      "Custom integrations",
-      "Dedicated onboarding & support",
-      "Volume & site licensing",
-    ],
-  },
+];
+
+// Placeholder one-off credit packs. Buttons are stubs — no real payment yet.
+type TopupPack = {
+  id: string;
+  credits: number;
+  price: number;
+  popular?: boolean;
+};
+
+const TOPUP_PACKS: TopupPack[] = [
+  { id: "pack-500", credits: 500, price: 5 },
+  { id: "pack-1500", credits: 1500, price: 12, popular: true },
+  { id: "pack-5000", credits: 5000, price: 35 },
 ];
 
 function formatPrice(value: number) {
   return `$${value.toLocaleString("en-US")}`;
 }
 
-function PriceBlock({ tier, period }: { tier: Tier; period: BillingPeriod }) {
-  if (tier.customLabel) {
-    return (
-      <div className="flex items-baseline gap-1">
-        <span className="font-serif text-4xl tracking-tight text-[#0F172A]">{tier.customLabel}</span>
-      </div>
-    );
-  }
+function formatCredits(value: number) {
+  return value.toLocaleString("en-US");
+}
 
-  const monthly = tier.monthly ?? 0;
-  const annual = tier.annual ?? 0;
-
-  if (monthly === 0) {
+function PriceBlock({ tier }: { tier: Tier }) {
+  if (tier.monthly === 0) {
     return (
       <div className="flex items-baseline gap-1">
         <span className="font-serif text-4xl tracking-tight text-[#0F172A]">Free</span>
@@ -125,22 +113,18 @@ function PriceBlock({ tier, period }: { tier: Tier; period: BillingPeriod }) {
     );
   }
 
-  const display = period === "monthly" ? monthly : Math.round((annual / 12) * 100) / 100;
-
   return (
     <div className="flex flex-col">
       <div className="flex items-baseline gap-1">
-        <span className="font-serif text-5xl tracking-tight text-[#0F172A]">{formatPrice(display)}</span>
+        <span className="font-serif text-5xl tracking-tight text-[#0F172A]">{formatPrice(tier.monthly)}</span>
         <span className="text-sm font-medium text-[#64748B]">/ mo</span>
       </div>
-      <p className="mt-1 text-xs text-[#94A3B8]">
-        {period === "annual" ? `${formatPrice(annual)} billed yearly` : "billed monthly"}
-      </p>
+      <p className="mt-1 text-xs text-[#94A3B8]">billed monthly</p>
     </div>
   );
 }
 
-function TierCard({ tier, period }: { tier: Tier; period: BillingPeriod }) {
+function TierCard({ tier }: { tier: Tier }) {
   const Icon = tier.icon;
   const featured = tier.featured;
 
@@ -174,32 +158,28 @@ function TierCard({ tier, period }: { tier: Tier; period: BillingPeriod }) {
       <p className="mt-1.5 min-h-[40px] text-sm leading-relaxed text-[#64748B]">{tier.tagline}</p>
 
       <div className="mt-5 min-h-[88px]">
-        <PriceBlock tier={tier} period={period} />
+        <PriceBlock tier={tier} />
       </div>
 
-      {tier.cta.external ? (
-        <a
-          href={tier.cta.href}
-          className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-medium transition-colors ${
-            featured ? "btn-metal-blue" : "btn-metal-ink"
-          }`}
-          data-testid={`pricing-cta-${tier.id}`}
-        >
-          {tier.cta.label}
-          <ArrowRight className="h-4 w-4" />
-        </a>
-      ) : (
-        <Link
-          href={tier.cta.href}
-          className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-medium transition-colors ${
-            featured ? "btn-metal-blue" : "btn-metal-ink"
-          }`}
-          data-testid={`pricing-cta-${tier.id}`}
-        >
-          {tier.cta.label}
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      )}
+      <div
+        className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold ${
+          featured ? "bg-blue-50 text-blue-700" : "bg-[#F8FAFC] text-[#334155]"
+        }`}
+      >
+        <Zap className={`h-4 w-4 ${featured ? "text-blue-600" : "text-[#64748B]"}`} />
+        ~{formatCredits(tier.credits)} credits / month
+      </div>
+
+      <Link
+        href={tier.cta.href}
+        className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-medium transition-colors ${
+          featured ? "btn-metal-blue" : "btn-metal-ink"
+        }`}
+        data-testid={`pricing-cta-${tier.id}`}
+      >
+        {tier.cta.label}
+        <ArrowRight className="h-4 w-4" />
+      </Link>
 
       <ul className="mt-6 space-y-3 border-t border-[#F1F5F9] pt-6 text-sm">
         {tier.features.map((feature) => (
@@ -216,6 +196,66 @@ function TierCard({ tier, period }: { tier: Tier; period: BillingPeriod }) {
         ))}
       </ul>
     </div>
+  );
+}
+
+function TopupPacks() {
+  return (
+    <section className="container mx-auto max-w-5xl px-4 lg:px-8 py-16 lg:py-20">
+      <div className="text-center mb-10">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-3 py-1 text-xs font-medium text-[#64748B]">
+          <Zap className="h-3 w-3 text-blue-600" />
+          Need more this month?
+        </span>
+        <h2 className="mt-4 font-serif text-3xl lg:text-4xl tracking-tight">
+          Top up your <span className="italic text-blue-600">credits</span>
+        </h2>
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#64748B]">
+          One-time credit packs that never expire — they stack on top of your monthly
+          allotment. Buy more whenever you run low, no plan change required.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+        {TOPUP_PACKS.map((pack) => (
+          <div
+            key={pack.id}
+            className={`relative flex flex-col items-center rounded-2xl border bg-white p-6 text-center transition-all ${
+              pack.popular
+                ? "border-blue-300 shadow-lg shadow-blue-900/10 ring-1 ring-blue-200"
+                : "border-[#E2E8F0] shadow-sm hover:border-blue-200 hover:shadow-md"
+            }`}
+            data-testid={`topup-card-${pack.id}`}
+          >
+            {pack.popular && (
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-3 py-0.5 text-[11px] font-semibold text-white shadow-md">
+                Best value
+              </span>
+            )}
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+              <Zap className="h-5 w-5" />
+            </div>
+            <p className="mt-4 font-serif text-3xl tracking-tight text-[#0F172A]">
+              {formatCredits(pack.credits)}
+            </p>
+            <p className="text-xs font-medium uppercase tracking-wider text-[#94A3B8]">credits</p>
+            <p className="mt-3 text-lg font-semibold text-[#0F172A]">{formatPrice(pack.price)}</p>
+            <button
+              type="button"
+              disabled
+              title="Coming soon"
+              className="mt-5 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-5 py-2.5 text-sm font-medium text-[#94A3B8]"
+              data-testid={`topup-cta-${pack.id}`}
+            >
+              Coming soon
+            </button>
+          </div>
+        ))}
+      </div>
+      <p className="mt-6 text-center text-xs text-[#94A3B8]">
+        Top-up purchases are not yet live — these packs are a preview of what's coming.
+      </p>
+    </section>
   );
 }
 
@@ -333,19 +373,23 @@ function FoundingMember() {
 const FAQS: { q: string; a: string }[] = [
   {
     q: "Can I really use Citizen Science for free?",
-    a: "Yes. The Explorer plan is free forever, no card required. It's our mission-accessibility tier — browse every science category, the inventor directory, starter experiments, and keep a personal field notebook.",
+    a: "Yes. The Free plan is free forever, no card required — browse every science category, the inventor directory, starter experiments, and keep a personal field notebook. You also get ~200 AI credits each month to use the copilot and other AI features.",
   },
   {
-    q: "What's the difference between monthly and annual billing?",
-    a: "Annual billing gives you roughly two months free compared to paying month to month. You can switch billing periods at any time.",
+    q: "What is an AI credit?",
+    a: "Credits are how we meter the AI features — the science copilot, web-grounded research, notebook analysis, and talking-avatar conversations. Roughly 1 credit covers about 1,000 tokens of AI work, so a typical copilot question costs only a few credits. Your monthly allotment resets at the start of each month.",
+  },
+  {
+    q: "What happens when I run out of credits?",
+    a: "The AI features pause until your monthly credits reset, you buy a top-up pack, or you upgrade your plan. Everything else — browsing categories, the directory, experiments, and your notebook — keeps working as normal.",
+  },
+  {
+    q: "Do top-up credits expire?",
+    a: "No. Top-up packs are one-time purchases that stack on top of your monthly allotment and never expire. (Top-up checkout isn't live yet — it's coming soon.)",
   },
   {
     q: "Can I change or cancel my plan later?",
     a: "Absolutely. Upgrade, downgrade, or cancel whenever you like — your notebook and progress stay with your account.",
-  },
-  {
-    q: "Do you offer pricing for schools and institutions?",
-    a: "Yes. The Educator plan is built for classrooms with student cohorts and bulk seats, and Institution offers custom terms for universities, labs, and partners. Reach out and we'll tailor a plan.",
   },
   {
     q: "What is a Founding Member?",
@@ -354,8 +398,6 @@ const FAQS: { q: string; a: string }[] = [
 ];
 
 export default function Pricing() {
-  const [period, setPeriod] = useState<BillingPeriod>("monthly");
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -409,8 +451,8 @@ export default function Pricing() {
                 <span className="italic text-blue-300">at every level</span>
               </h1>
               <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-white/70">
-                Start free and explore real science forever. Upgrade when you're ready
-                for the full copilot, labs, and classroom tools. No hidden fees.
+                Start free and explore real science forever. Every plan comes with AI
+                credits — upgrade or top up when you're ready for more. No hidden fees.
               </p>
             </motion.div>
           </div>
@@ -418,60 +460,24 @@ export default function Pricing() {
 
         {/* PRICING */}
         <section className="relative">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-            {/* Billing toggle */}
-            <div className="-mt-8 flex justify-center">
-              <div
-                role="radiogroup"
-                aria-label="Billing period"
-                className="inline-flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-white p-1 shadow-md"
-              >
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={period === "monthly"}
-                  onClick={() => setPeriod("monthly")}
-                  className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${
-                    period === "monthly" ? "bg-[#0F172A] text-white" : "text-[#64748B] hover:text-[#0F172A]"
-                  }`}
-                  data-testid="billing-toggle-monthly"
-                >
-                  Monthly
-                </button>
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={period === "annual"}
-                  onClick={() => setPeriod("annual")}
-                  className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-colors ${
-                    period === "annual" ? "bg-[#0F172A] text-white" : "text-[#64748B] hover:text-[#0F172A]"
-                  }`}
-                  data-testid="billing-toggle-annual"
-                >
-                  Annual
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                      period === "annual" ? "bg-green-400/20 text-green-300" : "bg-green-50 text-green-700"
-                    }`}
-                  >
-                    Save ~17%
-                  </span>
-                </button>
-              </div>
-            </div>
-
+          <div className="container mx-auto max-w-6xl px-4 lg:px-8">
             {/* Tier grid */}
-            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 lg:items-start">
+            <div className="-mt-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:items-start">
               {TIERS.map((tier) => (
-                <TierCard key={tier.id} tier={tier} period={period} />
+                <TierCard key={tier.id} tier={tier} />
               ))}
             </div>
 
             <p className="mt-8 text-center text-sm text-[#94A3B8]">
-              All paid plans include a free Explorer account to start. Prices in USD.
+              Every plan includes a monthly pool of AI credits that power the copilot,
+              web research, notebook analysis, and talking avatars. ~1 credit ≈ 1,000
+              tokens. Prices in USD.
             </p>
           </div>
         </section>
+
+        {/* TOP-UP PACKS */}
+        <TopupPacks />
 
         {/* FOUNDING MEMBER */}
         <div className="mt-20 lg:mt-24">
