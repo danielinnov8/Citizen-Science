@@ -26,6 +26,17 @@ import {
   Repeat,
   ShieldCheck,
   BarChart3,
+  Lightbulb,
+  Award,
+  Users,
+  Store,
+  Database,
+  Trophy,
+  Gauge,
+  Briefcase,
+  Landmark,
+  Shirt,
+  Megaphone,
 } from "lucide-react";
 import { LogoIcon, Logo } from "@/components/Logo";
 import { LABS } from "@/lib/labs";
@@ -271,6 +282,123 @@ const BLENDED_ARPU = SCALING.reduce(
 );
 const MRR_AT_100K = BLENDED_ARPU * 100_000;
 
+// ---- Ten more potential revenue streams (ranked) ----
+// Each idea is scored 1–5 on revenue potential, mission fit, and ease to launch;
+// the list is ranked by the composite (max 15), so the rank shown always matches
+// the math (ties broken by mission fit, then revenue potential).
+type IdeaScores = { revenue: number; fit: number; ease: number };
+
+type Idea = {
+  id: string;
+  name: string;
+  model: string;
+  icon: React.ComponentType<{ className?: string }>;
+  blurb: string;
+  scores: IdeaScores;
+};
+
+const IDEAS: Idea[] = [
+  {
+    id: "certifications",
+    name: "Certifications & micro-credentials",
+    model: "Verified learning",
+    icon: Award,
+    blurb:
+      "Paid, verifiable “Citizen Scientist” certificates and skill badges for members who complete labs — shareable proof of real competence.",
+    scores: { revenue: 4, fit: 5, ease: 5 },
+  },
+  {
+    id: "cohorts",
+    name: "Live cohorts & expert masterclasses",
+    model: "Premium education",
+    icon: Users,
+    blurb:
+      "Ticketed live courses, office hours, and AMAs with working scientists — high-touch learning layered on top of the always-on copilot.",
+    scores: { revenue: 4, fit: 5, ease: 4 },
+  },
+  {
+    id: "kit-store",
+    name: "First-party kit store",
+    model: "Own-brand commerce",
+    icon: Store,
+    blurb:
+      "Curated Citizen Science–branded experiment kits sold directly — far better margins than affiliate links and a tighter end-to-end experience.",
+    scores: { revenue: 5, fit: 4, ease: 3 },
+  },
+  {
+    id: "data-licensing",
+    name: "Opt-in data licensing",
+    model: "Research data",
+    icon: Database,
+    blurb:
+      "Anonymized, consent-based observation datasets licensed to universities and labs — turning collective fieldwork into a research-grade resource.",
+    scores: { revenue: 5, fit: 4, ease: 2 },
+  },
+  {
+    id: "challenges",
+    name: "Sponsored research challenges",
+    model: "Funded bounties",
+    icon: Trophy,
+    blurb:
+      "Foundations and companies fund themed discovery challenges; we run them for a program fee — mission-aligned campaigns, not banner ads.",
+    scores: { revenue: 4, fit: 4, ease: 3 },
+  },
+  {
+    id: "sensors",
+    name: "Sensor & device subscriptions",
+    model: "Hardware + recurring",
+    icon: Gauge,
+    blurb:
+      "Air, water, and soil sensors bundled with a data-sync subscription, so members build their own longitudinal datasets month after month.",
+    scores: { revenue: 4, fit: 3, ease: 3 },
+  },
+  {
+    id: "talent",
+    name: "Science talent placement",
+    model: "Recruiting fees",
+    icon: Briefcase,
+    blurb:
+      "Connect proven, credentialed members to lab-assistant, field-research, and STEM roles — partners pay placement fees for vetted talent.",
+    scores: { revenue: 3, fit: 4, ease: 2 },
+  },
+  {
+    id: "white-label",
+    name: "White-label for museums",
+    model: "Experience licensing",
+    icon: Landmark,
+    blurb:
+      "License the platform to science centers, museums, and national parks as their own branded exploration companion for visitors.",
+    scores: { revenue: 4, fit: 3, ease: 2 },
+  },
+  {
+    id: "merch",
+    name: "Branded merch & field gear",
+    model: "Brand commerce",
+    icon: Shirt,
+    blurb:
+      "Field notebooks, apparel, and explorer gear — modest margin, but it funds the brand and turns members into walking ambassadors.",
+    scores: { revenue: 2, fit: 3, ease: 4 },
+  },
+  {
+    id: "sponsorships",
+    name: "Sponsored placements",
+    model: "Aligned sponsorship",
+    icon: Megaphone,
+    blurb:
+      "Clearly-labeled sponsorships from mission-aligned science brands — kept rare and relevant so trust in the copilot is never spent.",
+    scores: { revenue: 3, fit: 2, ease: 3 },
+  },
+];
+
+const ideaTotal = (i: Idea) => i.scores.revenue + i.scores.fit + i.scores.ease;
+
+const RANKED_IDEAS = [...IDEAS].sort(
+  (a, b) =>
+    ideaTotal(b) - ideaTotal(a) ||
+    b.scores.fit - a.scores.fit ||
+    b.scores.revenue - a.scores.revenue,
+);
+
 function MiniRevChart({ s }: { s: Strategy }) {
   const color = REV_COLORS[s.id] ?? "#2563EB";
   const data = USER_POINTS.map((u) => ({ users: u, value: streamRevenue(s, u) }));
@@ -401,6 +529,78 @@ function ScaleChart() {
           ))}
         </AreaChart>
       </ResponsiveContainer>
+    </div>
+  );
+}
+
+function ScoreMeter({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="w-16 shrink-0 text-[10px] font-medium uppercase tracking-wide text-[#94A3B8]">{label}</span>
+      <span className="flex items-center gap-1">
+        {Array.from({ length: 5 }, (_, i) => (
+          <span
+            key={i}
+            className="h-1.5 w-3.5 rounded-full"
+            style={{ backgroundColor: i < value ? color : "#E2E8F0" }}
+          />
+        ))}
+      </span>
+    </div>
+  );
+}
+
+function scoreTone(total: number): string {
+  if (total >= 13) return "bg-green-50 text-green-700 ring-green-200";
+  if (total >= 11) return "bg-blue-50 text-blue-700 ring-blue-200";
+  if (total >= 9) return "bg-violet-50 text-violet-700 ring-violet-200";
+  return "bg-slate-100 text-slate-600 ring-slate-200";
+}
+
+function IdeaRow({ idea, rank }: { idea: Idea; rank: number }) {
+  const Icon = idea.icon;
+  const total = ideaTotal(idea);
+  const top = rank <= 3;
+  return (
+    <div
+      className="flex flex-col gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm transition-all hover:border-blue-200 hover:shadow-md sm:flex-row sm:items-center"
+      data-testid={`idea-row-${idea.id}`}
+    >
+      <span
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-bold tabular-nums ${
+          top ? "bg-blue-600 text-white shadow-sm" : "bg-[#F1F5F9] text-[#475569]"
+        }`}
+        aria-label={`Rank ${rank}`}
+      >
+        {rank}
+      </span>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+            <Icon className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold tracking-tight text-[#0F172A]">{idea.name}</h3>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-blue-600/80">{idea.model}</p>
+          </div>
+        </div>
+        <p className="mt-2.5 text-sm leading-relaxed text-[#64748B]">{idea.blurb}</p>
+      </div>
+
+      <div className="flex shrink-0 flex-col gap-3 border-t border-[#F1F5F9] pt-4 sm:w-60 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+        <div className="space-y-1.5">
+          <ScoreMeter label="Revenue" value={idea.scores.revenue} color="#2563EB" />
+          <ScoreMeter label="Fit" value={idea.scores.fit} color="#16A34A" />
+          <ScoreMeter label="Ease" value={idea.scores.ease} color="#7C3AED" />
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-medium uppercase tracking-wide text-[#94A3B8]">Score</span>
+          <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums ring-1 ${scoreTone(total)}`}>
+            {total}/15
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -653,6 +853,36 @@ export default function Monetize() {
               </div>
             </div>
           </div>
+        </section>
+
+        {/* MORE IDEAS — RANKED */}
+        <section id="ideas" className="scroll-mt-16 container mx-auto max-w-5xl px-4 lg:px-8 py-16 lg:py-20">
+          <div className="mb-10 max-w-2xl">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-blue-600">
+              <Lightbulb className="h-4 w-4" />
+              On the roadmap
+            </span>
+            <h2 className="mt-3 font-serif text-3xl lg:text-4xl tracking-tight">
+              Ten more we're <span className="italic text-blue-600">exploring</span>
+            </h2>
+            <p className="mt-3 text-base leading-relaxed text-[#64748B]">
+              Beyond the seven streams above, here are ten more potential revenue streams — ranked by a
+              simple composite of <span className="font-medium text-[#334155]">revenue potential</span>,{" "}
+              <span className="font-medium text-[#334155]">mission fit</span>, and{" "}
+              <span className="font-medium text-[#334155]">ease to launch</span> (each scored out of 5).
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {RANKED_IDEAS.map((idea, i) => (
+              <IdeaRow key={idea.id} idea={idea} rank={i + 1} />
+            ))}
+          </div>
+
+          <p className="mt-6 max-w-2xl text-xs leading-relaxed text-[#94A3B8]">
+            Scores are an internal, illustrative prioritization — not a commitment or forecast.
+            Mission-aligned, trust-preserving streams rank highest by design.
+          </p>
         </section>
 
         {/* PRINCIPLES */}
