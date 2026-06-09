@@ -604,6 +604,7 @@ export default function CapTable() {
           <Logo variant="full" theme="dark" />
           <div className="flex flex-wrap justify-center gap-6 text-sm">
             <Link href="/incorporation" className="hover:text-white transition-colors">Incorporation</Link>
+            <Link href="/risk" className="hover:text-white transition-colors">Risk</Link>
             <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>

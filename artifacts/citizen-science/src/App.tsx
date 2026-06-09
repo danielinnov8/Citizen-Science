@@ -26,6 +26,7 @@ import Pricing from "@/pages/Pricing";
 import Monetize from "@/pages/Monetize";
 import Incorporation from "@/pages/Incorporation";
 import CapTable from "@/pages/CapTable";
+import Risk from "@/pages/Risk";
 import PreExisting from "@/pages/PreExisting";
 import { Xprize } from "@/pages/Xprize";
 
@@ -56,6 +57,7 @@ function Router() {
       <Route path="/monitize" component={Monetize} />
       <Route path="/incorporation" component={Incorporation} />
       <Route path="/cap-table" component={CapTable} />
+      <Route path="/risk" component={Risk} />
       <Route path="/pre-existing" component={PreExisting} />
       {import.meta.env.DEV && <Route path="/xprize" component={Xprize} />}
       
