@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown, Smartphone, Users, Eye, Lightbulb, Wheat, ShieldCheck, GraduationCap, Handshake, Wrench, Building2, UserPlus, Cpu, Mail, Twitter, Linkedin, Github, Youtube, Send, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -864,6 +864,106 @@ function Reveal({
   );
 }
 
+const HERO_WORDS = ["Research", "Science", "Discovery"];
+
+function TypewriterWord({ words }: { words: string[] }) {
+  const reduceMotion = useReducedMotion();
+  const [wordIndex, setWordIndex] = useState(0);
+  const [text, setText] = useState(words[0]);
+  const [deleting, setDeleting] = useState(false);
+
+  const [offsets, setOffsets] = useState<number[]>(() => words.map(() => 0));
+  const measureRef = useRef<HTMLSpanElement>(null);
+
+  const longest = words.reduce((a, b) => (b.length > a.length ? b : a), "");
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const node = measureRef.current;
+      if (!node) return;
+      const spans = Array.from(
+        node.querySelectorAll<HTMLSpanElement>("[data-word]"),
+      );
+      if (spans.length !== words.length) return;
+      const widths = spans.map((s) => s.getBoundingClientRect().width);
+      const max = Math.max(...widths);
+      setOffsets(widths.map((w) => max - w));
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [words]);
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    const current = words[wordIndex];
+
+    if (!deleting && text === current) {
+      const t = setTimeout(() => setDeleting(true), 1600);
+      return () => clearTimeout(t);
+    }
+    if (deleting && text === "") {
+      const t = setTimeout(() => {
+        setDeleting(false);
+        setWordIndex((i) => (i + 1) % words.length);
+      }, 450);
+      return () => clearTimeout(t);
+    }
+
+    const t = setTimeout(() => {
+      setText((prev) =>
+        deleting
+          ? current.slice(0, prev.length - 1)
+          : current.slice(0, prev.length + 1),
+      );
+    }, deleting ? 55 : 95);
+    return () => clearTimeout(t);
+  }, [text, deleting, wordIndex, words, reduceMotion]);
+
+  return (
+    <span className="relative inline-block whitespace-nowrap align-baseline text-blue-200 sm:mr-[0.35em]">
+      <span className="invisible" aria-hidden="true">
+        {longest}
+      </span>
+      <span
+        ref={measureRef}
+        aria-hidden="true"
+        className="pointer-events-none invisible absolute left-0 top-0"
+      >
+        {words.map((w) => (
+          <span key={w} data-word className="inline-block whitespace-nowrap">
+            {w}
+          </span>
+        ))}
+      </span>
+      <span
+        className="absolute left-0 top-0 whitespace-nowrap pl-[var(--cs-pad-center)] sm:pl-[var(--cs-pad-flush)]"
+        style={
+          {
+            "--cs-pad-center": `${(offsets[reduceMotion ? 0 : wordIndex] ?? 0) / 2}px`,
+            "--cs-pad-flush": `${offsets[reduceMotion ? 0 : wordIndex] ?? 0}px`,
+          } as React.CSSProperties
+        }
+      >
+        {reduceMotion ? words[0] : text}
+        {!reduceMotion && (
+          <motion.span
+            aria-hidden="true"
+            className="ml-[0.07em] inline-block h-[0.72em] w-[3px] rounded-sm bg-blue-200/90 align-[-0.08em]"
+            animate={{ opacity: [1, 1, 0, 0] }}
+            transition={{
+              duration: 1,
+              repeat: Infinity,
+              ease: "linear",
+              times: [0, 0.5, 0.5, 1],
+            }}
+          />
+        )}
+      </span>
+    </span>
+  );
+}
+
 const PILLARS = [
   {
     icon: Smartphone,
@@ -1057,7 +1157,9 @@ export function Landing() {
             </Reveal>
             <Reveal delay={0.05}>
               <h1 className="mt-8 font-serif text-5xl leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-                Humanity's<br className="hidden sm:block" /> Research Network
+                Humanity's<br />
+                <TypewriterWord words={HERO_WORDS} />
+                <br className="block sm:hidden" /> Network
               </h1>
             </Reveal>
             <Reveal delay={0.12}>
