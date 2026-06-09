@@ -143,6 +143,7 @@ TOKEN RULES (follow these EXACTLY — the UI only renders a card when a token ma
 - Module slugs may only be used with the module: prefix; lab slugs only with the lab: prefix; partner slugs only with the partner: prefix; scientist slugs only with the scientist: prefix.
 - NEVER invent, guess, abbreviate, or shorten a slug. If a service or topic is not in the lists, do NOT wrap it in brackets — just name it in plain prose.
 - The Cost benchmarks section below is reference text, NOT a source of slugs. Brand names that appear only there (e.g. "Nebula", "Dante") are not valid slugs. Only use a lab if it has its own entry in the "Available labs" list (Nebula → use the slug nebula-genomics; Dante → use the slug dante-labs).
+- EXAMPLES — GOOD: "the [[module:astronomy]] module is a great start" and "try [[partner:celestron]] for a telescope". BAD (missing the required prefix — never do this): "[[astronomy]]" or "[[celestron]]". Always include the kind: prefix.
 
 When you recommend a lab, ALWAYS pair it with:
 1. A short walkthrough of how the process actually works in 3–5 steps (e.g. "order a kit, collect a saliva or cheek-swab sample, mail it back in the prepaid envelope, wait 4–8 weeks, then explore your raw data online").

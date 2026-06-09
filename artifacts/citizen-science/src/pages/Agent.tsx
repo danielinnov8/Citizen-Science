@@ -29,7 +29,32 @@ interface ChatMessage {
 }
 
 const STORAGE_KEY = "cs.agentConversation";
-const TOKEN_REGEX = /\[\[(module|lab|partner|scientist):([a-z0-9-]+)\]\]/g;
+// Match any bracketed token [[ ... ]] (inner text may not contain brackets).
+// Both the fully-qualified [[kind:slug]] form and the bare [[slug]] form the
+// model frequently emits are captured here; the actual kind is resolved below.
+const TOKEN_REGEX = /\[\[([^[\]]+?)\]\]/g;
+
+type CardKind = "module" | "lab" | "partner" | "scientist";
+
+const CARD_KINDS: readonly CardKind[] = ["module", "lab", "partner", "scientist"];
+
+const MODULE_SLUGS = new Set(CATEGORIES.map(c => c.slug));
+const LAB_SLUGS = new Set(LABS.map(l => l.slug));
+const PARTNER_SLUGS = new Set(PARTNERS.map(p => p.slug));
+
+function normalizeSlug(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+// Resolve a bare slug to a card kind using a fixed precedence order
+// (module → lab → partner → scientist) so resolution is deterministic.
+function resolveBareKind(slug: string, scientistSlugs: Set<string>): CardKind | null {
+  if (MODULE_SLUGS.has(slug)) return "module";
+  if (LAB_SLUGS.has(slug)) return "lab";
+  if (PARTNER_SLUGS.has(slug)) return "partner";
+  if (scientistSlugs.has(slug)) return "scientist";
+  return null;
+}
 
 const SUGGESTIONS = [
   "Help me design a sourdough fermentation tracker",
@@ -265,6 +290,12 @@ type ContentPart =
   | { type: "scientist"; slug: string };
 
 function MessageContent({ content }: { content: string }) {
+  const { data: profiles } = useListFeaturedProfiles();
+  const scientistSlugs = useMemo(
+    () => new Set((profiles ?? []).map(p => p.slug)),
+    [profiles],
+  );
+
   const parts = useMemo<ContentPart[]>(() => {
     const out: ContentPart[] = [];
     let lastIndex = 0;
@@ -274,15 +305,42 @@ function MessageContent({ content }: { content: string }) {
       if (match.index > lastIndex) {
         out.push({ type: "text", value: content.slice(lastIndex, match.index) });
       }
-      const kind = match[1] as "module" | "lab" | "partner" | "scientist";
-      out.push({ type: kind, slug: match[2] });
+
+      const original = match[0];
+      const inner = match[1];
+      const colon = inner.indexOf(":");
+
+      let resolved: CardKind | null = null;
+      let slug = "";
+
+      if (colon !== -1) {
+        // Fully-qualified [[kind:slug]] — trust an explicit, valid prefix.
+        const prefix = inner.slice(0, colon).trim().toLowerCase() as CardKind;
+        if ((CARD_KINDS as readonly string[]).includes(prefix)) {
+          resolved = prefix;
+          slug = normalizeSlug(inner.slice(colon + 1));
+        }
+      } else {
+        // Bare [[slug]] — resolve the kind by looking the slug up in the
+        // app's catalogs in a fixed precedence order.
+        slug = normalizeSlug(inner);
+        resolved = resolveBareKind(slug, scientistSlugs);
+      }
+
+      if (resolved && slug) {
+        out.push({ type: resolved, slug });
+      } else {
+        // Unknown bracketed token (or unresolvable bare slug, or the hidden
+        // video marker) — leave the original text untouched.
+        out.push({ type: "text", value: original });
+      }
       lastIndex = regex.lastIndex;
     }
     if (lastIndex < content.length) {
       out.push({ type: "text", value: content.slice(lastIndex) });
     }
     return out;
-  }, [content]);
+  }, [content, scientistSlugs]);
 
   return (
     <div className="text-[15px] leading-relaxed text-[#0F172A] whitespace-pre-wrap break-words">
