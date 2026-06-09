@@ -201,7 +201,7 @@ function TierCard({ tier }: { tier: Tier }) {
 
 function TopupPacks() {
   return (
-    <section className="container mx-auto max-w-5xl px-4 lg:px-8 py-16 lg:py-20">
+    <section id="topups" className="container mx-auto max-w-5xl px-4 lg:px-8 py-16 lg:py-20">
       <div className="text-center mb-10">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-3 py-1 text-xs font-medium text-[#64748B]">
           <Zap className="h-3 w-3 text-blue-600" />

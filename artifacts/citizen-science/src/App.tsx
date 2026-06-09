@@ -23,6 +23,7 @@ import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import Brand from "@/pages/Brand";
 import Pricing from "@/pages/Pricing";
+import Monetize from "@/pages/Monetize";
 import Incorporation from "@/pages/Incorporation";
 import CapTable from "@/pages/CapTable";
 import PreExisting from "@/pages/PreExisting";
@@ -51,6 +52,8 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/brand" component={Brand} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/monetize" component={Monetize} />
+      <Route path="/monitize" component={Monetize} />
       <Route path="/incorporation" component={Incorporation} />
       <Route path="/cap-table" component={CapTable} />
       <Route path="/pre-existing" component={PreExisting} />
