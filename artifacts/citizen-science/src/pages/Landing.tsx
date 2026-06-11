@@ -953,7 +953,7 @@ function PixieDustWord({ children }: { children: React.ReactNode }) {
   return (
     <span
       ref={wordRef}
-      className="relative inline-block text-blue-200 transition-[text-shadow] duration-300"
+      className="relative inline-block text-blue-200 mr-2 transition-[text-shadow] duration-300"
       style={
         hovering && !reduceMotion
           ? { textShadow: "0 0 18px rgba(253,224,71,0.35)" }
