@@ -12,6 +12,7 @@ export interface TalkableFigure {
 
 const TALKABLE: Record<string, TalkableFigure> = {
   "albert-einstein": { slug: "albert-einstein", firstName: "Albert" },
+  "marie-curie": { slug: "marie-curie", firstName: "Marie" },
 };
 
 export function getTalkableFigure(slug: string): TalkableFigure | undefined {
