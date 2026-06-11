@@ -30,6 +30,7 @@ import Risk from "@/pages/Risk";
 import PreExisting from "@/pages/PreExisting";
 import { Xprize } from "@/pages/Xprize";
 import { Admin } from "@/pages/Admin";
+import { Architecture } from "@/pages/Architecture";
 
 import { AppShell } from "@/components/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/cap-table" component={CapTable} />
       <Route path="/risk" component={Risk} />
       <Route path="/pre-existing" component={PreExisting} />
+      <Route path="/architecture" component={Architecture} />
       {import.meta.env.DEV && <Route path="/xprize" component={Xprize} />}
       
       {/* Protected Routes */}
