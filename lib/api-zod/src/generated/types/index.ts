@@ -49,6 +49,7 @@ export * from "./featuredProfile";
 export * from "./featuredProfileSummary";
 export * from "./grantCreditsInput";
 export * from "./healthStatus";
+export * from "./legendWaitlistStatus";
 export * from "./listAdminClaimsParams";
 export * from "./listAdminUsersParams";
 export * from "./loginInput";

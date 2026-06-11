@@ -5,8 +5,10 @@ import {
   useGetMyProfileClaim,
   useClaimProfile,
   useUpdateMyProfile,
+  useGetLegendWaitlist,
   getGetMyProfileClaimQueryKey,
   getGetFeaturedProfileQueryKey,
+  getGetLegendWaitlistQueryKey,
   type FeaturedProfile,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -63,6 +65,17 @@ export function ProfileOwnership({ profile }: { profile: FeaturedProfile }) {
 
   const claimMutation = useClaimProfile();
   const updateMutation = useUpdateMyProfile();
+
+  // Mentee demand for this living legend (public). Surfaced to the verified
+  // owner as social proof of people waiting to learn from them.
+  const { data: waitlist } = useGetLegendWaitlist(slug, {
+    query: {
+      queryKey: getGetLegendWaitlistQueryKey(slug),
+      enabled: claimable,
+      staleTime: 60_000,
+    },
+  });
+  const menteeCount = waitlist?.count ?? 0;
 
   const [editorOpen, setEditorOpen] = useState(false);
 
@@ -121,6 +134,11 @@ export function ProfileOwnership({ profile }: { profile: FeaturedProfile }) {
           tone="owner"
           icon={<BadgeCheck className="h-4 w-4 flex-shrink-0" />}
           title="Verified — this is your profile"
+          subtitle={
+            menteeCount > 0
+              ? `${menteeCount} aspiring mentee${menteeCount === 1 ? "" : "s"} waiting to learn from you.`
+              : undefined
+          }
           action={
             <Button
               variant="ink"

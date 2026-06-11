@@ -401,6 +401,13 @@ export interface MentorSummary {
   courseCount: number;
 }
 
+export interface LegendWaitlistStatus {
+  figureSlug: string;
+  count: number;
+  isOnWaitlist: boolean;
+  isOwner: boolean;
+}
+
 export interface MentorDetail {
   userId: string;
   /** @nullable */

@@ -64,6 +64,13 @@
       "when": 1781205368338,
       "tag": "0008_fantastic_arclight",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1781206571327,
+      "tag": "0009_stale_hellion",
+      "breakpoints": true
     }
   ]
 }

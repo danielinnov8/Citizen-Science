@@ -1,7 +1,6 @@
 import { TRUSTED_CHANNELS, isTrustedChannel } from "./allowlist";
 
-// A candidate video resolved from the YouTube Data API, already restricted to
-// the trusted-channel allowlist.
+// A candidate video resolved from the YouTube Data API.
 export interface YouTubeVideo {
   id: string;
   title: string;
@@ -30,17 +29,17 @@ interface SearchResponse {
 
 const API_BASE = "https://www.googleapis.com/youtube/v3/search";
 
-// Search YouTube for a topic and return candidate videos restricted to the
-// trusted-channel allowlist. Returns an empty array (never throws) when the
-// API key is missing, the request fails, or nothing matches — so the chat
-// reply degrades gracefully and is never blocked on video lookup.
-export async function searchTrustedVideos(
-  topic: string,
+// Run a raw YouTube Data API search and return de-duplicated candidate videos
+// (no channel filtering). Returns an empty array (never throws) when the API
+// key is missing, the request fails, or nothing matches — so callers degrade
+// gracefully and are never blocked on a video lookup.
+async function searchYouTube(
+  query: string,
   options: { signal?: AbortSignal; maxResults?: number } = {},
 ): Promise<YouTubeVideo[]> {
-  const query = topic.trim();
+  const q = query.trim();
   const apiKey = process.env.YOUTUBE_API_KEY;
-  if (!query || !apiKey) {
+  if (!q || !apiKey) {
     return [];
   }
 
@@ -48,13 +47,12 @@ export async function searchTrustedVideos(
     key: apiKey,
     part: "snippet",
     type: "video",
-    // Embeddable + safe-search, ordered by relevance. Pull a wider net so the
-    // allowlist filter still leaves a few candidates to score.
+    // Embeddable + safe-search, ordered by relevance.
     videoEmbeddable: "true",
     safeSearch: "strict",
     order: "relevance",
     maxResults: String(options.maxResults ?? 25),
-    q: query.slice(0, 200),
+    q: q.slice(0, 200),
   });
 
   let res: globalThis.Response;
@@ -82,20 +80,90 @@ export async function searchTrustedVideos(
   for (const item of data.items ?? []) {
     const id = item.id?.videoId;
     const channelId = item.snippet?.channelId;
-    if (!id || seen.has(id) || !isTrustedChannel(channelId)) {
+    if (!id || !channelId || seen.has(id)) {
       continue;
     }
     seen.add(id);
     videos.push({
       id,
       title: item.snippet?.title ?? "",
-      channelId: channelId as string,
+      channelId,
       channelTitle: item.snippet?.channelTitle ?? "",
       description: item.snippet?.description ?? "",
     });
   }
 
   return videos;
+}
+
+// Search YouTube for a topic, restricted to the trusted-channel allowlist. Used
+// by the science copilot so a surfaced explainer always comes from a reputable
+// science/education channel.
+export async function searchTrustedVideos(
+  topic: string,
+  options: { signal?: AbortSignal; maxResults?: number } = {},
+): Promise<YouTubeVideo[]> {
+  const all = await searchYouTube(topic, options);
+  return all.filter((v) => isTrustedChannel(v.channelId));
+}
+
+// The distinctive surname token of a figure's name, used to coarse-filter
+// candidate titles. Drops common honorifics and short particles so e.g.
+// "Sir Tim Berners-Lee" → "berners-lee" and "Jane Goodall" → "goodall".
+const NAME_STOPWORDS = new Set([
+  "dr",
+  "dr.",
+  "prof",
+  "prof.",
+  "professor",
+  "sir",
+  "dame",
+  "mr",
+  "mr.",
+  "mrs",
+  "ms",
+  "the",
+]);
+
+function figureNameTokens(figureName: string): string[] {
+  return figureName
+    .toLowerCase()
+    .split(/\s+/)
+    .map((t) => t.trim())
+    .filter((t) => t.length >= 3 && !NAME_STOPWORDS.has(t));
+}
+
+// True when a candidate video title plausibly refers to the figure — it must
+// contain the figure's surname token. Titles are the most reliable signal;
+// descriptions are routinely keyword-stuffed, so they're not trusted here.
+function titleMentionsFigure(title: string, nameTokens: string[]): boolean {
+  if (nameTokens.length === 0) return false;
+  const haystack = title.toLowerCase();
+  const surname = nameTokens[nameTokens.length - 1];
+  return haystack.includes(surname);
+}
+
+// Search YouTube for a genuine interview/talk/lecture that features a specific
+// figure. Unlike `searchTrustedVideos` this is NOT restricted to the science
+// allowlist (the figure's own talks live on many channels), so the bar is held
+// by (a) a strict query, (b) a surname-in-title pre-filter, and (c) the caller's
+// downstream Gemini relevance gate. Returns [] (never throws) on any failure.
+export async function searchFigureInterviews(
+  figureName: string,
+  topic: string,
+  options: { signal?: AbortSignal; maxResults?: number } = {},
+): Promise<YouTubeVideo[]> {
+  const name = figureName.trim();
+  if (!name) return [];
+
+  const cleanTopic = topic.trim();
+  const query = cleanTopic
+    ? `${name} interview talk ${cleanTopic}`
+    : `${name} interview talk lecture`;
+
+  const all = await searchYouTube(query, options);
+  const nameTokens = figureNameTokens(name);
+  return all.filter((v) => titleMentionsFigure(v.title, nameTokens));
 }
 
 // Re-export for callers that want to display/inspect the allowlist.

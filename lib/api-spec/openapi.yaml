@@ -824,6 +824,67 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /mentorship/legends/{slug}/waitlist:
+    get:
+      operationId: getLegendWaitlist
+      tags: [mentorship]
+      summary: Get mentee-waitlist status for a living-legend figure
+      description: >
+        Public (optional auth). Returns how many members are on the mentee
+        waitlist for this directory figure and — when the caller is signed in —
+        whether they are already on it and whether they are the figure's
+        verified profile owner.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The figure's waitlist status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegendWaitlistStatus"
+        "404":
+          description: Figure not found or not a living legend
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: joinLegendWaitlist
+      tags: [mentorship]
+      summary: Join the mentee waitlist for a living-legend figure
+      description: >
+        Auth-only. Adds the signed-in member to the mentee waitlist for this
+        directory figure (idempotent). Returns the updated waitlist status.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The updated waitlist status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegendWaitlistStatus"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Figure not found or not a living legend
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /admin/revenue:
     get:
       operationId: getAdminRevenue
@@ -2135,6 +2196,22 @@ components:
         - headline
         - expertise
         - courseCount
+    LegendWaitlistStatus:
+      type: object
+      properties:
+        figureSlug:
+          type: string
+        count:
+          type: integer
+        isOnWaitlist:
+          type: boolean
+        isOwner:
+          type: boolean
+      required:
+        - figureSlug
+        - count
+        - isOnWaitlist
+        - isOwner
     MentorDetail:
       type: object
       properties:

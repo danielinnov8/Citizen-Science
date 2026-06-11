@@ -12,6 +12,8 @@ import {
   mentorProfilesTable,
   mentorCoursesTable,
   mentorEnrollmentsTable,
+  featuredProfilesTable,
+  menteeWaitlistTable,
 } from "@workspace/db";
 import {
   ListMentorsResponse,
@@ -28,12 +30,16 @@ import {
   GetMyEnrollmentsResponse,
   EnrollInCourseBody,
   EnrollInCourseResponse,
+  GetLegendWaitlistResponse,
+  JoinLegendWaitlistResponse,
 } from "@workspace/api-zod";
 import {
   draftMentoringCourse,
   isGeminiConfigured,
 } from "@workspace/integrations-gemini-ai-server";
 import { requireAuth } from "../middlewares/requireAuth";
+import { getUserBySession, SESSION_COOKIE } from "../lib/auth/session";
+import { isLivingEra } from "../lib/profiles/living";
 import {
   creditsForUsage,
   monthlyCreditsForPlan,
@@ -652,6 +658,134 @@ router.post(
         totalRemaining: finalState.totalRemaining,
       }),
     );
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Living-legend mentee waitlist (Task #119)
+// ---------------------------------------------------------------------------
+//
+// A "living legend" is a directory figure (featured_profiles row) who is still
+// alive. Members can join a mentee waitlist for them, which surfaces aspiring-
+// mentee demand back to the figure (and to the verified owner of that profile,
+// if it has been claimed). The figure is identified by its directory slug.
+
+const SLUG_RE = /^[a-z0-9-]{1,80}$/;
+
+// Load a living-legend profile by slug, or null when no such row exists or the
+// figure is historical/deceased (only living figures can be mentors).
+async function loadLivingLegend(slug: string) {
+  const [profile] = await db
+    .select({
+      id: featuredProfilesTable.id,
+      slug: featuredProfilesTable.slug,
+      era: featuredProfilesTable.era,
+      ownerUserId: featuredProfilesTable.ownerUserId,
+    })
+    .from(featuredProfilesTable)
+    .where(eq(featuredProfilesTable.slug, slug));
+
+  if (!profile || !isLivingEra(profile.era)) return null;
+  return profile;
+}
+
+// Assemble the waitlist status for a figure. `userId` is null for guests, who
+// only see the aggregate count.
+async function buildWaitlistStatus(
+  figureSlug: string,
+  ownerUserId: string | null,
+  userId: string | null,
+) {
+  const [{ c }] = await db
+    .select({ c: count() })
+    .from(menteeWaitlistTable)
+    .where(eq(menteeWaitlistTable.figureSlug, figureSlug));
+
+  let isOnWaitlist = false;
+  if (userId) {
+    const [row] = await db
+      .select({ id: menteeWaitlistTable.id })
+      .from(menteeWaitlistTable)
+      .where(
+        and(
+          eq(menteeWaitlistTable.figureSlug, figureSlug),
+          eq(menteeWaitlistTable.userId, userId),
+        ),
+      );
+    isOnWaitlist = !!row;
+  }
+
+  return {
+    figureSlug,
+    count: Number(c),
+    isOnWaitlist,
+    isOwner: !!userId && ownerUserId === userId,
+  };
+}
+
+// GET /mentorship/legends/:slug/waitlist — public (optional auth). Returns the
+// waitlist count for a living legend, plus the caller's own membership/ownership
+// when they're signed in.
+router.get(
+  "/mentorship/legends/:slug/waitlist",
+  async (req: Request, res: Response): Promise<void> => {
+    const slug = String(req.params.slug);
+    if (!SLUG_RE.test(slug)) {
+      res.status(404).json({ error: "Figure not found." });
+      return;
+    }
+
+    const profile = await loadLivingLegend(slug);
+    if (!profile) {
+      res.status(404).json({ error: "Figure not found." });
+      return;
+    }
+
+    // Optional auth: resolve the caller from the session cookie if present.
+    let userId: string | null = null;
+    const sid = req.signedCookies?.[SESSION_COOKIE];
+    if (typeof sid === "string" && sid.length > 0) {
+      try {
+        const user = await getUserBySession(sid);
+        userId = user?.id ?? null;
+      } catch (err) {
+        req.log?.warn({ err }, "waitlist: optional session lookup failed");
+      }
+    }
+
+    const status = await buildWaitlistStatus(slug, profile.ownerUserId, userId);
+    res.json(GetLegendWaitlistResponse.parse(status));
+  },
+);
+
+// POST /mentorship/legends/:slug/waitlist — auth-only. Adds the signed-in member
+// to the figure's mentee waitlist (idempotent) and returns the updated status.
+router.post(
+  "/mentorship/legends/:slug/waitlist",
+  requireAuth,
+  async (req: Request, res: Response): Promise<void> => {
+    const slug = String(req.params.slug);
+    if (!SLUG_RE.test(slug)) {
+      res.status(404).json({ error: "Figure not found." });
+      return;
+    }
+
+    const profile = await loadLivingLegend(slug);
+    if (!profile) {
+      res.status(404).json({ error: "Figure not found." });
+      return;
+    }
+
+    const userId = req.user!.id;
+    await db
+      .insert(menteeWaitlistTable)
+      .values({ figureSlug: slug, userId })
+      .onConflictDoNothing({
+        target: [menteeWaitlistTable.figureSlug, menteeWaitlistTable.userId],
+      });
+
+    const status = await buildWaitlistStatus(slug, profile.ownerUserId, userId);
+    res.json(JoinLegendWaitlistResponse.parse(status));
   },
 );
 

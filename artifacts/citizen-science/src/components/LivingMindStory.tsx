@@ -24,6 +24,7 @@ import type { FeaturedProfile } from "@workspace/api-client-react";
 import { CATEGORIES } from "@/lib/categories";
 import { selectFootstepExperiments } from "@/lib/experiments";
 import type { LivingMindStory as LivingMindStoryData, LivingMotif } from "@/lib/livingMinds";
+import { useMentorCta } from "@/lib/useMentorCta";
 
 function hostname(url: string): string {
   try {
@@ -350,6 +351,8 @@ export function LivingMindStory({
   const heroFade = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   const { theme } = story;
+  const { startMentorship, isJoining } = useMentorCta();
+  const firstName = story.name.split(/\s+/)[0] || story.name;
 
   // Merge DB-backed enrichment when available, falling back to authored content.
   const relatedCategorySlugs =
@@ -528,17 +531,26 @@ export function LivingMindStory({
                 >
                   {story.era}
                 </span>
-                <Link
-                  href="/mentors"
-                  className="group/cta inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-[1.03]"
+                <button
+                  type="button"
+                  onClick={() => startMentorship(story.slug)}
+                  disabled={isJoining}
+                  className="group/cta inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-[1.03] disabled:opacity-70"
                   style={{
                     background: theme.accent,
                     boxShadow: `0 16px 30px -12px ${theme.accent}`,
                   }}
                 >
                   <GraduationCap className="h-4 w-4" />
-                  Mentor Program
+                  Be mentored by {firstName}
                   <ChevronRight className="h-4 w-4 transition-transform group-hover/cta:translate-x-0.5" />
+                </button>
+                <Link
+                  href="/mentors"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 transition-colors hover:text-white"
+                >
+                  All mentors
+                  <ChevronRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             </div>

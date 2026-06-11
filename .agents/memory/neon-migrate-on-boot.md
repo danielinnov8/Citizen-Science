@@ -68,4 +68,18 @@ fails with `relation "..." already exists` (it crashes the whole migration step)
 Hand-edit each new migration's `CREATE TABLE`/`CREATE INDEX`/`ADD COLUMN` to the
 `IF NOT EXISTS` form (do NOT touch `meta/`). Prefer this over relying on a clean
 generate — the original "incremental migrations generate cleanly" assumption only
-holds when you never `push` between generate and boot.
+holds when you never `push` between generate and boot. Also guard each standalone
+`ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY` with a `DO $$ BEGIN ... EXCEPTION
+WHEN duplicate_object THEN null; END $$;` block (Postgres has no `ADD CONSTRAINT IF
+NOT EXISTS`); inline UNIQUE constraints inside a `CREATE TABLE IF NOT EXISTS` are
+already covered. Crucially, **one un-idempotent statement aborts the WHOLE migration
+step**, so every LATER migration silently never runs (e.g. a `push`-created table at
+0006 blocked the 0009 table from ever being created).
+
+**Editing already-committed migration SQL is safe** — the node-postgres migrator
+decides what to run by the journal `when` timestamp vs the max `created_at` in
+`drizzle.__drizzle_migrations` (NOT by hash). Un-applied files (`when` > latest
+recorded) pick up the fix and run; already-applied files (`when` ≤ latest) are
+skipped entirely, so the edit is a harmless no-op there even though their stored
+hash now differs. This is why retrofitting idempotency onto old migrations fixes a
+broken dev DB without risking prod.

@@ -1,85 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, Sparkles, Wand2, RotateCcw, ChevronRight, AlertCircle, ExternalLink, FlaskConical, Youtube, Tag, UserRound, Lock } from "lucide-react";
-import { useListFeaturedProfiles } from "@workspace/api-client-react";
+import { ArrowRight, Sparkles, Wand2, RotateCcw, AlertCircle, Lock } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { CreditMeter, useCreditBalance } from "@/components/CreditMeter";
-import { CATEGORIES } from "@/lib/categories";
-import { LABS, labUrl } from "@/lib/labs";
-import { PARTNERS, partnerUrl } from "@/lib/partners";
-
-interface WebSource {
-  title: string;
-  url: string;
-}
-
-interface VerifiedVideo {
-  id: string;
-  title: string;
-  channel: string;
-}
-
-interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  sources?: WebSource[];
-  video?: VerifiedVideo;
-}
+import {
+  MessageContent,
+  SourceList,
+  VideoCard,
+  streamChatRequest,
+  type ChatMessage,
+} from "@/components/chat";
 
 const STORAGE_KEY = "cs.agentConversation";
-// Match any bracketed token [[ ... ]] (inner text may not contain brackets).
-// Both the fully-qualified [[kind:slug]] form and the bare [[slug]] form the
-// model frequently emits are captured here; the actual kind is resolved below.
-const TOKEN_REGEX = /\[\[([^[\]]+?)\]\]/g;
-
-type CardKind = "module" | "lab" | "partner" | "scientist";
-
-const CARD_KINDS: readonly CardKind[] = ["module", "lab", "partner", "scientist"];
-
-const MODULE_SLUGS = new Set(CATEGORIES.map(c => c.slug));
-const LAB_SLUGS = new Set(LABS.map(l => l.slug));
-const PARTNER_SLUGS = new Set(PARTNERS.map(p => p.slug));
-
-function normalizeSlug(value: string): string {
-  return value.trim().toLowerCase();
-}
-
-// Resolve a bare slug to a card kind using a fixed precedence order
-// (module → lab → partner → scientist) so resolution is deterministic.
-function resolveBareKind(slug: string, scientistSlugs: Set<string>): CardKind | null {
-  if (MODULE_SLUGS.has(slug)) return "module";
-  if (LAB_SLUGS.has(slug)) return "lab";
-  if (PARTNER_SLUGS.has(slug)) return "partner";
-  if (scientistSlugs.has(slug)) return "scientist";
-  return null;
-}
-
-// When a token can't be resolved to a card, we must NEVER show the raw
-// "[[ ... ]]" brackets to the user. Strip them to clean, readable text — and
-// drop the hidden video marker entirely if it ever slips past the server-side
-// stripper. This guarantees no bracketed token can ever leak into the chat,
-// regardless of what the model emits or whether the user is signed in.
-function unresolvedTokenText(inner: string): string {
-  const body = inner.trim();
-  if (/^video\?:/i.test(body)) return "";
-  return body
-    .replace(/^[a-z]+\??:/i, "")
-    .replace(/[-_]+/g, " ")
-    .trim();
-}
-
-// Hide an in-progress token fragment at the end of a streaming/aborted reply.
-// Complete tokens are already consumed by TOKEN_REGEX, so any remaining "[["
-// without a closing "]]" after it is a partial marker still arriving — drop it
-// (rather than briefly flashing raw brackets) until the rest streams in.
-function stripDanglingMarker(text: string): string {
-  const open = text.lastIndexOf("[[");
-  if (open === -1) return text;
-  if (text.indexOf("]]", open) === -1) return text.slice(0, open);
-  return text;
-}
 
 const SUGGESTIONS = [
   "Help me design a sourdough fermentation tracker",
@@ -113,273 +46,6 @@ function saveConversation(messages: ChatMessage[]) {
   } catch {
     /* ignore */
   }
-}
-
-function ModuleCard({ slug }: { slug: string }) {
-  const category = CATEGORIES.find(c => c.slug === slug);
-  if (!category) {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 rounded-md bg-slate-100 text-slate-700 text-sm">
-        {slug}
-      </span>
-    );
-  }
-
-  return (
-    <Link
-      href={`/category/${category.slug}`}
-      className="not-prose inline-flex items-center mx-0.5 group rounded-md border border-[#E2E8F0] bg-white hover:border-blue-300 hover:shadow-sm transition-all overflow-hidden align-middle leading-none"
-    >
-      <span className="self-stretch w-1 bg-gradient-to-b from-blue-500 to-violet-500" />
-      <span className="inline-flex items-center gap-1 px-2 py-0 leading-none">
-        <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">Module</span>
-        <span className="text-sm font-semibold text-[#0F172A]">{category.name}</span>
-        <ChevronRight className="h-3 w-3 text-[#94A3B8] group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
-      </span>
-    </Link>
-  );
-}
-
-function LabCard({ slug }: { slug: string }) {
-  const lab = LABS.find(l => l.slug === slug);
-  if (!lab) {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 rounded-md bg-slate-100 text-slate-700 text-sm">
-        {slug}
-      </span>
-    );
-  }
-
-  return (
-    <a
-      href={labUrl(lab)}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="not-prose flex flex-col my-2 mr-1.5 group rounded-xl border border-[#E2E8F0] bg-white hover:border-emerald-300 hover:shadow-md transition-all overflow-hidden max-w-md"
-    >
-      <span className="flex items-stretch">
-        <span className="flex items-center justify-center w-1.5 bg-gradient-to-b from-emerald-500 to-blue-500" />
-        <span className="flex-1 px-3.5 py-2.5">
-          <span className="flex items-center justify-between gap-2 mb-0.5">
-            <span className="flex items-center gap-1.5">
-              <FlaskConical className="h-3.5 w-3.5 text-emerald-600" />
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">
-                Lab · {lab.tier}
-              </span>
-            </span>
-            <ExternalLink className="h-3.5 w-3.5 text-[#94A3B8] group-hover:text-emerald-600 transition-colors" />
-          </span>
-          <span className="block text-sm font-semibold text-[#0F172A] leading-tight">{lab.name}</span>
-          <span className="block text-xs text-[#64748B] leading-snug mt-1">{lab.summary}</span>
-        </span>
-      </span>
-    </a>
-  );
-}
-
-function PartnerCard({ slug }: { slug: string }) {
-  const partner = PARTNERS.find(p => p.slug === slug);
-  if (!partner) {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 rounded-md bg-slate-100 text-slate-700 text-sm">
-        {slug}
-      </span>
-    );
-  }
-
-  return (
-    <a
-      href={partnerUrl(partner)}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="not-prose flex flex-col my-2 mr-1.5 group rounded-xl border border-[#E2E8F0] bg-white hover:border-violet-300 hover:shadow-md transition-all overflow-hidden max-w-md"
-    >
-      <span className="flex items-stretch">
-        <span className="flex items-center justify-center w-1.5 bg-gradient-to-b from-violet-500 to-blue-500" />
-        <span className="flex-1 px-3.5 py-2.5">
-          <span className="flex items-center justify-between gap-2 mb-0.5">
-            <span className="flex items-center gap-1.5">
-              <Tag className="h-3.5 w-3.5 text-violet-600" />
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">
-                Partner
-              </span>
-            </span>
-            <ExternalLink className="h-3.5 w-3.5 text-[#94A3B8] group-hover:text-violet-600 transition-colors" />
-          </span>
-          <span className="block text-sm font-semibold text-[#0F172A] leading-tight">{partner.name}</span>
-          <span className="block text-xs text-[#64748B] leading-snug mt-1">{partner.summary}</span>
-        </span>
-      </span>
-    </a>
-  );
-}
-
-function ScientistCard({ slug }: { slug: string }) {
-  const { data: profiles } = useListFeaturedProfiles();
-  const profile = profiles?.find(p => p.slug === slug);
-  if (!profile) {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 rounded-md bg-slate-100 text-slate-700 text-sm">
-        {slug}
-      </span>
-    );
-  }
-
-  return (
-    <Link
-      href={`/directory/${profile.slug}`}
-      className="not-prose inline-flex items-center mx-0.5 group rounded-md border border-[#E2E8F0] bg-white hover:border-violet-300 hover:shadow-sm transition-all overflow-hidden align-middle leading-none"
-    >
-      <span className="self-stretch w-1 bg-gradient-to-b from-violet-500 to-blue-500" />
-      <span className="inline-flex items-center gap-1 px-2 py-0 leading-none">
-        <UserRound className="h-3 w-3 text-violet-600" />
-        <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">Scientist</span>
-        <span className="text-sm font-semibold text-[#0F172A]">{profile.name}</span>
-        <span className="text-xs text-[#64748B]">· {profile.field}</span>
-        <ChevronRight className="h-3 w-3 text-[#94A3B8] group-hover:text-violet-600 group-hover:translate-x-0.5 transition-all" />
-      </span>
-    </Link>
-  );
-}
-
-function SourceList({ sources }: { sources?: WebSource[] }) {
-  if (!sources || sources.length === 0) return null;
-
-  return (
-    <div className="not-prose mt-3 flex flex-col gap-1.5">
-      <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">
-        Sources
-      </span>
-      <div className="flex flex-wrap gap-1.5">
-        {sources.map((s, i) => (
-          <a
-            key={`${s.url}-${i}`}
-            href={s.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={s.title}
-            className="group inline-flex items-center gap-1.5 max-w-[260px] rounded-lg border border-[#E2E8F0] bg-white px-2.5 py-1 hover:border-blue-300 hover:shadow-sm transition-all"
-          >
-            <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded bg-blue-50 text-[9px] font-semibold text-blue-600">
-              {i + 1}
-            </span>
-            <span className="truncate text-xs text-[#334155]">{s.title}</span>
-            <ExternalLink className="h-3 w-3 flex-shrink-0 text-[#94A3B8] group-hover:text-blue-600 transition-colors" />
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function VideoCard({ video }: { video?: VerifiedVideo }) {
-  if (!video) return null;
-
-  return (
-    <div className="not-prose mt-3 max-w-md">
-      <span className="text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">
-        Recommended video
-      </span>
-      <div className="mt-1.5 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
-        <div className="relative w-full" style={{ aspectRatio: "16 / 9" }}>
-          <iframe
-            src={`https://www.youtube-nocookie.com/embed/${video.id}`}
-            title={video.title}
-            className="absolute inset-0 h-full w-full"
-            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            loading="lazy"
-          />
-        </div>
-        <div className="flex items-start gap-2 px-3.5 py-2.5">
-          <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded bg-red-50">
-            <Youtube className="h-3.5 w-3.5 text-red-600" />
-          </span>
-          <div className="min-w-0">
-            <span className="block text-sm font-semibold leading-tight text-[#0F172A]">
-              {video.title}
-            </span>
-            <span className="mt-0.5 block truncate text-xs text-[#64748B]">{video.channel}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-type ContentPart =
-  | { type: "text"; value: string }
-  | { type: "module"; slug: string }
-  | { type: "lab"; slug: string }
-  | { type: "partner"; slug: string }
-  | { type: "scientist"; slug: string };
-
-function MessageContent({ content }: { content: string }) {
-  const { data: profiles } = useListFeaturedProfiles();
-  const scientistSlugs = useMemo(
-    () => new Set((profiles ?? []).map(p => p.slug)),
-    [profiles],
-  );
-
-  const parts = useMemo<ContentPart[]>(() => {
-    const out: ContentPart[] = [];
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-    const regex = new RegExp(TOKEN_REGEX.source, "g");
-    while ((match = regex.exec(content)) !== null) {
-      if (match.index > lastIndex) {
-        out.push({ type: "text", value: content.slice(lastIndex, match.index) });
-      }
-
-      const inner = match[1];
-      const colon = inner.indexOf(":");
-
-      let resolved: CardKind | null = null;
-      let slug = "";
-
-      if (colon !== -1) {
-        // Fully-qualified [[kind:slug]] — trust an explicit, valid prefix.
-        const prefix = inner.slice(0, colon).trim().toLowerCase() as CardKind;
-        if ((CARD_KINDS as readonly string[]).includes(prefix)) {
-          resolved = prefix;
-          slug = normalizeSlug(inner.slice(colon + 1));
-        }
-      } else {
-        // Bare [[slug]] — resolve the kind by looking the slug up in the
-        // app's catalogs in a fixed precedence order.
-        slug = normalizeSlug(inner);
-        resolved = resolveBareKind(slug, scientistSlugs);
-      }
-
-      if (resolved && slug) {
-        out.push({ type: resolved, slug });
-      } else {
-        // Could not resolve to a card. Never leak the raw "[[ ... ]]" brackets
-        // to the user — strip them to clean text (and drop the hidden video
-        // marker if it ever slips past the server-side stripper).
-        const fallback = unresolvedTokenText(inner);
-        if (fallback) out.push({ type: "text", value: fallback });
-      }
-      lastIndex = regex.lastIndex;
-    }
-    if (lastIndex < content.length) {
-      const tail = stripDanglingMarker(content.slice(lastIndex));
-      if (tail) out.push({ type: "text", value: tail });
-    }
-    return out;
-  }, [content, scientistSlugs]);
-
-  return (
-    <div className="text-[15px] leading-relaxed text-[#0F172A] whitespace-pre-wrap break-words">
-      {parts.map((part, i) => {
-        if (part.type === "module") return <ModuleCard key={i} slug={part.slug} />;
-        if (part.type === "lab") return <LabCard key={i} slug={part.slug} />;
-        if (part.type === "partner") return <PartnerCard key={i} slug={part.slug} />;
-        if (part.type === "scientist") return <ScientistCard key={i} slug={part.slug} />;
-        return <span key={i}>{part.value}</span>;
-      })}
-    </div>
-  );
 }
 
 export function Agent() {
@@ -451,138 +117,56 @@ export function Agent() {
     abortRef.current = controller;
 
     try {
-      const res = await fetch(`/api/agent/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const outcome = await streamChatRequest(
+        `/api/agent/chat`,
+        {
           messages: [...history, userMsg].map(m => ({ role: m.role, content: m.content })),
-        }),
-        signal: controller.signal,
-      });
+        },
+        controller.signal,
+        {
+          onContent: accumulated =>
+            setMessages(prev =>
+              prev.map(m => (m.id === assistantMsg.id ? { ...m, content: accumulated } : m)),
+            ),
+          onSources: sources =>
+            setMessages(prev =>
+              prev.map(m => (m.id === assistantMsg.id ? { ...m, sources } : m)),
+            ),
+          onVideo: video =>
+            setMessages(prev =>
+              prev.map(m => (m.id === assistantMsg.id ? { ...m, video } : m)),
+            ),
+        },
+      );
 
-      if (res.status === 402) {
-        let data: { error?: string; outOfCredits?: boolean; isGuest?: boolean; upgradeHref?: string } = {};
-        try {
-          data = await res.json();
-        } catch {
-          /* ignore */
-        }
-        setMessages(prev => prev.filter(m => m.id !== assistantMsg.id));
-        setLimitInfo({
-          message:
-            data.error ||
-            "You're out of credits. Top up or upgrade your plan to keep going.",
-          href: data.upgradeHref || (data.isGuest ? "/login" : "/pricing"),
-        });
-        void refetchCredits();
-        return;
-      }
-
-      if (res.status === 429) {
-        let data: { error?: string; limitReached?: boolean; upgradeHref?: string } = {};
-        try {
-          data = await res.json();
-        } catch {
-          /* ignore */
-        }
-        setMessages(prev => prev.filter(m => m.id !== assistantMsg.id));
-        if (data.limitReached) {
-          setLimitInfo({
-            message:
-              data.error ||
-              "You've reached today's free copilot limit. Upgrade for unlimited access.",
-            href: data.upgradeHref || "/pricing",
-          });
-        } else {
-          setError(data.error || "Too many requests. Please slow down and try again shortly.");
-        }
-        return;
-      }
-
-      if (!res.ok || !res.body) {
-        throw new Error(`Request failed (${res.status})`);
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let accumulated = "";
-      let sources: WebSource[] = [];
-      let streamError: string | null = null;
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-
-        let idx;
-        while ((idx = buffer.indexOf("\n\n")) !== -1) {
-          const block = buffer.slice(0, idx);
-          buffer = buffer.slice(idx + 2);
-          const dataLine = block.split("\n").find(l => l.startsWith("data:"));
-          if (!dataLine) continue;
-          try {
-            const payload = JSON.parse(dataLine.slice(5).trim()) as {
-              content?: string;
-              sources?: WebSource[];
-              video?: VerifiedVideo;
-              done?: boolean;
-              error?: string;
-            };
-            if (payload.error) {
-              streamError = payload.error;
-            }
-            if (payload.content) {
-              accumulated += payload.content;
-              setMessages(prev =>
-                prev.map(m => (m.id === assistantMsg.id ? { ...m, content: accumulated } : m)),
-              );
-            }
-            if (Array.isArray(payload.sources) && payload.sources.length > 0) {
-              const merged = [...sources];
-              const seen = new Set(merged.map(s => s.url));
-              for (const s of payload.sources) {
-                if (s && typeof s.url === "string" && !seen.has(s.url)) {
-                  seen.add(s.url);
-                  merged.push({ title: s.title || s.url, url: s.url });
-                }
-              }
-              sources = merged;
-              setMessages(prev =>
-                prev.map(m => (m.id === assistantMsg.id ? { ...m, sources } : m)),
-              );
-            }
-            if (payload.video && typeof payload.video.id === "string" && payload.video.id) {
-              const video = payload.video;
-              setMessages(prev =>
-                prev.map(m => (m.id === assistantMsg.id ? { ...m, video } : m)),
-              );
-            }
-            if (payload.done) {
-              break;
-            }
-          } catch {
-            /* skip malformed */
-          }
-        }
-      }
-
-      if (streamError) {
-        setError(streamError);
-        if (!accumulated) {
+      switch (outcome.kind) {
+        case "limit":
           setMessages(prev => prev.filter(m => m.id !== assistantMsg.id));
-        }
-      } else if (!accumulated) {
-        setMessages(prev => prev.filter(m => m.id !== assistantMsg.id));
-        setError("The science copilot didn't return a reply. Please try again.");
-      }
-    } catch (err) {
-      const aborted = (err as Error).name === "AbortError";
-      if (!aborted) {
-        setError("Couldn't reach the science copilot. Check your connection and try again.");
-        setMessages(prev =>
-          prev.filter(m => !(m.id === assistantMsg.id && m.content.length === 0)),
-        );
+          setLimitInfo({ message: outcome.message, href: outcome.href });
+          break;
+        case "rate":
+          setMessages(prev => prev.filter(m => m.id !== assistantMsg.id));
+          setError(outcome.message);
+          break;
+        case "stream-error":
+          setError(outcome.message);
+          if (!outcome.accumulated) {
+            setMessages(prev => prev.filter(m => m.id !== assistantMsg.id));
+          }
+          break;
+        case "empty":
+          setMessages(prev => prev.filter(m => m.id !== assistantMsg.id));
+          setError("The science copilot didn't return a reply. Please try again.");
+          break;
+        case "network-error":
+          setMessages(prev =>
+            prev.filter(m => !(m.id === assistantMsg.id && m.content.length === 0)),
+          );
+          setError("Couldn't reach the science copilot. Check your connection and try again.");
+          break;
+        case "aborted":
+        case "ok":
+          break;
       }
     } finally {
       setIsStreaming(false);

@@ -1,14 +1,18 @@
 import { Link } from "wouter";
-import { GraduationCap, ArrowRight, BookOpen } from "lucide-react";
+import { GraduationCap, ArrowRight, BookOpen, Users } from "lucide-react";
 import {
   useListMentors,
   getListMentorsQueryKey,
+  useGetLegendWaitlist,
+  getGetLegendWaitlistQueryKey,
   type MentorSummary,
 } from "@workspace/api-client-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LIVING_MIND_STORIES, type LivingMindStory } from "@/lib/livingMinds";
+import { useMentorCta } from "@/lib/useMentorCta";
 
 function initialsFor(name: string | null): string {
   const source = (name && name.trim()) || "Mentor";
@@ -22,14 +26,23 @@ const LIVING_MENTORS: LivingMindStory[] = Object.values(LIVING_MIND_STORIES).sor
 );
 
 function LivingMentorCard({ mentor }: { mentor: LivingMindStory }) {
+  const { startMentorship, isJoining } = useMentorCta();
+  const { data: waitlist } = useGetLegendWaitlist(mentor.slug, {
+    query: {
+      queryKey: getGetLegendWaitlistQueryKey(mentor.slug),
+      staleTime: 60_000,
+    },
+  });
+  const count = waitlist?.count ?? 0;
+
   return (
-    <Link href={`/directory/${mentor.slug}`}>
-      <Card className="group h-full cursor-pointer border-[#E2E8F0] shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md">
-        <CardContent className="flex h-full flex-col p-6">
+    <Card className="group flex h-full flex-col border-[#E2E8F0] shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md">
+      <CardContent className="flex h-full flex-col p-6">
+        <Link href={`/directory/${mentor.slug}`} className="block">
           <div className="mb-4 flex items-center gap-4">
             <Avatar className="h-14 w-14 border border-[#E2E8F0]">
               <AvatarImage src={mentor.imageUrl} alt={mentor.name} />
-              <AvatarFallback className="bg-blue-600 text-white font-bold">
+              <AvatarFallback className="bg-blue-600 font-bold text-white">
                 {initialsFor(mentor.name)}
               </AvatarFallback>
             </Avatar>
@@ -40,29 +53,52 @@ function LivingMentorCard({ mentor }: { mentor: LivingMindStory }) {
               <p className="truncate text-xs text-[#64748B]">{mentor.field}</p>
             </div>
           </div>
+        </Link>
 
-          <p className="mb-4 line-clamp-3 text-sm text-[#475569]">{mentor.tagline}</p>
+        <p className="mb-4 line-clamp-3 text-sm text-[#475569]">{mentor.tagline}</p>
 
-          {mentor.contributions.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-1.5">
-              {mentor.contributions.slice(0, 3).map((c) => (
-                <span
-                  key={c.title}
-                  className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700"
-                >
-                  {c.title}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-auto flex items-center gap-1 text-sm font-medium text-blue-600">
-            View profile
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        {mentor.contributions.length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-1.5">
+            {mentor.contributions.slice(0, 3).map((c) => (
+              <span
+                key={c.title}
+                className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700"
+              >
+                {c.title}
+              </span>
+            ))}
           </div>
-        </CardContent>
-      </Card>
-    </Link>
+        )}
+
+        <div className="mt-auto space-y-3">
+          {count > 0 && (
+            <p className="flex items-center gap-1.5 text-xs text-[#64748B]">
+              <Users className="h-3.5 w-3.5" />
+              {count} aspiring mentee{count === 1 ? "" : "s"}
+            </p>
+          )}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ink"
+              size="sm"
+              className="flex-1"
+              onClick={() => startMentorship(mentor.slug)}
+              disabled={isJoining}
+            >
+              <GraduationCap className="h-4 w-4" />
+              Be mentored
+            </Button>
+            <Link
+              href={`/directory/${mentor.slug}`}
+              className="inline-flex items-center gap-1 rounded-md border border-[#E2E8F0] px-3 py-1.5 text-sm font-medium text-[#475569] transition-colors hover:border-blue-300 hover:text-blue-600"
+            >
+              Profile
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

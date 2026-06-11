@@ -7,4 +7,5 @@ export * from "./copilotUsage";
 export * from "./credits";
 export * from "./citizenx";
 export * from "./mentorship";
+export * from "./menteeWaitlist";
 export * from "./messages";

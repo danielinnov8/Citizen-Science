@@ -47,6 +47,7 @@ import type {
   FeaturedProfileSummary,
   GrantCreditsInput,
   HealthStatus,
+  LegendWaitlistStatus,
   ListAdminClaimsParams,
   ListAdminUsersParams,
   LoginInput,
@@ -2494,6 +2495,181 @@ export const useEnrollInCourse = <
   TContext
 > => {
   return useMutation(getEnrollInCourseMutationOptions(options));
+};
+
+/**
+ * Public (optional auth). Returns how many members are on the mentee waitlist for this directory figure and — when the caller is signed in — whether they are already on it and whether they are the figure's verified profile owner.
+
+ * @summary Get mentee-waitlist status for a living-legend figure
+ */
+export const getGetLegendWaitlistUrl = (slug: string) => {
+  return `/api/mentorship/legends/${slug}/waitlist`;
+};
+
+export const getLegendWaitlist = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<LegendWaitlistStatus> => {
+  return customFetch<LegendWaitlistStatus>(getGetLegendWaitlistUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetLegendWaitlistQueryKey = (slug: string) => {
+  return [`/api/mentorship/legends/${slug}/waitlist`] as const;
+};
+
+export const getGetLegendWaitlistQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLegendWaitlist>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLegendWaitlist>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetLegendWaitlistQueryKey(slug);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getLegendWaitlist>>
+  > = ({ signal }) => getLegendWaitlist(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLegendWaitlist>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLegendWaitlistQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLegendWaitlist>>
+>;
+export type GetLegendWaitlistQueryError = ErrorType<Error>;
+
+/**
+ * @summary Get mentee-waitlist status for a living-legend figure
+ */
+
+export function useGetLegendWaitlist<
+  TData = Awaited<ReturnType<typeof getLegendWaitlist>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLegendWaitlist>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLegendWaitlistQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Auth-only. Adds the signed-in member to the mentee waitlist for this directory figure (idempotent). Returns the updated waitlist status.
+
+ * @summary Join the mentee waitlist for a living-legend figure
+ */
+export const getJoinLegendWaitlistUrl = (slug: string) => {
+  return `/api/mentorship/legends/${slug}/waitlist`;
+};
+
+export const joinLegendWaitlist = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<LegendWaitlistStatus> => {
+  return customFetch<LegendWaitlistStatus>(getJoinLegendWaitlistUrl(slug), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getJoinLegendWaitlistMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof joinLegendWaitlist>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof joinLegendWaitlist>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  const mutationKey = ["joinLegendWaitlist"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof joinLegendWaitlist>>,
+    { slug: string }
+  > = (props) => {
+    const { slug } = props ?? {};
+
+    return joinLegendWaitlist(slug, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type JoinLegendWaitlistMutationResult = NonNullable<
+  Awaited<ReturnType<typeof joinLegendWaitlist>>
+>;
+
+export type JoinLegendWaitlistMutationError = ErrorType<Error>;
+
+/**
+ * @summary Join the mentee waitlist for a living-legend figure
+ */
+export const useJoinLegendWaitlist = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof joinLegendWaitlist>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof joinLegendWaitlist>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  return useMutation(getJoinLegendWaitlistMutationOptions(options));
 };
 
 /**

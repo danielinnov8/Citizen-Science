@@ -810,6 +810,38 @@ export const EnrollInCourseResponse = zod.object({
 });
 
 /**
+ * Public (optional auth). Returns how many members are on the mentee waitlist for this directory figure and — when the caller is signed in — whether they are already on it and whether they are the figure's verified profile owner.
+
+ * @summary Get mentee-waitlist status for a living-legend figure
+ */
+export const GetLegendWaitlistParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetLegendWaitlistResponse = zod.object({
+  figureSlug: zod.string(),
+  count: zod.number(),
+  isOnWaitlist: zod.boolean(),
+  isOwner: zod.boolean(),
+});
+
+/**
+ * Auth-only. Adds the signed-in member to the mentee waitlist for this directory figure (idempotent). Returns the updated waitlist status.
+
+ * @summary Join the mentee waitlist for a living-legend figure
+ */
+export const JoinLegendWaitlistParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const JoinLegendWaitlistResponse = zod.object({
+  figureSlug: zod.string(),
+  count: zod.number(),
+  isOnWaitlist: zod.boolean(),
+  isOwner: zod.boolean(),
+});
+
+/**
  * Superadmin-only. Projected MRR from plan tiers (no live payment processor).
  * @summary Projected revenue
  */

@@ -9,6 +9,7 @@ import messagesRouter from "./messages";
 import adminRouter from "./admin";
 import citizenxRouter from "./citizenx";
 import mentorshipRouter from "./mentorship";
+import digitalMentorRouter from "./digitalMentor";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(messagesRouter);
 router.use(adminRouter);
 router.use(citizenxRouter);
 router.use(mentorshipRouter);
+router.use(digitalMentorRouter);
 
 export default router;
