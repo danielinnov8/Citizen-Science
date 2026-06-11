@@ -49,6 +49,7 @@ router.get(
         field: featuredProfilesTable.field,
         era: featuredProfilesTable.era,
         imageUrl: featuredProfilesTable.imageUrl,
+        nobelPrizes: featuredProfilesTable.nobelPrizes,
       })
       .from(featuredProfilesTable)
       .orderBy(asc(featuredProfilesTable.name));

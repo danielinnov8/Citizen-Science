@@ -12,4 +12,5 @@ export const ProfileGroup = {
   scientist: "scientist",
   inventor: "inventor",
   thought_leader: "thought_leader",
+  organization: "organization",
 } as const;

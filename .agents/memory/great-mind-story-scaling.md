@@ -17,6 +17,18 @@ when the API/DB is unavailable.
    the figure isn't in code but a `featured_profiles` row has a biography.
 Falls back to the standard profile layout when none apply.
 
+**Gotcha — the standard layout is almost never reached.** `buildStoryFromProfile`
+treats `summaryToBiography(profile.summary)` as biography when the `biography[]`
+column is empty, so ANY row with a non-empty `summary` builds a story and renders
+the cinematic layout. The bulk-imported Nobel laureates have a summary but no
+biography → they ALL render via `GreatMindStory`. The standard `ProfileDetail`
+layout only shows for: (a) `verified`/owned profiles (stories are skipped so the
+owner's edits win) and (b) rows with neither summary nor biography. So any
+"fill out / enrich the laureate profile pages" work must edit the story
+components (`GreatMindStory.tsx` / `LivingMindStory.tsx`), NOT the standard
+layout — editing only `ProfileDetail`'s standard branch is dead code for them.
+Both story components receive the full `profile` (incl. `nobelPrizes`) as a prop.
+
 ## Key decisions
 - **`storyTheme` is left NULL in the DB.** The frontend derives a per-field
   default palette from `deriveStoryTheme(field)` (a discipline→theme keyword

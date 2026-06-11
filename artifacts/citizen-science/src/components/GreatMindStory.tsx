@@ -26,6 +26,8 @@ import type {
 } from "@/lib/greatMinds";
 import { getTalkableFigure, useAvatarFigure } from "@/lib/talkable";
 import { TalkToFigure } from "@/components/TalkToFigure";
+import { NobelBadge } from "@/components/NobelBadge";
+import { NobelFootsteps } from "@/components/NobelFootsteps";
 import { MessageCircle } from "lucide-react";
 
 function hostname(url: string): string {
@@ -930,6 +932,9 @@ export function GreatMindStory({
                   {story.tagline}
                 </p>
               )}
+              {profile?.nobelPrizes && profile.nobelPrizes.length > 0 && (
+                <NobelBadge prizes={profile.nobelPrizes} className="mt-6" />
+              )}
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/80">
                 <span className="inline-flex items-center gap-2">
                   <Beaker className="h-4 w-4" style={{ color: theme.accent }} />
@@ -1349,8 +1354,21 @@ export function GreatMindStory({
           </section>
         )}
 
-        {/* Related experiments */}
-        {relatedExperiments.length > 0 && (
+        {/* Footsteps — custom Nobel experiments for laureates, otherwise the
+            generic category experiments. */}
+        {profile?.nobelPrizes && profile.nobelPrizes.length > 0 ? (
+          <section className="pb-14 lg:pb-20">
+            <Reveal>
+              <NobelFootsteps
+                name={story.name}
+                prizes={profile.nobelPrizes}
+                accent={theme.accent}
+                variant="cinematic"
+              />
+            </Reveal>
+          </section>
+        ) : (
+          relatedExperiments.length > 0 && (
           <section className="pb-14 lg:pb-20">
             <Reveal>
               <h2 className="flex items-center gap-3 font-serif text-3xl sm:text-4xl tracking-tight mb-8">
@@ -1392,6 +1410,7 @@ export function GreatMindStory({
               ))}
             </div>
           </section>
+          )
         )}
 
         {/* Sources */}

@@ -901,6 +901,8 @@ const GROUP_DESC: Record<ProfileGroup, string> = {
   inventor: "living inventor, engineer, or technology creator",
   thought_leader:
     "living science communicator, public intellectual, or well-known thought leader in the scientific space",
+  organization:
+    "organization, institution, or group recognized for its contributions",
 };
 
 const RESEARCH_PROMPT = (name: string, group: ProfileGroup) =>

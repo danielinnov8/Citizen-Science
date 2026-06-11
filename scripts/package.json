@@ -6,6 +6,7 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "seed-profiles": "tsx ./src/seed-profiles.ts",
+    "seed-nobel": "tsx ./src/seed-nobel.ts",
     "seed-stories": "tsx ./src/seed-stories.ts",
     "seed-homepage-inventors": "tsx ./src/seed-homepage-inventors.ts",
     "dump-featured-profiles": "tsx ./src/dump-featured-profiles.ts",

@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ProfileGroup } from "./profileGroup";
+import type { ProfileNobelPrize } from "./profileNobelPrize";
 
 export interface FeaturedProfileSummary {
   id: string;
@@ -16,4 +17,5 @@ export interface FeaturedProfileSummary {
   era: string;
   /** @nullable */
   imageUrl: string | null;
+  nobelPrizes: ProfileNobelPrize[];
 }

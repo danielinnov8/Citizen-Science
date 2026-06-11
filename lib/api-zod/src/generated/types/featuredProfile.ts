@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ProfileGroup } from "./profileGroup";
+import type { ProfileNobelPrize } from "./profileNobelPrize";
 import type { ProfilePatent } from "./profilePatent";
 import type { ProfileSource } from "./profileSource";
 import type { ProfileStoryContribution } from "./profileStoryContribution";
@@ -27,6 +28,7 @@ export interface FeaturedProfile {
   relatedCategorySlugs: string[];
   sources: ProfileSource[];
   patents: ProfilePatent[];
+  nobelPrizes: ProfileNobelPrize[];
   /** @nullable */
   tagline: string | null;
   /** @nullable */

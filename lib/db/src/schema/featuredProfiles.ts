@@ -20,7 +20,24 @@ export interface ProfilePatent {
 // filter by it. Task #14 seeded mixed scientists/inventors; this dimension was
 // added in Task #18 alongside ~300 living figures (defaults to "scientist" so
 // pre-existing rows stay valid).
-export type ProfileGroup = "scientist" | "inventor" | "thought_leader";
+export type ProfileGroup =
+  | "scientist"
+  | "inventor"
+  | "thought_leader"
+  | "organization";
+
+// A single Nobel Prize won by a profile. A laureate may win more than once
+// (e.g. Marie Curie, Linus Pauling, John Bardeen), so this is stored as an
+// array. `categoryCode` is the Nobel API short code (phy/che/med/lit/pea/eco)
+// and `portion` is the share of the prize (e.g. "1", "1/2", "1/3"). Sourced
+// from the public Nobel Prize API (api.nobelprize.org v2.1, CC0 data).
+export interface ProfileNobelPrize {
+  category: string;
+  categoryCode: string;
+  awardYear: string;
+  motivation: string;
+  portion: string;
+}
 
 // ---- Cinematic "story" fields (Task #44) ----
 // Rich, long-form content that powers the cinematic `/directory/:slug` layout
@@ -77,6 +94,12 @@ export const featuredProfilesTable = pgTable("featured_profiles", {
     .default([]),
   sources: jsonb("sources").$type<ProfileSource[]>().notNull().default([]),
   patents: jsonb("patents").$type<ProfilePatent[]>().notNull().default([]),
+  // Nobel Prize record (Task #101). Empty for non-laureates; supports multiple
+  // wins. Populated by the Nobel import seeder from the public Nobel Prize API.
+  nobelPrizes: jsonb("nobel_prizes")
+    .$type<ProfileNobelPrize[]>()
+    .notNull()
+    .default([]),
   // ---- Cinematic story fields (Task #44) — optional, default-empty ----
   tagline: text("tagline"),
   lifespan: text("lifespan"),

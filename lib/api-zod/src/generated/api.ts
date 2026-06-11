@@ -100,10 +100,19 @@ export const ListFeaturedProfilesResponseItem = zod.object({
   id: zod.string(),
   slug: zod.string(),
   name: zod.string(),
-  group: zod.enum(["scientist", "inventor", "thought_leader"]),
+  group: zod.enum(["scientist", "inventor", "thought_leader", "organization"]),
   field: zod.string(),
   era: zod.string(),
   imageUrl: zod.string().nullable(),
+  nobelPrizes: zod.array(
+    zod.object({
+      category: zod.string(),
+      categoryCode: zod.string(),
+      awardYear: zod.string(),
+      motivation: zod.string(),
+      portion: zod.string(),
+    }),
+  ),
 });
 export const ListFeaturedProfilesResponse = zod.array(
   ListFeaturedProfilesResponseItem,
@@ -121,7 +130,7 @@ export const GetFeaturedProfileResponse = zod.object({
   id: zod.string(),
   slug: zod.string(),
   name: zod.string(),
-  group: zod.enum(["scientist", "inventor", "thought_leader"]),
+  group: zod.enum(["scientist", "inventor", "thought_leader", "organization"]),
   field: zod.string(),
   era: zod.string(),
   summary: zod.string(),
@@ -141,6 +150,15 @@ export const GetFeaturedProfileResponse = zod.object({
       number: zod.string(),
       year: zod.string().optional(),
       url: zod.string(),
+    }),
+  ),
+  nobelPrizes: zod.array(
+    zod.object({
+      category: zod.string(),
+      categoryCode: zod.string(),
+      awardYear: zod.string(),
+      motivation: zod.string(),
+      portion: zod.string(),
     }),
   ),
   tagline: zod.string().nullable(),

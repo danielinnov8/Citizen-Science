@@ -67,6 +67,7 @@ export * from "./outOfCreditsError";
 export * from "./profileClaimState";
 export * from "./profileClaimStatus";
 export * from "./profileGroup";
+export * from "./profileNobelPrize";
 export * from "./profilePatent";
 export * from "./profileSource";
 export * from "./profileStoryContribution";

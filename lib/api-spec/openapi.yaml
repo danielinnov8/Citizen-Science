@@ -1559,6 +1559,26 @@ components:
         - scientist
         - inventor
         - thought_leader
+        - organization
+    ProfileNobelPrize:
+      type: object
+      properties:
+        category:
+          type: string
+        categoryCode:
+          type: string
+        awardYear:
+          type: string
+        motivation:
+          type: string
+        portion:
+          type: string
+      required:
+        - category
+        - categoryCode
+        - awardYear
+        - motivation
+        - portion
     ProfileTimelineEntry:
       type: object
       properties:
@@ -1623,6 +1643,10 @@ components:
           type: string
         imageUrl:
           type: ["string", "null"]
+        nobelPrizes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProfileNobelPrize"
       required:
         - id
         - slug
@@ -1631,6 +1655,7 @@ components:
         - field
         - era
         - imageUrl
+        - nobelPrizes
     FeaturedProfile:
       type: object
       properties:
@@ -1670,6 +1695,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ProfilePatent"
+        nobelPrizes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProfileNobelPrize"
         tagline:
           type: ["string", "null"]
         lifespan:
@@ -1719,6 +1748,7 @@ components:
         - relatedCategorySlugs
         - sources
         - patents
+        - nobelPrizes
         - tagline
         - lifespan
         - birthplace

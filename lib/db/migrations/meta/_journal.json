@@ -71,6 +71,13 @@
       "when": 1781206571327,
       "tag": "0009_stale_hellion",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1781208846319,
+      "tag": "0010_oval_liz_osborn",
+      "breakpoints": true
     }
   ]
 }

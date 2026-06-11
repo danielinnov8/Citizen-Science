@@ -9,6 +9,7 @@ import {
   Beaker,
   AlertCircle,
   FileText,
+  Award,
 } from "lucide-react";
 import { useGetFeaturedProfile } from "@workspace/api-client-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -21,11 +22,15 @@ import { GreatMindStory } from "@/components/GreatMindStory";
 import { getLivingMindStory } from "@/lib/livingMinds";
 import { LivingMindStory } from "@/components/LivingMindStory";
 import { ProfileOwnership } from "@/components/ProfileOwnership";
+import { NobelBadge } from "@/components/NobelBadge";
+import { NobelFootsteps } from "@/components/NobelFootsteps";
+import { stripMotivationHtml } from "@/lib/nobelFootsteps";
 
 const GROUP_LABELS: Record<string, string> = {
   scientist: "Scientist",
   inventor: "Inventor",
   thought_leader: "Thought Leader",
+  organization: "Organization",
 };
 
 const IMAGE_FOCAL_BY_SLUG: Record<string, string> = {
@@ -237,10 +242,49 @@ export function ProfileDetail() {
             <h1 className="text-4xl font-serif tracking-tight mb-4">
               {profile.name}
             </h1>
+            <NobelBadge
+              prizes={profile.nobelPrizes}
+              variant="detail"
+              className="mb-4"
+            />
             <p className="text-lg text-[#475569] leading-relaxed">
               {profile.summary}
             </p>
           </div>
+
+          {/* Nobel recognition */}
+          {profile.nobelPrizes.length > 0 && (
+            <section>
+              <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight mb-4">
+                <Award className="h-5 w-5 text-amber-500" />
+                Nobel Recognition
+              </h2>
+              <div className="space-y-3">
+                {profile.nobelPrizes.map((p, i) => (
+                  <div
+                    key={`${p.categoryCode}-${p.awardYear}-${i}`}
+                    className="rounded-xl border border-amber-200 bg-amber-50/50 p-4"
+                  >
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-amber-800">
+                      <Award className="h-4 w-4" />
+                      Nobel Prize in {p.category}
+                      <span className="text-amber-600">· {p.awardYear}</span>
+                      {p.portion && p.portion !== "1" && (
+                        <span className="font-normal text-amber-600">
+                          (shared, {p.portion})
+                        </span>
+                      )}
+                    </div>
+                    {p.motivation && (
+                      <p className="mt-2 italic leading-relaxed text-[#334155]">
+                        &ldquo;{stripMotivationHtml(p.motivation)}&rdquo;
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Contributions */}
           {profile.contributions.length > 0 && (
@@ -352,13 +396,17 @@ export function ProfileDetail() {
             </section>
           )}
 
-          {/* Related experiments */}
-          {relatedExperiments.length > 0 && (
-            <section>
-              <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight mb-4">
-                <Beaker className="h-5 w-5 text-[#16A34A]" />
-                Try a Related Experiment
-              </h2>
+          {/* Footsteps — custom Nobel experiments for laureates, otherwise the
+              generic category experiments. */}
+          {profile.nobelPrizes.length > 0 ? (
+            <NobelFootsteps name={profile.name} prizes={profile.nobelPrizes} />
+          ) : (
+            relatedExperiments.length > 0 && (
+              <section>
+                <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight mb-4">
+                  <Beaker className="h-5 w-5 text-[#16A34A]" />
+                  Try a Related Experiment
+                </h2>
               <div className="grid sm:grid-cols-2 gap-3">
                 {relatedExperiments.map((e) => (
                   <Link
@@ -374,8 +422,9 @@ export function ProfileDetail() {
                     </div>
                   </Link>
                 ))}
-              </div>
-            </section>
+                </div>
+              </section>
+            )
           )}
 
           {/* Sources */}

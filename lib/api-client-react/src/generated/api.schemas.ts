@@ -98,7 +98,16 @@ export const ProfileGroup = {
   scientist: "scientist",
   inventor: "inventor",
   thought_leader: "thought_leader",
+  organization: "organization",
 } as const;
+
+export interface ProfileNobelPrize {
+  category: string;
+  categoryCode: string;
+  awardYear: string;
+  motivation: string;
+  portion: string;
+}
 
 export interface ProfileTimelineEntry {
   year: string;
@@ -130,6 +139,7 @@ export interface FeaturedProfileSummary {
   era: string;
   /** @nullable */
   imageUrl: string | null;
+  nobelPrizes: ProfileNobelPrize[];
 }
 
 export interface FeaturedProfile {
@@ -147,6 +157,7 @@ export interface FeaturedProfile {
   relatedCategorySlugs: string[];
   sources: ProfileSource[];
   patents: ProfilePatent[];
+  nobelPrizes: ProfileNobelPrize[];
   /** @nullable */
   tagline: string | null;
   /** @nullable */

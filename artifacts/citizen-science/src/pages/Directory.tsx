@@ -6,6 +6,7 @@ import type { FeaturedProfileSummary } from "@workspace/api-client-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NobelBadge } from "@/components/NobelBadge";
 import {
   Select,
   SelectContent,
@@ -17,12 +18,18 @@ import { MessageProfileButton } from "@/components/MessageProfileButton";
 import { isLivingEra } from "@/lib/living";
 
 const ALL = "__all__";
+const NOBEL_ONLY = "__nobel__";
 
 const GROUP_LABELS: Record<string, string> = {
   scientist: "Scientists",
   inventor: "Inventors",
   thought_leader: "Thought Leaders",
+  organization: "Organizations",
 };
+
+function hasNobel(p: FeaturedProfileSummary): boolean {
+  return (p.nobelPrizes?.length ?? 0) > 0;
+}
 
 function initials(name: string): string {
   return name
@@ -46,6 +53,13 @@ function ProfileCard({ p }: { p: FeaturedProfileSummary }) {
       className="group bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden hover:border-blue-200 hover:shadow-md transition-all flex flex-col"
     >
       <div className="aspect-[4/5] bg-[#F1F5F9] overflow-hidden relative">
+        {hasNobel(p) && (
+          <NobelBadge
+            prizes={p.nobelPrizes}
+            variant="chip"
+            className="absolute left-2 top-2 z-10 drop-shadow-sm"
+          />
+        )}
         {p.imageUrl ? (
           <img
             src={p.imageUrl}
@@ -87,6 +101,9 @@ export function Directory() {
   const [group, setGroup] = useState(ALL);
   const [field, setField] = useState(ALL);
   const [era, setEra] = useState(ALL);
+  const [nobel, setNobel] = useState(ALL);
+  const [nobelCategory, setNobelCategory] = useState(ALL);
+  const [awardYear, setAwardYear] = useState(ALL);
 
   const profiles = data ?? [];
 
@@ -106,6 +123,32 @@ export function Directory() {
     () => Array.from(new Set(profiles.map((p) => p.era))).sort(),
     [profiles],
   );
+  const nobelCategories = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          profiles.flatMap((p) =>
+            (p.nobelPrizes ?? []).map((n) => n.category),
+          ),
+        ),
+      ).sort(),
+    [profiles],
+  );
+  const awardYears = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          profiles.flatMap((p) =>
+            (p.nobelPrizes ?? []).map((n) => n.awardYear).filter(Boolean),
+          ),
+        ),
+      ).sort((a, b) => b.localeCompare(a)),
+    [profiles],
+  );
+
+  // Any Nobel-specific filter implies "Nobel laureates only".
+  const nobelActive =
+    nobel === NOBEL_ONLY || nobelCategory !== ALL || awardYear !== ALL;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -113,13 +156,31 @@ export function Directory() {
       if (group !== ALL && p.group !== group) return false;
       if (field !== ALL && p.field !== field) return false;
       if (era !== ALL && p.era !== era) return false;
+      const prizes = p.nobelPrizes ?? [];
+      if (nobelActive && prizes.length === 0) return false;
+      if (
+        nobelCategory !== ALL &&
+        !prizes.some((n) => n.category === nobelCategory)
+      )
+        return false;
+      if (awardYear !== ALL && !prizes.some((n) => n.awardYear === awardYear))
+        return false;
       if (q) {
         const haystack = `${p.name} ${p.field} ${p.era}`.toLowerCase();
         if (!haystack.includes(q)) return false;
       }
       return true;
     });
-  }, [profiles, query, group, field, era]);
+  }, [
+    profiles,
+    query,
+    group,
+    field,
+    era,
+    nobelActive,
+    nobelCategory,
+    awardYear,
+  ]);
 
   return (
     <div className="p-6 lg:p-10 max-w-6xl mx-auto w-full animate-in fade-in duration-500 pb-32">
@@ -191,6 +252,45 @@ export function Directory() {
         </Select>
       </div>
 
+      {/* Nobel filters */}
+      <div className="flex flex-col md:flex-row gap-3 mb-8">
+        <Select value={nobel} onValueChange={setNobel}>
+          <SelectTrigger className="bg-white md:w-52">
+            <SelectValue placeholder="All laureates" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>Everyone</SelectItem>
+            <SelectItem value={NOBEL_ONLY}>Nobel laureates only</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={nobelCategory} onValueChange={setNobelCategory}>
+          <SelectTrigger className="bg-white md:w-56">
+            <SelectValue placeholder="All Nobel categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All Nobel categories</SelectItem>
+            {nobelCategories.map((c) => (
+              <SelectItem key={c} value={c}>
+                {c}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={awardYear} onValueChange={setAwardYear}>
+          <SelectTrigger className="bg-white md:w-44">
+            <SelectValue placeholder="All award years" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All award years</SelectItem>
+            {awardYears.map((y) => (
+              <SelectItem key={y} value={y}>
+                {y}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* States */}
       {isError ? (
         <div className="flex flex-col items-center justify-center text-center py-20 bg-white rounded-2xl border border-[#E2E8F0]">
@@ -229,7 +329,7 @@ export function Directory() {
         <>
           <div className="text-sm text-[#64748B] mb-4">
             {filtered.length}{" "}
-            {filtered.length === 1 ? "person" : "people"}
+            {filtered.length === 1 ? "profile" : "profiles"}
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
             {filtered.map((p) => (
