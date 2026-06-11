@@ -864,6 +864,110 @@ function Reveal({
   );
 }
 
+function Sparkle({ size, color }: { size: number; color: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      style={{ filter: `drop-shadow(0 0 ${Math.max(2, size / 2.5)}px ${color})` }}
+    >
+      <path
+        d="M12 0c.7 6.3 3 8.6 9 9-6 .4-8.3 2.7-9 9-.7-6.3-3-8.6-9-9 6-.4 8.3-2.7 9-9Z"
+        fill={color}
+      />
+    </svg>
+  );
+}
+
+type PixieParticle = {
+  id: number;
+  x: number;
+  y: number;
+  driftX: number;
+  rise: number;
+  size: number;
+  duration: number;
+  rotate: number;
+  color: string;
+};
+
+const PIXIE_COLORS = ["#FDE68A", "#FCD34D", "#FBBF24", "#FFFFFF", "#BFDBFE"];
+
+function PixieDustWord({ children }: { children: React.ReactNode }) {
+  const reduceMotion = useReducedMotion();
+  const [hovering, setHovering] = useState(false);
+  const [particles, setParticles] = useState<PixieParticle[]>([]);
+  const idRef = useRef(0);
+  const wordRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!hovering || reduceMotion) return;
+    const spawn = () => {
+      const w = wordRef.current?.offsetWidth ?? 160;
+      const h = wordRef.current?.offsetHeight ?? 48;
+      const batch: PixieParticle[] = Array.from({ length: 3 }).map(() => ({
+        id: idRef.current++,
+        x: Math.random() * w,
+        y: h * (0.35 + Math.random() * 0.55),
+        driftX: (Math.random() - 0.5) * 46,
+        rise: 34 + Math.random() * 58,
+        size: 5 + Math.random() * 9,
+        duration: 0.85 + Math.random() * 0.8,
+        rotate: (Math.random() - 0.5) * 220,
+        color: PIXIE_COLORS[Math.floor(Math.random() * PIXIE_COLORS.length)],
+      }));
+      setParticles((prev) => [...prev, ...batch]);
+    };
+    spawn();
+    const interval = setInterval(spawn, 110);
+    return () => clearInterval(interval);
+  }, [hovering, reduceMotion]);
+
+  const removeParticle = (id: number) =>
+    setParticles((prev) => prev.filter((p) => p.id !== id));
+
+  return (
+    <span
+      ref={wordRef}
+      className="relative inline-block text-blue-200 transition-[text-shadow] duration-300"
+      style={
+        hovering && !reduceMotion
+          ? { textShadow: "0 0 24px rgba(253,224,71,0.55)" }
+          : undefined
+      }
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+    >
+      {children}
+      <span
+        className="pointer-events-none absolute inset-0 z-10 overflow-visible"
+        aria-hidden="true"
+      >
+        {particles.map((p) => (
+          <motion.span
+            key={p.id}
+            className="absolute left-0 top-0"
+            initial={{ opacity: 0, scale: 0, x: p.x, y: p.y, rotate: 0 }}
+            animate={{
+              opacity: [0, 1, 1, 0],
+              scale: [0, 1, 0.95, 0.3],
+              x: p.x + p.driftX,
+              y: p.y - p.rise,
+              rotate: p.rotate,
+            }}
+            transition={{ duration: p.duration, ease: "easeOut" }}
+            onAnimationComplete={() => removeParticle(p.id)}
+          >
+            <Sparkle size={p.size} color={p.color} />
+          </motion.span>
+        ))}
+      </span>
+    </span>
+  );
+}
+
 const HERO_WORDS = ["Research", "Science", "Discovery"];
 
 function TypewriterWord({ words }: { words: string[] }) {
@@ -1159,7 +1263,7 @@ export function Landing() {
             <Reveal delay={0.05}>
               <h1 className="mt-8 font-serif text-5xl leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
                 Humanity's<br />
-                <span className="text-blue-200">Discovery</span>
+                <PixieDustWord>Discovery</PixieDustWord>
                 <br className="block sm:hidden" /> Network
               </h1>
             </Reveal>
