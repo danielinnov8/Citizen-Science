@@ -901,32 +901,54 @@ function PixieDustWord({ children }: { children: React.ReactNode }) {
   const [particles, setParticles] = useState<PixieParticle[]>([]);
   const idRef = useRef(0);
   const wordRef = useRef<HTMLSpanElement>(null);
+  const spotlightRef = useRef<HTMLSpanElement>(null);
+  const posRef = useRef({ x: 0, y: 0 });
+
+  const updatePos = (e: React.MouseEvent<HTMLSpanElement>) => {
+    const rect = wordRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    posRef.current = { x, y };
+    if (spotlightRef.current) {
+      spotlightRef.current.style.transform = `translate(${x - 55}px, ${y - 55}px)`;
+    }
+  };
 
   useEffect(() => {
     if (!hovering || reduceMotion) return;
     const spawn = () => {
-      const w = wordRef.current?.offsetWidth ?? 160;
-      const h = wordRef.current?.offsetHeight ?? 48;
-      const batch: PixieParticle[] = Array.from({ length: 3 }).map(() => ({
+      const { x, y } = posRef.current;
+      const batch: PixieParticle[] = Array.from({ length: 2 }).map(() => ({
         id: idRef.current++,
-        x: Math.random() * w,
-        y: h * (0.35 + Math.random() * 0.55),
-        driftX: (Math.random() - 0.5) * 46,
-        rise: 34 + Math.random() * 58,
-        size: 5 + Math.random() * 9,
-        duration: 0.85 + Math.random() * 0.8,
+        x: x + (Math.random() - 0.5) * 14,
+        y: y + (Math.random() - 0.5) * 14,
+        driftX: (Math.random() - 0.5) * 26,
+        rise: 14 + Math.random() * 30,
+        size: 4 + Math.random() * 7,
+        duration: 0.6 + Math.random() * 0.6,
         rotate: (Math.random() - 0.5) * 220,
         color: PIXIE_COLORS[Math.floor(Math.random() * PIXIE_COLORS.length)],
       }));
       setParticles((prev) => [...prev, ...batch]);
     };
     spawn();
-    const interval = setInterval(spawn, 110);
+    const interval = setInterval(spawn, 70);
     return () => clearInterval(interval);
   }, [hovering, reduceMotion]);
 
   const removeParticle = (id: number) =>
     setParticles((prev) => prev.filter((p) => p.id !== id));
+
+  const handleEnter = (e: React.MouseEvent<HTMLSpanElement>) => {
+    updatePos(e);
+    setHovering(true);
+    if (spotlightRef.current) spotlightRef.current.style.opacity = "1";
+  };
+  const handleLeave = () => {
+    setHovering(false);
+    if (spotlightRef.current) spotlightRef.current.style.opacity = "0";
+  };
 
   return (
     <span
@@ -934,13 +956,25 @@ function PixieDustWord({ children }: { children: React.ReactNode }) {
       className="relative inline-block text-blue-200 transition-[text-shadow] duration-300"
       style={
         hovering && !reduceMotion
-          ? { textShadow: "0 0 24px rgba(253,224,71,0.55)" }
+          ? { textShadow: "0 0 18px rgba(253,224,71,0.35)" }
           : undefined
       }
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
+      onMouseEnter={handleEnter}
+      onMouseMove={updatePos}
+      onMouseLeave={handleLeave}
     >
       {children}
+      {!reduceMotion && (
+        <span
+          ref={spotlightRef}
+          aria-hidden="true"
+          className="pointer-events-none absolute left-0 top-0 h-[110px] w-[110px] rounded-full opacity-0 transition-opacity duration-300"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(253,224,71,0.28) 0%, rgba(253,224,71,0.10) 42%, transparent 70%)",
+          }}
+        />
+      )}
       <span
         className="pointer-events-none absolute inset-0 z-10 overflow-visible"
         aria-hidden="true"
