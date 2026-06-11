@@ -39,4 +39,7 @@ export interface FeaturedProfile {
   legacy: string[];
   didYouKnow: string[];
   storyTheme: ProfileStoryTheme | null;
+  /** Whether this profile has an approved owner (Task #92). True once a superadmin approves a user's claim; drives the "Verified" badge.
+   */
+  verified: boolean;
 }

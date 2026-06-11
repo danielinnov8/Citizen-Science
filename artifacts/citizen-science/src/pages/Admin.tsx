@@ -11,6 +11,7 @@ import {
   XCircle,
   TrendingUp,
   CreditCard,
+  BadgeCheck,
 } from "lucide-react";
 import {
   AreaChart,
@@ -41,7 +42,12 @@ import {
   getGetAdminSystemQueryKey,
   useUpdateUserPlan,
   useGrantUserCredits,
+  useListAdminClaims,
+  getListAdminClaimsQueryKey,
+  useApproveClaim,
+  useDenyClaim,
   type AdminUser,
+  type AdminClaim,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -852,11 +858,214 @@ function SystemTab() {
   );
 }
 
+/* ----------------------------------- Claims ---------------------------------- */
+
+const CLAIM_FILTERS = [
+  { value: "pending", label: "Pending" },
+  { value: "approved", label: "Approved" },
+  { value: "denied", label: "Denied" },
+  { value: "all", label: "All" },
+] as const;
+
+function ClaimStatusBadge({ status }: { status: AdminClaim["status"] }) {
+  if (status === "approved")
+    return (
+      <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+        Approved
+      </Badge>
+    );
+  if (status === "denied")
+    return (
+      <Badge className="bg-red-100 text-red-700 hover:bg-red-100">Denied</Badge>
+    );
+  return (
+    <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">
+      Pending
+    </Badge>
+  );
+}
+
+function ClaimsTab() {
+  const [filter, setFilter] =
+    React.useState<(typeof CLAIM_FILTERS)[number]["value"]>("pending");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const params = filter === "all" ? {} : { status: filter };
+  const { data, isLoading } = useListAdminClaims(params, {
+    query: { queryKey: getListAdminClaimsQueryKey(params), staleTime: 15_000 },
+  });
+
+  const approve = useApproveClaim();
+  const deny = useDenyClaim();
+
+  const refetch = () => {
+    void queryClient.invalidateQueries({ queryKey: ["/api/admin/claims"] });
+  };
+
+  const onApprove = (claim: AdminClaim) => {
+    approve.mutate(
+      { id: claim.id },
+      {
+        onSuccess: () => {
+          refetch();
+          toast({
+            title: "Claim approved",
+            description: `${claim.profileName} is now owned by ${claim.claimantEmail}.`,
+          });
+        },
+        onError: (err) =>
+          toast({
+            title: "Couldn't approve claim",
+            description: (err as Error)?.message ?? "Please try again.",
+            variant: "destructive",
+          }),
+      },
+    );
+  };
+
+  const onDeny = (claim: AdminClaim) => {
+    deny.mutate(
+      { id: claim.id },
+      {
+        onSuccess: () => {
+          refetch();
+          toast({ title: "Claim denied" });
+        },
+        onError: (err) =>
+          toast({
+            title: "Couldn't deny claim",
+            description: (err as Error)?.message ?? "Please try again.",
+            variant: "destructive",
+          }),
+      },
+    );
+  };
+
+  const claims = data?.claims ?? [];
+  const pending = approve.isPending || deny.isPending;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-1">
+        {CLAIM_FILTERS.map((f) => (
+          <Button
+            key={f.value}
+            size="sm"
+            variant={filter === f.value ? "secondary" : "ghost"}
+            onClick={() => setFilter(f.value)}
+          >
+            {f.label}
+          </Button>
+        ))}
+      </div>
+
+      <Card>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Profile</TableHead>
+                <TableHead>Claimant</TableHead>
+                <TableHead>Submitted</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell colSpan={5}>
+                      <Skeleton className="h-8 w-full" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : claims.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="py-10 text-center text-sm text-[#94A3B8]"
+                  >
+                    No claims to show.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                claims.map((claim) => (
+                  <TableRow key={claim.id}>
+                    <TableCell>
+                      <a
+                        href={`/directory/${claim.profileSlug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-[#0F172A] hover:text-blue-700"
+                      >
+                        {claim.profileName}
+                      </a>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm text-[#0F172A]">
+                        {claim.claimantName ?? "—"}
+                      </div>
+                      <div className="text-xs text-[#64748B]">
+                        {claim.claimantEmail}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-[#64748B]">
+                      {new Date(claim.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <ClaimStatusBadge status={claim.status} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {claim.status === "pending" ? (
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            disabled={pending}
+                            onClick={() => onApprove(claim)}
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={pending}
+                            onClick={() => onDeny(claim)}
+                          >
+                            <XCircle className="h-4 w-4" />
+                            Deny
+                          </Button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-[#94A3B8]">
+                          {claim.reviewedAt
+                            ? `Reviewed ${new Date(
+                                claim.reviewedAt,
+                              ).toLocaleDateString()}`
+                            : "—"}
+                        </span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 /* ----------------------------------- Page ------------------------------------ */
 
 const TABS = [
   { value: "overview", label: "Overview", icon: Shield },
   { value: "users", label: "Users", icon: UsersIcon },
+  { value: "claims", label: "Claims", icon: BadgeCheck },
   { value: "revenue", label: "Revenue", icon: DollarSign },
   { value: "usage", label: "Usage", icon: Activity },
   { value: "content", label: "Content", icon: Boxes },
@@ -897,6 +1106,9 @@ export function Admin() {
         </TabsContent>
         <TabsContent value="users">
           <UsersTab />
+        </TabsContent>
+        <TabsContent value="claims">
+          <ClaimsTab />
         </TabsContent>
         <TabsContent value="revenue">
           <RevenueTab />

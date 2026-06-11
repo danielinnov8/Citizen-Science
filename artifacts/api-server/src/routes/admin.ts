@@ -1,12 +1,14 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { and, count, desc, eq, gte, ilike, like, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, like, ne, or, sql } from "drizzle-orm";
 import {
   db,
   usersTable,
   creditAccountsTable,
   copilotUsageTable,
   featuredProfilesTable,
+  profileClaimsTable,
   type User,
+  type ProfileClaim,
 } from "@workspace/db";
 import {
   GetAdminOverviewResponse,
@@ -19,6 +21,9 @@ import {
   GetAdminUsageResponse,
   GetAdminContentResponse,
   GetAdminSystemResponse,
+  ListAdminClaimsResponse,
+  ApproveClaimResponse,
+  DenyClaimResponse,
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/requireAuth";
 import { requireSuperAdmin } from "../lib/admin/superadmin";
@@ -564,6 +569,167 @@ router.get(
         liveAvatarSessions: liveAvatarSessionCount(),
       }),
     );
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Profile-ownership claims (Task #92)
+// ---------------------------------------------------------------------------
+
+// Shapes a joined claim+profile+user row into the AdminClaim wire format.
+function toAdminClaim(row: {
+  claim: ProfileClaim;
+  profileSlug: string;
+  profileName: string;
+  claimantName: string | null;
+  claimantEmail: string;
+}) {
+  return {
+    id: row.claim.id,
+    status: row.claim.status,
+    email: row.claim.email,
+    profileSlug: row.profileSlug,
+    profileName: row.profileName,
+    claimantId: row.claim.userId,
+    claimantName: row.claimantName,
+    claimantEmail: row.claimantEmail,
+    createdAt: row.claim.createdAt.toISOString(),
+    reviewedAt: row.claim.reviewedAt
+      ? row.claim.reviewedAt.toISOString()
+      : null,
+  };
+}
+
+const CLAIM_STATUSES = ["pending", "approved", "denied"] as const;
+
+router.get(
+  "/admin/claims",
+  async (req: Request, res: Response): Promise<void> => {
+    const statusParam =
+      typeof req.query.status === "string" ? req.query.status : undefined;
+    const status = CLAIM_STATUSES.find((s) => s === statusParam);
+
+    const rows = await db
+      .select({
+        claim: profileClaimsTable,
+        profileSlug: featuredProfilesTable.slug,
+        profileName: featuredProfilesTable.name,
+        claimantName: usersTable.name,
+        claimantEmail: usersTable.email,
+      })
+      .from(profileClaimsTable)
+      .innerJoin(
+        featuredProfilesTable,
+        eq(profileClaimsTable.profileId, featuredProfilesTable.id),
+      )
+      .innerJoin(usersTable, eq(profileClaimsTable.userId, usersTable.id))
+      .where(status ? eq(profileClaimsTable.status, status) : undefined)
+      .orderBy(desc(profileClaimsTable.createdAt));
+
+    const claims = rows.map(toAdminClaim);
+    res.json(ListAdminClaimsResponse.parse({ claims, total: claims.length }));
+  },
+);
+
+// Loads a single claim joined with its profile + claimant, by claim id.
+async function loadAdminClaim(id: string) {
+  const [row] = await db
+    .select({
+      claim: profileClaimsTable,
+      profileSlug: featuredProfilesTable.slug,
+      profileName: featuredProfilesTable.name,
+      claimantName: usersTable.name,
+      claimantEmail: usersTable.email,
+    })
+    .from(profileClaimsTable)
+    .innerJoin(
+      featuredProfilesTable,
+      eq(profileClaimsTable.profileId, featuredProfilesTable.id),
+    )
+    .innerJoin(usersTable, eq(profileClaimsTable.userId, usersTable.id))
+    .where(eq(profileClaimsTable.id, id));
+  return row ?? null;
+}
+
+router.post(
+  "/admin/claims/:id/approve",
+  async (req: Request, res: Response): Promise<void> => {
+    const id = String(req.params.id);
+    const admin = req.user as User;
+
+    const row = await loadAdminClaim(id);
+    if (!row) {
+      res.status(404).json({ error: "Claim not found." });
+      return;
+    }
+
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      // Mark this claim approved.
+      await tx
+        .update(profileClaimsTable)
+        .set({
+          status: "approved",
+          reviewedBy: admin.id,
+          reviewedAt: now,
+          updatedAt: now,
+        })
+        .where(eq(profileClaimsTable.id, row.claim.id));
+
+      // Grant ownership (Verified badge + edit rights derive from this).
+      await tx
+        .update(featuredProfilesTable)
+        .set({ ownerUserId: row.claim.userId, updatedAt: now })
+        .where(eq(featuredProfilesTable.id, row.claim.profileId));
+
+      // Deny any other still-pending claims on the same profile.
+      await tx
+        .update(profileClaimsTable)
+        .set({
+          status: "denied",
+          reviewedBy: admin.id,
+          reviewedAt: now,
+          updatedAt: now,
+        })
+        .where(
+          and(
+            eq(profileClaimsTable.profileId, row.claim.profileId),
+            eq(profileClaimsTable.status, "pending"),
+            ne(profileClaimsTable.id, row.claim.id),
+          ),
+        );
+    });
+
+    const updated = await loadAdminClaim(id);
+    res.json(ApproveClaimResponse.parse(toAdminClaim(updated!)));
+  },
+);
+
+router.post(
+  "/admin/claims/:id/deny",
+  async (req: Request, res: Response): Promise<void> => {
+    const id = String(req.params.id);
+    const admin = req.user as User;
+
+    const row = await loadAdminClaim(id);
+    if (!row) {
+      res.status(404).json({ error: "Claim not found." });
+      return;
+    }
+
+    const now = new Date();
+    await db
+      .update(profileClaimsTable)
+      .set({
+        status: "denied",
+        reviewedBy: admin.id,
+        reviewedAt: now,
+        updatedAt: now,
+      })
+      .where(eq(profileClaimsTable.id, row.claim.id));
+
+    const updated = await loadAdminClaim(id);
+    res.json(DenyClaimResponse.parse(toAdminClaim(updated!)));
   },
 );
 

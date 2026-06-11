@@ -43,6 +43,13 @@
       "when": 1781199626246,
       "tag": "0005_normal_miracleman",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781201668570,
+      "tag": "0006_slippery_vector",
+      "breakpoints": true
     }
   ]
 }

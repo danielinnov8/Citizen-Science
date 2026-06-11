@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./adminClaim";
+export * from "./adminClaimList";
 export * from "./adminContent";
 export * from "./adminFeatureStatus";
 export * from "./adminGroupCount";
@@ -37,9 +39,13 @@ export * from "./featuredProfile";
 export * from "./featuredProfileSummary";
 export * from "./grantCreditsInput";
 export * from "./healthStatus";
+export * from "./listAdminClaimsParams";
 export * from "./listAdminUsersParams";
 export * from "./loginInput";
 export * from "./messageResponse";
+export * from "./myProfileClaimStatus";
+export * from "./profileClaimState";
+export * from "./profileClaimStatus";
 export * from "./profileGroup";
 export * from "./profilePatent";
 export * from "./profileSource";
@@ -47,5 +53,6 @@ export * from "./profileStoryContribution";
 export * from "./profileStoryTheme";
 export * from "./profileTimelineEntry";
 export * from "./registerInput";
+export * from "./updateProfileInput";
 export * from "./updateUserPlanInput";
 export * from "./updateUserPlanInputPlan";

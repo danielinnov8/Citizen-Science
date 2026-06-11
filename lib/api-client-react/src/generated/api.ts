@@ -17,6 +17,8 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AdminClaim,
+  AdminClaimList,
   AdminContent,
   AdminOverview,
   AdminRevenue,
@@ -38,10 +40,13 @@ import type {
   FeaturedProfileSummary,
   GrantCreditsInput,
   HealthStatus,
+  ListAdminClaimsParams,
   ListAdminUsersParams,
   LoginInput,
   MessageResponse,
+  MyProfileClaimStatus,
   RegisterInput,
+  UpdateProfileInput,
   UpdateUserPlanInput,
 } from "./api.schemas";
 
@@ -781,6 +786,270 @@ export function useGetFeaturedProfile<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Owner-only (Task #92). Updates a sensible subset of the profile's editable content. The caller must be the profile's approved owner; any other authenticated user gets a 403. Only the provided fields change.
+
+ * @summary Edit a profile you own
+ */
+export const getUpdateMyProfileUrl = (slug: string) => {
+  return `/api/profiles/${slug}`;
+};
+
+export const updateMyProfile = async (
+  slug: string,
+  updateProfileInput: UpdateProfileInput,
+  options?: RequestInit,
+): Promise<FeaturedProfile> => {
+  return customFetch<FeaturedProfile>(getUpdateMyProfileUrl(slug), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateProfileInput),
+  });
+};
+
+export const getUpdateMyProfileMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMyProfile>>,
+    TError,
+    { slug: string; data: BodyType<UpdateProfileInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateMyProfile>>,
+  TError,
+  { slug: string; data: BodyType<UpdateProfileInput> },
+  TContext
+> => {
+  const mutationKey = ["updateMyProfile"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateMyProfile>>,
+    { slug: string; data: BodyType<UpdateProfileInput> }
+  > = (props) => {
+    const { slug, data } = props ?? {};
+
+    return updateMyProfile(slug, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateMyProfileMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateMyProfile>>
+>;
+export type UpdateMyProfileMutationBody = BodyType<UpdateProfileInput>;
+export type UpdateMyProfileMutationError = ErrorType<Error>;
+
+/**
+ * @summary Edit a profile you own
+ */
+export const useUpdateMyProfile = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMyProfile>>,
+    TError,
+    { slug: string; data: BodyType<UpdateProfileInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateMyProfile>>,
+  TError,
+  { slug: string; data: BodyType<UpdateProfileInput> },
+  TContext
+> => {
+  return useMutation(getUpdateMyProfileMutationOptions(options));
+};
+
+/**
+ * Login-gated (Task #92). Returns whether the profile is claimable (living innovator), whether the caller already owns it, and the status of the caller's own claim, if any.
+
+ * @summary Get the current user's claim status for a profile
+ */
+export const getGetMyProfileClaimUrl = (slug: string) => {
+  return `/api/profiles/${slug}/claim`;
+};
+
+export const getMyProfileClaim = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<MyProfileClaimStatus> => {
+  return customFetch<MyProfileClaimStatus>(getGetMyProfileClaimUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMyProfileClaimQueryKey = (slug: string) => {
+  return [`/api/profiles/${slug}/claim`] as const;
+};
+
+export const getGetMyProfileClaimQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMyProfileClaim>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMyProfileClaim>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMyProfileClaimQueryKey(slug);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMyProfileClaim>>
+  > = ({ signal }) => getMyProfileClaim(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMyProfileClaim>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMyProfileClaimQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMyProfileClaim>>
+>;
+export type GetMyProfileClaimQueryError = ErrorType<Error>;
+
+/**
+ * @summary Get the current user's claim status for a profile
+ */
+
+export function useGetMyProfileClaim<
+  TData = Awaited<ReturnType<typeof getMyProfileClaim>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMyProfileClaim>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMyProfileClaimQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Login-gated (Task #92). Submits a claim to own this profile using the caller's own account email. Rejected when the profile is not a living innovator, is already owned, or the caller already has a pending/approved claim.
+
+ * @summary Submit a claim for a living innovator's profile
+ */
+export const getClaimProfileUrl = (slug: string) => {
+  return `/api/profiles/${slug}/claim`;
+};
+
+export const claimProfile = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<MyProfileClaimStatus> => {
+  return customFetch<MyProfileClaimStatus>(getClaimProfileUrl(slug), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getClaimProfileMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof claimProfile>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof claimProfile>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  const mutationKey = ["claimProfile"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof claimProfile>>,
+    { slug: string }
+  > = (props) => {
+    const { slug } = props ?? {};
+
+    return claimProfile(slug, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ClaimProfileMutationResult = NonNullable<
+  Awaited<ReturnType<typeof claimProfile>>
+>;
+
+export type ClaimProfileMutationError = ErrorType<Error>;
+
+/**
+ * @summary Submit a claim for a living innovator's profile
+ */
+export const useClaimProfile = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof claimProfile>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof claimProfile>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  return useMutation(getClaimProfileMutationOptions(options));
+};
 
 /**
  * Returns the credit balance for the caller — a signed-in user or, when logged out, the anonymous guest identified by the browser's anon cookie. Credits meter all AI features (copilot chat, web-grounded research, field-notes analysis, and the talking avatar).
@@ -2413,3 +2682,270 @@ export function useGetCitizenxExperiment<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Superadmin-only (Task #92). Lists profile claims with claimant and profile details, newest first, optionally filtered by status.
+
+ * @summary List profile-ownership claims
+ */
+export const getListAdminClaimsUrl = (params?: ListAdminClaimsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/admin/claims?${stringifiedParams}`
+    : `/api/admin/claims`;
+};
+
+export const listAdminClaims = async (
+  params?: ListAdminClaimsParams,
+  options?: RequestInit,
+): Promise<AdminClaimList> => {
+  return customFetch<AdminClaimList>(getListAdminClaimsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListAdminClaimsQueryKey = (params?: ListAdminClaimsParams) => {
+  return [`/api/admin/claims`, ...(params ? [params] : [])] as const;
+};
+
+export const getListAdminClaimsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAdminClaims>>,
+  TError = ErrorType<Error>,
+>(
+  params?: ListAdminClaimsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAdminClaims>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListAdminClaimsQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminClaims>>> = ({
+    signal,
+  }) => listAdminClaims(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAdminClaims>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListAdminClaimsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAdminClaims>>
+>;
+export type ListAdminClaimsQueryError = ErrorType<Error>;
+
+/**
+ * @summary List profile-ownership claims
+ */
+
+export function useListAdminClaims<
+  TData = Awaited<ReturnType<typeof listAdminClaims>>,
+  TError = ErrorType<Error>,
+>(
+  params?: ListAdminClaimsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAdminClaims>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListAdminClaimsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Superadmin-only (Task #92). Approves the claim, sets the profile's owner (granting a Verified badge + edit rights), and denies any other pending claims on the same profile.
+
+ * @summary Approve a profile claim
+ */
+export const getApproveClaimUrl = (id: string) => {
+  return `/api/admin/claims/${id}/approve`;
+};
+
+export const approveClaim = async (
+  id: string,
+  options?: RequestInit,
+): Promise<AdminClaim> => {
+  return customFetch<AdminClaim>(getApproveClaimUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getApproveClaimMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof approveClaim>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof approveClaim>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["approveClaim"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof approveClaim>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return approveClaim(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ApproveClaimMutationResult = NonNullable<
+  Awaited<ReturnType<typeof approveClaim>>
+>;
+
+export type ApproveClaimMutationError = ErrorType<Error>;
+
+/**
+ * @summary Approve a profile claim
+ */
+export const useApproveClaim = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof approveClaim>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof approveClaim>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getApproveClaimMutationOptions(options));
+};
+
+/**
+ * Superadmin-only (Task
+ * @summary Deny a profile claim
+ */
+export const getDenyClaimUrl = (id: string) => {
+  return `/api/admin/claims/${id}/deny`;
+};
+
+export const denyClaim = async (
+  id: string,
+  options?: RequestInit,
+): Promise<AdminClaim> => {
+  return customFetch<AdminClaim>(getDenyClaimUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getDenyClaimMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof denyClaim>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof denyClaim>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["denyClaim"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof denyClaim>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return denyClaim(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DenyClaimMutationResult = NonNullable<
+  Awaited<ReturnType<typeof denyClaim>>
+>;
+
+export type DenyClaimMutationError = ErrorType<Error>;
+
+/**
+ * @summary Deny a profile claim
+ */
+export const useDenyClaim = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof denyClaim>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof denyClaim>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDenyClaimMutationOptions(options));
+};

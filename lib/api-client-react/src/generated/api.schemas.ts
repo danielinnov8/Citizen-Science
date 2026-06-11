@@ -122,6 +122,81 @@ export interface FeaturedProfile {
   legacy: string[];
   didYouKnow: string[];
   storyTheme: ProfileStoryTheme | null;
+  /** Whether this profile has an approved owner (Task #92). True once a superadmin approves a user's claim; drives the "Verified" badge.
+   */
+  verified: boolean;
+}
+
+export type ProfileClaimStatus =
+  (typeof ProfileClaimStatus)[keyof typeof ProfileClaimStatus];
+
+export const ProfileClaimStatus = {
+  pending: "pending",
+  approved: "approved",
+  denied: "denied",
+} as const;
+
+export interface ProfileClaimState {
+  id: string;
+  status: ProfileClaimStatus;
+  email: string;
+  createdAt: string;
+  /** @nullable */
+  reviewedAt: string | null;
+}
+
+/**
+ * The current user's claim relationship to a profile (Task
+ */
+export interface MyProfileClaimStatus {
+  /** Whether this profile is a living innovator and can be claimed. */
+  claimable: boolean;
+  /** Whether the current user is the approved owner of this profile. */
+  isOwner: boolean;
+  /** The current user's account email (used to submit a claim). */
+  email: string;
+  /** The current user's own claim for this profile, if any. */
+  claim: ProfileClaimState | null;
+}
+
+export interface AdminClaim {
+  id: string;
+  status: ProfileClaimStatus;
+  /** The account email the claim was submitted with. */
+  email: string;
+  profileSlug: string;
+  profileName: string;
+  claimantId: string;
+  /** @nullable */
+  claimantName: string | null;
+  claimantEmail: string;
+  createdAt: string;
+  /** @nullable */
+  reviewedAt: string | null;
+}
+
+export interface AdminClaimList {
+  claims: AdminClaim[];
+  total: number;
+}
+
+/**
+ * Owner-editable profile fields (Task #92). All optional; only provided fields are updated.
+
+ */
+export interface UpdateProfileInput {
+  summary?: string;
+  /** @nullable */
+  tagline?: string | null;
+  field?: string;
+  era?: string;
+  /** @nullable */
+  birthplace?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
+  biography?: string[];
+  contributions?: string[];
+  quotes?: string[];
 }
 
 export interface CreditBalance {
@@ -448,4 +523,8 @@ export type ListAdminUsersParams = {
    * @maximum 100
    */
   pageSize?: number;
+};
+
+export type ListAdminClaimsParams = {
+  status?: ProfileClaimStatus;
 };

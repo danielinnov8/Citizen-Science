@@ -2,6 +2,7 @@ export * from "./users";
 export * from "./sessions";
 export * from "./oauthStates";
 export * from "./featuredProfiles";
+export * from "./profileClaims";
 export * from "./copilotUsage";
 export * from "./credits";
 export * from "./citizenx";

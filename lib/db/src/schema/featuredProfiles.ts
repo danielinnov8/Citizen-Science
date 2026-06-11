@@ -1,4 +1,5 @@
 import { pgTable, uuid, text, jsonb, timestamp } from "drizzle-orm/pg-core";
+import { usersTable } from "./users";
 
 export interface ProfileSource {
   title: string;
@@ -92,6 +93,12 @@ export const featuredProfilesTable = pgTable("featured_profiles", {
   legacy: jsonb("legacy").$type<string[]>().notNull().default([]),
   didYouKnow: jsonb("did_you_know").$type<string[]>().notNull().default([]),
   storyTheme: jsonb("story_theme").$type<ProfileStoryTheme | null>(),
+  // The approved owner of this profile (Task #92). Set when a superadmin
+  // approves a user's claim; a "Verified" badge and edit rights are derived
+  // from it (verified === ownerUserId !== null). Null for unclaimed profiles.
+  ownerUserId: uuid("owner_user_id").references(() => usersTable.id, {
+    onDelete: "set null",
+  }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

@@ -158,6 +158,148 @@ export const GetFeaturedProfileResponse = zod.object({
     }),
     zod.null(),
   ]),
+  verified: zod
+    .boolean()
+    .describe(
+      'Whether this profile has an approved owner (Task #92). True once a superadmin approves a user\'s claim; drives the \"Verified\" badge.\n',
+    ),
+});
+
+/**
+ * Owner-only (Task #92). Updates a sensible subset of the profile's editable content. The caller must be the profile's approved owner; any other authenticated user gets a 403. Only the provided fields change.
+
+ * @summary Edit a profile you own
+ */
+export const UpdateMyProfileParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const UpdateMyProfileBody = zod
+  .object({
+    summary: zod.string().optional(),
+    tagline: zod.string().nullish(),
+    field: zod.string().optional(),
+    era: zod.string().optional(),
+    birthplace: zod.string().nullish(),
+    imageUrl: zod.string().nullish(),
+    biography: zod.array(zod.string()).optional(),
+    contributions: zod.array(zod.string()).optional(),
+    quotes: zod.array(zod.string()).optional(),
+  })
+  .describe(
+    "Owner-editable profile fields (Task #92). All optional; only provided fields are updated.\n",
+  );
+
+export const UpdateMyProfileResponse = zod.object({
+  id: zod.string(),
+  slug: zod.string(),
+  name: zod.string(),
+  group: zod.enum(["scientist", "inventor", "thought_leader"]),
+  field: zod.string(),
+  era: zod.string(),
+  summary: zod.string(),
+  contributions: zod.array(zod.string()),
+  quotes: zod.array(zod.string()),
+  imageUrl: zod.string().nullable(),
+  relatedCategorySlugs: zod.array(zod.string()),
+  sources: zod.array(
+    zod.object({
+      title: zod.string(),
+      url: zod.string(),
+    }),
+  ),
+  patents: zod.array(
+    zod.object({
+      title: zod.string(),
+      number: zod.string(),
+      year: zod.string().optional(),
+      url: zod.string(),
+    }),
+  ),
+  tagline: zod.string().nullable(),
+  lifespan: zod.string().nullable(),
+  birthplace: zod.string().nullable(),
+  biography: zod.array(zod.string()),
+  timeline: zod.array(
+    zod.object({
+      year: zod.string(),
+      title: zod.string(),
+      detail: zod.string(),
+    }),
+  ),
+  storyContributions: zod.array(
+    zod.object({
+      title: zod.string(),
+      detail: zod.string(),
+    }),
+  ),
+  legacy: zod.array(zod.string()),
+  didYouKnow: zod.array(zod.string()),
+  storyTheme: zod.union([
+    zod.object({
+      accent: zod.string(),
+      accentSoft: zod.string(),
+      accentDeep: zod.string(),
+      heroFrom: zod.string(),
+      heroTo: zod.string(),
+      motif: zod.string(),
+      heroVariant: zod.string().optional(),
+    }),
+    zod.null(),
+  ]),
+  verified: zod
+    .boolean()
+    .describe(
+      'Whether this profile has an approved owner (Task #92). True once a superadmin approves a user\'s claim; drives the \"Verified\" badge.\n',
+    ),
+});
+
+/**
+ * Login-gated (Task #92). Returns whether the profile is claimable (living innovator), whether the caller already owns it, and the status of the caller's own claim, if any.
+
+ * @summary Get the current user's claim status for a profile
+ */
+export const GetMyProfileClaimParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetMyProfileClaimResponse = zod
+  .object({
+    claimable: zod
+      .boolean()
+      .describe(
+        "Whether this profile is a living innovator and can be claimed.",
+      ),
+    isOwner: zod
+      .boolean()
+      .describe(
+        "Whether the current user is the approved owner of this profile.",
+      ),
+    email: zod
+      .string()
+      .describe("The current user's account email (used to submit a claim)."),
+    claim: zod
+      .union([
+        zod.object({
+          id: zod.string(),
+          status: zod.enum(["pending", "approved", "denied"]),
+          email: zod.string(),
+          createdAt: zod.coerce.date(),
+          reviewedAt: zod.coerce.date().nullable(),
+        }),
+        zod.null(),
+      ])
+      .describe("The current user's own claim for this profile, if any."),
+  })
+  .describe("The current user's claim relationship to a profile (Task");
+
+/**
+ * Login-gated (Task #92). Submits a claim to own this profile using the caller's own account email. Rejected when the profile is not a living innovator, is already owned, or the caller already has a pending/approved claim.
+
+ * @summary Submit a claim for a living innovator's profile
+ */
+export const ClaimProfileParams = zod.object({
+  slug: zod.coerce.string(),
 });
 
 /**
@@ -707,4 +849,80 @@ export const GetCitizenxExperimentResponse = zod.object({
   ),
   status: zod.enum(["published"]),
   createdAt: zod.coerce.date(),
+});
+
+/**
+ * Superadmin-only (Task #92). Lists profile claims with claimant and profile details, newest first, optionally filtered by status.
+
+ * @summary List profile-ownership claims
+ */
+export const ListAdminClaimsQueryParams = zod.object({
+  status: zod.enum(["pending", "approved", "denied"]).optional(),
+});
+
+export const ListAdminClaimsResponse = zod.object({
+  claims: zod.array(
+    zod.object({
+      id: zod.string(),
+      status: zod.enum(["pending", "approved", "denied"]),
+      email: zod
+        .string()
+        .describe("The account email the claim was submitted with."),
+      profileSlug: zod.string(),
+      profileName: zod.string(),
+      claimantId: zod.string(),
+      claimantName: zod.string().nullable(),
+      claimantEmail: zod.string(),
+      createdAt: zod.coerce.date(),
+      reviewedAt: zod.coerce.date().nullable(),
+    }),
+  ),
+  total: zod.number(),
+});
+
+/**
+ * Superadmin-only (Task #92). Approves the claim, sets the profile's owner (granting a Verified badge + edit rights), and denies any other pending claims on the same profile.
+
+ * @summary Approve a profile claim
+ */
+export const ApproveClaimParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ApproveClaimResponse = zod.object({
+  id: zod.string(),
+  status: zod.enum(["pending", "approved", "denied"]),
+  email: zod
+    .string()
+    .describe("The account email the claim was submitted with."),
+  profileSlug: zod.string(),
+  profileName: zod.string(),
+  claimantId: zod.string(),
+  claimantName: zod.string().nullable(),
+  claimantEmail: zod.string(),
+  createdAt: zod.coerce.date(),
+  reviewedAt: zod.coerce.date().nullable(),
+});
+
+/**
+ * Superadmin-only (Task
+ * @summary Deny a profile claim
+ */
+export const DenyClaimParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const DenyClaimResponse = zod.object({
+  id: zod.string(),
+  status: zod.enum(["pending", "approved", "denied"]),
+  email: zod
+    .string()
+    .describe("The account email the claim was submitted with."),
+  profileSlug: zod.string(),
+  profileName: zod.string(),
+  claimantId: zod.string(),
+  claimantName: zod.string().nullable(),
+  claimantEmail: zod.string(),
+  createdAt: zod.coerce.date(),
+  reviewedAt: zod.coerce.date().nullable(),
 });

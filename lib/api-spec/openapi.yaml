@@ -194,6 +194,131 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+    patch:
+      operationId: updateMyProfile
+      tags: [profiles]
+      summary: Edit a profile you own
+      description: >
+        Owner-only (Task #92). Updates a sensible subset of the profile's
+        editable content. The caller must be the profile's approved owner; any
+        other authenticated user gets a 403. Only the provided fields change.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileInput"
+      responses:
+        "200":
+          description: The updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeaturedProfile"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not the owner of this profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /profiles/{slug}/claim:
+    get:
+      operationId: getMyProfileClaim
+      tags: [profiles]
+      summary: Get the current user's claim status for a profile
+      description: >
+        Login-gated (Task #92). Returns whether the profile is claimable (living
+        innovator), whether the caller already owns it, and the status of the
+        caller's own claim, if any.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The caller's claim status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyProfileClaimStatus"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: claimProfile
+      tags: [profiles]
+      summary: Submit a claim for a living innovator's profile
+      description: >
+        Login-gated (Task #92). Submits a claim to own this profile using the
+        caller's own account email. Rejected when the profile is not a living
+        innovator, is already owned, or the caller already has a pending/approved
+        claim.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: The submitted claim status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyProfileClaimStatus"
+        "400":
+          description: Profile is not claimable (not a living innovator)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Profile not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Already owned, or a claim already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /billing/credits:
     get:
       operationId: getCreditBalance
@@ -666,6 +791,98 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /admin/claims:
+    get:
+      operationId: listAdminClaims
+      tags: [admin]
+      summary: List profile-ownership claims
+      description: >
+        Superadmin-only (Task #92). Lists profile claims with claimant and
+        profile details, newest first, optionally filtered by status.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ProfileClaimStatus"
+      responses:
+        "200":
+          description: The claims list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminClaimList"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/claims/{id}/approve:
+    post:
+      operationId: approveClaim
+      tags: [admin]
+      summary: Approve a profile claim
+      description: >
+        Superadmin-only (Task #92). Approves the claim, sets the profile's owner
+        (granting a Verified badge + edit rights), and denies any other pending
+        claims on the same profile.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The updated claim
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminClaim"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Claim not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/claims/{id}/deny:
+    post:
+      operationId: denyClaim
+      tags: [admin]
+      summary: Deny a profile claim
+      description: Superadmin-only (Task #92). Marks the claim as denied.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The updated claim
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminClaim"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Claim not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     HealthStatus:
@@ -909,6 +1126,11 @@ components:
           anyOf:
             - $ref: "#/components/schemas/ProfileStoryTheme"
             - type: "null"
+        verified:
+          type: boolean
+          description: >
+            Whether this profile has an approved owner (Task #92). True once a
+            superadmin approves a user's claim; drives the "Verified" badge.
       required:
         - id
         - slug
@@ -932,6 +1154,136 @@ components:
         - legacy
         - didYouKnow
         - storyTheme
+        - verified
+    ProfileClaimStatus:
+      type: string
+      enum:
+        - pending
+        - approved
+        - denied
+    MyProfileClaimStatus:
+      type: object
+      description: The current user's claim relationship to a profile (Task #92).
+      properties:
+        claimable:
+          type: boolean
+          description: Whether this profile is a living innovator and can be claimed.
+        isOwner:
+          type: boolean
+          description: Whether the current user is the approved owner of this profile.
+        email:
+          type: string
+          description: The current user's account email (used to submit a claim).
+        claim:
+          anyOf:
+            - $ref: "#/components/schemas/ProfileClaimState"
+            - type: "null"
+          description: The current user's own claim for this profile, if any.
+      required:
+        - claimable
+        - isOwner
+        - email
+        - claim
+    ProfileClaimState:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: "#/components/schemas/ProfileClaimStatus"
+        email:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: ["string", "null"]
+          format: date-time
+      required:
+        - id
+        - status
+        - email
+        - createdAt
+        - reviewedAt
+    AdminClaim:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: "#/components/schemas/ProfileClaimStatus"
+        email:
+          type: string
+          description: The account email the claim was submitted with.
+        profileSlug:
+          type: string
+        profileName:
+          type: string
+        claimantId:
+          type: string
+        claimantName:
+          type: ["string", "null"]
+        claimantEmail:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: ["string", "null"]
+          format: date-time
+      required:
+        - id
+        - status
+        - email
+        - profileSlug
+        - profileName
+        - claimantId
+        - claimantName
+        - claimantEmail
+        - createdAt
+        - reviewedAt
+    AdminClaimList:
+      type: object
+      properties:
+        claims:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminClaim"
+        total:
+          type: integer
+      required:
+        - claims
+        - total
+    UpdateProfileInput:
+      type: object
+      description: >
+        Owner-editable profile fields (Task #92). All optional; only provided
+        fields are updated.
+      properties:
+        summary:
+          type: string
+        tagline:
+          type: ["string", "null"]
+        field:
+          type: string
+        era:
+          type: string
+        birthplace:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        biography:
+          type: array
+          items:
+            type: string
+        contributions:
+          type: array
+          items:
+            type: string
+        quotes:
+          type: array
+          items:
+            type: string
     CreditBalance:
       type: object
       properties:

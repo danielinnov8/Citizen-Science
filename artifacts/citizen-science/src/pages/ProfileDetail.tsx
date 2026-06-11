@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Link, useParams } from "wouter";
 import {
   ChevronRight,
@@ -10,32 +9,18 @@ import {
   Beaker,
   AlertCircle,
   FileText,
-  BadgeCheck,
-  ShieldCheck,
 } from "lucide-react";
 import { useGetFeaturedProfile } from "@workspace/api-client-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { storage } from "@/lib/storage";
 import { CATEGORIES } from "@/lib/categories";
 import { selectFootstepExperiments } from "@/lib/experiments";
 import { getGreatMindStory, buildStoryFromProfile } from "@/lib/greatMinds";
 import { GreatMindStory } from "@/components/GreatMindStory";
 import { getLivingMindStory } from "@/lib/livingMinds";
 import { LivingMindStory } from "@/components/LivingMindStory";
+import { ProfileOwnership } from "@/components/ProfileOwnership";
 
 const GROUP_LABELS: Record<string, string> = {
   scientist: "Scientist",
@@ -69,48 +54,32 @@ export function ProfileDetail() {
   const { data: profile, isLoading, isError, error } = useGetFeaturedProfile(
     slug ?? "",
   );
-  const { toast } = useToast();
-
-  const [claimOpen, setClaimOpen] = useState(false);
-  const [claimed, setClaimed] = useState(() =>
-    slug ? storage.isProfileClaimed(slug) : false,
-  );
-
-  useEffect(() => {
-    setClaimed(slug ? storage.isProfileClaimed(slug) : false);
-  }, [slug]);
-
-  const [claimName, setClaimName] = useState("");
-  const [claimEmail, setClaimEmail] = useState("");
-  const [claimNote, setClaimNote] = useState("");
-
-  const submitClaim = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!slug) return;
-    storage.claimProfile(slug);
-    setClaimed(true);
-    setClaimOpen(false);
-    setClaimName("");
-    setClaimEmail("");
-    setClaimNote("");
-    toast({
-      title: "Claim submitted",
-      description:
-        "Thanks — our team will review your request and verify your identity by email.",
-    });
-  };
 
   const notFound =
     isError &&
     (error as { status?: number } | undefined)?.status === 404;
 
+  // The ownership affordance (claim / pending / verified+edit) is layout
+  // agnostic — it renders as a fixed overlay alongside whichever layout we pick,
+  // so it works across all four. Only available once the DB row has loaded.
+  const ownership = profile ? <ProfileOwnership profile={profile} /> : null;
+
+  // When a profile has a verified owner, their DB-stored content is
+  // authoritative — skip the hand-authored stories so owner edits are visible.
+  const owned = profile?.verified ?? false;
+
   // Historical "great minds" get the cinematic, story-driven layout. The
   // hand-authored content is decoupled from the DB, so this renders regardless
   // of DB state and simply enriches with the profile row (related categories,
   // sources, patents) once it loads.
-  const story = getGreatMindStory(slug);
+  const story = owned ? undefined : getGreatMindStory(slug);
   if (story) {
-    return <GreatMindStory story={story} profile={profile ?? undefined} />;
+    return (
+      <>
+        <GreatMindStory story={story} profile={profile ?? undefined} />
+        {ownership}
+      </>
+    );
   }
 
   // Living scientists & inventors get a parallel cinematic layout tuned for
@@ -118,22 +87,31 @@ export function ProfileDetail() {
   // historical stories, the authored content is decoupled from the DB and
   // simply enriches with the profile row once it loads. Figures without
   // authored content fall through to the DB-built / plain layout below.
-  const livingStory = getLivingMindStory(slug);
+  const livingStory = owned ? undefined : getLivingMindStory(slug);
   if (livingStory) {
     return (
-      <LivingMindStory story={livingStory} profile={profile ?? undefined} />
+      <>
+        <LivingMindStory story={livingStory} profile={profile ?? undefined} />
+        {ownership}
+      </>
     );
   }
 
   // No hand-authored story → if the DB row carries rich story content
   // (biography, timeline, …), build the same cinematic layout from it. This is
   // how the cinematic treatment scales to the rest of the historical directory
-  // without hand-writing every page. Lightly-seeded / living profiles return
-  // null here and fall through to the standard layout below.
+  // without hand-writing every page (and how an owner's edits surface).
+  // Lightly-seeded / living profiles return null here and fall through to the
+  // standard layout below.
   if (profile) {
     const dbStory = buildStoryFromProfile(profile);
     if (dbStory) {
-      return <GreatMindStory story={dbStory} profile={profile} />;
+      return (
+        <>
+          <GreatMindStory story={dbStory} profile={profile} />
+          {ownership}
+        </>
+      );
     }
   }
 
@@ -249,28 +227,6 @@ export function ProfileDetail() {
                 Era
               </div>
               <div className="text-[#0F172A] font-medium">{profile.era}</div>
-
-              <div className="mt-5 pt-5 border-t border-[#E2E8F0]">
-                {claimed ? (
-                  <div className="flex items-center gap-2 rounded-xl bg-green-50 border border-green-100 px-3 py-2.5 text-sm font-medium text-green-700">
-                    <BadgeCheck className="h-4 w-4 flex-shrink-0" />
-                    Claim pending review
-                  </div>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setClaimOpen(true)}
-                  >
-                    <ShieldCheck className="h-4 w-4" />
-                    Claim this profile
-                  </Button>
-                )}
-                <p className="mt-2 text-xs text-[#94A3B8] leading-relaxed">
-                  Are you {profile.name} or a representative? Claim this profile
-                  to keep it accurate.
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -458,70 +414,7 @@ export function ProfileDetail() {
           </div>
         </div>
       </div>
-
-      <Dialog open={claimOpen} onOpenChange={setClaimOpen}>
-        <DialogContent>
-          <form onSubmit={submitClaim}>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-[#2563EB]" />
-                Claim {profile.name}
-              </DialogTitle>
-              <DialogDescription>
-                Tell us who you are. We&apos;ll verify your identity by email
-                before granting access to manage this profile.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="claim-name">Your full name</Label>
-                <Input
-                  id="claim-name"
-                  value={claimName}
-                  onChange={(e) => setClaimName(e.target.value)}
-                  placeholder="Jane Doe"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="claim-email">Email</Label>
-                <Input
-                  id="claim-email"
-                  type="email"
-                  value={claimEmail}
-                  onChange={(e) => setClaimEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="claim-note">
-                  How are you connected to this profile?
-                </Label>
-                <Textarea
-                  id="claim-note"
-                  value={claimNote}
-                  onChange={(e) => setClaimNote(e.target.value)}
-                  placeholder="I am this person / I represent them / link to verification…"
-                  rows={3}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setClaimOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="ink">
-                Submit claim
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      {ownership}
     </div>
   );
 }
