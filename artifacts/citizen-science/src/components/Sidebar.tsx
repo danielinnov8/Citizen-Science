@@ -15,6 +15,7 @@ import {
   FlaskConical,
   NotebookPen,
   Shield,
+  Globe2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
@@ -63,6 +64,12 @@ const NAV_GROUPS: NavGroup[] = [
       { icon: Compass, label: "Categories", href: "/categories", public: false },
       { icon: Beaker, label: "Experiments", href: "/experiments", public: false },
       { icon: Users, label: "Directory", href: "/directory", public: true },
+    ],
+  },
+  {
+    label: "Community",
+    items: [
+      { icon: Globe2, label: "CitizenX", href: "/citizenx", public: true },
     ],
   },
   {

@@ -6,6 +6,7 @@ import profilesRouter from "./profiles";
 import avatarRouter from "./avatar";
 import billingRouter from "./billing";
 import adminRouter from "./admin";
+import citizenxRouter from "./citizenx";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(profilesRouter);
 router.use(avatarRouter);
 router.use(billingRouter);
 router.use(adminRouter);
+router.use(citizenxRouter);
 
 export default router;

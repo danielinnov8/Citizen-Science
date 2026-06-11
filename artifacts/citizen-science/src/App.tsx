@@ -32,6 +32,13 @@ import PreExisting from "@/pages/PreExisting";
 import { Xprize } from "@/pages/Xprize";
 import { Admin } from "@/pages/Admin";
 import { Architecture } from "@/pages/Architecture";
+import { CitizenX } from "@/pages/CitizenX";
+import { CitizenXOrganize } from "@/pages/CitizenXOrganize";
+import { CitizenXHost } from "@/pages/CitizenXHost";
+import { CitizenXEventDetail } from "@/pages/CitizenXEventDetail";
+import { CitizenXPublish } from "@/pages/CitizenXPublish";
+import { CitizenXExperiments } from "@/pages/CitizenXExperiments";
+import { CitizenXExperimentDetail } from "@/pages/CitizenXExperimentDetail";
 
 import { AppShell } from "@/components/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -66,6 +73,29 @@ function Router() {
       <Route path="/pre-existing" component={PreExisting} />
       <Route path="/architecture" component={Architecture} />
       {import.meta.env.DEV && <Route path="/xprize" component={Xprize} />}
+
+      {/* CitizenX program */}
+      <Route path="/citizenx">
+        <AppShell><CitizenX /></AppShell>
+      </Route>
+      <Route path="/citizenx/experiments">
+        <AppShell><CitizenXExperiments /></AppShell>
+      </Route>
+      <Route path="/citizenx/experiments/:slug">
+        <AppShell><CitizenXExperimentDetail /></AppShell>
+      </Route>
+      <Route path="/citizenx/events/:slug">
+        <AppShell><CitizenXEventDetail /></AppShell>
+      </Route>
+      <Route path="/citizenx/organize">
+        <ProtectedRoute><AppShell><CitizenXOrganize /></AppShell></ProtectedRoute>
+      </Route>
+      <Route path="/citizenx/host">
+        <ProtectedRoute><AppShell><CitizenXHost /></AppShell></ProtectedRoute>
+      </Route>
+      <Route path="/citizenx/publish">
+        <ProtectedRoute><AppShell><CitizenXPublish /></AppShell></ProtectedRoute>
+      </Route>
       
       {/* Protected Routes */}
       <Route path="/onboarding">

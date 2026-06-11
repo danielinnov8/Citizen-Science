@@ -36,6 +36,13 @@
       "when": 1781198551628,
       "tag": "0004_reconcile_users_plan",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1781199626246,
+      "tag": "0005_normal_miracleman",
+      "breakpoints": true
     }
   ]
 }

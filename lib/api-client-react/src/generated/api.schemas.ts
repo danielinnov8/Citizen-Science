@@ -272,6 +272,171 @@ export interface AdminSystem {
   liveAvatarSessions: number;
 }
 
+export type CitizenxChapterStatus =
+  (typeof CitizenxChapterStatus)[keyof typeof CitizenxChapterStatus];
+
+export const CitizenxChapterStatus = {
+  pending: "pending",
+  active: "active",
+} as const;
+
+export interface CitizenxChapter {
+  id: string;
+  organizerName: string;
+  slug: string;
+  name: string;
+  location: string;
+  focus: string;
+  description: string;
+  status: CitizenxChapterStatus;
+  createdAt: string;
+}
+
+export interface CitizenxChapterInput {
+  /**
+   * @minLength 2
+   * @maxLength 120
+   */
+  name: string;
+  /**
+   * @minLength 2
+   * @maxLength 120
+   */
+  location: string;
+  /**
+   * @minLength 2
+   * @maxLength 160
+   */
+  focus: string;
+  /**
+   * @minLength 20
+   * @maxLength 2000
+   */
+  description: string;
+}
+
+export type CitizenxEventStatus =
+  (typeof CitizenxEventStatus)[keyof typeof CitizenxEventStatus];
+
+export const CitizenxEventStatus = {
+  upcoming: "upcoming",
+} as const;
+
+export interface CitizenxEvent {
+  id: string;
+  organizerName: string;
+  /** @nullable */
+  chapterId: string | null;
+  slug: string;
+  title: string;
+  description: string;
+  location: string;
+  startsAt: string;
+  status: CitizenxEventStatus;
+  createdAt: string;
+}
+
+export interface CitizenxEventInput {
+  /**
+   * @minLength 2
+   * @maxLength 160
+   */
+  title: string;
+  /**
+   * @minLength 10
+   * @maxLength 2000
+   */
+  description: string;
+  /**
+   * @minLength 2
+   * @maxLength 160
+   */
+  location: string;
+  startsAt: string;
+  /** @nullable */
+  chapterId?: string | null;
+}
+
+export interface CitizenxExperimentStep {
+  /**
+   * @minLength 1
+   * @maxLength 160
+   */
+  title: string;
+  /**
+   * @minLength 1
+   * @maxLength 4000
+   */
+  body: string;
+}
+
+export interface CitizenxExperimentSummary {
+  id: string;
+  authorName: string;
+  slug: string;
+  title: string;
+  summary: string;
+  /** @nullable */
+  coverImageUrl: string | null;
+  categorySlug: string;
+  createdAt: string;
+}
+
+export type CitizenxExperimentStatus =
+  (typeof CitizenxExperimentStatus)[keyof typeof CitizenxExperimentStatus];
+
+export const CitizenxExperimentStatus = {
+  published: "published",
+} as const;
+
+export interface CitizenxExperiment {
+  id: string;
+  authorName: string;
+  /** @nullable */
+  authorTagline: string | null;
+  slug: string;
+  title: string;
+  summary: string;
+  description: string;
+  /** @nullable */
+  coverImageUrl: string | null;
+  categorySlug: string;
+  steps: CitizenxExperimentStep[];
+  status: CitizenxExperimentStatus;
+  createdAt: string;
+}
+
+export interface CitizenxExperimentInput {
+  /**
+   * @minLength 2
+   * @maxLength 160
+   */
+  title: string;
+  /**
+   * @minLength 10
+   * @maxLength 280
+   */
+  summary: string;
+  /**
+   * @minLength 20
+   * @maxLength 4000
+   */
+  description: string;
+  /** @nullable */
+  coverImageUrl?: string | null;
+  /** @minLength 1 */
+  categorySlug: string;
+  /** @minItems 1 */
+  steps: CitizenxExperimentStep[];
+  /**
+   * @minLength 1
+   * @maxLength 120
+   */
+  authorName: string;
+  /** @nullable */
+  authorTagline?: string | null;
+}
+
 export type ListAdminUsersParams = {
   search?: string;
   /**

@@ -1123,6 +1123,7 @@ export function Landing() {
             <a href="#participate" className="transition-colors hover:text-white">Participate</a>
             <a href="#impact" className="transition-colors hover:text-white">Impact</a>
             <a href="#community" className="transition-colors hover:text-white">Community</a>
+            <Link href="/citizenx" className="transition-colors hover:text-white">CitizenX</Link>
             <Link href="/pricing" className="transition-colors hover:text-white">Pricing</Link>
           </nav>
           <div className="flex items-center gap-4">
@@ -1548,6 +1549,55 @@ export function Landing() {
           </div>
         </section>
 
+        {/* CITIZENX — THE MOVEMENT */}
+        <section className="relative overflow-hidden bg-[#0B1120] py-32 text-white lg:py-40">
+          <div className="pointer-events-none absolute inset-0 opacity-70">
+            <div className="absolute -left-40 top-10 h-96 w-96 rounded-full bg-blue-600/20 blur-3xl" />
+            <div className="absolute right-0 bottom-0 h-96 w-96 rounded-full bg-violet-600/20 blur-3xl" />
+          </div>
+          <div className="container relative mx-auto max-w-5xl px-4 text-center lg:px-8">
+            <Reveal>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-white/70">
+                <Sparkles className="h-3.5 w-3.5 text-blue-300" />
+                CitizenX — The Discovery Movement
+              </span>
+            </Reveal>
+            <Reveal delay={0.05}>
+              <h2 className="mx-auto mt-8 max-w-4xl font-serif text-4xl font-normal leading-[1.05] tracking-tight lg:text-6xl">
+                Democratize discovery — anyone can advance human knowledge.
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="mx-auto mt-6 max-w-2xl text-lg text-white/70">
+                CitizenX is our member-run program layer. Organize a local chapter,
+                host discovery events, and publish your own experiments for the
+                world to build on.
+              </p>
+            </Reveal>
+            <Reveal delay={0.15}>
+              <div className="mx-auto mt-12 grid max-w-3xl gap-4 sm:grid-cols-3">
+                {[
+                  { title: "Organize", desc: "Start a local chapter." },
+                  { title: "Host", desc: "Run discovery events." },
+                  { title: "Publish", desc: "Share your experiments." },
+                ].map((p) => (
+                  <div key={p.title} className="rounded-2xl border border-white/10 bg-white/5 p-6 text-left">
+                    <h3 className="text-lg font-semibold">{p.title}</h3>
+                    <p className="mt-1 text-sm text-white/60">{p.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+            <Reveal delay={0.2}>
+              <Link href="/citizenx">
+                <span className="btn-metal-blue mt-12 inline-flex items-center rounded-full px-8 py-3 text-sm font-medium">
+                  Explore CitizenX <ArrowRight className="ml-2 h-4 w-4" />
+                </span>
+              </Link>
+            </Reveal>
+          </div>
+        </section>
+
         {/* PARTICIPATE — PATHWAYS */}
         <section id="participate" className="border-y border-[#E2E8F0] bg-[#F8FAFC] py-32 lg:py-40">
           <div className="container mx-auto max-w-7xl px-4 lg:px-8">
@@ -1678,6 +1728,7 @@ export function Landing() {
                   <li><Link href="/experiments" className="transition-colors hover:text-white">Experiments</Link></li>
                   <li><Link href="/notebook" className="transition-colors hover:text-white">Field Notebook</Link></li>
                   <li><Link href="/directory" className="transition-colors hover:text-white">Inventor Directory</Link></li>
+                  <li><Link href="/citizenx" className="transition-colors hover:text-white">CitizenX</Link></li>
                   <li><Link href="/progress" className="transition-colors hover:text-white">Your Progress</Link></li>
                 </ul>
               </div>

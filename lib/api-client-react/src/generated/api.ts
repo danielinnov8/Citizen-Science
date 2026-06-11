@@ -25,6 +25,13 @@ import type {
   AdminUser,
   AdminUserList,
   AuthUser,
+  CitizenxChapter,
+  CitizenxChapterInput,
+  CitizenxEvent,
+  CitizenxEventInput,
+  CitizenxExperiment,
+  CitizenxExperimentInput,
+  CitizenxExperimentSummary,
   CreditBalance,
   Error,
   FeaturedProfile,
@@ -1496,6 +1503,909 @@ export function useGetAdminSystem<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetAdminSystemQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Public list of active (approved) CitizenX chapters.
+ * @summary List active CitizenX chapters
+ */
+export const getListCitizenxChaptersUrl = () => {
+  return `/api/citizenx/chapters`;
+};
+
+export const listCitizenxChapters = async (
+  options?: RequestInit,
+): Promise<CitizenxChapter[]> => {
+  return customFetch<CitizenxChapter[]>(getListCitizenxChaptersUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListCitizenxChaptersQueryKey = () => {
+  return [`/api/citizenx/chapters`] as const;
+};
+
+export const getListCitizenxChaptersQueryOptions = <
+  TData = Awaited<ReturnType<typeof listCitizenxChapters>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listCitizenxChapters>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListCitizenxChaptersQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listCitizenxChapters>>
+  > = ({ signal }) => listCitizenxChapters({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listCitizenxChapters>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListCitizenxChaptersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listCitizenxChapters>>
+>;
+export type ListCitizenxChaptersQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List active CitizenX chapters
+ */
+
+export function useListCitizenxChapters<
+  TData = Awaited<ReturnType<typeof listCitizenxChapters>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listCitizenxChapters>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListCitizenxChaptersQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Authenticated. Submits a chapter application in "pending" status.
+ * @summary Apply to organize a CitizenX chapter
+ */
+export const getApplyCitizenxChapterUrl = () => {
+  return `/api/citizenx/chapters`;
+};
+
+export const applyCitizenxChapter = async (
+  citizenxChapterInput: CitizenxChapterInput,
+  options?: RequestInit,
+): Promise<CitizenxChapter> => {
+  return customFetch<CitizenxChapter>(getApplyCitizenxChapterUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(citizenxChapterInput),
+  });
+};
+
+export const getApplyCitizenxChapterMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof applyCitizenxChapter>>,
+    TError,
+    { data: BodyType<CitizenxChapterInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof applyCitizenxChapter>>,
+  TError,
+  { data: BodyType<CitizenxChapterInput> },
+  TContext
+> => {
+  const mutationKey = ["applyCitizenxChapter"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof applyCitizenxChapter>>,
+    { data: BodyType<CitizenxChapterInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return applyCitizenxChapter(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ApplyCitizenxChapterMutationResult = NonNullable<
+  Awaited<ReturnType<typeof applyCitizenxChapter>>
+>;
+export type ApplyCitizenxChapterMutationBody = BodyType<CitizenxChapterInput>;
+export type ApplyCitizenxChapterMutationError = ErrorType<Error>;
+
+/**
+ * @summary Apply to organize a CitizenX chapter
+ */
+export const useApplyCitizenxChapter = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof applyCitizenxChapter>>,
+    TError,
+    { data: BodyType<CitizenxChapterInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof applyCitizenxChapter>>,
+  TError,
+  { data: BodyType<CitizenxChapterInput> },
+  TContext
+> => {
+  return useMutation(getApplyCitizenxChapterMutationOptions(options));
+};
+
+/**
+ * Authenticated. The caller's own chapters, including pending ones.
+ * @summary List my CitizenX chapter applications
+ */
+export const getListMyCitizenxChaptersUrl = () => {
+  return `/api/citizenx/chapters/mine`;
+};
+
+export const listMyCitizenxChapters = async (
+  options?: RequestInit,
+): Promise<CitizenxChapter[]> => {
+  return customFetch<CitizenxChapter[]>(getListMyCitizenxChaptersUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListMyCitizenxChaptersQueryKey = () => {
+  return [`/api/citizenx/chapters/mine`] as const;
+};
+
+export const getListMyCitizenxChaptersQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMyCitizenxChapters>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMyCitizenxChapters>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListMyCitizenxChaptersQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listMyCitizenxChapters>>
+  > = ({ signal }) => listMyCitizenxChapters({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMyCitizenxChapters>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMyCitizenxChaptersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMyCitizenxChapters>>
+>;
+export type ListMyCitizenxChaptersQueryError = ErrorType<Error>;
+
+/**
+ * @summary List my CitizenX chapter applications
+ */
+
+export function useListMyCitizenxChapters<
+  TData = Awaited<ReturnType<typeof listMyCitizenxChapters>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMyCitizenxChapters>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMyCitizenxChaptersQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Public list of upcoming CitizenX events, soonest first.
+ * @summary List upcoming CitizenX events
+ */
+export const getListCitizenxEventsUrl = () => {
+  return `/api/citizenx/events`;
+};
+
+export const listCitizenxEvents = async (
+  options?: RequestInit,
+): Promise<CitizenxEvent[]> => {
+  return customFetch<CitizenxEvent[]>(getListCitizenxEventsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListCitizenxEventsQueryKey = () => {
+  return [`/api/citizenx/events`] as const;
+};
+
+export const getListCitizenxEventsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listCitizenxEvents>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listCitizenxEvents>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListCitizenxEventsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listCitizenxEvents>>
+  > = ({ signal }) => listCitizenxEvents({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listCitizenxEvents>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListCitizenxEventsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listCitizenxEvents>>
+>;
+export type ListCitizenxEventsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List upcoming CitizenX events
+ */
+
+export function useListCitizenxEvents<
+  TData = Awaited<ReturnType<typeof listCitizenxEvents>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listCitizenxEvents>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListCitizenxEventsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Authenticated. Creates a publicly listed upcoming event.
+ * @summary Host a CitizenX event
+ */
+export const getCreateCitizenxEventUrl = () => {
+  return `/api/citizenx/events`;
+};
+
+export const createCitizenxEvent = async (
+  citizenxEventInput: CitizenxEventInput,
+  options?: RequestInit,
+): Promise<CitizenxEvent> => {
+  return customFetch<CitizenxEvent>(getCreateCitizenxEventUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(citizenxEventInput),
+  });
+};
+
+export const getCreateCitizenxEventMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createCitizenxEvent>>,
+    TError,
+    { data: BodyType<CitizenxEventInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createCitizenxEvent>>,
+  TError,
+  { data: BodyType<CitizenxEventInput> },
+  TContext
+> => {
+  const mutationKey = ["createCitizenxEvent"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createCitizenxEvent>>,
+    { data: BodyType<CitizenxEventInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createCitizenxEvent(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateCitizenxEventMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createCitizenxEvent>>
+>;
+export type CreateCitizenxEventMutationBody = BodyType<CitizenxEventInput>;
+export type CreateCitizenxEventMutationError = ErrorType<Error>;
+
+/**
+ * @summary Host a CitizenX event
+ */
+export const useCreateCitizenxEvent = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createCitizenxEvent>>,
+    TError,
+    { data: BodyType<CitizenxEventInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createCitizenxEvent>>,
+  TError,
+  { data: BodyType<CitizenxEventInput> },
+  TContext
+> => {
+  return useMutation(getCreateCitizenxEventMutationOptions(options));
+};
+
+/**
+ * Authenticated. Events hosted by the caller.
+ * @summary List my CitizenX events
+ */
+export const getListMyCitizenxEventsUrl = () => {
+  return `/api/citizenx/events/mine`;
+};
+
+export const listMyCitizenxEvents = async (
+  options?: RequestInit,
+): Promise<CitizenxEvent[]> => {
+  return customFetch<CitizenxEvent[]>(getListMyCitizenxEventsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListMyCitizenxEventsQueryKey = () => {
+  return [`/api/citizenx/events/mine`] as const;
+};
+
+export const getListMyCitizenxEventsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMyCitizenxEvents>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMyCitizenxEvents>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListMyCitizenxEventsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listMyCitizenxEvents>>
+  > = ({ signal }) => listMyCitizenxEvents({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMyCitizenxEvents>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMyCitizenxEventsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMyCitizenxEvents>>
+>;
+export type ListMyCitizenxEventsQueryError = ErrorType<Error>;
+
+/**
+ * @summary List my CitizenX events
+ */
+
+export function useListMyCitizenxEvents<
+  TData = Awaited<ReturnType<typeof listMyCitizenxEvents>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMyCitizenxEvents>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMyCitizenxEventsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get a CitizenX event by slug
+ */
+export const getGetCitizenxEventUrl = (slug: string) => {
+  return `/api/citizenx/events/${slug}`;
+};
+
+export const getCitizenxEvent = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<CitizenxEvent> => {
+  return customFetch<CitizenxEvent>(getGetCitizenxEventUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetCitizenxEventQueryKey = (slug: string) => {
+  return [`/api/citizenx/events/${slug}`] as const;
+};
+
+export const getGetCitizenxEventQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCitizenxEvent>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCitizenxEvent>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetCitizenxEventQueryKey(slug);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCitizenxEvent>>
+  > = ({ signal }) => getCitizenxEvent(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCitizenxEvent>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCitizenxEventQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCitizenxEvent>>
+>;
+export type GetCitizenxEventQueryError = ErrorType<Error>;
+
+/**
+ * @summary Get a CitizenX event by slug
+ */
+
+export function useGetCitizenxEvent<
+  TData = Awaited<ReturnType<typeof getCitizenxEvent>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCitizenxEvent>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCitizenxEventQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Public gallery of member-published experiments, newest first.
+ * @summary List published CitizenX experiments
+ */
+export const getListCitizenxExperimentsUrl = () => {
+  return `/api/citizenx/experiments`;
+};
+
+export const listCitizenxExperiments = async (
+  options?: RequestInit,
+): Promise<CitizenxExperimentSummary[]> => {
+  return customFetch<CitizenxExperimentSummary[]>(
+    getListCitizenxExperimentsUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListCitizenxExperimentsQueryKey = () => {
+  return [`/api/citizenx/experiments`] as const;
+};
+
+export const getListCitizenxExperimentsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listCitizenxExperiments>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listCitizenxExperiments>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListCitizenxExperimentsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listCitizenxExperiments>>
+  > = ({ signal }) => listCitizenxExperiments({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listCitizenxExperiments>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListCitizenxExperimentsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listCitizenxExperiments>>
+>;
+export type ListCitizenxExperimentsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List published CitizenX experiments
+ */
+
+export function useListCitizenxExperiments<
+  TData = Awaited<ReturnType<typeof listCitizenxExperiments>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listCitizenxExperiments>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListCitizenxExperimentsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Authenticated. Publishes a shareable experiment authored by the caller.
+ * @summary Publish a CitizenX experiment
+ */
+export const getPublishCitizenxExperimentUrl = () => {
+  return `/api/citizenx/experiments`;
+};
+
+export const publishCitizenxExperiment = async (
+  citizenxExperimentInput: CitizenxExperimentInput,
+  options?: RequestInit,
+): Promise<CitizenxExperiment> => {
+  return customFetch<CitizenxExperiment>(getPublishCitizenxExperimentUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(citizenxExperimentInput),
+  });
+};
+
+export const getPublishCitizenxExperimentMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof publishCitizenxExperiment>>,
+    TError,
+    { data: BodyType<CitizenxExperimentInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof publishCitizenxExperiment>>,
+  TError,
+  { data: BodyType<CitizenxExperimentInput> },
+  TContext
+> => {
+  const mutationKey = ["publishCitizenxExperiment"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof publishCitizenxExperiment>>,
+    { data: BodyType<CitizenxExperimentInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return publishCitizenxExperiment(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PublishCitizenxExperimentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof publishCitizenxExperiment>>
+>;
+export type PublishCitizenxExperimentMutationBody =
+  BodyType<CitizenxExperimentInput>;
+export type PublishCitizenxExperimentMutationError = ErrorType<Error>;
+
+/**
+ * @summary Publish a CitizenX experiment
+ */
+export const usePublishCitizenxExperiment = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof publishCitizenxExperiment>>,
+    TError,
+    { data: BodyType<CitizenxExperimentInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof publishCitizenxExperiment>>,
+  TError,
+  { data: BodyType<CitizenxExperimentInput> },
+  TContext
+> => {
+  return useMutation(getPublishCitizenxExperimentMutationOptions(options));
+};
+
+/**
+ * Authenticated. Experiments published by the caller.
+ * @summary List my published CitizenX experiments
+ */
+export const getListMyCitizenxExperimentsUrl = () => {
+  return `/api/citizenx/experiments/mine`;
+};
+
+export const listMyCitizenxExperiments = async (
+  options?: RequestInit,
+): Promise<CitizenxExperimentSummary[]> => {
+  return customFetch<CitizenxExperimentSummary[]>(
+    getListMyCitizenxExperimentsUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListMyCitizenxExperimentsQueryKey = () => {
+  return [`/api/citizenx/experiments/mine`] as const;
+};
+
+export const getListMyCitizenxExperimentsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMyCitizenxExperiments>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMyCitizenxExperiments>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListMyCitizenxExperimentsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listMyCitizenxExperiments>>
+  > = ({ signal }) => listMyCitizenxExperiments({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMyCitizenxExperiments>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMyCitizenxExperimentsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMyCitizenxExperiments>>
+>;
+export type ListMyCitizenxExperimentsQueryError = ErrorType<Error>;
+
+/**
+ * @summary List my published CitizenX experiments
+ */
+
+export function useListMyCitizenxExperiments<
+  TData = Awaited<ReturnType<typeof listMyCitizenxExperiments>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMyCitizenxExperiments>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMyCitizenxExperimentsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get a published CitizenX experiment by slug
+ */
+export const getGetCitizenxExperimentUrl = (slug: string) => {
+  return `/api/citizenx/experiments/${slug}`;
+};
+
+export const getCitizenxExperiment = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<CitizenxExperiment> => {
+  return customFetch<CitizenxExperiment>(getGetCitizenxExperimentUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetCitizenxExperimentQueryKey = (slug: string) => {
+  return [`/api/citizenx/experiments/${slug}`] as const;
+};
+
+export const getGetCitizenxExperimentQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCitizenxExperiment>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCitizenxExperiment>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetCitizenxExperimentQueryKey(slug);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCitizenxExperiment>>
+  > = ({ signal }) =>
+    getCitizenxExperiment(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCitizenxExperiment>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCitizenxExperimentQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCitizenxExperiment>>
+>;
+export type GetCitizenxExperimentQueryError = ErrorType<Error>;
+
+/**
+ * @summary Get a published CitizenX experiment by slug
+ */
+
+export function useGetCitizenxExperiment<
+  TData = Awaited<ReturnType<typeof getCitizenxExperiment>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCitizenxExperiment>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCitizenxExperimentQueryOptions(slug, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

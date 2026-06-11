@@ -18,6 +18,8 @@ tags:
     description: Credit balance and usage-based billing
   - name: admin
     description: Superadmin platform administration
+  - name: citizenx
+    description: CitizenX community program — chapters, events, and published experiments
 paths:
   /healthz:
     get:
@@ -414,6 +416,252 @@ paths:
                 $ref: "#/components/schemas/AdminSystem"
         "403":
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /citizenx/chapters:
+    get:
+      operationId: listCitizenxChapters
+      tags: [citizenx]
+      summary: List active CitizenX chapters
+      description: Public list of active (approved) CitizenX chapters.
+      responses:
+        "200":
+          description: Active chapters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CitizenxChapter"
+    post:
+      operationId: applyCitizenxChapter
+      tags: [citizenx]
+      summary: Apply to organize a CitizenX chapter
+      description: Authenticated. Submits a chapter application in "pending" status.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CitizenxChapterInput"
+      responses:
+        "201":
+          description: Application submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CitizenxChapter"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /citizenx/chapters/mine:
+    get:
+      operationId: listMyCitizenxChapters
+      tags: [citizenx]
+      summary: List my CitizenX chapter applications
+      description: Authenticated. The caller's own chapters, including pending ones.
+      responses:
+        "200":
+          description: The caller's chapters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CitizenxChapter"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /citizenx/events:
+    get:
+      operationId: listCitizenxEvents
+      tags: [citizenx]
+      summary: List upcoming CitizenX events
+      description: Public list of upcoming CitizenX events, soonest first.
+      responses:
+        "200":
+          description: Upcoming events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CitizenxEvent"
+    post:
+      operationId: createCitizenxEvent
+      tags: [citizenx]
+      summary: Host a CitizenX event
+      description: Authenticated. Creates a publicly listed upcoming event.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CitizenxEventInput"
+      responses:
+        "201":
+          description: Event created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CitizenxEvent"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /citizenx/events/mine:
+    get:
+      operationId: listMyCitizenxEvents
+      tags: [citizenx]
+      summary: List my CitizenX events
+      description: Authenticated. Events hosted by the caller.
+      responses:
+        "200":
+          description: The caller's events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CitizenxEvent"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /citizenx/events/{slug}:
+    get:
+      operationId: getCitizenxEvent
+      tags: [citizenx]
+      summary: Get a CitizenX event by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CitizenxEvent"
+        "404":
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /citizenx/experiments:
+    get:
+      operationId: listCitizenxExperiments
+      tags: [citizenx]
+      summary: List published CitizenX experiments
+      description: Public gallery of member-published experiments, newest first.
+      responses:
+        "200":
+          description: Published experiments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CitizenxExperimentSummary"
+    post:
+      operationId: publishCitizenxExperiment
+      tags: [citizenx]
+      summary: Publish a CitizenX experiment
+      description: Authenticated. Publishes a shareable experiment authored by the caller.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CitizenxExperimentInput"
+      responses:
+        "201":
+          description: Experiment published
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CitizenxExperiment"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /citizenx/experiments/mine:
+    get:
+      operationId: listMyCitizenxExperiments
+      tags: [citizenx]
+      summary: List my published CitizenX experiments
+      description: Authenticated. Experiments published by the caller.
+      responses:
+        "200":
+          description: The caller's experiments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CitizenxExperimentSummary"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /citizenx/experiments/{slug}:
+    get:
+      operationId: getCitizenxExperiment
+      tags: [citizenx]
+      summary: Get a published CitizenX experiment by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The experiment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CitizenxExperiment"
+        "404":
+          description: Experiment not found
           content:
             application/json:
               schema:
@@ -1001,3 +1249,251 @@ components:
         - apiHealthy
         - uptimeSeconds
         - liveAvatarSessions
+    CitizenxChapter:
+      type: object
+      properties:
+        id:
+          type: string
+        organizerName:
+          type: string
+        slug:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+        focus:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - active
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - organizerName
+        - slug
+        - name
+        - location
+        - focus
+        - description
+        - status
+        - createdAt
+    CitizenxChapterInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 120
+        location:
+          type: string
+          minLength: 2
+          maxLength: 120
+        focus:
+          type: string
+          minLength: 2
+          maxLength: 160
+        description:
+          type: string
+          minLength: 20
+          maxLength: 2000
+      required:
+        - name
+        - location
+        - focus
+        - description
+    CitizenxEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        organizerName:
+          type: string
+        chapterId:
+          type: ["string", "null"]
+        slug:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: string
+        startsAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - upcoming
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - organizerName
+        - chapterId
+        - slug
+        - title
+        - description
+        - location
+        - startsAt
+        - status
+        - createdAt
+    CitizenxEventInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 2
+          maxLength: 160
+        description:
+          type: string
+          minLength: 10
+          maxLength: 2000
+        location:
+          type: string
+          minLength: 2
+          maxLength: 160
+        startsAt:
+          type: string
+          format: date-time
+        chapterId:
+          type: ["string", "null"]
+      required:
+        - title
+        - description
+        - location
+        - startsAt
+    CitizenxExperimentStep:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        body:
+          type: string
+          minLength: 1
+          maxLength: 4000
+      required:
+        - title
+        - body
+    CitizenxExperimentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        authorName:
+          type: string
+        slug:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        coverImageUrl:
+          type: ["string", "null"]
+        categorySlug:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - authorName
+        - slug
+        - title
+        - summary
+        - coverImageUrl
+        - categorySlug
+        - createdAt
+    CitizenxExperiment:
+      type: object
+      properties:
+        id:
+          type: string
+        authorName:
+          type: string
+        authorTagline:
+          type: ["string", "null"]
+        slug:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        description:
+          type: string
+        coverImageUrl:
+          type: ["string", "null"]
+        categorySlug:
+          type: string
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/CitizenxExperimentStep"
+        status:
+          type: string
+          enum:
+            - published
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - authorName
+        - authorTagline
+        - slug
+        - title
+        - summary
+        - description
+        - coverImageUrl
+        - categorySlug
+        - steps
+        - status
+        - createdAt
+    CitizenxExperimentInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 2
+          maxLength: 160
+        summary:
+          type: string
+          minLength: 10
+          maxLength: 280
+        description:
+          type: string
+          minLength: 20
+          maxLength: 4000
+        coverImageUrl:
+          type: ["string", "null"]
+        categorySlug:
+          type: string
+          minLength: 1
+        steps:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/CitizenxExperimentStep"
+        authorName:
+          type: string
+          minLength: 1
+          maxLength: 120
+        authorTagline:
+          type: ["string", "null"]
+      required:
+        - title
+        - summary
+        - description
+        - categorySlug
+        - steps
+        - authorName

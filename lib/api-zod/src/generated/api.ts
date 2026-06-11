@@ -417,3 +417,294 @@ export const GetAdminSystemResponse = zod.object({
   uptimeSeconds: zod.number(),
   liveAvatarSessions: zod.number(),
 });
+
+/**
+ * Public list of active (approved) CitizenX chapters.
+ * @summary List active CitizenX chapters
+ */
+export const ListCitizenxChaptersResponseItem = zod.object({
+  id: zod.string(),
+  organizerName: zod.string(),
+  slug: zod.string(),
+  name: zod.string(),
+  location: zod.string(),
+  focus: zod.string(),
+  description: zod.string(),
+  status: zod.enum(["pending", "active"]),
+  createdAt: zod.coerce.date(),
+});
+export const ListCitizenxChaptersResponse = zod.array(
+  ListCitizenxChaptersResponseItem,
+);
+
+/**
+ * Authenticated. Submits a chapter application in "pending" status.
+ * @summary Apply to organize a CitizenX chapter
+ */
+export const applyCitizenxChapterBodyNameMin = 2;
+export const applyCitizenxChapterBodyNameMax = 120;
+
+export const applyCitizenxChapterBodyLocationMin = 2;
+export const applyCitizenxChapterBodyLocationMax = 120;
+
+export const applyCitizenxChapterBodyFocusMin = 2;
+export const applyCitizenxChapterBodyFocusMax = 160;
+
+export const applyCitizenxChapterBodyDescriptionMin = 20;
+export const applyCitizenxChapterBodyDescriptionMax = 2000;
+
+export const ApplyCitizenxChapterBody = zod.object({
+  name: zod
+    .string()
+    .min(applyCitizenxChapterBodyNameMin)
+    .max(applyCitizenxChapterBodyNameMax),
+  location: zod
+    .string()
+    .min(applyCitizenxChapterBodyLocationMin)
+    .max(applyCitizenxChapterBodyLocationMax),
+  focus: zod
+    .string()
+    .min(applyCitizenxChapterBodyFocusMin)
+    .max(applyCitizenxChapterBodyFocusMax),
+  description: zod
+    .string()
+    .min(applyCitizenxChapterBodyDescriptionMin)
+    .max(applyCitizenxChapterBodyDescriptionMax),
+});
+
+/**
+ * Authenticated. The caller's own chapters, including pending ones.
+ * @summary List my CitizenX chapter applications
+ */
+export const ListMyCitizenxChaptersResponseItem = zod.object({
+  id: zod.string(),
+  organizerName: zod.string(),
+  slug: zod.string(),
+  name: zod.string(),
+  location: zod.string(),
+  focus: zod.string(),
+  description: zod.string(),
+  status: zod.enum(["pending", "active"]),
+  createdAt: zod.coerce.date(),
+});
+export const ListMyCitizenxChaptersResponse = zod.array(
+  ListMyCitizenxChaptersResponseItem,
+);
+
+/**
+ * Public list of upcoming CitizenX events, soonest first.
+ * @summary List upcoming CitizenX events
+ */
+export const ListCitizenxEventsResponseItem = zod.object({
+  id: zod.string(),
+  organizerName: zod.string(),
+  chapterId: zod.string().nullable(),
+  slug: zod.string(),
+  title: zod.string(),
+  description: zod.string(),
+  location: zod.string(),
+  startsAt: zod.coerce.date(),
+  status: zod.enum(["upcoming"]),
+  createdAt: zod.coerce.date(),
+});
+export const ListCitizenxEventsResponse = zod.array(
+  ListCitizenxEventsResponseItem,
+);
+
+/**
+ * Authenticated. Creates a publicly listed upcoming event.
+ * @summary Host a CitizenX event
+ */
+export const createCitizenxEventBodyTitleMin = 2;
+export const createCitizenxEventBodyTitleMax = 160;
+
+export const createCitizenxEventBodyDescriptionMin = 10;
+export const createCitizenxEventBodyDescriptionMax = 2000;
+
+export const createCitizenxEventBodyLocationMin = 2;
+export const createCitizenxEventBodyLocationMax = 160;
+
+export const CreateCitizenxEventBody = zod.object({
+  title: zod
+    .string()
+    .min(createCitizenxEventBodyTitleMin)
+    .max(createCitizenxEventBodyTitleMax),
+  description: zod
+    .string()
+    .min(createCitizenxEventBodyDescriptionMin)
+    .max(createCitizenxEventBodyDescriptionMax),
+  location: zod
+    .string()
+    .min(createCitizenxEventBodyLocationMin)
+    .max(createCitizenxEventBodyLocationMax),
+  startsAt: zod.coerce.date(),
+  chapterId: zod.string().nullish(),
+});
+
+/**
+ * Authenticated. Events hosted by the caller.
+ * @summary List my CitizenX events
+ */
+export const ListMyCitizenxEventsResponseItem = zod.object({
+  id: zod.string(),
+  organizerName: zod.string(),
+  chapterId: zod.string().nullable(),
+  slug: zod.string(),
+  title: zod.string(),
+  description: zod.string(),
+  location: zod.string(),
+  startsAt: zod.coerce.date(),
+  status: zod.enum(["upcoming"]),
+  createdAt: zod.coerce.date(),
+});
+export const ListMyCitizenxEventsResponse = zod.array(
+  ListMyCitizenxEventsResponseItem,
+);
+
+/**
+ * @summary Get a CitizenX event by slug
+ */
+export const GetCitizenxEventParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetCitizenxEventResponse = zod.object({
+  id: zod.string(),
+  organizerName: zod.string(),
+  chapterId: zod.string().nullable(),
+  slug: zod.string(),
+  title: zod.string(),
+  description: zod.string(),
+  location: zod.string(),
+  startsAt: zod.coerce.date(),
+  status: zod.enum(["upcoming"]),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * Public gallery of member-published experiments, newest first.
+ * @summary List published CitizenX experiments
+ */
+export const ListCitizenxExperimentsResponseItem = zod.object({
+  id: zod.string(),
+  authorName: zod.string(),
+  slug: zod.string(),
+  title: zod.string(),
+  summary: zod.string(),
+  coverImageUrl: zod.string().nullable(),
+  categorySlug: zod.string(),
+  createdAt: zod.coerce.date(),
+});
+export const ListCitizenxExperimentsResponse = zod.array(
+  ListCitizenxExperimentsResponseItem,
+);
+
+/**
+ * Authenticated. Publishes a shareable experiment authored by the caller.
+ * @summary Publish a CitizenX experiment
+ */
+export const publishCitizenxExperimentBodyTitleMin = 2;
+export const publishCitizenxExperimentBodyTitleMax = 160;
+
+export const publishCitizenxExperimentBodySummaryMin = 10;
+export const publishCitizenxExperimentBodySummaryMax = 280;
+
+export const publishCitizenxExperimentBodyDescriptionMin = 20;
+export const publishCitizenxExperimentBodyDescriptionMax = 4000;
+
+export const publishCitizenxExperimentBodyStepsItemTitleMax = 160;
+
+export const publishCitizenxExperimentBodyStepsItemBodyMax = 4000;
+
+export const publishCitizenxExperimentBodyAuthorNameMax = 120;
+
+export const PublishCitizenxExperimentBody = zod.object({
+  title: zod
+    .string()
+    .min(publishCitizenxExperimentBodyTitleMin)
+    .max(publishCitizenxExperimentBodyTitleMax),
+  summary: zod
+    .string()
+    .min(publishCitizenxExperimentBodySummaryMin)
+    .max(publishCitizenxExperimentBodySummaryMax),
+  description: zod
+    .string()
+    .min(publishCitizenxExperimentBodyDescriptionMin)
+    .max(publishCitizenxExperimentBodyDescriptionMax),
+  coverImageUrl: zod.string().nullish(),
+  categorySlug: zod.string().min(1),
+  steps: zod
+    .array(
+      zod.object({
+        title: zod
+          .string()
+          .min(1)
+          .max(publishCitizenxExperimentBodyStepsItemTitleMax),
+        body: zod
+          .string()
+          .min(1)
+          .max(publishCitizenxExperimentBodyStepsItemBodyMax),
+      }),
+    )
+    .min(1),
+  authorName: zod
+    .string()
+    .min(1)
+    .max(publishCitizenxExperimentBodyAuthorNameMax),
+  authorTagline: zod.string().nullish(),
+});
+
+/**
+ * Authenticated. Experiments published by the caller.
+ * @summary List my published CitizenX experiments
+ */
+export const ListMyCitizenxExperimentsResponseItem = zod.object({
+  id: zod.string(),
+  authorName: zod.string(),
+  slug: zod.string(),
+  title: zod.string(),
+  summary: zod.string(),
+  coverImageUrl: zod.string().nullable(),
+  categorySlug: zod.string(),
+  createdAt: zod.coerce.date(),
+});
+export const ListMyCitizenxExperimentsResponse = zod.array(
+  ListMyCitizenxExperimentsResponseItem,
+);
+
+/**
+ * @summary Get a published CitizenX experiment by slug
+ */
+export const GetCitizenxExperimentParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const getCitizenxExperimentResponseStepsItemTitleMax = 160;
+
+export const getCitizenxExperimentResponseStepsItemBodyMax = 4000;
+
+export const GetCitizenxExperimentResponse = zod.object({
+  id: zod.string(),
+  authorName: zod.string(),
+  authorTagline: zod.string().nullable(),
+  slug: zod.string(),
+  title: zod.string(),
+  summary: zod.string(),
+  description: zod.string(),
+  coverImageUrl: zod.string().nullable(),
+  categorySlug: zod.string(),
+  steps: zod.array(
+    zod.object({
+      title: zod
+        .string()
+        .min(1)
+        .max(getCitizenxExperimentResponseStepsItemTitleMax),
+      body: zod
+        .string()
+        .min(1)
+        .max(getCitizenxExperimentResponseStepsItemBodyMax),
+    }),
+  ),
+  status: zod.enum(["published"]),
+  createdAt: zod.coerce.date(),
+});
