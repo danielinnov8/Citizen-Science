@@ -315,7 +315,7 @@ export default function Incorporation() {
               </h1>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/70">
                 A step-by-step strategic guide to legally forming this company as a mission-driven,
-                for-profit benefit corporation — why it fits "Humanity's Research Network", how the
+                for-profit benefit corporation — why it fits "Humanity's Discovery Network", how the
                 alternatives compare, what it costs, how long it takes, and the best way to actually
                 do it.
               </p>

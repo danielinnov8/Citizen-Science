@@ -1604,7 +1604,7 @@ export function Landing() {
             <Reveal>
               <div className="mx-auto mb-16 max-w-2xl text-center">
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
-                  Join Humanity's Research Network
+                  Join Humanity's Discovery Network
                 </span>
                 <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
                   There's a way in for everyone.
@@ -1647,7 +1647,7 @@ export function Landing() {
             </Reveal>
             <Reveal delay={0.06}>
               <h2 className="mx-auto mt-6 max-w-3xl font-serif text-4xl leading-[1.12] tracking-tight lg:text-6xl">
-                We are building Humanity's Research Network.
+                We are building Humanity's Discovery Network.
               </h2>
             </Reveal>
             <Reveal delay={0.12}>
@@ -1680,7 +1680,7 @@ export function Landing() {
             <div className="lg:w-[34%]">
               <Logo variant="full" theme="dark" />
               <p className="mt-5 max-w-sm text-sm leading-relaxed">
-                Humanity's Research Network — turning everyday curiosity into
+                Humanity's Discovery Network — turning everyday curiosity into
                 collective intelligence. We give anyone, anywhere the tools to
                 run real experiments and contribute to the frontier of science.
               </p>
