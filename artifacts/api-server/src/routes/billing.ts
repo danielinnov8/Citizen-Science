@@ -1,7 +1,8 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { GetCreditBalanceResponse } from "@workspace/api-zod";
+import { GetCreditBalanceResponse, GetCreditEconomyResponse } from "@workspace/api-zod";
 import { resolveBillingSubject } from "../lib/credits/subject";
 import { getCreditState, nextRenewalDate } from "../lib/credits/credits";
+import { buildCreditEconomy } from "../lib/credits/plans";
 
 const router: IRouter = Router();
 
@@ -40,6 +41,14 @@ router.get("/billing/credits", async (req: Request, res: Response): Promise<void
       }),
     );
   }
+});
+
+// Public, read-only: the credit economy blueprint. Every figure derives from
+// the server's credit definitions (single source of truth), so the /MCP map
+// page reflects exactly what the server charges and can't drift. The USD
+// prices are the planned Stripe mapping only — no live checkout exists.
+router.get("/billing/economy", (_req: Request, res: Response): void => {
+  res.json(GetCreditEconomyResponse.parse(buildCreditEconomy()));
 });
 
 export default router;

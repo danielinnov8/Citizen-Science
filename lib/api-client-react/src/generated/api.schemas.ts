@@ -217,6 +217,48 @@ export interface CreditBalance {
   renewalDate: string;
 }
 
+export interface CreditAction {
+  id: string;
+  label: string;
+  description: string;
+  /** Credit cost for this action. */
+  credits: number;
+  /** True when token-metered (≈1 credit / 1,000 tokens) and `credits` is the fixed fallback estimate; false for fixed-price actions.
+   */
+  metered: boolean;
+}
+
+export interface CreditTier {
+  /** "guest", "free", "researcher", or "pioneer". */
+  id: string;
+  name: string;
+  /** Credits granted each month. */
+  monthlyCredits: number;
+  /** Planned monthly price in USD (Stripe mapping, not live). */
+  monthlyUsd: number;
+  isGuest: boolean;
+}
+
+export interface CreditTopupPack {
+  id: string;
+  credits: number;
+  /** Planned price in USD (Stripe mapping, not live). */
+  usd: number;
+  popular?: boolean;
+}
+
+/**
+ * Blueprint of the platform's whole token/credit economy. All figures derive from the server's credit definitions (single source of truth).
+
+ */
+export interface CreditEconomy {
+  /** Roughly one credit per this many AI tokens. */
+  tokensPerCredit: number;
+  actions: CreditAction[];
+  tiers: CreditTier[];
+  topups: CreditTopupPack[];
+}
+
 export interface AdminTrendPoint {
   /** A day ("YYYY-MM-DD") or month ("YYYY-MM") bucket. */
   date: string;

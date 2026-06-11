@@ -39,6 +39,150 @@ export type AiAction = keyof typeof FALLBACK_CREDIT_COST;
 // source of truth instead of a value hardcoded in the UI.
 export const MENTORSHIP_MIN_COURSE_CREDITS = 5;
 
+// ---------------------------------------------------------------------------
+// Credit economy blueprint (single source of truth for the /MCP map page)
+// ---------------------------------------------------------------------------
+// The /MCP reference page renders the platform's whole token/credit economy:
+// every credit-consuming action, what each tier grants/costs, how top-ups
+// behave, and the *planned* credit↔USD mapping for when Stripe is wired up.
+// Everything it shows is derived from the constants below (and the AI action
+// costs above) so the page can never drift from what the server actually
+// charges. No real payment is taken here — the USD figures are the intended
+// pricing blueprint only.
+
+// Planned monthly subscription price (USD) per plan. Stripe is not connected
+// yet; these are the intended prices for the future checkout mapping.
+export const PLAN_MONTHLY_USD: Record<PlanId, number> = {
+  free: 0,
+  researcher: 20,
+  pioneer: 100,
+};
+
+// Human-friendly plan display names.
+export const PLAN_NAMES: Record<PlanId, string> = {
+  free: "Explorer",
+  researcher: "Researcher",
+  pioneer: "Pioneer",
+};
+
+// Planned one-off top-up packs (non-expiring credits). Placeholder pricing for
+// the future Stripe mapping — no live checkout exists today.
+export interface CreditTopupPack {
+  id: string;
+  credits: number;
+  usd: number;
+  popular?: boolean;
+}
+
+export const TOPUP_PACKS: CreditTopupPack[] = [
+  { id: "pack-500", credits: 500, usd: 5 },
+  { id: "pack-1500", credits: 1500, usd: 12, popular: true },
+  { id: "pack-5000", credits: 5000, usd: 35 },
+];
+
+export interface CreditActionInfo {
+  id: string;
+  label: string;
+  description: string;
+  credits: number;
+  // True when the action is token-metered (≈1 credit / 1,000 tokens) and the
+  // `credits` figure is the fixed fallback estimate. False for fixed-price
+  // actions (e.g. mentee enrollment) where `credits` is the exact charge.
+  metered: boolean;
+}
+
+// Descriptions are presentational, but every credit figure is read from the
+// constants above so the table on /MCP matches what the server charges.
+export const CREDIT_ACTIONS: CreditActionInfo[] = [
+  {
+    id: "chat",
+    label: "Copilot chat",
+    description: "A turn with the AI science copilot (with verified-video lookup).",
+    credits: FALLBACK_CREDIT_COST.chat,
+    metered: true,
+  },
+  {
+    id: "research",
+    label: "Web-grounded research",
+    description: "A Google-Search-grounded answer with cited sources.",
+    credits: FALLBACK_CREDIT_COST.research,
+    metered: true,
+  },
+  {
+    id: "fieldNotes",
+    label: "Field-notes analysis",
+    description: "Structured analysis of a notebook observation.",
+    credits: FALLBACK_CREDIT_COST.fieldNotes,
+    metered: true,
+  },
+  {
+    id: "avatar",
+    label: "Talking-avatar reply",
+    description: "A spoken reply from a living talking-avatar persona.",
+    credits: FALLBACK_CREDIT_COST.avatar,
+    metered: true,
+  },
+  {
+    id: "courseDraft",
+    label: "AI course draft",
+    description: "Drafting a mentoring course from the mentor's context.",
+    credits: FALLBACK_CREDIT_COST.courseDraft,
+    metered: true,
+  },
+  {
+    id: "enrollment",
+    label: "Mentee course enrollment",
+    description:
+      "Pay-what-you-want enrollment in a mentor's course (minimum shown; credits go to the mentor).",
+    credits: MENTORSHIP_MIN_COURSE_CREDITS,
+    metered: false,
+  },
+];
+
+export interface CreditTierInfo {
+  id: string; // "guest" | PlanId
+  name: string;
+  monthlyCredits: number;
+  monthlyUsd: number;
+  isGuest: boolean;
+}
+
+export interface CreditEconomy {
+  tokensPerCredit: number;
+  actions: CreditActionInfo[];
+  tiers: CreditTierInfo[];
+  topups: CreditTopupPack[];
+}
+
+// Assemble the full economy blueprint from the constants above. This is the
+// single payload the /MCP page reads, so the UI can never re-type a cost.
+export function buildCreditEconomy(): CreditEconomy {
+  const planTiers: CreditTierInfo[] = (
+    ["free", "researcher", "pioneer"] as PlanId[]
+  ).map((id) => ({
+    id,
+    name: PLAN_NAMES[id],
+    monthlyCredits: PLAN_MONTHLY_CREDITS[id],
+    monthlyUsd: PLAN_MONTHLY_USD[id],
+    isGuest: false,
+  }));
+
+  const guestTier: CreditTierInfo = {
+    id: "guest",
+    name: "Guest",
+    monthlyCredits: GUEST_MONTHLY_CREDITS,
+    monthlyUsd: 0,
+    isGuest: true,
+  };
+
+  return {
+    tokensPerCredit: TOKENS_PER_CREDIT,
+    actions: CREDIT_ACTIONS,
+    tiers: [guestTier, ...planTiers],
+    topups: TOPUP_PACKS,
+  };
+}
+
 const VALID_PLANS = new Set<PlanId>(["free", "researcher", "pioneer"]);
 
 export function normalizePlan(plan: string | null | undefined): PlanId {

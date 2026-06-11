@@ -338,6 +338,57 @@ export const GetCreditBalanceResponse = zod.object({
 });
 
 /**
+ * Public, read-only map of the platform's whole token/credit economy: every credit-consuming action and its cost, what each tier grants per month, and the placeholder top-up packs. All figures come from the server's credit definitions (single source of truth) so the /MCP reference page can't drift. The USD prices are the intended Stripe mapping only — no live checkout is wired up.
+
+ * @summary Get the credit economy blueprint
+ */
+export const GetCreditEconomyResponse = zod
+  .object({
+    tokensPerCredit: zod
+      .number()
+      .describe("Roughly one credit per this many AI tokens."),
+    actions: zod.array(
+      zod.object({
+        id: zod.string(),
+        label: zod.string(),
+        description: zod.string(),
+        credits: zod.number().describe("Credit cost for this action."),
+        metered: zod
+          .boolean()
+          .describe(
+            "True when token-metered (≈1 credit \/ 1,000 tokens) and `credits` is the fixed fallback estimate; false for fixed-price actions.\n",
+          ),
+      }),
+    ),
+    tiers: zod.array(
+      zod.object({
+        id: zod
+          .string()
+          .describe('\"guest\", \"free\", \"researcher\", or \"pioneer\".'),
+        name: zod.string(),
+        monthlyCredits: zod.number().describe("Credits granted each month."),
+        monthlyUsd: zod
+          .number()
+          .describe("Planned monthly price in USD (Stripe mapping, not live)."),
+        isGuest: zod.boolean(),
+      }),
+    ),
+    topups: zod.array(
+      zod.object({
+        id: zod.string(),
+        credits: zod.number(),
+        usd: zod
+          .number()
+          .describe("Planned price in USD (Stripe mapping, not live)."),
+        popular: zod.boolean().optional(),
+      }),
+    ),
+  })
+  .describe(
+    "Blueprint of the platform's whole token\/credit economy. All figures derive from the server's credit definitions (single source of truth).\n",
+  );
+
+/**
  * Superadmin-only. Headline platform metrics and trend sparklines.
  * @summary Admin overview KPIs
  */

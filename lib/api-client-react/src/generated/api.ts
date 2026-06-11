@@ -38,6 +38,7 @@ import type {
   CourseDraftInput,
   CourseInput,
   CreditBalance,
+  CreditEconomy,
   EnrollInput,
   EnrollResult,
   EnrolledCourse,
@@ -1133,6 +1134,83 @@ export function useGetCreditBalance<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetCreditBalanceQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Public, read-only map of the platform's whole token/credit economy: every credit-consuming action and its cost, what each tier grants per month, and the placeholder top-up packs. All figures come from the server's credit definitions (single source of truth) so the /MCP reference page can't drift. The USD prices are the intended Stripe mapping only — no live checkout is wired up.
+
+ * @summary Get the credit economy blueprint
+ */
+export const getGetCreditEconomyUrl = () => {
+  return `/api/billing/economy`;
+};
+
+export const getCreditEconomy = async (
+  options?: RequestInit,
+): Promise<CreditEconomy> => {
+  return customFetch<CreditEconomy>(getGetCreditEconomyUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetCreditEconomyQueryKey = () => {
+  return [`/api/billing/economy`] as const;
+};
+
+export const getGetCreditEconomyQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCreditEconomy>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCreditEconomy>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetCreditEconomyQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCreditEconomy>>
+  > = ({ signal }) => getCreditEconomy({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCreditEconomy>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCreditEconomyQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCreditEconomy>>
+>;
+export type GetCreditEconomyQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get the credit economy blueprint
+ */
+
+export function useGetCreditEconomy<
+  TData = Awaited<ReturnType<typeof getCreditEconomy>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCreditEconomy>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCreditEconomyQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

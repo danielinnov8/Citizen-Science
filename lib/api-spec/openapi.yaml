@@ -338,6 +338,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CreditBalance"
+  /billing/economy:
+    get:
+      operationId: getCreditEconomy
+      tags: [billing]
+      summary: Get the credit economy blueprint
+      description: >
+        Public, read-only map of the platform's whole token/credit economy:
+        every credit-consuming action and its cost, what each tier grants per
+        month, and the placeholder top-up packs. All figures come from the
+        server's credit definitions (single source of truth) so the /MCP
+        reference page can't drift. The USD prices are the intended Stripe
+        mapping only — no live checkout is wired up.
+      responses:
+        "200":
+          description: The credit economy blueprint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreditEconomy"
   /admin/overview:
     get:
       operationId: getAdminOverview
@@ -1658,6 +1677,93 @@ components:
         - topupBalance
         - totalRemaining
         - renewalDate
+    CreditAction:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        credits:
+          type: integer
+          description: Credit cost for this action.
+        metered:
+          type: boolean
+          description: >
+            True when token-metered (≈1 credit / 1,000 tokens) and `credits`
+            is the fixed fallback estimate; false for fixed-price actions.
+      required:
+        - id
+        - label
+        - description
+        - credits
+        - metered
+    CreditTier:
+      type: object
+      properties:
+        id:
+          type: string
+          description: '"guest", "free", "researcher", or "pioneer".'
+        name:
+          type: string
+        monthlyCredits:
+          type: integer
+          description: Credits granted each month.
+        monthlyUsd:
+          type: number
+          description: Planned monthly price in USD (Stripe mapping, not live).
+        isGuest:
+          type: boolean
+      required:
+        - id
+        - name
+        - monthlyCredits
+        - monthlyUsd
+        - isGuest
+    CreditTopupPack:
+      type: object
+      properties:
+        id:
+          type: string
+        credits:
+          type: integer
+        usd:
+          type: number
+          description: Planned price in USD (Stripe mapping, not live).
+        popular:
+          type: boolean
+      required:
+        - id
+        - credits
+        - usd
+    CreditEconomy:
+      type: object
+      description: >
+        Blueprint of the platform's whole token/credit economy. All figures
+        derive from the server's credit definitions (single source of truth).
+      properties:
+        tokensPerCredit:
+          type: integer
+          description: Roughly one credit per this many AI tokens.
+        actions:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreditAction"
+        tiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreditTier"
+        topups:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreditTopupPack"
+      required:
+        - tokensPerCredit
+        - actions
+        - tiers
+        - topups
     AdminTrendPoint:
       type: object
       properties:
