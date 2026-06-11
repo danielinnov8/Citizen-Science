@@ -16,6 +16,7 @@ interface AuthUserView {
   initials: string;
   image: string | null;
   isSuperAdmin: boolean;
+  isMentor: boolean;
 }
 
 interface AuthState {
@@ -52,6 +53,7 @@ function toView(user: AuthUser): AuthUserView {
     initials: computeInitials(user.name, user.email),
     image: user.image,
     isSuperAdmin: user.isSuperAdmin,
+    isMentor: user.isMentor,
   };
 }
 

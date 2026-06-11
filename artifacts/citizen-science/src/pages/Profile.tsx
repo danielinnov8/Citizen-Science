@@ -1,12 +1,63 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
-import { LogOut, Trash2, Check, Plus, LogIn } from "lucide-react";
+import { LogOut, Trash2, Check, Plus, LogIn, BookOpen, ArrowRight } from "lucide-react";
+import {
+  useGetMyEnrollments,
+  getGetMyEnrollmentsQueryKey,
+} from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/auth";
 import { storage } from "@/lib/storage";
 import { DEVICES } from "@/lib/devices";
+import { MentorshipManager } from "@/components/MentorshipManager";
+
+function MyEnrollments() {
+  const { data, isLoading } = useGetMyEnrollments({
+    query: { queryKey: getGetMyEnrollmentsQueryKey() },
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="shadow-sm border-[#E2E8F0] mb-8">
+        <CardContent className="p-6 space-y-3">
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-16 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!data || data.length === 0) return null;
+
+  return (
+    <Card className="shadow-sm border-[#E2E8F0] mb-8">
+      <CardContent className="p-6">
+        <div className="flex items-center gap-2 border-b border-[#E2E8F0] pb-3 mb-4">
+          <BookOpen className="h-5 w-5 text-blue-600" />
+          <h3 className="font-semibold text-lg">My mentoring courses</h3>
+        </div>
+        <div className="divide-y divide-[#E2E8F0]">
+          {data.map((e) => (
+            <Link key={e.enrollmentId} href={`/mentors/${e.mentorUserId}`}>
+              <div className="group flex items-center gap-4 py-4 cursor-pointer">
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-sm leading-tight truncate">{e.courseTitle}</div>
+                  <div className="text-xs text-[#64748B] truncate">
+                    with {e.mentorName || "Mentor"} · paid {e.creditsPaid} credits
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-[#94A3B8] transition-transform group-hover:translate-x-0.5" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 function SignedOutProfile() {
   return (
@@ -92,6 +143,10 @@ export function Profile() {
           </div>
         </CardContent>
       </Card>
+
+      {user?.isMentor && <MentorshipManager />}
+
+      <MyEnrollments />
 
       <Card className="shadow-sm border-[#E2E8F0] mb-8">
         <CardContent className="p-6 space-y-6">

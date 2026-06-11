@@ -49,6 +49,11 @@ export const LoginResponse = zod.object({
     .describe(
       "Whether this account is a platform superadmin (admin portal access).",
     ),
+  isMentor: zod
+    .boolean()
+    .describe(
+      "Whether this account is flagged as a mentor (can publish mentoring courses).",
+    ),
 });
 
 /**
@@ -72,6 +77,11 @@ export const GetCurrentUserResponse = zod.object({
     .boolean()
     .describe(
       "Whether this account is a platform superadmin (admin portal access).",
+    ),
+  isMentor: zod
+    .boolean()
+    .describe(
+      "Whether this account is flagged as a mentor (can publish mentoring courses).",
     ),
 });
 
@@ -392,6 +402,9 @@ export const ListAdminUsersResponse = zod.object({
       creditsUsedThisMonth: zod.number(),
       monthlyGrant: zod.number(),
       topupBalance: zod.number(),
+      isMentor: zod
+        .boolean()
+        .describe("Whether this account is flagged as a mentor."),
     }),
   ),
   total: zod.number(),
@@ -421,6 +434,9 @@ export const UpdateUserPlanResponse = zod.object({
   creditsUsedThisMonth: zod.number(),
   monthlyGrant: zod.number(),
   topupBalance: zod.number(),
+  isMentor: zod
+    .boolean()
+    .describe("Whether this account is flagged as a mentor."),
 });
 
 /**
@@ -445,6 +461,289 @@ export const GrantUserCreditsResponse = zod.object({
   creditsUsedThisMonth: zod.number(),
   monthlyGrant: zod.number(),
   topupBalance: zod.number(),
+  isMentor: zod
+    .boolean()
+    .describe("Whether this account is flagged as a mentor."),
+});
+
+/**
+ * Superadmin-only. Toggles whether an account is a mentor.
+ * @summary Flag or unflag a user as a mentor
+ */
+export const SetUserMentorParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const SetUserMentorBody = zod.object({
+  isMentor: zod.boolean(),
+});
+
+export const SetUserMentorResponse = zod.object({
+  id: zod.string(),
+  email: zod.string(),
+  name: zod.string().nullable(),
+  plan: zod.string(),
+  signupMethod: zod.enum(["google", "password"]),
+  createdAt: zod.coerce.date(),
+  creditsUsedThisMonth: zod.number(),
+  monthlyGrant: zod.number(),
+  topupBalance: zod.number(),
+  isMentor: zod
+    .boolean()
+    .describe("Whether this account is flagged as a mentor."),
+});
+
+/**
+ * Public. Returns mentors who have a profile and at least one published course, as lightweight cards.
+
+ * @summary List public mentors
+ */
+export const ListMentorsResponseItem = zod.object({
+  userId: zod.string(),
+  name: zod.string().nullable(),
+  image: zod.string().nullable(),
+  headline: zod.string(),
+  expertise: zod.array(zod.string()),
+  courseCount: zod.number(),
+});
+export const ListMentorsResponse = zod.array(ListMentorsResponseItem);
+
+/**
+ * Public. Returns a mentor's profile plus their published courses.
+ * @summary Get a mentor and their published courses
+ */
+export const GetMentorParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetMentorResponse = zod.object({
+  userId: zod.string(),
+  name: zod.string().nullable(),
+  image: zod.string().nullable(),
+  headline: zod.string(),
+  bio: zod.string(),
+  expertise: zod.array(zod.string()),
+  courses: zod.array(
+    zod.object({
+      id: zod.string(),
+      mentorUserId: zod.string(),
+      title: zod.string(),
+      description: zod.string(),
+      outcomes: zod.array(zod.string()),
+      creditPrice: zod.number(),
+      minCredits: zod.number(),
+      published: zod.boolean(),
+      enrollmentCount: zod.number(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * Mentor-only. Returns the signed-in mentor's profile (created lazily if missing), all of their courses (including unpublished), and their mentees' enrollments.
+
+ * @summary Get the current mentor's profile, courses, and mentees
+ */
+export const GetMyMentorWorkspaceResponse = zod.object({
+  headline: zod.string(),
+  bio: zod.string(),
+  expertise: zod.array(zod.string()),
+  courses: zod.array(
+    zod.object({
+      id: zod.string(),
+      mentorUserId: zod.string(),
+      title: zod.string(),
+      description: zod.string(),
+      outcomes: zod.array(zod.string()),
+      creditPrice: zod.number(),
+      minCredits: zod.number(),
+      published: zod.boolean(),
+      enrollmentCount: zod.number(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  mentees: zod.array(
+    zod.object({
+      enrollmentId: zod.string(),
+      courseId: zod.string(),
+      courseTitle: zod.string(),
+      menteeName: zod.string().nullable(),
+      creditsPaid: zod.number(),
+      enrolledAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * Mentor-only. Sets headline, bio, and expertise tags.
+ * @summary Update the current mentor's profile
+ */
+export const updateMyMentorProfileBodyHeadlineMax = 200;
+
+export const updateMyMentorProfileBodyBioMax = 4000;
+
+export const UpdateMyMentorProfileBody = zod.object({
+  headline: zod.string().max(updateMyMentorProfileBodyHeadlineMax),
+  bio: zod.string().max(updateMyMentorProfileBodyBioMax),
+  expertise: zod.array(zod.string()),
+});
+
+export const UpdateMyMentorProfileResponse = zod.object({
+  headline: zod.string(),
+  bio: zod.string(),
+  expertise: zod.array(zod.string()),
+  courses: zod.array(
+    zod.object({
+      id: zod.string(),
+      mentorUserId: zod.string(),
+      title: zod.string(),
+      description: zod.string(),
+      outcomes: zod.array(zod.string()),
+      creditPrice: zod.number(),
+      minCredits: zod.number(),
+      published: zod.boolean(),
+      enrollmentCount: zod.number(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  mentees: zod.array(
+    zod.object({
+      enrollmentId: zod.string(),
+      courseId: zod.string(),
+      courseTitle: zod.string(),
+      menteeName: zod.string().nullable(),
+      creditsPaid: zod.number(),
+      enrolledAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * Mentor-only. Creates a new course owned by the signed-in mentor.
+ * @summary Create a mentoring course
+ */
+export const createMyCourseBodyTitleMax = 200;
+
+export const createMyCourseBodyDescriptionMax = 4000;
+
+export const createMyCourseBodyCreditPriceMin = 0;
+
+export const createMyCourseBodyMinCreditsMin = 0;
+
+export const CreateMyCourseBody = zod.object({
+  title: zod.string().min(1).max(createMyCourseBodyTitleMax),
+  description: zod.string().max(createMyCourseBodyDescriptionMax),
+  outcomes: zod.array(zod.string()),
+  creditPrice: zod.number().min(createMyCourseBodyCreditPriceMin),
+  minCredits: zod.number().min(createMyCourseBodyMinCreditsMin),
+  published: zod.boolean(),
+});
+
+/**
+ * Mentor-only. Updates a course owned by the signed-in mentor.
+ * @summary Update a mentoring course
+ */
+export const UpdateMyCourseParams = zod.object({
+  courseId: zod.coerce.string(),
+});
+
+export const updateMyCourseBodyTitleMax = 200;
+
+export const updateMyCourseBodyDescriptionMax = 4000;
+
+export const updateMyCourseBodyCreditPriceMin = 0;
+
+export const updateMyCourseBodyMinCreditsMin = 0;
+
+export const UpdateMyCourseBody = zod.object({
+  title: zod.string().min(1).max(updateMyCourseBodyTitleMax),
+  description: zod.string().max(updateMyCourseBodyDescriptionMax),
+  outcomes: zod.array(zod.string()),
+  creditPrice: zod.number().min(updateMyCourseBodyCreditPriceMin),
+  minCredits: zod.number().min(updateMyCourseBodyMinCreditsMin),
+  published: zod.boolean(),
+});
+
+export const UpdateMyCourseResponse = zod.object({
+  id: zod.string(),
+  mentorUserId: zod.string(),
+  title: zod.string(),
+  description: zod.string(),
+  outcomes: zod.array(zod.string()),
+  creditPrice: zod.number(),
+  minCredits: zod.number(),
+  published: zod.boolean(),
+  enrollmentCount: zod.number(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * Mentor-only. Deletes a course owned by the signed-in mentor.
+ * @summary Delete a mentoring course
+ */
+export const DeleteMyCourseParams = zod.object({
+  courseId: zod.coerce.string(),
+});
+
+export const DeleteMyCourseResponse = zod.object({
+  success: zod.boolean(),
+});
+
+/**
+ * Mentor-only. Uses Gemini to draft a course (title, description, learning outcomes) from a free-form brief. Credit-metered.
+
+ * @summary AI-draft a mentoring course from a brief
+ */
+
+export const DraftMyCourseBody = zod.object({
+  brief: zod.string().min(1),
+});
+
+export const DraftMyCourseResponse = zod.object({
+  title: zod.string(),
+  description: zod.string(),
+  outcomes: zod.array(zod.string()),
+});
+
+/**
+ * Auth-only. Returns the courses the signed-in member is enrolled in.
+ * @summary List the current member's enrollments
+ */
+export const GetMyEnrollmentsResponseItem = zod.object({
+  enrollmentId: zod.string(),
+  courseId: zod.string(),
+  courseTitle: zod.string(),
+  courseDescription: zod.string(),
+  outcomes: zod.array(zod.string()),
+  mentorUserId: zod.string(),
+  mentorName: zod.string().nullable(),
+  creditsPaid: zod.number(),
+  enrolledAt: zod.coerce.date(),
+});
+export const GetMyEnrollmentsResponse = zod.array(GetMyEnrollmentsResponseItem);
+
+/**
+ * Auth-only. Enrolls the signed-in member as a mentee, paying the given credits (at least the course minimum). Credits are deducted from the mentee and credited to the mentor via the credit ledger.
+
+ * @summary Enroll in a mentoring course
+ */
+export const EnrollInCourseParams = zod.object({
+  courseId: zod.coerce.string(),
+});
+
+export const enrollInCourseBodyCreditsMin = 0;
+
+export const EnrollInCourseBody = zod.object({
+  credits: zod.number().min(enrollInCourseBodyCreditsMin),
+});
+
+export const EnrollInCourseResponse = zod.object({
+  enrollmentId: zod.string(),
+  courseId: zod.string(),
+  creditsPaid: zod.number(),
+  totalRemaining: zod
+    .number()
+    .describe("The mentee's remaining credit balance after paying."),
 });
 
 /**

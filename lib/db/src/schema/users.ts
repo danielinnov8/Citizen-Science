@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, boolean } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -10,6 +10,10 @@ export const usersTable = pgTable("users", {
   // Subscription tier. "free" (Explorer) is metered; any other value is treated
   // as an unlimited/paid plan. Defaults to "free" for every new account.
   plan: text("plan").notNull().default("free"),
+  // Whether a superadmin has flagged this account as a mentor. Mentors can set
+  // up a mentor profile and publish mentoring courses others enroll in. Set by
+  // the admin portal only (Task #83 mentorship marketplace).
+  isMentor: boolean("is_mentor").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

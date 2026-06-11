@@ -15,4 +15,6 @@ export interface AuthUser {
   image: string | null;
   /** Whether this account is a platform superadmin (admin portal access). */
   isSuperAdmin: boolean;
+  /** Whether this account is flagged as a mentor (can publish mentoring courses). */
+  isMentor: boolean;
 }

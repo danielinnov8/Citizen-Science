@@ -20,6 +20,8 @@ import { Profile } from "@/pages/Profile";
 import { SignOut } from "@/pages/SignOut";
 import { Directory } from "@/pages/Directory";
 import { ProfileDetail } from "@/pages/ProfileDetail";
+import { Mentors } from "@/pages/Mentors";
+import { MentorDetail } from "@/pages/MentorDetail";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import Brand from "@/pages/Brand";
@@ -127,6 +129,12 @@ function Router() {
       </Route>
       <Route path="/directory/:slug">
         <AppShell><ProfileDetail /></AppShell>
+      </Route>
+      <Route path="/mentors">
+        <AppShell><Mentors /></AppShell>
+      </Route>
+      <Route path="/mentors/:id">
+        <AppShell><MentorDetail /></AppShell>
       </Route>
       <Route path="/notebook">
         <ProtectedRoute><AppShell><Notebook /></AppShell></ProtectedRoute>

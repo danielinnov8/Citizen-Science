@@ -46,6 +46,7 @@ import {
   getListAdminClaimsQueryKey,
   useApproveClaim,
   useDenyClaim,
+  useSetUserMentor,
   type AdminUser,
   type AdminClaim,
 } from "@workspace/api-client-react";
@@ -85,6 +86,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 
 const CHART_COLORS = ["#2563EB", "#16A34A", "#7C3AED", "#F59E0B", "#EF4444"];
@@ -309,11 +311,14 @@ function ManageUserDialog({
 
   const updatePlan = useUpdateUserPlan();
   const grantCredits = useGrantUserCredits();
+  const setMentor = useSetUserMentor();
+  const [isMentor, setIsMentor] = React.useState(false);
 
   React.useEffect(() => {
     if (user) {
       setPlan(user.plan);
       setCredits("");
+      setIsMentor(user.isMentor);
     }
   }, [user]);
 
@@ -332,6 +337,21 @@ function ManageUserDialog({
       toast({ title: "Plan updated", description: `${user.email} → ${PLAN_LABELS[plan] ?? plan}` });
     } catch {
       toast({ title: "Could not update plan", variant: "destructive" });
+    }
+  };
+
+  const toggleMentor = async (next: boolean) => {
+    setIsMentor(next);
+    try {
+      await setMentor.mutateAsync({ id: user.id, data: { isMentor: next } });
+      await invalidate();
+      toast({
+        title: next ? "Mentor enabled" : "Mentor disabled",
+        description: `${user.email} is ${next ? "now" : "no longer"} a mentor`,
+      });
+    } catch {
+      setIsMentor(!next);
+      toast({ title: "Could not update mentor status", variant: "destructive" });
     }
   };
 
@@ -380,6 +400,20 @@ function ManageUserDialog({
                 Save
               </Button>
             </div>
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg border border-[#E2E8F0] p-3">
+            <div className="space-y-0.5">
+              <label className="text-sm font-medium text-[#0F172A]">Mentor</label>
+              <p className="text-xs text-[#64748B]">
+                Allow this user to offer mentoring courses.
+              </p>
+            </div>
+            <Switch
+              checked={isMentor}
+              onCheckedChange={toggleMentor}
+              disabled={setMentor.isPending}
+            />
           </div>
 
           <div className="space-y-2">

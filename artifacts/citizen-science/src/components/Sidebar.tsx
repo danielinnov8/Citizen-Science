@@ -8,6 +8,7 @@ import {
   TrendingUp,
   User,
   Users,
+  GraduationCap,
   Sparkles,
   PanelLeftClose,
   PanelLeftOpen,
@@ -64,6 +65,7 @@ const NAV_GROUPS: NavGroup[] = [
       { icon: Compass, label: "Categories", href: "/categories", public: false },
       { icon: Beaker, label: "Experiments", href: "/experiments", public: false },
       { icon: Users, label: "Directory", href: "/directory", public: true },
+      { icon: GraduationCap, label: "Mentors", href: "/mentors", public: true },
     ],
   },
   {

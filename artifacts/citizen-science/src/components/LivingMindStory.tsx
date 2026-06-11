@@ -18,6 +18,7 @@ import {
   CalendarDays,
   Rocket,
   Radar,
+  GraduationCap,
 } from "lucide-react";
 import type { FeaturedProfile } from "@workspace/api-client-react";
 import { CATEGORIES } from "@/lib/categories";
@@ -520,13 +521,25 @@ export function LivingMindStory({
                   {story.base}
                 </span>
               </div>
-              <div className="mt-7">
+              <div className="mt-7 flex flex-wrap items-center gap-4">
                 <span
                   className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-medium text-white/90"
                   style={{ border: `1px solid ${theme.accent}55` }}
                 >
                   {story.era}
                 </span>
+                <Link
+                  href="/mentors"
+                  className="group/cta inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-[1.03]"
+                  style={{
+                    background: theme.accent,
+                    boxShadow: `0 16px 30px -12px ${theme.accent}`,
+                  }}
+                >
+                  <GraduationCap className="h-4 w-4" />
+                  Mentor Program
+                  <ChevronRight className="h-4 w-4 transition-transform group-hover/cta:translate-x-0.5" />
+                </Link>
               </div>
             </div>
 

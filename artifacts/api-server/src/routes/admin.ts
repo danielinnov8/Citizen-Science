@@ -24,6 +24,8 @@ import {
   ListAdminClaimsResponse,
   ApproveClaimResponse,
   DenyClaimResponse,
+  SetUserMentorBody,
+  SetUserMentorResponse,
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/requireAuth";
 import { requireSuperAdmin } from "../lib/admin/superadmin";
@@ -215,6 +217,7 @@ router.get(
           name: usersTable.name,
           plan: usersTable.plan,
           googleId: usersTable.googleId,
+          isMentor: usersTable.isMentor,
           createdAt: usersTable.createdAt,
           periodKey: creditAccountsTable.periodKey,
           periodUsed: creditAccountsTable.periodUsed,
@@ -249,6 +252,7 @@ router.get(
         creditsUsedThisMonth: usedThisMonth,
         monthlyGrant: monthlyCreditsForPlan(plan),
         topupBalance: toInt(r.topupBalance),
+        isMentor: r.isMentor,
       };
     });
 
@@ -273,6 +277,7 @@ async function adminUserById(id: string) {
       name: usersTable.name,
       plan: usersTable.plan,
       googleId: usersTable.googleId,
+      isMentor: usersTable.isMentor,
       createdAt: usersTable.createdAt,
       periodKey: creditAccountsTable.periodKey,
       periodUsed: creditAccountsTable.periodUsed,
@@ -297,6 +302,7 @@ async function adminUserById(id: string) {
     creditsUsedThisMonth: row.periodKey === period ? toInt(row.periodUsed) : 0,
     monthlyGrant: monthlyCreditsForPlan(plan),
     topupBalance: toInt(row.topupBalance),
+    isMentor: row.isMentor,
   };
 }
 
@@ -365,6 +371,40 @@ router.post(
       return;
     }
     res.json(GrantUserCreditsResponse.parse(user));
+  },
+);
+
+router.patch(
+  "/admin/users/:id/mentor",
+  async (req: Request, res: Response): Promise<void> => {
+    const parsed = SetUserMentorBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "isMentor (boolean) is required." });
+      return;
+    }
+    const id = String(req.params.id);
+    if (!UUID_RE.test(id)) {
+      res.status(404).json({ error: "User not found." });
+      return;
+    }
+
+    const updated = await db
+      .update(usersTable)
+      .set({ isMentor: parsed.data.isMentor, updatedAt: new Date() })
+      .where(eq(usersTable.id, id))
+      .returning({ id: usersTable.id });
+
+    if (updated.length === 0) {
+      res.status(404).json({ error: "User not found." });
+      return;
+    }
+
+    const user = await adminUserById(id);
+    if (!user) {
+      res.status(404).json({ error: "User not found." });
+      return;
+    }
+    res.json(SetUserMentorResponse.parse(user));
   },
 );
 

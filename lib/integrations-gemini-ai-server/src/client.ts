@@ -151,6 +151,80 @@ export async function analyzeFieldNotes(
   return JSON.parse(text) as FieldNoteAnalysis;
 }
 
+export interface MentoringCourseDraft {
+  title: string;
+  description: string;
+  outcomes: string[];
+}
+
+const COURSE_DRAFT_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    title: { type: Type.STRING },
+    description: { type: Type.STRING },
+    outcomes: { type: Type.ARRAY, items: { type: Type.STRING } },
+  },
+  required: ["title", "description", "outcomes"],
+};
+
+const COURSE_DRAFT_INSTRUCTION = `You help a mentor on the "Citizen Science" learning platform draft a single mentoring course from a short brief about who they are and what they want to teach.
+
+Produce:
+- title: a concise, compelling course title (max ~70 characters). No quotes, no emojis.
+- description: 2-4 plain-text sentences describing what the course covers, who it is for, and what a mentee will get from working with this mentor. Encouraging and specific, no fluff, no markdown.
+- outcomes: 3-6 short, concrete learning outcomes, each a single phrase starting with a verb (e.g. "Design a controlled home experiment"). No numbering, no trailing punctuation needed.
+
+Stay grounded in the mentor's brief — do not invent credentials or claims not implied by it. Respond with JSON only.`;
+
+export interface DraftMentoringCourseOptions {
+  // Invoked with the call's token usage when Gemini reports it, so the caller
+  // can meter consumption. Never called when usage is unavailable.
+  onUsage?: (usage: UsageInfo) => void;
+}
+
+// Draft a mentoring course (title, description, learning outcomes) from a
+// free-form mentor brief. Structured JSON output; uses the user's own
+// GEMINI_API_KEY so it works on Cloud Run too. Callers gate on
+// isGeminiConfigured() to degrade gracefully when no key is set.
+export async function draftMentoringCourse(
+  brief: string,
+  options: DraftMentoringCourseOptions = {},
+): Promise<MentoringCourseDraft> {
+  const trimmed = brief.trim();
+  if (!trimmed) {
+    throw new Error("brief must not be empty");
+  }
+
+  const response = await getGenAI().models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: trimmed.slice(0, 4000),
+    config: {
+      systemInstruction: COURSE_DRAFT_INSTRUCTION,
+      responseMimeType: "application/json",
+      responseSchema: COURSE_DRAFT_SCHEMA,
+      maxOutputTokens: 2048,
+      thinkingConfig: { thinkingBudget: 0 },
+    },
+  });
+
+  const usage = toUsageInfo(response.usageMetadata);
+  if (usage) options.onUsage?.(usage);
+
+  const text = response.text;
+  if (!text) {
+    throw new Error("Gemini returned an empty response");
+  }
+
+  const parsed = JSON.parse(text) as MentoringCourseDraft;
+  return {
+    title: typeof parsed.title === "string" ? parsed.title : "",
+    description: typeof parsed.description === "string" ? parsed.description : "",
+    outcomes: Array.isArray(parsed.outcomes)
+      ? parsed.outcomes.filter((o): o is string => typeof o === "string")
+      : [],
+  };
+}
+
 export interface WebSource {
   title: string;
   url: string;

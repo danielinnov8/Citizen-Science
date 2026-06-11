@@ -27,9 +27,17 @@ export const FALLBACK_CREDIT_COST = {
   research: 5,
   fieldNotes: 2,
   avatar: 2,
+  // AI-drafting a mentoring course from the mentor's context.
+  courseDraft: 4,
 } as const;
 
 export type AiAction = keyof typeof FALLBACK_CREDIT_COST;
+
+// Floor for a mentoring course's minimum enrollment price (credits). Mentors
+// can charge more, but never less than this. Defined centrally — alongside the
+// AI action costs — so the credit economy (and the /MCP credit map) has a single
+// source of truth instead of a value hardcoded in the UI.
+export const MENTORSHIP_MIN_COURSE_CREDITS = 5;
 
 const VALID_PLANS = new Set<PlanId>(["free", "researcher", "pioneer"]);
 

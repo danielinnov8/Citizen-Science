@@ -18,4 +18,6 @@ export interface AdminUser {
   creditsUsedThisMonth: number;
   monthlyGrant: number;
   topupBalance: number;
+  /** Whether this account is flagged as a mentor. */
+  isMentor: boolean;
 }

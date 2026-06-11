@@ -15,3 +15,5 @@
 - [OAuth on autoscale](oauth-redirect-uri-origin.md) — derive redirect_uri from allowlisted request host (not REPLIT_DOMAINS[0]); store PKCE handshake in DB (not cookies) + signed nonce cookie for CSRF binding; clear ephemeral table before NOT NULL add.
 - [Profile footstep renderers](profile-footstep-renderers.md) — footstep experiment list is duplicated across GreatMindStory/LivingMindStory/ProfileDetail; use selectFootstepExperiments; interactive labs only via signature map.
 - [drizzle-kit relative out path](drizzle-kit-relative-out.md) — absolute `out` breaks `generate` snapshot validation (`./`+abs ENOENT); keep `out: "./migrations"` relative; push unaffected.
+- [Mentors vs directory bridge](mentors-vs-directory-bridge.md) — living directory figures aren't real users; show as display-only /mentors cards linking to /directory/:slug, only DB mentors are enrollable.
+- [api-client-react barrel](api-client-react-barrel.md) — runtime `ApiError`/`ResponseParseError` classes live in custom-fetch.ts but aren't auto-exported; add to index.ts barrel to use `instanceof` for status-code handling (e.g. 402/409).

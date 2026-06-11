@@ -20,6 +20,8 @@ tags:
     description: Superadmin platform administration
   - name: citizenx
     description: CitizenX community program — chapters, events, and published experiments
+  - name: mentorship
+    description: Mentorship marketplace — mentor profiles, courses, and enrollments
 paths:
   /healthz:
     get:
@@ -463,6 +465,342 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/users/{id}/mentor:
+    patch:
+      operationId: setUserMentor
+      tags: [admin]
+      summary: Flag or unflag a user as a mentor
+      description: Superadmin-only. Toggles whether an account is a mentor.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetUserMentorInput"
+      responses:
+        "200":
+          description: The updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mentors:
+    get:
+      operationId: listMentors
+      tags: [mentorship]
+      summary: List public mentors
+      description: >
+        Public. Returns mentors who have a profile and at least one published
+        course, as lightweight cards.
+      responses:
+        "200":
+          description: Mentor directory
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MentorSummary"
+  /mentors/{id}:
+    get:
+      operationId: getMentor
+      tags: [mentorship]
+      summary: Get a mentor and their published courses
+      description: Public. Returns a mentor's profile plus their published courses.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The mentor detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentorDetail"
+        "404":
+          description: Mentor not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mentorship/me:
+    get:
+      operationId: getMyMentorWorkspace
+      tags: [mentorship]
+      summary: Get the current mentor's profile, courses, and mentees
+      description: >
+        Mentor-only. Returns the signed-in mentor's profile (created lazily if
+        missing), all of their courses (including unpublished), and their
+        mentees' enrollments.
+      responses:
+        "200":
+          description: The mentor workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentorWorkspace"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Not a mentor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mentorship/me/profile:
+    put:
+      operationId: updateMyMentorProfile
+      tags: [mentorship]
+      summary: Update the current mentor's profile
+      description: Mentor-only. Sets headline, bio, and expertise tags.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MentorProfileInput"
+      responses:
+        "200":
+          description: The updated mentor workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentorWorkspace"
+        "403":
+          description: Not a mentor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mentorship/me/courses:
+    post:
+      operationId: createMyCourse
+      tags: [mentorship]
+      summary: Create a mentoring course
+      description: Mentor-only. Creates a new course owned by the signed-in mentor.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseInput"
+      responses:
+        "201":
+          description: The created course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentorCourse"
+        "403":
+          description: Not a mentor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mentorship/me/courses/{courseId}:
+    patch:
+      operationId: updateMyCourse
+      tags: [mentorship]
+      summary: Update a mentoring course
+      description: Mentor-only. Updates a course owned by the signed-in mentor.
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseInput"
+      responses:
+        "200":
+          description: The updated course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentorCourse"
+        "403":
+          description: Not a mentor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: deleteMyCourse
+      tags: [mentorship]
+      summary: Delete a mentoring course
+      description: Mentor-only. Deletes a course owned by the signed-in mentor.
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "403":
+          description: Not a mentor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mentorship/me/courses/draft:
+    post:
+      operationId: draftMyCourse
+      tags: [mentorship]
+      summary: AI-draft a mentoring course from a brief
+      description: >
+        Mentor-only. Uses Gemini to draft a course (title, description, learning
+        outcomes) from a free-form brief. Credit-metered.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseDraftInput"
+      responses:
+        "200":
+          description: The drafted course fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDraft"
+        "402":
+          description: Out of credits
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutOfCreditsError"
+        "403":
+          description: Not a mentor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "503":
+          description: AI drafting unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mentorship/enrollments:
+    get:
+      operationId: getMyEnrollments
+      tags: [mentorship]
+      summary: List the current member's enrollments
+      description: Auth-only. Returns the courses the signed-in member is enrolled in.
+      responses:
+        "200":
+          description: The member's enrollments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EnrolledCourse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mentorship/courses/{courseId}/enroll:
+    post:
+      operationId: enrollInCourse
+      tags: [mentorship]
+      summary: Enroll in a mentoring course
+      description: >
+        Auth-only. Enrolls the signed-in member as a mentee, paying the given
+        credits (at least the course minimum). Credits are deducted from the
+        mentee and credited to the mentor via the credit ledger.
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollInput"
+      responses:
+        "200":
+          description: The created enrollment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnrollResult"
+        "400":
+          description: Invalid input (e.g. below the minimum, or own course)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "402":
+          description: Out of credits
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutOfCreditsError"
+        "404":
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Already enrolled
           content:
             application/json:
               schema:
@@ -920,12 +1258,16 @@ components:
         isSuperAdmin:
           type: boolean
           description: Whether this account is a platform superadmin (admin portal access).
+        isMentor:
+          type: boolean
+          description: Whether this account is flagged as a mentor (can publish mentoring courses).
       required:
         - id
         - email
         - name
         - image
         - isSuperAdmin
+        - isMentor
     RegisterInput:
       type: object
       properties:
@@ -1402,6 +1744,9 @@ components:
           type: integer
         topupBalance:
           type: integer
+        isMentor:
+          type: boolean
+          description: Whether this account is flagged as a mentor.
       required:
         - id
         - email
@@ -1412,6 +1757,7 @@ components:
         - creditsUsedThisMonth
         - monthlyGrant
         - topupBalance
+        - isMentor
     AdminUserList:
       type: object
       properties:
@@ -1449,6 +1795,293 @@ components:
           minimum: 1
       required:
         - credits
+    SetUserMentorInput:
+      type: object
+      properties:
+        isMentor:
+          type: boolean
+      required:
+        - isMentor
+    OutOfCreditsError:
+      type: object
+      properties:
+        error:
+          type: string
+        outOfCredits:
+          type: boolean
+        isGuest:
+          type: boolean
+        upgradeHref:
+          type: string
+      required:
+        - error
+        - outOfCredits
+    MentorCourse:
+      type: object
+      properties:
+        id:
+          type: string
+        mentorUserId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        outcomes:
+          type: array
+          items:
+            type: string
+        creditPrice:
+          type: integer
+        minCredits:
+          type: integer
+        published:
+          type: boolean
+        enrollmentCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - mentorUserId
+        - title
+        - description
+        - outcomes
+        - creditPrice
+        - minCredits
+        - published
+        - enrollmentCount
+        - createdAt
+    MentorSummary:
+      type: object
+      properties:
+        userId:
+          type: string
+        name:
+          type: ["string", "null"]
+        image:
+          type: ["string", "null"]
+        headline:
+          type: string
+        expertise:
+          type: array
+          items:
+            type: string
+        courseCount:
+          type: integer
+      required:
+        - userId
+        - name
+        - image
+        - headline
+        - expertise
+        - courseCount
+    MentorDetail:
+      type: object
+      properties:
+        userId:
+          type: string
+        name:
+          type: ["string", "null"]
+        image:
+          type: ["string", "null"]
+        headline:
+          type: string
+        bio:
+          type: string
+        expertise:
+          type: array
+          items:
+            type: string
+        courses:
+          type: array
+          items:
+            $ref: "#/components/schemas/MentorCourse"
+      required:
+        - userId
+        - name
+        - image
+        - headline
+        - bio
+        - expertise
+        - courses
+    MentorWorkspace:
+      type: object
+      properties:
+        headline:
+          type: string
+        bio:
+          type: string
+        expertise:
+          type: array
+          items:
+            type: string
+        courses:
+          type: array
+          items:
+            $ref: "#/components/schemas/MentorCourse"
+        mentees:
+          type: array
+          items:
+            $ref: "#/components/schemas/MenteeEnrollment"
+      required:
+        - headline
+        - bio
+        - expertise
+        - courses
+        - mentees
+    MenteeEnrollment:
+      type: object
+      properties:
+        enrollmentId:
+          type: string
+        courseId:
+          type: string
+        courseTitle:
+          type: string
+        menteeName:
+          type: ["string", "null"]
+        creditsPaid:
+          type: integer
+        enrolledAt:
+          type: string
+          format: date-time
+      required:
+        - enrollmentId
+        - courseId
+        - courseTitle
+        - menteeName
+        - creditsPaid
+        - enrolledAt
+    EnrolledCourse:
+      type: object
+      properties:
+        enrollmentId:
+          type: string
+        courseId:
+          type: string
+        courseTitle:
+          type: string
+        courseDescription:
+          type: string
+        outcomes:
+          type: array
+          items:
+            type: string
+        mentorUserId:
+          type: string
+        mentorName:
+          type: ["string", "null"]
+        creditsPaid:
+          type: integer
+        enrolledAt:
+          type: string
+          format: date-time
+      required:
+        - enrollmentId
+        - courseId
+        - courseTitle
+        - courseDescription
+        - outcomes
+        - mentorUserId
+        - mentorName
+        - creditsPaid
+        - enrolledAt
+    MentorProfileInput:
+      type: object
+      properties:
+        headline:
+          type: string
+          maxLength: 200
+        bio:
+          type: string
+          maxLength: 4000
+        expertise:
+          type: array
+          items:
+            type: string
+      required:
+        - headline
+        - bio
+        - expertise
+    CourseInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 4000
+        outcomes:
+          type: array
+          items:
+            type: string
+        creditPrice:
+          type: integer
+          minimum: 0
+        minCredits:
+          type: integer
+          minimum: 0
+        published:
+          type: boolean
+      required:
+        - title
+        - description
+        - outcomes
+        - creditPrice
+        - minCredits
+        - published
+    CourseDraftInput:
+      type: object
+      properties:
+        brief:
+          type: string
+          minLength: 1
+      required:
+        - brief
+    CourseDraft:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        outcomes:
+          type: array
+          items:
+            type: string
+      required:
+        - title
+        - description
+        - outcomes
+    EnrollInput:
+      type: object
+      properties:
+        credits:
+          type: integer
+          minimum: 0
+      required:
+        - credits
+    EnrollResult:
+      type: object
+      properties:
+        enrollmentId:
+          type: string
+        courseId:
+          type: string
+        creditsPaid:
+          type: integer
+        totalRemaining:
+          type: integer
+          description: The mentee's remaining credit balance after paying.
+      required:
+        - enrollmentId
+        - courseId
+        - creditsPaid
+        - totalRemaining
     AdminPlanRevenue:
       type: object
       properties:

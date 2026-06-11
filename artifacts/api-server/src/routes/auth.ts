@@ -54,6 +54,7 @@ function toAuthUser(user: User) {
     name: user.name,
     image: user.image,
     isSuperAdmin: isSuperAdmin(user),
+    isMentor: user.isMentor,
   };
 }
 

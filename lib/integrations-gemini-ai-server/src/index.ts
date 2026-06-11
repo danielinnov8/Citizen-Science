@@ -1,5 +1,6 @@
 export {
   analyzeFieldNotes,
+  draftMentoringCourse,
   streamChat,
   researchWithSearch,
   scoreVideoRelevance,
@@ -18,4 +19,6 @@ export type {
   VideoRelevanceResult,
   UsageInfo,
   AnalyzeFieldNotesOptions,
+  MentoringCourseDraft,
+  DraftMentoringCourseOptions,
 } from "./client";

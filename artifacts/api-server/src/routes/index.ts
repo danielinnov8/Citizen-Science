@@ -7,6 +7,7 @@ import avatarRouter from "./avatar";
 import billingRouter from "./billing";
 import adminRouter from "./admin";
 import citizenxRouter from "./citizenx";
+import mentorshipRouter from "./mentorship";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(avatarRouter);
 router.use(billingRouter);
 router.use(adminRouter);
 router.use(citizenxRouter);
+router.use(mentorshipRouter);
 
 export default router;

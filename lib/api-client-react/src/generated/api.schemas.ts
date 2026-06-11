@@ -26,6 +26,8 @@ export interface AuthUser {
   image: string | null;
   /** Whether this account is a platform superadmin (admin portal access). */
   isSuperAdmin: boolean;
+  /** Whether this account is flagged as a mentor (can publish mentoring courses). */
+  isMentor: boolean;
 }
 
 export interface RegisterInput {
@@ -258,6 +260,8 @@ export interface AdminUser {
   creditsUsedThisMonth: number;
   monthlyGrant: number;
   topupBalance: number;
+  /** Whether this account is flagged as a mentor. */
+  isMentor: boolean;
 }
 
 export interface AdminUserList {
@@ -283,6 +287,132 @@ export interface UpdateUserPlanInput {
 export interface GrantCreditsInput {
   /** @minimum 1 */
   credits: number;
+}
+
+export interface SetUserMentorInput {
+  isMentor: boolean;
+}
+
+export interface OutOfCreditsError {
+  error: string;
+  outOfCredits: boolean;
+  isGuest?: boolean;
+  upgradeHref?: string;
+}
+
+export interface MentorCourse {
+  id: string;
+  mentorUserId: string;
+  title: string;
+  description: string;
+  outcomes: string[];
+  creditPrice: number;
+  minCredits: number;
+  published: boolean;
+  enrollmentCount: number;
+  createdAt: string;
+}
+
+export interface MentorSummary {
+  userId: string;
+  /** @nullable */
+  name: string | null;
+  /** @nullable */
+  image: string | null;
+  headline: string;
+  expertise: string[];
+  courseCount: number;
+}
+
+export interface MentorDetail {
+  userId: string;
+  /** @nullable */
+  name: string | null;
+  /** @nullable */
+  image: string | null;
+  headline: string;
+  bio: string;
+  expertise: string[];
+  courses: MentorCourse[];
+}
+
+export interface MenteeEnrollment {
+  enrollmentId: string;
+  courseId: string;
+  courseTitle: string;
+  /** @nullable */
+  menteeName: string | null;
+  creditsPaid: number;
+  enrolledAt: string;
+}
+
+export interface MentorWorkspace {
+  headline: string;
+  bio: string;
+  expertise: string[];
+  courses: MentorCourse[];
+  mentees: MenteeEnrollment[];
+}
+
+export interface EnrolledCourse {
+  enrollmentId: string;
+  courseId: string;
+  courseTitle: string;
+  courseDescription: string;
+  outcomes: string[];
+  mentorUserId: string;
+  /** @nullable */
+  mentorName: string | null;
+  creditsPaid: number;
+  enrolledAt: string;
+}
+
+export interface MentorProfileInput {
+  /** @maxLength 200 */
+  headline: string;
+  /** @maxLength 4000 */
+  bio: string;
+  expertise: string[];
+}
+
+export interface CourseInput {
+  /**
+   * @minLength 1
+   * @maxLength 200
+   */
+  title: string;
+  /** @maxLength 4000 */
+  description: string;
+  outcomes: string[];
+  /** @minimum 0 */
+  creditPrice: number;
+  /** @minimum 0 */
+  minCredits: number;
+  published: boolean;
+}
+
+export interface CourseDraftInput {
+  /** @minLength 1 */
+  brief: string;
+}
+
+export interface CourseDraft {
+  title: string;
+  description: string;
+  outcomes: string[];
+}
+
+export interface EnrollInput {
+  /** @minimum 0 */
+  credits: number;
+}
+
+export interface EnrollResult {
+  enrollmentId: string;
+  courseId: string;
+  creditsPaid: number;
+  /** The mentee's remaining credit balance after paying. */
+  totalRemaining: number;
 }
 
 export interface AdminPlanRevenue {

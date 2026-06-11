@@ -34,7 +34,13 @@ import type {
   CitizenxExperiment,
   CitizenxExperimentInput,
   CitizenxExperimentSummary,
+  CourseDraft,
+  CourseDraftInput,
+  CourseInput,
   CreditBalance,
+  EnrollInput,
+  EnrollResult,
+  EnrolledCourse,
   Error,
   FeaturedProfile,
   FeaturedProfileSummary,
@@ -43,9 +49,16 @@ import type {
   ListAdminClaimsParams,
   ListAdminUsersParams,
   LoginInput,
+  MentorCourse,
+  MentorDetail,
+  MentorProfileInput,
+  MentorSummary,
+  MentorWorkspace,
   MessageResponse,
   MyProfileClaimStatus,
+  OutOfCreditsError,
   RegisterInput,
+  SetUserMentorInput,
   UpdateProfileInput,
   UpdateUserPlanInput,
 } from "./api.schemas";
@@ -1473,6 +1486,934 @@ export const useGrantUserCredits = <
   TContext
 > => {
   return useMutation(getGrantUserCreditsMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Toggles whether an account is a mentor.
+ * @summary Flag or unflag a user as a mentor
+ */
+export const getSetUserMentorUrl = (id: string) => {
+  return `/api/admin/users/${id}/mentor`;
+};
+
+export const setUserMentor = async (
+  id: string,
+  setUserMentorInput: SetUserMentorInput,
+  options?: RequestInit,
+): Promise<AdminUser> => {
+  return customFetch<AdminUser>(getSetUserMentorUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(setUserMentorInput),
+  });
+};
+
+export const getSetUserMentorMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof setUserMentor>>,
+    TError,
+    { id: string; data: BodyType<SetUserMentorInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof setUserMentor>>,
+  TError,
+  { id: string; data: BodyType<SetUserMentorInput> },
+  TContext
+> => {
+  const mutationKey = ["setUserMentor"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof setUserMentor>>,
+    { id: string; data: BodyType<SetUserMentorInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return setUserMentor(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SetUserMentorMutationResult = NonNullable<
+  Awaited<ReturnType<typeof setUserMentor>>
+>;
+export type SetUserMentorMutationBody = BodyType<SetUserMentorInput>;
+export type SetUserMentorMutationError = ErrorType<Error>;
+
+/**
+ * @summary Flag or unflag a user as a mentor
+ */
+export const useSetUserMentor = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof setUserMentor>>,
+    TError,
+    { id: string; data: BodyType<SetUserMentorInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof setUserMentor>>,
+  TError,
+  { id: string; data: BodyType<SetUserMentorInput> },
+  TContext
+> => {
+  return useMutation(getSetUserMentorMutationOptions(options));
+};
+
+/**
+ * Public. Returns mentors who have a profile and at least one published course, as lightweight cards.
+
+ * @summary List public mentors
+ */
+export const getListMentorsUrl = () => {
+  return `/api/mentors`;
+};
+
+export const listMentors = async (
+  options?: RequestInit,
+): Promise<MentorSummary[]> => {
+  return customFetch<MentorSummary[]>(getListMentorsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListMentorsQueryKey = () => {
+  return [`/api/mentors`] as const;
+};
+
+export const getListMentorsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMentors>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMentors>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListMentorsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listMentors>>> = ({
+    signal,
+  }) => listMentors({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMentors>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMentorsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMentors>>
+>;
+export type ListMentorsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List public mentors
+ */
+
+export function useListMentors<
+  TData = Awaited<ReturnType<typeof listMentors>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMentors>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMentorsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Public. Returns a mentor's profile plus their published courses.
+ * @summary Get a mentor and their published courses
+ */
+export const getGetMentorUrl = (id: string) => {
+  return `/api/mentors/${id}`;
+};
+
+export const getMentor = async (
+  id: string,
+  options?: RequestInit,
+): Promise<MentorDetail> => {
+  return customFetch<MentorDetail>(getGetMentorUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMentorQueryKey = (id: string) => {
+  return [`/api/mentors/${id}`] as const;
+};
+
+export const getGetMentorQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMentor>>,
+  TError = ErrorType<Error>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMentor>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMentorQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMentor>>> = ({
+    signal,
+  }) => getMentor(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof getMentor>>, TError, TData> & {
+    queryKey: QueryKey;
+  };
+};
+
+export type GetMentorQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMentor>>
+>;
+export type GetMentorQueryError = ErrorType<Error>;
+
+/**
+ * @summary Get a mentor and their published courses
+ */
+
+export function useGetMentor<
+  TData = Awaited<ReturnType<typeof getMentor>>,
+  TError = ErrorType<Error>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMentor>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMentorQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Mentor-only. Returns the signed-in mentor's profile (created lazily if missing), all of their courses (including unpublished), and their mentees' enrollments.
+
+ * @summary Get the current mentor's profile, courses, and mentees
+ */
+export const getGetMyMentorWorkspaceUrl = () => {
+  return `/api/mentorship/me`;
+};
+
+export const getMyMentorWorkspace = async (
+  options?: RequestInit,
+): Promise<MentorWorkspace> => {
+  return customFetch<MentorWorkspace>(getGetMyMentorWorkspaceUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMyMentorWorkspaceQueryKey = () => {
+  return [`/api/mentorship/me`] as const;
+};
+
+export const getGetMyMentorWorkspaceQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMyMentorWorkspace>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMyMentorWorkspace>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMyMentorWorkspaceQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMyMentorWorkspace>>
+  > = ({ signal }) => getMyMentorWorkspace({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMyMentorWorkspace>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMyMentorWorkspaceQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMyMentorWorkspace>>
+>;
+export type GetMyMentorWorkspaceQueryError = ErrorType<Error>;
+
+/**
+ * @summary Get the current mentor's profile, courses, and mentees
+ */
+
+export function useGetMyMentorWorkspace<
+  TData = Awaited<ReturnType<typeof getMyMentorWorkspace>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMyMentorWorkspace>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMyMentorWorkspaceQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Mentor-only. Sets headline, bio, and expertise tags.
+ * @summary Update the current mentor's profile
+ */
+export const getUpdateMyMentorProfileUrl = () => {
+  return `/api/mentorship/me/profile`;
+};
+
+export const updateMyMentorProfile = async (
+  mentorProfileInput: MentorProfileInput,
+  options?: RequestInit,
+): Promise<MentorWorkspace> => {
+  return customFetch<MentorWorkspace>(getUpdateMyMentorProfileUrl(), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(mentorProfileInput),
+  });
+};
+
+export const getUpdateMyMentorProfileMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMyMentorProfile>>,
+    TError,
+    { data: BodyType<MentorProfileInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateMyMentorProfile>>,
+  TError,
+  { data: BodyType<MentorProfileInput> },
+  TContext
+> => {
+  const mutationKey = ["updateMyMentorProfile"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateMyMentorProfile>>,
+    { data: BodyType<MentorProfileInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return updateMyMentorProfile(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateMyMentorProfileMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateMyMentorProfile>>
+>;
+export type UpdateMyMentorProfileMutationBody = BodyType<MentorProfileInput>;
+export type UpdateMyMentorProfileMutationError = ErrorType<Error>;
+
+/**
+ * @summary Update the current mentor's profile
+ */
+export const useUpdateMyMentorProfile = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMyMentorProfile>>,
+    TError,
+    { data: BodyType<MentorProfileInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateMyMentorProfile>>,
+  TError,
+  { data: BodyType<MentorProfileInput> },
+  TContext
+> => {
+  return useMutation(getUpdateMyMentorProfileMutationOptions(options));
+};
+
+/**
+ * Mentor-only. Creates a new course owned by the signed-in mentor.
+ * @summary Create a mentoring course
+ */
+export const getCreateMyCourseUrl = () => {
+  return `/api/mentorship/me/courses`;
+};
+
+export const createMyCourse = async (
+  courseInput: CourseInput,
+  options?: RequestInit,
+): Promise<MentorCourse> => {
+  return customFetch<MentorCourse>(getCreateMyCourseUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(courseInput),
+  });
+};
+
+export const getCreateMyCourseMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMyCourse>>,
+    TError,
+    { data: BodyType<CourseInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createMyCourse>>,
+  TError,
+  { data: BodyType<CourseInput> },
+  TContext
+> => {
+  const mutationKey = ["createMyCourse"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createMyCourse>>,
+    { data: BodyType<CourseInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createMyCourse(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateMyCourseMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createMyCourse>>
+>;
+export type CreateMyCourseMutationBody = BodyType<CourseInput>;
+export type CreateMyCourseMutationError = ErrorType<Error>;
+
+/**
+ * @summary Create a mentoring course
+ */
+export const useCreateMyCourse = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMyCourse>>,
+    TError,
+    { data: BodyType<CourseInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createMyCourse>>,
+  TError,
+  { data: BodyType<CourseInput> },
+  TContext
+> => {
+  return useMutation(getCreateMyCourseMutationOptions(options));
+};
+
+/**
+ * Mentor-only. Updates a course owned by the signed-in mentor.
+ * @summary Update a mentoring course
+ */
+export const getUpdateMyCourseUrl = (courseId: string) => {
+  return `/api/mentorship/me/courses/${courseId}`;
+};
+
+export const updateMyCourse = async (
+  courseId: string,
+  courseInput: CourseInput,
+  options?: RequestInit,
+): Promise<MentorCourse> => {
+  return customFetch<MentorCourse>(getUpdateMyCourseUrl(courseId), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(courseInput),
+  });
+};
+
+export const getUpdateMyCourseMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMyCourse>>,
+    TError,
+    { courseId: string; data: BodyType<CourseInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateMyCourse>>,
+  TError,
+  { courseId: string; data: BodyType<CourseInput> },
+  TContext
+> => {
+  const mutationKey = ["updateMyCourse"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateMyCourse>>,
+    { courseId: string; data: BodyType<CourseInput> }
+  > = (props) => {
+    const { courseId, data } = props ?? {};
+
+    return updateMyCourse(courseId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateMyCourseMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateMyCourse>>
+>;
+export type UpdateMyCourseMutationBody = BodyType<CourseInput>;
+export type UpdateMyCourseMutationError = ErrorType<Error>;
+
+/**
+ * @summary Update a mentoring course
+ */
+export const useUpdateMyCourse = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMyCourse>>,
+    TError,
+    { courseId: string; data: BodyType<CourseInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateMyCourse>>,
+  TError,
+  { courseId: string; data: BodyType<CourseInput> },
+  TContext
+> => {
+  return useMutation(getUpdateMyCourseMutationOptions(options));
+};
+
+/**
+ * Mentor-only. Deletes a course owned by the signed-in mentor.
+ * @summary Delete a mentoring course
+ */
+export const getDeleteMyCourseUrl = (courseId: string) => {
+  return `/api/mentorship/me/courses/${courseId}`;
+};
+
+export const deleteMyCourse = async (
+  courseId: string,
+  options?: RequestInit,
+): Promise<MessageResponse> => {
+  return customFetch<MessageResponse>(getDeleteMyCourseUrl(courseId), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteMyCourseMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteMyCourse>>,
+    TError,
+    { courseId: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteMyCourse>>,
+  TError,
+  { courseId: string },
+  TContext
+> => {
+  const mutationKey = ["deleteMyCourse"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteMyCourse>>,
+    { courseId: string }
+  > = (props) => {
+    const { courseId } = props ?? {};
+
+    return deleteMyCourse(courseId, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteMyCourseMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteMyCourse>>
+>;
+
+export type DeleteMyCourseMutationError = ErrorType<Error>;
+
+/**
+ * @summary Delete a mentoring course
+ */
+export const useDeleteMyCourse = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteMyCourse>>,
+    TError,
+    { courseId: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteMyCourse>>,
+  TError,
+  { courseId: string },
+  TContext
+> => {
+  return useMutation(getDeleteMyCourseMutationOptions(options));
+};
+
+/**
+ * Mentor-only. Uses Gemini to draft a course (title, description, learning outcomes) from a free-form brief. Credit-metered.
+
+ * @summary AI-draft a mentoring course from a brief
+ */
+export const getDraftMyCourseUrl = () => {
+  return `/api/mentorship/me/courses/draft`;
+};
+
+export const draftMyCourse = async (
+  courseDraftInput: CourseDraftInput,
+  options?: RequestInit,
+): Promise<CourseDraft> => {
+  return customFetch<CourseDraft>(getDraftMyCourseUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(courseDraftInput),
+  });
+};
+
+export const getDraftMyCourseMutationOptions = <
+  TError = ErrorType<OutOfCreditsError | Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof draftMyCourse>>,
+    TError,
+    { data: BodyType<CourseDraftInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof draftMyCourse>>,
+  TError,
+  { data: BodyType<CourseDraftInput> },
+  TContext
+> => {
+  const mutationKey = ["draftMyCourse"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof draftMyCourse>>,
+    { data: BodyType<CourseDraftInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return draftMyCourse(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DraftMyCourseMutationResult = NonNullable<
+  Awaited<ReturnType<typeof draftMyCourse>>
+>;
+export type DraftMyCourseMutationBody = BodyType<CourseDraftInput>;
+export type DraftMyCourseMutationError = ErrorType<OutOfCreditsError | Error>;
+
+/**
+ * @summary AI-draft a mentoring course from a brief
+ */
+export const useDraftMyCourse = <
+  TError = ErrorType<OutOfCreditsError | Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof draftMyCourse>>,
+    TError,
+    { data: BodyType<CourseDraftInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof draftMyCourse>>,
+  TError,
+  { data: BodyType<CourseDraftInput> },
+  TContext
+> => {
+  return useMutation(getDraftMyCourseMutationOptions(options));
+};
+
+/**
+ * Auth-only. Returns the courses the signed-in member is enrolled in.
+ * @summary List the current member's enrollments
+ */
+export const getGetMyEnrollmentsUrl = () => {
+  return `/api/mentorship/enrollments`;
+};
+
+export const getMyEnrollments = async (
+  options?: RequestInit,
+): Promise<EnrolledCourse[]> => {
+  return customFetch<EnrolledCourse[]>(getGetMyEnrollmentsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMyEnrollmentsQueryKey = () => {
+  return [`/api/mentorship/enrollments`] as const;
+};
+
+export const getGetMyEnrollmentsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMyEnrollments>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMyEnrollments>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMyEnrollmentsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMyEnrollments>>
+  > = ({ signal }) => getMyEnrollments({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMyEnrollments>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMyEnrollmentsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMyEnrollments>>
+>;
+export type GetMyEnrollmentsQueryError = ErrorType<Error>;
+
+/**
+ * @summary List the current member's enrollments
+ */
+
+export function useGetMyEnrollments<
+  TData = Awaited<ReturnType<typeof getMyEnrollments>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMyEnrollments>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMyEnrollmentsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Auth-only. Enrolls the signed-in member as a mentee, paying the given credits (at least the course minimum). Credits are deducted from the mentee and credited to the mentor via the credit ledger.
+
+ * @summary Enroll in a mentoring course
+ */
+export const getEnrollInCourseUrl = (courseId: string) => {
+  return `/api/mentorship/courses/${courseId}/enroll`;
+};
+
+export const enrollInCourse = async (
+  courseId: string,
+  enrollInput: EnrollInput,
+  options?: RequestInit,
+): Promise<EnrollResult> => {
+  return customFetch<EnrollResult>(getEnrollInCourseUrl(courseId), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(enrollInput),
+  });
+};
+
+export const getEnrollInCourseMutationOptions = <
+  TError = ErrorType<Error | OutOfCreditsError>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof enrollInCourse>>,
+    TError,
+    { courseId: string; data: BodyType<EnrollInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof enrollInCourse>>,
+  TError,
+  { courseId: string; data: BodyType<EnrollInput> },
+  TContext
+> => {
+  const mutationKey = ["enrollInCourse"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof enrollInCourse>>,
+    { courseId: string; data: BodyType<EnrollInput> }
+  > = (props) => {
+    const { courseId, data } = props ?? {};
+
+    return enrollInCourse(courseId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type EnrollInCourseMutationResult = NonNullable<
+  Awaited<ReturnType<typeof enrollInCourse>>
+>;
+export type EnrollInCourseMutationBody = BodyType<EnrollInput>;
+export type EnrollInCourseMutationError = ErrorType<Error | OutOfCreditsError>;
+
+/**
+ * @summary Enroll in a mentoring course
+ */
+export const useEnrollInCourse = <
+  TError = ErrorType<Error | OutOfCreditsError>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof enrollInCourse>>,
+    TError,
+    { courseId: string; data: BodyType<EnrollInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof enrollInCourse>>,
+  TError,
+  { courseId: string; data: BodyType<EnrollInput> },
+  TContext
+> => {
+  return useMutation(getEnrollInCourseMutationOptions(options));
 };
 
 /**
