@@ -1240,6 +1240,94 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /messages:
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: List the signed-in member's received messages
+      description: >
+        Returns messages received by the current member, newest first, plus the
+        unread count for the inbox badge. Requires authentication.
+      responses:
+        "200":
+          description: The inbox listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageList"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a direct message to another member
+      description: >
+        Sends a message to a member account (by id) or to the verified owner of
+        a featured directory profile (by slug). Provide exactly one of
+        recipientId or profileSlug. Requires authentication; cannot message
+        yourself.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageInput"
+      responses:
+        "201":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Recipient not found or profile has no owner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /messages/{id}/read:
+    post:
+      operationId: markMessageRead
+      tags: [messages]
+      summary: Mark a received message as read
+      description: >
+        Marks a message as read for the current member (recipient only). Requires
+        authentication.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Marked read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     HealthStatus:
@@ -1261,8 +1349,72 @@ components:
       properties:
         success:
           type: boolean
+        held:
+          type: boolean
+          description: >
+            True when the message was held for an unclaimed living member and
+            will be delivered once they claim their profile.
       required:
         - success
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+        senderId:
+          type: string
+        senderName:
+          type: ["string", "null"]
+        senderEmail:
+          type: string
+        subject:
+          type: ["string", "null"]
+        body:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - senderId
+        - senderName
+        - senderEmail
+        - subject
+        - body
+        - read
+        - createdAt
+    MessageList:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+        unreadCount:
+          type: integer
+      required:
+        - messages
+        - unreadCount
+    SendMessageInput:
+      type: object
+      properties:
+        recipientId:
+          type: string
+          description: Target member account id. Provide this OR profileSlug.
+        profileSlug:
+          type: string
+          description: Target directory profile slug (routes to its owner). Provide this OR recipientId.
+        subject:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+          minLength: 1
+          maxLength: 5000
+      required:
+        - body
     AuthUser:
       type: object
       properties:

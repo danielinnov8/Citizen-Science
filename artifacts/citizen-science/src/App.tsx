@@ -17,6 +17,7 @@ import { ExperimentDetail } from "@/pages/ExperimentDetail";
 import { Notebook } from "@/pages/Notebook";
 import { ProgressPage } from "@/pages/Progress";
 import { Profile } from "@/pages/Profile";
+import { Inbox } from "@/pages/Inbox";
 import { SignOut } from "@/pages/SignOut";
 import { Directory } from "@/pages/Directory";
 import { ProfileDetail } from "@/pages/ProfileDetail";
@@ -147,6 +148,9 @@ function Router() {
       </Route>
       <Route path="/profile">
         <AppShell><Profile /></AppShell>
+      </Route>
+      <Route path="/inbox">
+        <ProtectedRoute><AppShell><Inbox /></AppShell></ProtectedRoute>
       </Route>
       <Route path="/admin">
         <AdminRoute><AppShell><Admin /></AppShell></AdminRoute>

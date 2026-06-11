@@ -17,11 +17,16 @@ import {
   NotebookPen,
   Shield,
   Globe2,
+  Inbox as InboxIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { storage } from "@/lib/storage";
 import { EXPERIMENTS } from "@/lib/experiments";
+import {
+  useListMessages,
+  getListMessagesQueryKey,
+} from "@workspace/api-client-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BadgeTile } from "@/components/Logo";
 import { CreditMeter } from "@/components/CreditMeter";
@@ -77,6 +82,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Workspace",
     items: [
+      { icon: InboxIcon, label: "Inbox", href: "/inbox", public: false },
       { icon: BookA, label: "Notebook", href: "/notebook", public: false },
       { icon: TrendingUp, label: "Progress", href: "/progress", public: false },
     ],
@@ -97,6 +103,18 @@ export function Sidebar() {
   const [location] = useLocation();
   const { isAuthenticated, user } = useAuth();
   const [collapsed, setCollapsed] = React.useState(() => storage.getSidebarCollapsed());
+
+  // Unread inbox count drives the badge on the Inbox nav item. Polled lightly so
+  // the badge stays roughly current as new messages arrive.
+  const inboxQuery = useListMessages({
+    query: {
+      queryKey: getListMessagesQueryKey(),
+      enabled: isAuthenticated,
+      staleTime: 1000 * 30,
+      refetchInterval: 1000 * 60,
+    },
+  });
+  const unreadCount = inboxQuery.data?.unreadCount ?? 0;
 
   // Individual profile pages (`/directory/:slug`) are immersive, full-width
   // story pages — collapse the sidebar on arrival to let the hero breathe, and
@@ -159,6 +177,7 @@ export function Sidebar() {
 
   const renderNavLink = (item: NavItem) => {
     const active = isActive(item.href);
+    const badgeCount = item.href === "/inbox" ? unreadCount : 0;
     const link = (
       <Link
         href={item.href}
@@ -170,8 +189,24 @@ export function Sidebar() {
             : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]",
         )}
       >
-        <SidebarBadge icon={item.icon} />
-        {!collapsed && item.label}
+        <span className="relative">
+          <SidebarBadge icon={item.icon} />
+          {badgeCount > 0 && (
+            <span
+              className={cn(
+                "absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-bold leading-none text-white ring-2 ring-white",
+              )}
+            >
+              {badgeCount > 9 ? "9+" : badgeCount}
+            </span>
+          )}
+        </span>
+        {!collapsed && <span className="flex-1">{item.label}</span>}
+        {!collapsed && badgeCount > 0 && (
+          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 text-[11px] font-bold leading-none text-white">
+            {badgeCount > 99 ? "99+" : badgeCount}
+          </span>
+        )}
       </Link>
     );
 
@@ -179,7 +214,10 @@ export function Sidebar() {
       return (
         <Tooltip key={item.href}>
           <TooltipTrigger asChild>{link}</TooltipTrigger>
-          <TooltipContent side="right">{item.label}</TooltipContent>
+          <TooltipContent side="right">
+            {item.label}
+            {badgeCount > 0 ? ` (${badgeCount})` : ""}
+          </TooltipContent>
         </Tooltip>
       );
     }

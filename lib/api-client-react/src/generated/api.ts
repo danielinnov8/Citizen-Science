@@ -55,10 +55,12 @@ import type {
   MentorProfileInput,
   MentorSummary,
   MentorWorkspace,
+  MessageList,
   MessageResponse,
   MyProfileClaimStatus,
   OutOfCreditsError,
   RegisterInput,
+  SendMessageInput,
   SetUserMentorInput,
   UpdateProfileInput,
   UpdateUserPlanInput,
@@ -3967,4 +3969,255 @@ export const useDenyClaim = <
   TContext
 > => {
   return useMutation(getDenyClaimMutationOptions(options));
+};
+
+/**
+ * Returns messages received by the current member, newest first, plus the unread count for the inbox badge. Requires authentication.
+
+ * @summary List the signed-in member's received messages
+ */
+export const getListMessagesUrl = () => {
+  return `/api/messages`;
+};
+
+export const listMessages = async (
+  options?: RequestInit,
+): Promise<MessageList> => {
+  return customFetch<MessageList>(getListMessagesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListMessagesQueryKey = () => {
+  return [`/api/messages`] as const;
+};
+
+export const getListMessagesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMessages>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMessages>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListMessagesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listMessages>>> = ({
+    signal,
+  }) => listMessages({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMessages>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMessagesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMessages>>
+>;
+export type ListMessagesQueryError = ErrorType<Error>;
+
+/**
+ * @summary List the signed-in member's received messages
+ */
+
+export function useListMessages<
+  TData = Awaited<ReturnType<typeof listMessages>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMessages>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMessagesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Sends a message to a member account (by id) or to the verified owner of a featured directory profile (by slug). Provide exactly one of recipientId or profileSlug. Requires authentication; cannot message yourself.
+
+ * @summary Send a direct message to another member
+ */
+export const getSendMessageUrl = () => {
+  return `/api/messages`;
+};
+
+export const sendMessage = async (
+  sendMessageInput: SendMessageInput,
+  options?: RequestInit,
+): Promise<MessageResponse> => {
+  return customFetch<MessageResponse>(getSendMessageUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(sendMessageInput),
+  });
+};
+
+export const getSendMessageMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendMessage>>,
+    TError,
+    { data: BodyType<SendMessageInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof sendMessage>>,
+  TError,
+  { data: BodyType<SendMessageInput> },
+  TContext
+> => {
+  const mutationKey = ["sendMessage"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof sendMessage>>,
+    { data: BodyType<SendMessageInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return sendMessage(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SendMessageMutationResult = NonNullable<
+  Awaited<ReturnType<typeof sendMessage>>
+>;
+export type SendMessageMutationBody = BodyType<SendMessageInput>;
+export type SendMessageMutationError = ErrorType<Error>;
+
+/**
+ * @summary Send a direct message to another member
+ */
+export const useSendMessage = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendMessage>>,
+    TError,
+    { data: BodyType<SendMessageInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof sendMessage>>,
+  TError,
+  { data: BodyType<SendMessageInput> },
+  TContext
+> => {
+  return useMutation(getSendMessageMutationOptions(options));
+};
+
+/**
+ * Marks a message as read for the current member (recipient only). Requires authentication.
+
+ * @summary Mark a received message as read
+ */
+export const getMarkMessageReadUrl = (id: string) => {
+  return `/api/messages/${id}/read`;
+};
+
+export const markMessageRead = async (
+  id: string,
+  options?: RequestInit,
+): Promise<MessageResponse> => {
+  return customFetch<MessageResponse>(getMarkMessageReadUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getMarkMessageReadMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markMessageRead>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof markMessageRead>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["markMessageRead"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof markMessageRead>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return markMessageRead(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type MarkMessageReadMutationResult = NonNullable<
+  Awaited<ReturnType<typeof markMessageRead>>
+>;
+
+export type MarkMessageReadMutationError = ErrorType<Error>;
+
+/**
+ * @summary Mark a received message as read
+ */
+export const useMarkMessageRead = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markMessageRead>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof markMessageRead>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getMarkMessageReadMutationOptions(options));
 };

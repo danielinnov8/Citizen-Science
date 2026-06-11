@@ -1,5 +1,17 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { and, count, desc, eq, gte, ilike, like, ne, or, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  gte,
+  ilike,
+  isNull,
+  like,
+  ne,
+  or,
+  sql,
+} from "drizzle-orm";
 import {
   db,
   usersTable,
@@ -7,6 +19,7 @@ import {
   copilotUsageTable,
   featuredProfilesTable,
   profileClaimsTable,
+  messagesTable,
   type User,
   type ProfileClaim,
 } from "@workspace/db";
@@ -736,6 +749,20 @@ router.post(
             eq(profileClaimsTable.profileId, row.claim.profileId),
             eq(profileClaimsTable.status, "pending"),
             ne(profileClaimsTable.id, row.claim.id),
+          ),
+        );
+
+      // Deliver any messages that were held for this profile while it was
+      // unclaimed: route them to the new owner's inbox (skipping anything the
+      // new owner sent before claiming).
+      await tx
+        .update(messagesTable)
+        .set({ recipientId: row.claim.userId })
+        .where(
+          and(
+            eq(messagesTable.profileSlug, row.profileSlug),
+            isNull(messagesTable.recipientId),
+            ne(messagesTable.senderId, row.claim.userId),
           ),
         );
     });

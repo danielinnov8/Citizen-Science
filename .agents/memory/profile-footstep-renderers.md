@@ -12,10 +12,15 @@ chosen in `ProfileDetail.tsx` precedence order:
 3. DB-built (from `buildStoryFromProfile`) → `GreatMindStory`
 4. fallback standard layout → inline in `ProfileDetail.tsx`
 
-**Rule:** anything that affects a profile section shared by all paths — most
-notably the "Follow in Their Footsteps" experiment list — must be applied to
-GreatMindStory, LivingMindStory, AND the ProfileDetail fallback, or it silently
-diverges per figure.
+**Rule:** anything that affects a profile section shared by all paths — the
+"Follow in Their Footsteps" experiment list, the claim/message surface, etc. —
+must be applied to GreatMindStory, LivingMindStory, AND the ProfileDetail
+fallback, or it silently diverges per figure. Prefer one self-contained shared
+component (e.g. `ProfileClaimCard` owns its own claim-status query + dialogs)
+dropped into all three paths over re-implementing per renderer. A figure with a
+populated DB biography (e.g. manu-rehani) renders via a story layout, NOT the
+standard ProfileDetail layout — so a feature added only to ProfileDetail is
+invisible on exactly the high-value profiles that have rich content.
 
 **Why:** the footstep list was originally a copy-pasted `EXPERIMENTS.filter(
 relatedCategorySlugs.includes(e.categoryId))` in all three. Adding a category-tagged

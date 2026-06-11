@@ -57,6 +57,13 @@
       "when": 1781202399513,
       "tag": "0007_lucky_zaladane",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1781205368338,
+      "tag": "0008_fantastic_arclight",
+      "breakpoints": true
     }
   ]
 }

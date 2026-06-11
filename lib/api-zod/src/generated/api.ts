@@ -62,6 +62,12 @@ export const LoginResponse = zod.object({
  */
 export const LogoutResponse = zod.object({
   success: zod.boolean(),
+  held: zod
+    .boolean()
+    .optional()
+    .describe(
+      "True when the message was held for an unclaimed living member and will be delivered once they claim their profile.\n",
+    ),
 });
 
 /**
@@ -738,6 +744,12 @@ export const DeleteMyCourseParams = zod.object({
 
 export const DeleteMyCourseResponse = zod.object({
   success: zod.boolean(),
+  held: zod
+    .boolean()
+    .optional()
+    .describe(
+      "True when the message was held for an unclaimed living member and will be delivered once they claim their profile.\n",
+    ),
 });
 
 /**
@@ -1275,4 +1287,68 @@ export const DenyClaimResponse = zod.object({
   claimantEmail: zod.string(),
   createdAt: zod.coerce.date(),
   reviewedAt: zod.coerce.date().nullable(),
+});
+
+/**
+ * Returns messages received by the current member, newest first, plus the unread count for the inbox badge. Requires authentication.
+
+ * @summary List the signed-in member's received messages
+ */
+export const ListMessagesResponse = zod.object({
+  messages: zod.array(
+    zod.object({
+      id: zod.string(),
+      senderId: zod.string(),
+      senderName: zod.string().nullable(),
+      senderEmail: zod.string(),
+      subject: zod.string().nullable(),
+      body: zod.string(),
+      read: zod.boolean(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  unreadCount: zod.number(),
+});
+
+/**
+ * Sends a message to a member account (by id) or to the verified owner of a featured directory profile (by slug). Provide exactly one of recipientId or profileSlug. Requires authentication; cannot message yourself.
+
+ * @summary Send a direct message to another member
+ */
+export const sendMessageBodySubjectMax = 200;
+
+export const sendMessageBodyBodyMax = 5000;
+
+export const SendMessageBody = zod.object({
+  recipientId: zod
+    .string()
+    .optional()
+    .describe("Target member account id. Provide this OR profileSlug."),
+  profileSlug: zod
+    .string()
+    .optional()
+    .describe(
+      "Target directory profile slug (routes to its owner). Provide this OR recipientId.",
+    ),
+  subject: zod.string().max(sendMessageBodySubjectMax).optional(),
+  body: zod.string().min(1).max(sendMessageBodyBodyMax),
+});
+
+/**
+ * Marks a message as read for the current member (recipient only). Requires authentication.
+
+ * @summary Mark a received message as read
+ */
+export const MarkMessageReadParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const MarkMessageReadResponse = zod.object({
+  success: zod.boolean(),
+  held: zod
+    .boolean()
+    .optional()
+    .describe(
+      "True when the message was held for an unclaimed living member and will be delivered once they claim their profile.\n",
+    ),
 });

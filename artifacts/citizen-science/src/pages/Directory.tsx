@@ -13,6 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { MessageProfileButton } from "@/components/MessageProfileButton";
+import { isLivingEra } from "@/lib/living";
 
 const ALL = "__all__";
 
@@ -63,12 +65,17 @@ function ProfileCard({ p }: { p: FeaturedProfileSummary }) {
           </div>
         )}
       </div>
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1">
         <h3 className="font-semibold text-[#0F172A] leading-snug group-hover:text-blue-700 transition-colors">
           {p.name}
         </h3>
         <p className="text-sm text-[#2563EB] font-medium mt-1">{p.field}</p>
         <p className="text-xs text-[#64748B] mt-0.5">{p.era}</p>
+        {isLivingEra(p.era) && (
+          <div className="mt-auto pt-3 border-t border-[#F1F5F9]">
+            <MessageProfileButton slug={p.slug} profileName={p.name} />
+          </div>
+        )}
       </div>
     </Link>
   );

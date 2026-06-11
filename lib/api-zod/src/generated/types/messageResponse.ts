@@ -8,4 +8,7 @@
 
 export interface MessageResponse {
   success: boolean;
+  /** True when the message was held for an unclaimed living member and will be delivered once they claim their profile.
+   */
+  held?: boolean;
 }

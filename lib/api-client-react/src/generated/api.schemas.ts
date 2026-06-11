@@ -15,6 +15,41 @@ export interface Error {
 
 export interface MessageResponse {
   success: boolean;
+  /** True when the message was held for an unclaimed living member and will be delivered once they claim their profile.
+   */
+  held?: boolean;
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  /** @nullable */
+  senderName: string | null;
+  senderEmail: string;
+  /** @nullable */
+  subject: string | null;
+  body: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface MessageList {
+  messages: Message[];
+  unreadCount: number;
+}
+
+export interface SendMessageInput {
+  /** Target member account id. Provide this OR profileSlug. */
+  recipientId?: string;
+  /** Target directory profile slug (routes to its owner). Provide this OR recipientId. */
+  profileSlug?: string;
+  /** @maxLength 200 */
+  subject?: string;
+  /**
+   * @minLength 1
+   * @maxLength 5000
+   */
+  body: string;
 }
 
 export interface AuthUser {
