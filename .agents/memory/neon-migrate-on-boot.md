@@ -34,12 +34,32 @@ does NOT apply (Cloud Run + own Neon, not Replit Deployments).
   never rejects, to preserve boot-without-DB resilience) and `/api` routes are
   gated behind a bounded migration-ready wait (`/healthz` exempt). Otherwise a
   request can hit a not-yet-migrated schema in the first sub-second after deploy.
-- Multi-instance safe: `runMigrations` holds a pg advisory lock on a dedicated
-  client so concurrent Cloud Run instances don't race.
+- **Advisory lock must be BEST-EFFORT on pooled endpoints.** `runMigrations`
+  tries a session-level `pg_advisory_lock` on a dedicated client for
+  multi-instance safety, but **Neon's pooled endpoint (pgbouncer transaction
+  mode) REJECTS session advisory locks** — and that throw was the very first
+  query, so it aborted the entire migration step. On Neon-backed prod this meant
+  migrate-on-boot NEVER ran (no journal, no new tables, `users` missing `plan`)
+  → every DB-backed route 500'd, while dev (Replit Helium, non-pooled) worked
+  fine. Fix: wrap the lock in try/catch and proceed WITHOUT it on failure (the
+  idempotent SQL makes a rare concurrent run harmless); only `pg_advisory_unlock`
+  if the lock was actually acquired. **Why:** session-pooled Postgres silently
+  diverges from direct Postgres on session-scoped features.
 
 **How to apply:** add a schema change → `pnpm --filter @workspace/db run generate`
 → commit the new SQL + meta → deploy. The new migration applies automatically on
 the next boot.
+
+**`CREATE TABLE IF NOT EXISTS` does NOT reconcile a pre-existing drifted table.**
+If a table was created by an early `drizzle-kit push` BEFORE the versioned
+baseline, the baseline's `CREATE TABLE IF NOT EXISTS` is a full no-op on it and
+will NEVER add later columns (this is exactly how prod `users` ended up missing
+`plan`). Pre-existing tables need EXPLICIT `ALTER TABLE ... ADD COLUMN IF NOT
+EXISTS` statements — only brand-new tables benefit from CREATE. Add such
+reconciliation as a hand-written custom migration: `drizzle-kit generate
+--custom --name <x>` (creates the journal entry + snapshot copy correctly), then
+write the idempotent ALTERs into the empty `.sql`. Verify by replaying the
+migrator against a throwaway local Postgres seeded with the OLD drifted schema.
 
 **Incremental migrations also need idempotency if you `push` to dev first.**
 `drizzle-kit push` creates the table WITHOUT recording it in the migration

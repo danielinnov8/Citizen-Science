@@ -18,7 +18,16 @@ let migrationPromise: Promise<void> | null = null;
  */
 export function startMigrations(): Promise<void> {
   if (migrationPromise) return migrationPromise;
-  migrationPromise = runMigrations()
+  migrationPromise = runMigrations({
+    onAdvisoryLockUnavailable: (err) => {
+      // Expected on pooled endpoints (e.g. Neon pgbouncer transaction mode);
+      // migrations are idempotent so we proceed without the lock.
+      logger.warn(
+        { err },
+        "Advisory lock unavailable; running migrations without it",
+      );
+    },
+  })
     .then(() => {
       logger.info("Database migrations applied");
     })

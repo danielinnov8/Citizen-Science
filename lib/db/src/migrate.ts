@@ -29,18 +29,47 @@ function resolveMigrationsFolder(): string {
  * keeps serving (DB-backed routes will surface their own errors), mirroring the
  * lazy-connection philosophy of the db client.
  */
-export async function runMigrations(): Promise<void> {
+export async function runMigrations(options?: {
+  /**
+   * Invoked when the session-level advisory lock could not be acquired (e.g. a
+   * pooled endpoint that rejects it) and migrations proceed without it. Lets the
+   * caller surface an operability warning; defaults to a no-op.
+   */
+  onAdvisoryLockUnavailable?: (err: unknown) => void;
+}): Promise<void> {
   const migrationsFolder = resolveMigrationsFolder();
   const client = await pool.connect();
+  let locked = false;
   try {
-    await client.query("SELECT pg_advisory_lock($1)", [
-      MIGRATION_LOCK_KEY.toString(),
-    ]);
+    // Best-effort cross-instance serialization. Some connection poolers — most
+    // notably Neon's pooled endpoint (pgbouncer in transaction-pooling mode) —
+    // reject SESSION-level advisory locks like pg_advisory_lock, which throws
+    // here. Historically that error aborted the entire migration step (the
+    // advisory lock is the very FIRST query), so on Neon-backed prod the schema
+    // never migrated and DB-backed routes 500'd while dev (non-pooled) worked.
+    // The migrations are fully idempotent (IF NOT EXISTS / ADD COLUMN IF NOT
+    // EXISTS), so if the lock is unavailable we proceed WITHOUT it; a rare
+    // concurrent run during a multi-instance cold start is harmless.
+    try {
+      await client.query("SELECT pg_advisory_lock($1)", [
+        MIGRATION_LOCK_KEY.toString(),
+      ]);
+      locked = true;
+    } catch (err) {
+      // Pooler doesn't support session advisory locks — continue unlocked.
+      options?.onAdvisoryLockUnavailable?.(err);
+    }
     await migrate(db, { migrationsFolder });
   } finally {
-    await client.query("SELECT pg_advisory_unlock($1)", [
-      MIGRATION_LOCK_KEY.toString(),
-    ]);
+    if (locked) {
+      try {
+        await client.query("SELECT pg_advisory_unlock($1)", [
+          MIGRATION_LOCK_KEY.toString(),
+        ]);
+      } catch {
+        // Ignore unlock failures — the session ends on release() anyway.
+      }
+    }
     client.release();
   }
 }
