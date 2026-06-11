@@ -1159,7 +1159,7 @@ export function Landing() {
             <Reveal delay={0.05}>
               <h1 className="mt-8 font-serif text-5xl leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
                 Humanity's<br />
-                <TypewriterWord words={HERO_WORDS} />
+                <span className="text-blue-200">Discovery</span>
                 <br className="block sm:hidden" /> Network
               </h1>
             </Reveal>
