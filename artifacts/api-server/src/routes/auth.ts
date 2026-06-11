@@ -5,7 +5,7 @@ import {
   type Response,
   type CookieOptions,
 } from "express";
-import { randomBytes, createHash } from "node:crypto";
+import { randomBytes, createHash, timingSafeEqual } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db, usersTable, type User } from "@workspace/db";
 import {
@@ -23,15 +23,29 @@ import {
 } from "../lib/auth/session";
 import { requireAuth } from "../middlewares/requireAuth";
 import { isSuperAdmin } from "../lib/admin/superadmin";
+import { createOauthState, consumeOauthState } from "../lib/auth/oauthState";
 
 const router: IRouter = Router();
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_USERINFO_URL = "https://openidconnect.googleapis.com/v1/userinfo";
-const OAUTH_STATE_COOKIE = "cs_oauth_state";
-const OAUTH_VERIFIER_COOKIE = "cs_oauth_verifier";
-const OAUTH_TTL_MS = 1000 * 60 * 10; // 10 minutes
+const OAUTH_NONCE_COOKIE = "cs_oauth_nonce";
+const OAUTH_NONCE_TTL_MS = 1000 * 60 * 10; // 10 minutes
+
+function sha256Hex(value: string): string {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+// Constant-time comparison of two hex strings; false on any length mismatch.
+function hexEquals(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  try {
+    return timingSafeEqual(Buffer.from(a, "hex"), Buffer.from(b, "hex"));
+  } catch {
+    return false;
+  }
+}
 
 function toAuthUser(user: User) {
   return {
@@ -212,29 +226,57 @@ router.get("/auth/me", requireAuth, (req: Request, res: Response): void => {
   res.json(GetCurrentUserResponse.parse(toAuthUser(req.user as User)));
 });
 
-router.get("/auth/google", (req: Request, res: Response): void => {
+router.get("/auth/google", async (req: Request, res: Response): Promise<void> => {
   const config = getGoogleConfig();
   if (!config) {
     res.redirect("/login?error=google_unconfigured");
     return;
   }
 
+  let redirectUri: string;
+  try {
+    redirectUri = getRedirectUri(req);
+  } catch (err) {
+    req.log.error({ err }, "google oauth start: cannot resolve redirect uri");
+    res.redirect("/login?error=google");
+    return;
+  }
+
   const state = base64url(randomBytes(24));
   const verifier = base64url(randomBytes(32));
-  const challenge = base64url(
-    createHash("sha256").update(verifier).digest(),
-  );
+  const challenge = base64url(createHash("sha256").update(verifier).digest());
+  const nonce = base64url(randomBytes(24));
 
-  const oauthCookie: CookieOptions = {
+  // Persist the handshake server-side (keyed by `state`) instead of in signed
+  // browser cookies. Google echoes `state` back to the callback, which looks it
+  // up in the shared DB — so the flow survives the cross-domain Google redirect
+  // and works no matter which autoscale instance handles the callback. The exact
+  // redirect_uri is stored too so token exchange reuses it byte-for-byte. We also
+  // store the hash of a browser nonce: the raw nonce goes into a signed
+  // SameSite=Lax cookie, and the callback must present a matching cookie. That
+  // binds completion to the same browser that started the flow (login-CSRF
+  // protection) without putting the security-critical verifier in a cookie.
+  try {
+    await createOauthState({
+      state,
+      verifier,
+      nonceHash: sha256Hex(nonce),
+      redirectUri,
+    });
+  } catch (err) {
+    req.log.error({ err }, "google oauth start: failed to persist state");
+    res.redirect("/login?error=google");
+    return;
+  }
+
+  res.cookie(OAUTH_NONCE_COOKIE, nonce, {
     ...baseCookieOptions(req),
-    maxAge: OAUTH_TTL_MS,
-  };
-  res.cookie(OAUTH_STATE_COOKIE, state, oauthCookie);
-  res.cookie(OAUTH_VERIFIER_COOKIE, verifier, oauthCookie);
+    maxAge: OAUTH_NONCE_TTL_MS,
+  });
 
   const params = new URLSearchParams({
     client_id: config.clientId,
-    redirect_uri: getRedirectUri(req),
+    redirect_uri: redirectUri,
     response_type: "code",
     scope: "openid email profile",
     state,
@@ -253,29 +295,17 @@ router.get(
     const config = getGoogleConfig();
     const code = typeof req.query.code === "string" ? req.query.code : "";
     const state = typeof req.query.state === "string" ? req.query.state : "";
-    const cookieState = req.signedCookies?.[OAUTH_STATE_COOKIE];
-    const verifier = req.signedCookies?.[OAUTH_VERIFIER_COOKIE];
+    const cookieNonce = req.signedCookies?.[OAUTH_NONCE_COOKIE];
 
-    res.clearCookie(OAUTH_STATE_COOKIE, { ...baseCookieOptions(req) });
-    res.clearCookie(OAUTH_VERIFIER_COOKIE, { ...baseCookieOptions(req) });
+    // The nonce cookie is single-use; clear it regardless of outcome.
+    res.clearCookie(OAUTH_NONCE_COOKIE, { ...baseCookieOptions(req) });
 
-    if (
-      !config ||
-      !code ||
-      !state ||
-      !cookieState ||
-      state !== cookieState ||
-      !verifier ||
-      typeof verifier !== "string"
-    ) {
+    if (!config || !code || !state) {
       req.log.warn(
         {
           hasConfig: Boolean(config),
           hasCode: Boolean(code),
           hasState: Boolean(state),
-          hasCookieState: Boolean(cookieState),
-          stateMatches: Boolean(state && cookieState && state === cookieState),
-          hasVerifier: Boolean(verifier),
           host: req.get("host"),
         },
         "google oauth callback precondition failed",
@@ -283,6 +313,48 @@ router.get(
       res.redirect("/login?error=google");
       return;
     }
+
+    // Look up (and single-use consume) the handshake by the state Google echoed
+    // back. The stored verifier + redirect_uri come from the /authorize step, so
+    // they are correct even if this callback landed on a different domain or
+    // instance than the one that started the flow.
+    let handshake: {
+      verifier: string;
+      redirectUri: string;
+      nonceHash: string;
+    } | null = null;
+    try {
+      handshake = await consumeOauthState(state);
+    } catch (err) {
+      req.log.error({ err }, "google oauth callback: state lookup failed");
+      res.redirect("/login?error=google");
+      return;
+    }
+
+    if (!handshake) {
+      req.log.warn(
+        { host: req.get("host") },
+        "google oauth callback: unknown or expired state",
+      );
+      res.redirect("/login?error=google");
+      return;
+    }
+
+    // Login-CSRF protection: the browser completing the flow must present the
+    // signed nonce cookie set at /authorize, whose hash matches the stored one.
+    if (
+      typeof cookieNonce !== "string" ||
+      !hexEquals(sha256Hex(cookieNonce), handshake.nonceHash)
+    ) {
+      req.log.warn(
+        { host: req.get("host"), hasNonceCookie: typeof cookieNonce === "string" },
+        "google oauth callback: nonce mismatch",
+      );
+      res.redirect("/login?error=google");
+      return;
+    }
+
+    const { verifier, redirectUri } = handshake;
 
     try {
       const tokenRes = await fetch(GOOGLE_TOKEN_URL, {
@@ -292,7 +364,7 @@ router.get(
           code,
           client_id: config.clientId,
           client_secret: config.clientSecret,
-          redirect_uri: getRedirectUri(req),
+          redirect_uri: redirectUri,
           grant_type: "authorization_code",
           code_verifier: verifier,
         }),
@@ -301,7 +373,7 @@ router.get(
       if (!tokenRes.ok) {
         const detail = await tokenRes.text().catch(() => "");
         req.log.error(
-          { status: tokenRes.status, detail, redirectUri: getRedirectUri(req) },
+          { status: tokenRes.status, detail, redirectUri },
           "google token exchange failed",
         );
         res.redirect("/login?error=google");

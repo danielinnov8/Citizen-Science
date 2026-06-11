@@ -15,6 +15,20 @@
       "when": 1781020251048,
       "tag": "0001_tiresome_epoch",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781193710911,
+      "tag": "0002_brown_frank_castle",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781194111006,
+      "tag": "0003_adorable_wolf_cub",
+      "breakpoints": true
     }
   ]
 }

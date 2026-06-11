@@ -29,3 +29,28 @@ have `https://<domain>/api/auth/google/callback` registered as an Authorized
 redirect URI in the Google Cloud Console OAuth client. Symptom disambiguation:
 `error=google` = callback failed after Google redirected back (secrets ARE set);
 `error=google_unconfigured` = GOOGLE_CLIENT_ID/SECRET missing.
+
+## Don't put the OAuth handshake in browser cookies on autoscale
+
+Storing the PKCE verifier/state in signed cookies is fragile across the
+cross-domain Google→callback hop on multi-instance autoscale: the callback can
+land where the cookie isn't readable, giving an intermittent `error=google` with
+no server exception (it's a precondition failure, not a thrown error).
+
+**Fix:** persist the handshake server-side in a DB table keyed by `state`
+(verifier + exact redirect_uri + expiry), single-use `DELETE ... RETURNING` at
+callback. Google echoes `state` back, so any instance/domain can resolve it.
+
+**But state-in-DB alone is login-CSRF:** the callback would accept any valid
+code/state with no browser binding. Bind completion to the originating browser
+with a nonce: store `sha256(nonce)` in the row, set the raw nonce in a SIGNED
+HttpOnly Secure SameSite=Lax short-TTL cookie, and at callback require a
+`timingSafeEqual` hash match. The nonce cookie survives because the whole flow is
+kept same-origin (see redirect_uri origin-pinning above).
+
+**Why:** combines reliability (DB lookup, instance-agnostic) with security (PKCE
++ CSRF binding) without putting the security-critical verifier in a cookie.
+
+**Migration gotcha:** an ephemeral handshake table is safe to clear on upgrade —
+`ADD COLUMN ... NOT NULL` with no default fails on a non-empty table, so prepend
+`DELETE FROM <table>;` before the NOT NULL add (no durable data to backfill).
