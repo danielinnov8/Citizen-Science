@@ -56,6 +56,31 @@ function resolveBareKind(slug: string, scientistSlugs: Set<string>): CardKind | 
   return null;
 }
 
+// When a token can't be resolved to a card, we must NEVER show the raw
+// "[[ ... ]]" brackets to the user. Strip them to clean, readable text — and
+// drop the hidden video marker entirely if it ever slips past the server-side
+// stripper. This guarantees no bracketed token can ever leak into the chat,
+// regardless of what the model emits or whether the user is signed in.
+function unresolvedTokenText(inner: string): string {
+  const body = inner.trim();
+  if (/^video\?:/i.test(body)) return "";
+  return body
+    .replace(/^[a-z]+\??:/i, "")
+    .replace(/[-_]+/g, " ")
+    .trim();
+}
+
+// Hide an in-progress token fragment at the end of a streaming/aborted reply.
+// Complete tokens are already consumed by TOKEN_REGEX, so any remaining "[["
+// without a closing "]]" after it is a partial marker still arriving — drop it
+// (rather than briefly flashing raw brackets) until the rest streams in.
+function stripDanglingMarker(text: string): string {
+  const open = text.lastIndexOf("[[");
+  if (open === -1) return text;
+  if (text.indexOf("]]", open) === -1) return text.slice(0, open);
+  return text;
+}
+
 const SUGGESTIONS = [
   "Help me design a sourdough fermentation tracker",
   "I want to test how light affects plant growth",
@@ -306,7 +331,6 @@ function MessageContent({ content }: { content: string }) {
         out.push({ type: "text", value: content.slice(lastIndex, match.index) });
       }
 
-      const original = match[0];
       const inner = match[1];
       const colon = inner.indexOf(":");
 
@@ -330,14 +354,17 @@ function MessageContent({ content }: { content: string }) {
       if (resolved && slug) {
         out.push({ type: resolved, slug });
       } else {
-        // Unknown bracketed token (or unresolvable bare slug, or the hidden
-        // video marker) — leave the original text untouched.
-        out.push({ type: "text", value: original });
+        // Could not resolve to a card. Never leak the raw "[[ ... ]]" brackets
+        // to the user — strip them to clean text (and drop the hidden video
+        // marker if it ever slips past the server-side stripper).
+        const fallback = unresolvedTokenText(inner);
+        if (fallback) out.push({ type: "text", value: fallback });
       }
       lastIndex = regex.lastIndex;
     }
     if (lastIndex < content.length) {
-      out.push({ type: "text", value: content.slice(lastIndex) });
+      const tail = stripDanglingMarker(content.slice(lastIndex));
+      if (tail) out.push({ type: "text", value: tail });
     }
     return out;
   }, [content, scientistSlugs]);
