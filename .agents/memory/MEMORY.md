@@ -20,3 +20,4 @@
 - [api-client-react barrel](api-client-react-barrel.md) — runtime `ApiError`/`ResponseParseError` classes live in custom-fetch.ts but aren't auto-exported; add to index.ts barrel to use `instanceof` for status-code handling (e.g. 402/409).
 - [Message hold-on-claim](message-hold-on-claim.md) — msgs to unclaimed LIVING members held (recipient null + profile_slug) & delivered on claim approve; isLivingEra dup'd client+server, keep in lockstep.
 - [Long-running seeds & bash hang](long-running-seeds-bash-hang.md) — bulk seeds hang the bash tool at exit -1; make idempotent/resumable + drive with timed `timeout -s KILL` foreground passes to a logfile.
+- [Contemporary vs historical classification](contemporary-profile-bc-era.md) — eyebrow uses lifespan; BC/short-year ranges must read as historical, not Modern Visionaries.

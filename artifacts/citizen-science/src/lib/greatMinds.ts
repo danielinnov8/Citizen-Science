@@ -1206,7 +1206,15 @@ function isContemporaryProfile(
   if (/\b(contemporary|present|living|today|current|21st)\b/i.test(era)) {
     return true;
   }
-  if (lifespan && !/\d{4}\s*[–-]\s*\d{4}/.test(lifespan)) return true;
+  if (lifespan) {
+    // Ancient figures (e.g. "c. 325 BC – c. 265 BC") are always historical.
+    if (/\bbce?\b/i.test(lifespan)) return false;
+    // A closed birth–death range (years of any length, optional "c." prefix)
+    // means the figure is deceased — historical, not contemporary.
+    if (/\d{1,4}\s*[–—-]\s*(?:c\.?\s*)?\d{1,4}/.test(lifespan)) return false;
+    // Otherwise (e.g. "b. 1947", "since the 1960s") treat as living/modern.
+    return true;
+  }
   return false;
 }
 
