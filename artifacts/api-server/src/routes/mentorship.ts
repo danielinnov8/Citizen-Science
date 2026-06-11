@@ -40,6 +40,7 @@ import {
 import { requireAuth } from "../middlewares/requireAuth";
 import { getUserBySession, SESSION_COOKIE } from "../lib/auth/session";
 import { isLivingEra } from "../lib/profiles/living";
+import { isKnownLivingLegend } from "../lib/profiles/livingLegends";
 import {
   creditsForUsage,
   monthlyCreditsForPlan,
@@ -665,28 +666,34 @@ router.post(
 // Living-legend mentee waitlist (Task #119)
 // ---------------------------------------------------------------------------
 //
-// A "living legend" is a directory figure (featured_profiles row) who is still
-// alive. Members can join a mentee waitlist for them, which surfaces aspiring-
-// mentee demand back to the figure (and to the verified owner of that profile,
-// if it has been claimed). The figure is identified by its directory slug.
+// A "living legend" is a present-day directory figure who can be mentored. The
+// figure is identified by its directory slug; waitlist entries key on that slug
+// and do NOT require a `featured_profiles` row to exist (most living legends are
+// authored only as static frontend story content). A slug is a valid waitlist
+// target if it's a known living-legend directory slug OR it maps to a LIVING
+// `featured_profiles` row. Ownership (the owner-only demand view) is layered on
+// top, and is only available when a matching profile row exists and is claimed.
 
 const SLUG_RE = /^[a-z0-9-]{1,80}$/;
 
-// Load a living-legend profile by slug, or null when no such row exists or the
-// figure is historical/deceased (only living figures can be mentors).
-async function loadLivingLegend(slug: string) {
+// Resolve waitlist eligibility + ownership for a figure slug. Returns null when
+// the slug isn't a valid living-legend target; otherwise returns the owning user
+// id (null when there is no claimed/seeded profile row behind the slug).
+async function resolveLegendForWaitlist(
+  slug: string,
+): Promise<{ ownerUserId: string | null } | null> {
   const [profile] = await db
     .select({
-      id: featuredProfilesTable.id,
-      slug: featuredProfilesTable.slug,
       era: featuredProfilesTable.era,
       ownerUserId: featuredProfilesTable.ownerUserId,
     })
     .from(featuredProfilesTable)
     .where(eq(featuredProfilesTable.slug, slug));
 
-  if (!profile || !isLivingEra(profile.era)) return null;
-  return profile;
+  const isLivingProfile = !!profile && isLivingEra(profile.era);
+  if (!isKnownLivingLegend(slug) && !isLivingProfile) return null;
+
+  return { ownerUserId: profile?.ownerUserId ?? null };
 }
 
 // Assemble the waitlist status for a figure. `userId` is null for guests, who
@@ -735,8 +742,8 @@ router.get(
       return;
     }
 
-    const profile = await loadLivingLegend(slug);
-    if (!profile) {
+    const legend = await resolveLegendForWaitlist(slug);
+    if (!legend) {
       res.status(404).json({ error: "Figure not found." });
       return;
     }
@@ -753,7 +760,7 @@ router.get(
       }
     }
 
-    const status = await buildWaitlistStatus(slug, profile.ownerUserId, userId);
+    const status = await buildWaitlistStatus(slug, legend.ownerUserId, userId);
     res.json(GetLegendWaitlistResponse.parse(status));
   },
 );
@@ -770,8 +777,8 @@ router.post(
       return;
     }
 
-    const profile = await loadLivingLegend(slug);
-    if (!profile) {
+    const legend = await resolveLegendForWaitlist(slug);
+    if (!legend) {
       res.status(404).json({ error: "Figure not found." });
       return;
     }
@@ -784,7 +791,7 @@ router.post(
         target: [menteeWaitlistTable.figureSlug, menteeWaitlistTable.userId],
       });
 
-    const status = await buildWaitlistStatus(slug, profile.ownerUserId, userId);
+    const status = await buildWaitlistStatus(slug, legend.ownerUserId, userId);
     res.json(JoinLegendWaitlistResponse.parse(status));
   },
 );
