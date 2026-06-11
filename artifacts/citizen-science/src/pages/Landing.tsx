@@ -901,7 +901,6 @@ function PixieDustWord({ children }: { children: React.ReactNode }) {
   const [particles, setParticles] = useState<PixieParticle[]>([]);
   const idRef = useRef(0);
   const wordRef = useRef<HTMLSpanElement>(null);
-  const spotlightRef = useRef<HTMLSpanElement>(null);
   const posRef = useRef({ x: 0, y: 0 });
 
   const updatePos = (e: React.MouseEvent<HTMLSpanElement>) => {
@@ -910,9 +909,6 @@ function PixieDustWord({ children }: { children: React.ReactNode }) {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     posRef.current = { x, y };
-    if (spotlightRef.current) {
-      spotlightRef.current.style.transform = `translate(${x - 55}px, ${y - 55}px)`;
-    }
   };
 
   useEffect(() => {
@@ -943,11 +939,9 @@ function PixieDustWord({ children }: { children: React.ReactNode }) {
   const handleEnter = (e: React.MouseEvent<HTMLSpanElement>) => {
     updatePos(e);
     setHovering(true);
-    if (spotlightRef.current) spotlightRef.current.style.opacity = "1";
   };
   const handleLeave = () => {
     setHovering(false);
-    if (spotlightRef.current) spotlightRef.current.style.opacity = "0";
   };
 
   return (
@@ -964,17 +958,6 @@ function PixieDustWord({ children }: { children: React.ReactNode }) {
       onMouseLeave={handleLeave}
     >
       {children}
-      {!reduceMotion && (
-        <span
-          ref={spotlightRef}
-          aria-hidden="true"
-          className="pointer-events-none absolute left-0 top-0 h-[110px] w-[110px] rounded-full opacity-0 transition-opacity duration-300"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(253,224,71,0.28) 0%, rgba(253,224,71,0.10) 42%, transparent 70%)",
-          }}
-        />
-      )}
       <span
         className="pointer-events-none absolute inset-0 z-10 overflow-visible"
         aria-hidden="true"
