@@ -14,6 +14,7 @@ import {
   ArrowRight,
   FlaskConical,
   NotebookPen,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
@@ -176,10 +177,26 @@ export function Sidebar() {
     return <React.Fragment key={item.href}>{link}</React.Fragment>;
   };
 
-  const visibleGroups = NAV_GROUPS.map((group) => ({
-    ...group,
-    items: isAuthenticated ? group.items : group.items.filter((i) => i.public),
-  })).filter((group) => group.items.length > 0);
+  // Superadmins get an extra admin section, surfaced only to allowlisted
+  // accounts (the route itself is also guarded server-side and in AdminRoute).
+  const groups: NavGroup[] = user?.isSuperAdmin
+    ? [
+        ...NAV_GROUPS,
+        {
+          label: "Admin",
+          items: [
+            { icon: Shield, label: "Admin", href: "/admin", public: false },
+          ],
+        },
+      ]
+    : NAV_GROUPS;
+
+  const visibleGroups = groups
+    .map((group) => ({
+      ...group,
+      items: isAuthenticated ? group.items : group.items.filter((i) => i.public),
+    }))
+    .filter((group) => group.items.length > 0);
 
   const copilotActive = isActive("/agent");
 

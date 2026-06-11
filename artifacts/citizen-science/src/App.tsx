@@ -29,9 +29,11 @@ import CapTable from "@/pages/CapTable";
 import Risk from "@/pages/Risk";
 import PreExisting from "@/pages/PreExisting";
 import { Xprize } from "@/pages/Xprize";
+import { Admin } from "@/pages/Admin";
 
 import { AppShell } from "@/components/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { AdminRoute } from "@/components/AdminRoute";
 import { AuthProvider } from "@/lib/auth";
 
 const queryClient = new QueryClient();
@@ -97,6 +99,9 @@ function Router() {
       </Route>
       <Route path="/profile">
         <AppShell><Profile /></AppShell>
+      </Route>
+      <Route path="/admin">
+        <AdminRoute><AppShell><Admin /></AppShell></AdminRoute>
       </Route>
 
       <Route component={NotFound} />

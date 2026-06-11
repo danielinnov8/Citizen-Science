@@ -44,6 +44,11 @@ export const LoginResponse = zod.object({
   email: zod.string(),
   name: zod.string().nullable(),
   image: zod.string().nullable(),
+  isSuperAdmin: zod
+    .boolean()
+    .describe(
+      "Whether this account is a platform superadmin (admin portal access).",
+    ),
 });
 
 /**
@@ -63,6 +68,11 @@ export const GetCurrentUserResponse = zod.object({
   email: zod.string(),
   name: zod.string().nullable(),
   image: zod.string().nullable(),
+  isSuperAdmin: zod
+    .boolean()
+    .describe(
+      "Whether this account is a platform superadmin (admin portal access).",
+    ),
 });
 
 /**
@@ -173,4 +183,237 @@ export const GetCreditBalanceResponse = zod.object({
   renewalDate: zod.coerce
     .date()
     .describe("When the monthly grant next resets (start of next UTC month)."),
+});
+
+/**
+ * Superadmin-only. Headline platform metrics and trend sparklines.
+ * @summary Admin overview KPIs
+ */
+export const GetAdminOverviewResponse = zod.object({
+  totalUsers: zod.number(),
+  newToday: zod.number(),
+  new7d: zod.number(),
+  new30d: zod.number(),
+  registeredUsers: zod.number(),
+  guestSubjects: zod.number(),
+  planDistribution: zod.array(
+    zod.object({
+      plan: zod.string(),
+      count: zod.number(),
+    }),
+  ),
+  creditsConsumedThisMonth: zod.number(),
+  signupTrend: zod.array(
+    zod.object({
+      date: zod
+        .string()
+        .describe('A day (\"YYYY-MM-DD\") or month (\"YYYY-MM\") bucket.'),
+      value: zod.number(),
+    }),
+  ),
+  copilotTrend: zod.array(
+    zod.object({
+      date: zod
+        .string()
+        .describe('A day (\"YYYY-MM-DD\") or month (\"YYYY-MM\") bucket.'),
+      value: zod.number(),
+    }),
+  ),
+});
+
+/**
+ * Superadmin-only. Paginated, searchable list of accounts with per-user usage.
+ * @summary List all accounts (searchable, paginated)
+ */
+
+export const listAdminUsersQueryPageSizeMax = 100;
+
+export const ListAdminUsersQueryParams = zod.object({
+  search: zod.coerce.string().optional(),
+  page: zod.coerce.number().min(1).optional(),
+  pageSize: zod.coerce
+    .number()
+    .min(1)
+    .max(listAdminUsersQueryPageSizeMax)
+    .optional(),
+});
+
+export const ListAdminUsersResponse = zod.object({
+  users: zod.array(
+    zod.object({
+      id: zod.string(),
+      email: zod.string(),
+      name: zod.string().nullable(),
+      plan: zod.string(),
+      signupMethod: zod.enum(["google", "password"]),
+      createdAt: zod.coerce.date(),
+      creditsUsedThisMonth: zod.number(),
+      monthlyGrant: zod.number(),
+      topupBalance: zod.number(),
+    }),
+  ),
+  total: zod.number(),
+  page: zod.number(),
+  pageSize: zod.number(),
+});
+
+/**
+ * Superadmin-only. Sets the subscription plan for an account.
+ * @summary Change a user's plan
+ */
+export const UpdateUserPlanParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const UpdateUserPlanBody = zod.object({
+  plan: zod.enum(["free", "researcher", "pioneer"]),
+});
+
+export const UpdateUserPlanResponse = zod.object({
+  id: zod.string(),
+  email: zod.string(),
+  name: zod.string().nullable(),
+  plan: zod.string(),
+  signupMethod: zod.enum(["google", "password"]),
+  createdAt: zod.coerce.date(),
+  creditsUsedThisMonth: zod.number(),
+  monthlyGrant: zod.number(),
+  topupBalance: zod.number(),
+});
+
+/**
+ * Superadmin-only. Adds non-expiring top-up credits to an account.
+ * @summary Grant top-up credits to a user
+ */
+export const GrantUserCreditsParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GrantUserCreditsBody = zod.object({
+  credits: zod.number().min(1),
+});
+
+export const GrantUserCreditsResponse = zod.object({
+  id: zod.string(),
+  email: zod.string(),
+  name: zod.string().nullable(),
+  plan: zod.string(),
+  signupMethod: zod.enum(["google", "password"]),
+  createdAt: zod.coerce.date(),
+  creditsUsedThisMonth: zod.number(),
+  monthlyGrant: zod.number(),
+  topupBalance: zod.number(),
+});
+
+/**
+ * Superadmin-only. Projected MRR from plan tiers (no live payment processor).
+ * @summary Projected revenue
+ */
+export const GetAdminRevenueResponse = zod.object({
+  projectedMrr: zod.number(),
+  paidUsers: zod.number(),
+  freeUsers: zod.number(),
+  conversionRate: zod
+    .number()
+    .describe("Fraction of registered users on a paid plan (0–1)."),
+  planRevenue: zod.array(
+    zod.object({
+      plan: zod.string(),
+      count: zod.number(),
+      unitPrice: zod.number(),
+      monthlyRevenue: zod.number(),
+    }),
+  ),
+  foundingMembers: zod
+    .number()
+    .describe("Not tracked in the DB yet (no purchase flow) — always 0."),
+  foundingRevenue: zod.number(),
+  outstandingTopupCredits: zod
+    .number()
+    .describe("Sum of unspent top-up credits across all subjects."),
+  creditsConsumedThisMonth: zod.number(),
+  creditValueUsd: zod
+    .number()
+    .describe("Notional USD value of credits consumed this month."),
+});
+
+/**
+ * Superadmin-only. AI consumption over time plus live avatar session count.
+ * @summary AI usage aggregates
+ */
+export const GetAdminUsageResponse = zod.object({
+  creditsConsumedThisMonth: zod.number(),
+  copilotDaily: zod.array(
+    zod.object({
+      date: zod
+        .string()
+        .describe('A day (\"YYYY-MM-DD\") or month (\"YYYY-MM\") bucket.'),
+      value: zod.number(),
+    }),
+  ),
+  copilotMonthly: zod.array(
+    zod.object({
+      date: zod
+        .string()
+        .describe('A day (\"YYYY-MM-DD\") or month (\"YYYY-MM\") bucket.'),
+      value: zod.number(),
+    }),
+  ),
+  copilotUsersDaily: zod.array(
+    zod.object({
+      date: zod
+        .string()
+        .describe('A day (\"YYYY-MM-DD\") or month (\"YYYY-MM\") bucket.'),
+      value: zod.number(),
+    }),
+  ),
+  copilotGuestsDaily: zod.array(
+    zod.object({
+      date: zod
+        .string()
+        .describe('A day (\"YYYY-MM-DD\") or month (\"YYYY-MM\") bucket.'),
+      value: zod.number(),
+    }),
+  ),
+  liveAvatarSessions: zod
+    .number()
+    .describe(
+      "Ephemeral, in-memory, per-process count of live avatar sessions.",
+    ),
+});
+
+/**
+ * Superadmin-only. Counts of categories, profiles, partners and labs.
+ * @summary Content & module counts
+ */
+export const GetAdminContentResponse = zod.object({
+  categories: zod.number(),
+  partners: zod.number(),
+  labs: zod.number(),
+  profilesTotal: zod.number(),
+  profilesByGroup: zod.array(
+    zod.object({
+      group: zod.string(),
+      count: zod.number(),
+    }),
+  ),
+});
+
+/**
+ * Superadmin-only. Whether each integration is configured (booleans only, never the secret values) plus API health.
+
+ * @summary Feature & integration status board
+ */
+export const GetAdminSystemResponse = zod.object({
+  features: zod.array(
+    zod.object({
+      key: zod.string(),
+      label: zod.string(),
+      configured: zod.boolean(),
+      detail: zod.string().nullable(),
+    }),
+  ),
+  apiHealthy: zod.boolean(),
+  uptimeSeconds: zod.number(),
+  liveAvatarSessions: zod.number(),
 });

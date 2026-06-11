@@ -22,6 +22,7 @@ import {
   SESSION_TTL_MS,
 } from "../lib/auth/session";
 import { requireAuth } from "../middlewares/requireAuth";
+import { isSuperAdmin } from "../lib/admin/superadmin";
 
 const router: IRouter = Router();
 
@@ -38,6 +39,7 @@ function toAuthUser(user: User) {
     email: user.email,
     name: user.name,
     image: user.image,
+    isSuperAdmin: isSuperAdmin(user),
   };
 }
 

@@ -73,6 +73,14 @@ function isExpired(s: AvatarSession): boolean {
   return Date.now() > s.expiresAt;
 }
 
+// Number of live (non-expired) avatar sessions right now. Used by the admin
+// portal's usage board. Reaps expired sessions first so the count is accurate.
+// This is ephemeral/in-memory state — it resets on restart and is per-process.
+export function liveAvatarSessionCount(): number {
+  reapExpired();
+  return sessions.size;
+}
+
 // Best-effort teardown of the upstream provider stream. Never throws.
 async function destroySession(s: AvatarSession): Promise<void> {
   sessions.delete(s.id);

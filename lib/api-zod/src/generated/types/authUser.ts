@@ -13,4 +13,6 @@ export interface AuthUser {
   name: string | null;
   /** @nullable */
   image: string | null;
+  /** Whether this account is a platform superadmin (admin portal access). */
+  isSuperAdmin: boolean;
 }

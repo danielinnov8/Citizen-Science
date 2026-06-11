@@ -16,6 +16,8 @@ tags:
     description: Featured scientists & inventors directory
   - name: billing
     description: Credit balance and usage-based billing
+  - name: admin
+    description: Superadmin platform administration
 paths:
   /healthz:
     get:
@@ -207,6 +209,215 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CreditBalance"
+  /admin/overview:
+    get:
+      operationId: getAdminOverview
+      tags: [admin]
+      summary: Admin overview KPIs
+      description: Superadmin-only. Headline platform metrics and trend sparklines.
+      responses:
+        "200":
+          description: Overview metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminOverview"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/users:
+    get:
+      operationId: listAdminUsers
+      tags: [admin]
+      summary: List all accounts (searchable, paginated)
+      description: Superadmin-only. Paginated, searchable list of accounts with per-user usage.
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Paginated user list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUserList"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/users/{id}/plan:
+    patch:
+      operationId: updateUserPlan
+      tags: [admin]
+      summary: Change a user's plan
+      description: Superadmin-only. Sets the subscription plan for an account.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserPlanInput"
+      responses:
+        "200":
+          description: The updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/users/{id}/credits:
+    post:
+      operationId: grantUserCredits
+      tags: [admin]
+      summary: Grant top-up credits to a user
+      description: Superadmin-only. Adds non-expiring top-up credits to an account.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GrantCreditsInput"
+      responses:
+        "200":
+          description: The updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/revenue:
+    get:
+      operationId: getAdminRevenue
+      tags: [admin]
+      summary: Projected revenue
+      description: Superadmin-only. Projected MRR from plan tiers (no live payment processor).
+      responses:
+        "200":
+          description: Revenue projection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminRevenue"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/usage:
+    get:
+      operationId: getAdminUsage
+      tags: [admin]
+      summary: AI usage aggregates
+      description: Superadmin-only. AI consumption over time plus live avatar session count.
+      responses:
+        "200":
+          description: Usage aggregates
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUsage"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/content:
+    get:
+      operationId: getAdminContent
+      tags: [admin]
+      summary: Content & module counts
+      description: Superadmin-only. Counts of categories, profiles, partners and labs.
+      responses:
+        "200":
+          description: Content counts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminContent"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/system:
+    get:
+      operationId: getAdminSystem
+      tags: [admin]
+      summary: Feature & integration status board
+      description: >
+        Superadmin-only. Whether each integration is configured (booleans only,
+        never the secret values) plus API health.
+      responses:
+        "200":
+          description: System status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSystem"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     HealthStatus:
@@ -241,11 +452,15 @@ components:
           type: ["string", "null"]
         image:
           type: ["string", "null"]
+        isSuperAdmin:
+          type: boolean
+          description: Whether this account is a platform superadmin (admin portal access).
       required:
         - id
         - email
         - name
         - image
+        - isSuperAdmin
     RegisterInput:
       type: object
       properties:
@@ -501,3 +716,288 @@ components:
         - topupBalance
         - totalRemaining
         - renewalDate
+    AdminTrendPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          description: A day ("YYYY-MM-DD") or month ("YYYY-MM") bucket.
+        value:
+          type: integer
+      required:
+        - date
+        - value
+    AdminPlanCount:
+      type: object
+      properties:
+        plan:
+          type: string
+        count:
+          type: integer
+      required:
+        - plan
+        - count
+    AdminOverview:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        newToday:
+          type: integer
+        new7d:
+          type: integer
+        new30d:
+          type: integer
+        registeredUsers:
+          type: integer
+        guestSubjects:
+          type: integer
+        planDistribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminPlanCount"
+        creditsConsumedThisMonth:
+          type: integer
+        signupTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminTrendPoint"
+        copilotTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminTrendPoint"
+      required:
+        - totalUsers
+        - newToday
+        - new7d
+        - new30d
+        - registeredUsers
+        - guestSubjects
+        - planDistribution
+        - creditsConsumedThisMonth
+        - signupTrend
+        - copilotTrend
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: ["string", "null"]
+        plan:
+          type: string
+        signupMethod:
+          type: string
+          enum:
+            - google
+            - password
+        createdAt:
+          type: string
+          format: date-time
+        creditsUsedThisMonth:
+          type: integer
+        monthlyGrant:
+          type: integer
+        topupBalance:
+          type: integer
+      required:
+        - id
+        - email
+        - name
+        - plan
+        - signupMethod
+        - createdAt
+        - creditsUsedThisMonth
+        - monthlyGrant
+        - topupBalance
+    AdminUserList:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminUser"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required:
+        - users
+        - total
+        - page
+        - pageSize
+    UpdateUserPlanInput:
+      type: object
+      properties:
+        plan:
+          type: string
+          enum:
+            - free
+            - researcher
+            - pioneer
+      required:
+        - plan
+    GrantCreditsInput:
+      type: object
+      properties:
+        credits:
+          type: integer
+          minimum: 1
+      required:
+        - credits
+    AdminPlanRevenue:
+      type: object
+      properties:
+        plan:
+          type: string
+        count:
+          type: integer
+        unitPrice:
+          type: number
+        monthlyRevenue:
+          type: number
+      required:
+        - plan
+        - count
+        - unitPrice
+        - monthlyRevenue
+    AdminRevenue:
+      type: object
+      properties:
+        projectedMrr:
+          type: number
+        paidUsers:
+          type: integer
+        freeUsers:
+          type: integer
+        conversionRate:
+          type: number
+          description: Fraction of registered users on a paid plan (0–1).
+        planRevenue:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminPlanRevenue"
+        foundingMembers:
+          type: integer
+          description: Not tracked in the DB yet (no purchase flow) — always 0.
+        foundingRevenue:
+          type: number
+        outstandingTopupCredits:
+          type: integer
+          description: Sum of unspent top-up credits across all subjects.
+        creditsConsumedThisMonth:
+          type: integer
+        creditValueUsd:
+          type: number
+          description: Notional USD value of credits consumed this month.
+      required:
+        - projectedMrr
+        - paidUsers
+        - freeUsers
+        - conversionRate
+        - planRevenue
+        - foundingMembers
+        - foundingRevenue
+        - outstandingTopupCredits
+        - creditsConsumedThisMonth
+        - creditValueUsd
+    AdminUsage:
+      type: object
+      properties:
+        creditsConsumedThisMonth:
+          type: integer
+        copilotDaily:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminTrendPoint"
+        copilotMonthly:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminTrendPoint"
+        copilotUsersDaily:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminTrendPoint"
+        copilotGuestsDaily:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminTrendPoint"
+        liveAvatarSessions:
+          type: integer
+          description: Ephemeral, in-memory, per-process count of live avatar sessions.
+      required:
+        - creditsConsumedThisMonth
+        - copilotDaily
+        - copilotMonthly
+        - copilotUsersDaily
+        - copilotGuestsDaily
+        - liveAvatarSessions
+    AdminGroupCount:
+      type: object
+      properties:
+        group:
+          type: string
+        count:
+          type: integer
+      required:
+        - group
+        - count
+    AdminContent:
+      type: object
+      properties:
+        categories:
+          type: integer
+        partners:
+          type: integer
+        labs:
+          type: integer
+        profilesTotal:
+          type: integer
+        profilesByGroup:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminGroupCount"
+      required:
+        - categories
+        - partners
+        - labs
+        - profilesTotal
+        - profilesByGroup
+    AdminFeatureStatus:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        configured:
+          type: boolean
+        detail:
+          type: ["string", "null"]
+      required:
+        - key
+        - label
+        - configured
+        - detail
+    AdminSystem:
+      type: object
+      properties:
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminFeatureStatus"
+        apiHealthy:
+          type: boolean
+        uptimeSeconds:
+          type: integer
+        liveAvatarSessions:
+          type: integer
+      required:
+        - features
+        - apiHealthy
+        - uptimeSeconds
+        - liveAvatarSessions

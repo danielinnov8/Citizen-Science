@@ -24,6 +24,8 @@ export interface AuthUser {
   name: string | null;
   /** @nullable */
   image: string | null;
+  /** Whether this account is a platform superadmin (admin portal access). */
+  isSuperAdmin: boolean;
 }
 
 export interface RegisterInput {
@@ -137,3 +139,148 @@ export interface CreditBalance {
   /** When the monthly grant next resets (start of next UTC month). */
   renewalDate: string;
 }
+
+export interface AdminTrendPoint {
+  /** A day ("YYYY-MM-DD") or month ("YYYY-MM") bucket. */
+  date: string;
+  value: number;
+}
+
+export interface AdminPlanCount {
+  plan: string;
+  count: number;
+}
+
+export interface AdminOverview {
+  totalUsers: number;
+  newToday: number;
+  new7d: number;
+  new30d: number;
+  registeredUsers: number;
+  guestSubjects: number;
+  planDistribution: AdminPlanCount[];
+  creditsConsumedThisMonth: number;
+  signupTrend: AdminTrendPoint[];
+  copilotTrend: AdminTrendPoint[];
+}
+
+export type AdminUserSignupMethod =
+  (typeof AdminUserSignupMethod)[keyof typeof AdminUserSignupMethod];
+
+export const AdminUserSignupMethod = {
+  google: "google",
+  password: "password",
+} as const;
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  /** @nullable */
+  name: string | null;
+  plan: string;
+  signupMethod: AdminUserSignupMethod;
+  createdAt: string;
+  creditsUsedThisMonth: number;
+  monthlyGrant: number;
+  topupBalance: number;
+}
+
+export interface AdminUserList {
+  users: AdminUser[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export type UpdateUserPlanInputPlan =
+  (typeof UpdateUserPlanInputPlan)[keyof typeof UpdateUserPlanInputPlan];
+
+export const UpdateUserPlanInputPlan = {
+  free: "free",
+  researcher: "researcher",
+  pioneer: "pioneer",
+} as const;
+
+export interface UpdateUserPlanInput {
+  plan: UpdateUserPlanInputPlan;
+}
+
+export interface GrantCreditsInput {
+  /** @minimum 1 */
+  credits: number;
+}
+
+export interface AdminPlanRevenue {
+  plan: string;
+  count: number;
+  unitPrice: number;
+  monthlyRevenue: number;
+}
+
+export interface AdminRevenue {
+  projectedMrr: number;
+  paidUsers: number;
+  freeUsers: number;
+  /** Fraction of registered users on a paid plan (0–1). */
+  conversionRate: number;
+  planRevenue: AdminPlanRevenue[];
+  /** Not tracked in the DB yet (no purchase flow) — always 0. */
+  foundingMembers: number;
+  foundingRevenue: number;
+  /** Sum of unspent top-up credits across all subjects. */
+  outstandingTopupCredits: number;
+  creditsConsumedThisMonth: number;
+  /** Notional USD value of credits consumed this month. */
+  creditValueUsd: number;
+}
+
+export interface AdminUsage {
+  creditsConsumedThisMonth: number;
+  copilotDaily: AdminTrendPoint[];
+  copilotMonthly: AdminTrendPoint[];
+  copilotUsersDaily: AdminTrendPoint[];
+  copilotGuestsDaily: AdminTrendPoint[];
+  /** Ephemeral, in-memory, per-process count of live avatar sessions. */
+  liveAvatarSessions: number;
+}
+
+export interface AdminGroupCount {
+  group: string;
+  count: number;
+}
+
+export interface AdminContent {
+  categories: number;
+  partners: number;
+  labs: number;
+  profilesTotal: number;
+  profilesByGroup: AdminGroupCount[];
+}
+
+export interface AdminFeatureStatus {
+  key: string;
+  label: string;
+  configured: boolean;
+  /** @nullable */
+  detail: string | null;
+}
+
+export interface AdminSystem {
+  features: AdminFeatureStatus[];
+  apiHealthy: boolean;
+  uptimeSeconds: number;
+  liveAvatarSessions: number;
+}
+
+export type ListAdminUsersParams = {
+  search?: string;
+  /**
+   * @minimum 1
+   */
+  page?: number;
+  /**
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: number;
+};

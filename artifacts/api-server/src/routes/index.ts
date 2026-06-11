@@ -5,6 +5,7 @@ import authRouter from "./auth";
 import profilesRouter from "./profiles";
 import avatarRouter from "./avatar";
 import billingRouter from "./billing";
+import adminRouter from "./admin";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(agentRouter);
 router.use(profilesRouter);
 router.use(avatarRouter);
 router.use(billingRouter);
+router.use(adminRouter);
 
 export default router;
