@@ -17,6 +17,7 @@ import { ExperimentDetail } from "@/pages/ExperimentDetail";
 import { Notebook } from "@/pages/Notebook";
 import { ProgressPage } from "@/pages/Progress";
 import { Profile } from "@/pages/Profile";
+import { SignOut } from "@/pages/SignOut";
 import { Directory } from "@/pages/Directory";
 import { ProfileDetail } from "@/pages/ProfileDetail";
 import Privacy from "@/pages/Privacy";
@@ -52,6 +53,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Landing} />
       <Route path="/login" component={Login} />
+      <Route path="/sign-out" component={SignOut} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
       <Route path="/brand" component={Brand} />
