@@ -32,6 +32,7 @@ import PreExisting from "@/pages/PreExisting";
 import { Xprize } from "@/pages/Xprize";
 import { Admin } from "@/pages/Admin";
 import { Architecture } from "@/pages/Architecture";
+import ApiDirectory from "@/pages/ApiDirectory";
 import { CitizenX } from "@/pages/CitizenX";
 import { CitizenXOrganize } from "@/pages/CitizenXOrganize";
 import { CitizenXHost } from "@/pages/CitizenXHost";
@@ -72,6 +73,8 @@ function Router() {
       <Route path="/risk" component={Risk} />
       <Route path="/pre-existing" component={PreExisting} />
       <Route path="/architecture" component={Architecture} />
+      <Route path="/api" component={ApiDirectory} />
+      <Route path="/apis" component={ApiDirectory} />
       {import.meta.env.DEV && <Route path="/xprize" component={Xprize} />}
 
       {/* CitizenX program */}

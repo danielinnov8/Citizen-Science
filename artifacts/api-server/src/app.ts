@@ -39,6 +39,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.SESSION_SECRET));
 
+// The `/api` path is owned by this server, so a browser navigating to the bare
+// `/api` URL would otherwise 404. The web app's public API directory page lives
+// at `/apis`; redirect human (HTML) navigations to it while leaving real API
+// clients (which prefer JSON) to fall through to the 404 they expect. Only the
+// exact `/api` GET is affected — every `/api/*` endpoint is untouched.
+app.get("/api", (req, res, next) => {
+  if (req.accepts(["html", "json"]) === "html") {
+    res.redirect(302, "/apis");
+    return;
+  }
+  next();
+});
+
 // Hold DB-backed requests until schema migrations have settled, so a cold-start
 // deploy never serves a route against a not-yet-migrated schema (e.g. the prod
 // DB before the latest columns are added). /healthz is exempt so readiness/
