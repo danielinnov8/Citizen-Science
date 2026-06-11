@@ -64,20 +64,56 @@ function getGoogleConfig(): { clientId: string; clientSecret: string } | null {
   return { clientId, clientSecret };
 }
 
+function isLocalHost(host: string): boolean {
+  return host.startsWith("localhost") || host.startsWith("127.0.0.1");
+}
+
+// The set of hosts we are willing to build a redirect URI for. `trust proxy`
+// is enabled, so req.get("host") reflects a client-controllable header; we must
+// only honor it when it matches a domain we actually own. REPLIT_DOMAINS lists
+// every domain bound to the deployment (the .replit.app domain plus any custom
+// domains), so it is the natural allowlist.
+function getAllowedHosts(): Set<string> {
+  const hosts = new Set<string>();
+  const configured = process.env.PUBLIC_BASE_URL?.replace(/\/+$/, "");
+  if (configured) {
+    try {
+      hosts.add(new URL(configured).host);
+    } catch {
+      // ignore a malformed PUBLIC_BASE_URL
+    }
+  }
+  for (const domain of (process.env.REPLIT_DOMAINS ?? "").split(",")) {
+    const trimmed = domain.trim();
+    if (trimmed) hosts.add(trimmed);
+  }
+  return hosts;
+}
+
 function getRedirectUri(req: Request): string {
-  // Prefer an explicit public origin. Set PUBLIC_BASE_URL on Cloud Run so the
-  // redirect URI exactly matches what is registered in the Google console.
+  // 1) Explicit override pins the redirect URI to exactly what is registered in
+  //    the Google console.
   const configured = process.env.PUBLIC_BASE_URL?.replace(/\/+$/, "");
   if (configured) return `${configured}/api/auth/google/callback`;
 
-  // Replit dev/prod exposes the external domain here.
+  // 2) Use the actual request origin so the entire OAuth round-trip stays on
+  //    the domain the user started on — this keeps the signed state/verifier
+  //    cookies in scope at the callback and guarantees the redirect_uri used at
+  //    /authorize matches the one used at token exchange, even when the
+  //    deployment is reachable via several domains. Only honored when the host
+  //    is one we own (allowlist) or local, so a spoofed Host header can't
+  //    redirect the flow to an attacker-controlled origin.
+  const host = req.get("host");
+  if (host && isLocalHost(host)) {
+    return `${req.protocol}://${host}/api/auth/google/callback`;
+  }
+  if (host && getAllowedHosts().has(host)) {
+    return `https://${host}/api/auth/google/callback`;
+  }
+
+  // 3) Fall back to the first configured Replit domain.
   const domain = (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim();
   if (domain) return `https://${domain}/api/auth/google/callback`;
-
-  // Fall back to the request's own host — works on any single-domain host
-  // (e.g. Google Cloud Run) where REPLIT_DOMAINS is absent.
-  const host = req.get("host");
-  if (host) return `${req.protocol}://${host}/api/auth/google/callback`;
 
   throw new Error(
     "Unable to determine the OAuth redirect URI (set PUBLIC_BASE_URL).",
@@ -232,6 +268,18 @@ router.get(
       !verifier ||
       typeof verifier !== "string"
     ) {
+      req.log.warn(
+        {
+          hasConfig: Boolean(config),
+          hasCode: Boolean(code),
+          hasState: Boolean(state),
+          hasCookieState: Boolean(cookieState),
+          stateMatches: Boolean(state && cookieState && state === cookieState),
+          hasVerifier: Boolean(verifier),
+          host: req.get("host"),
+        },
+        "google oauth callback precondition failed",
+      );
       res.redirect("/login?error=google");
       return;
     }
@@ -251,8 +299,9 @@ router.get(
       });
 
       if (!tokenRes.ok) {
+        const detail = await tokenRes.text().catch(() => "");
         req.log.error(
-          { status: tokenRes.status },
+          { status: tokenRes.status, detail, redirectUri: getRedirectUri(req) },
           "google token exchange failed",
         );
         res.redirect("/login?error=google");
