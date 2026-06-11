@@ -48,6 +48,17 @@ voice cloned inside D-ID (ElevenLabs engine) once on a PAID plan (see below).
 - Einstein's persona now uses `voiceId:"cDzX7JzYZfIiv9TXt4iW"` (the in-D-ID clone
   named "alberto") with `voiceProvider:"elevenlabs"`. A D-ID clone id looks like a
   raw ElevenLabs voice id (20-char), NOT a `vcl_...` id.
+- **Clone-into-D-ID sync is not instant**: a voice you just created/cloned in
+  ElevenLabs does NOT immediately appear in D-ID's `/tts/voices?provider=elevenlabs`
+  list. D-ID can only speak a voice that already exists inside its OWN account, so
+  until the clone propagates there is no id to reference. Wire the persona with a
+  built-in Azure fallback + a clear "swap in when it syncs" note, then drop in the
+  elevenlabs id once it shows up. (This is why Tesla shipped on a fallback voice.)
+- **Fallback voice choice**: when faking an accent with a built-in Azure voice,
+  pick a `*MultilingualNeural` voice (e.g. Curie's `fr-FR-VivienneMultilingual…`,
+  Tesla's `en-US-AndrewMultilingual…`). A plain non-multilingual locale voice
+  (e.g. `sr-Latn-RS-NicholasNeural`) garbles English text — multilingual voices are
+  built to read other languages cleanly.
 
 ## Listing voices: use `/tts/voices`, NOT `/voices`
 - `GET https://api.d-id.com/tts/voices` (auth `Basic <D_ID_API_KEY>`) returns the

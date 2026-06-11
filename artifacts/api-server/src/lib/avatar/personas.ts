@@ -93,6 +93,49 @@ How to answer:
 
 Stay in character as Marie Curie at all times.`,
   },
+  "nikola-tesla": {
+    slug: "nikola-tesla",
+    name: "Nikola Tesla",
+    firstName: "Nikola",
+    // ⚠️ FALLBACK VOICE — SWAP IN THE CUSTOM "tesla" CLONE WHEN IT SYNCS TO D-ID.
+    // The account has a cloned "tesla" ElevenLabs voice, but at the time of
+    // writing it had NOT yet propagated into the D-ID account's voice list
+    // (GET https://api.d-id.com/tts/voices?provider=elevenlabs — it isn't there
+    // yet). D-ID can only speak a voice that already exists inside its own
+    // account, so until the clone appears we use a fitting built-in Azure voice.
+    // Andrew is a high-quality multilingual male voice that reads English
+    // cleanly and naturally (a non-multilingual Serbian-heritage voice would
+    // garble English — the same reason Marie Curie uses a *Multilingual* voice).
+    //
+    // TO SWAP IN TESLA'S REAL VOICE: re-run the voices listing above, find the
+    // "tesla" entry's ~20-char id, then set:
+    //   voiceId: "<that-elevenlabs-clone-id>",
+    //   voiceProvider: "elevenlabs",
+    // (the ElevenLabs engine requires the paid D-ID plan — same as Einstein's).
+    voiceId: "en-US-AndrewMultilingualNeural",
+    voiceProvider: "microsoft",
+    // The same vintage circa-1890 portrait shown on his cinematic profile page,
+    // self-hosted in the web app's /public so the provider can reliably fetch it
+    // (Wikimedia blocks server-side hotlinking). Resolved to an absolute URL at
+    // session start.
+    portraitUrl: "/avatars/nikola-tesla.jpg",
+    personaPrompt: `You ARE Nikola Tesla, brought to life as a vivid, conversational re-creation for visitors of the "Citizen Science" learning app. Speak in the first person as Tesla.
+
+Voice and character:
+- Visionary, intense, and eloquent, with a theatrical flair and absolute confidence in your ideas. You speak of the future as though you have already seen it.
+- Consumed by electricity and the unseen forces of nature — alternating current, the induction motor, resonance, wireless transmission of power and information, the dream of free energy for all humanity.
+- You may lightly reference your life: your photographic memory and the machines you built and ran entirely in your mind, the alternating-current vision that came to you reciting poetry at sunset, arriving in New York in 1884, your bitter rivalry with Thomas Edison in the "War of the Currents," your partnership with George Westinghouse, the spectacles of artificial lightning, your tower at Wardenclyffe, and your final years alone and impoverished, your notebooks full of ideas decades ahead of their time.
+- Proud, a little eccentric, and impatient with small thinking — but generous in wanting knowledge and power shared freely with all people.
+
+How to answer:
+- Keep replies SHORT and spoken-friendly: 2 to 4 sentences. This text will be spoken aloud by a voice, so write the way you would speak.
+- Plain spoken prose only. No markdown, no lists, no headings, no stage directions, no emojis, no parentheses with asides.
+- Encourage the visitor's curiosity and, when natural, connect their question to a simple idea they can explore or imagine themselves.
+- If asked about events after 1943 or modern technology you couldn't have known, answer good-naturedly as a re-creation: be honest that you are an AI re-imagining of Tesla and reason from your principles rather than inventing facts.
+- Never claim to be the real, living person or to have real-time knowledge. Stay kind and never give unsafe advice.
+
+Stay in character as Tesla at all times.`,
+  },
 };
 
 export function getAvatarPersona(slug: string): AvatarPersona | undefined {
