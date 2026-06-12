@@ -1,171 +1,279 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link } from "wouter";
-import { Clock, Flame, Leaf, Droplet, HeartPulse, ChevronRight, CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import {
+  Sparkles, Users, GraduationCap, FlaskConical,
+  ChevronRight, ArrowRight, Clock,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useCreditBalance } from "@/components/CreditMeter";
+import { useListFeaturedProfiles } from "@workspace/api-client-react";
 import { storage } from "@/lib/storage";
 import { EXPERIMENTS } from "@/lib/experiments";
+import { CATEGORIES } from "@/lib/categories";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+}
+
+function initials(name: string) {
+  return name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+}
+
+const PILLARS = [
+  {
+    href: "/agent",
+    icon: Sparkles,
+    label: "AI Copilot",
+    sub: "Ask anything scientific",
+    bg: "bg-blue-50",
+    fg: "text-blue-600",
+    border: "border-blue-100",
+    hoverBorder: "hover:border-blue-300",
+  },
+  {
+    href: "/directory",
+    icon: Users,
+    label: "Great Minds",
+    sub: "300+ scientists & inventors",
+    bg: "bg-violet-50",
+    fg: "text-violet-600",
+    border: "border-violet-100",
+    hoverBorder: "hover:border-violet-300",
+  },
+  {
+    href: "/mentors",
+    icon: GraduationCap,
+    label: "Find a Mentor",
+    sub: "Living legends & community",
+    bg: "bg-emerald-50",
+    fg: "text-emerald-600",
+    border: "border-emerald-100",
+    hoverBorder: "hover:border-emerald-300",
+  },
+  {
+    href: "/experiments",
+    icon: FlaskConical,
+    label: "Experiments",
+    sub: "Hands-on science",
+    bg: "bg-amber-50",
+    fg: "text-amber-600",
+    border: "border-amber-100",
+    hoverBorder: "hover:border-amber-300",
+  },
+] as const;
+
+const SHOW_CATEGORIES = ["biology", "physics", "astronomy", "chemistry", "neuroscience", "climate-science", "computer-science"];
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 export function Dashboard() {
   const { user } = useAuth();
-  
+  const { data: credits } = useCreditBalance();
+  const { data: profilesData } = useListFeaturedProfiles();
+
+  const prefs = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem("cs_preferences") ?? "{}") as Record<string, unknown>; }
+    catch { return {}; }
+  }, []);
+
   const started = storage.getStartedExperiments();
-  const notebooks = storage.getNotebookEntries();
-  const completed = storage.getCompletedSteps();
 
-  const getActiveExperiments = () => {
+  const activeExps = useMemo(() => {
     if (started.length === 0) {
-      return EXPERIMENTS.slice(0, 3).map(exp => ({
-        id: exp.id,
-        title: exp.title,
-        cat: exp.categoryId,
-        progress: 0,
-        updated: "Not started"
-      }));
+      return EXPERIMENTS.slice(0, 3).map(e => ({ id: e.id, title: e.title, cat: e.categoryId, progress: 0 }));
     }
-    return started.map(s => {
-      const exp = EXPERIMENTS.find(e => e.id === s.id);
-      return {
-        id: s.id,
-        title: exp?.title || "Unknown",
-        cat: exp?.categoryId || "unknown",
-        progress: s.progress,
-        updated: new Date(s.startedAt).toLocaleDateString()
-      };
-    }).slice(0, 3);
-  };
+    return started.slice(0, 3).map(s => {
+      const e = EXPERIMENTS.find(x => x.id === s.id);
+      return { id: s.id, title: e?.title ?? "Unknown", cat: e?.categoryId ?? "", progress: s.progress };
+    });
+  }, [started]);
 
-  const activeExps = getActiveExperiments();
-  const recentNotes = notebooks.slice(0, 4);
+  const featuredMinds = useMemo(() => {
+    const all = Array.isArray(profilesData) ? profilesData : (profilesData as { profiles?: unknown[] } | undefined)?.profiles ?? [];
+    return (all as { slug: string; name: string; field?: string; imageUrl?: string }[])
+      .filter(p => p.imageUrl)
+      .slice(0, 12);
+  }, [profilesData]);
+
+  const showcaseCategories = useMemo(
+    () => CATEGORIES.filter(c => SHOW_CATEGORIES.includes(c.slug)).slice(0, 6),
+    [],
+  );
+
+  const firstName = user?.name?.split(" ")[0] ?? "there";
+  const fields = Array.isArray(prefs.fields) ? (prefs.fields as string[]).slice(0, 2) : [];
 
   return (
     <div className="p-6 lg:p-10 max-w-6xl mx-auto w-full animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+
+      {/* ── Header ───────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-10">
         <div>
-          <h1 className="text-3xl font-serif tracking-tight mb-2">Welcome back, {user?.name.split(" ")[0]}.</h1>
-          <p className="text-[#64748B]">Continue your experiments and explore new fields.</p>
+          <p className="text-xs font-semibold text-[#64748B] tracking-widest uppercase mb-1.5">
+            {greeting()}
+          </p>
+          <h1 className="text-3xl font-serif tracking-tight text-[#0F172A] mb-2">
+            {firstName}.
+          </h1>
+          <p className="text-[#64748B] text-sm">
+            {fields.length > 0
+              ? `Your ${fields.join(" & ")} research network awaits.`
+              : "Your research network awaits."}
+          </p>
         </div>
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-[#E2E8F0] shadow-sm">
-          <Flame className="h-4 w-4 text-orange-500" />
-          <span className="text-sm font-medium text-orange-700">1 day streak</span>
-        </div>
+        {credits && (
+          <div className="flex-shrink-0">
+            <Link href="/pricing">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white px-4 py-2 shadow-sm hover:border-blue-200 transition-colors cursor-pointer">
+                <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+                <span className="text-sm font-semibold text-[#0F172A]">
+                  {credits.totalRemaining ?? 0}
+                </span>
+                <span className="text-xs text-[#64748B]">credits</span>
+                <span className="text-[10px] font-medium text-[#94a3b8] border-l border-[#E2E8F0] pl-2 capitalize">
+                  {credits.plan ?? "free"}
+                </span>
+              </div>
+            </Link>
+          </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-        <Card className="shadow-sm border-[#E2E8F0]">
-          <CardContent className="p-4 flex flex-col gap-2">
-            <div className="text-xs text-[#64748B] font-medium">Experiments started</div>
-            <div className="text-2xl font-bold text-[#0F172A]">{started.length}</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-[#E2E8F0]">
-          <CardContent className="p-4 flex flex-col gap-2">
-            <div className="text-xs text-[#64748B] font-medium">Steps completed</div>
-            <div className="text-2xl font-bold text-[#0F172A]">{completed.length}</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-[#E2E8F0]">
-          <CardContent className="p-4 flex flex-col gap-2">
-            <div className="text-xs text-[#64748B] font-medium">Observations</div>
-            <div className="text-2xl font-bold text-[#0F172A]">{notebooks.length}</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-[#E2E8F0]">
-          <CardContent className="p-4 flex flex-col gap-2">
-            <div className="text-xs text-[#64748B] font-medium">Categories</div>
-            <div className="text-2xl font-bold text-[#0F172A]">{new Set(notebooks.map(n => n.categorySlug)).size}</div>
-          </CardContent>
-        </Card>
+      {/* ── Four pillars ─────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-12">
+        {PILLARS.map(({ href, icon: Icon, label, sub, bg, fg, border, hoverBorder }) => (
+          <Link key={href} href={href}>
+            <div className={`group flex flex-col gap-3 p-4 rounded-2xl border bg-white ${border} ${hoverBorder} shadow-sm hover:shadow-md transition-all cursor-pointer`}>
+              <div className={`h-10 w-10 rounded-xl ${bg} flex items-center justify-center`}>
+                <Icon className={`h-5 w-5 ${fg}`} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-[#0F172A] leading-tight">{label}</p>
+                <p className="text-xs text-[#64748B] mt-0.5">{sub}</p>
+              </div>
+              <ArrowRight className={`h-3.5 w-3.5 ${fg} opacity-0 group-hover:opacity-100 transition-opacity mt-auto`} />
+            </div>
+          </Link>
+        ))}
       </div>
 
-      <div className="mb-12">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold tracking-tight">Continue learning</h2>
-          <Link href="/experiments" className="text-sm font-medium text-blue-600 hover:text-blue-700">View all</Link>
-        </div>
-        <div className="grid md:grid-cols-3 gap-4">
-          {activeExps.map((exp, i) => (
-            <Card key={i} className="shadow-sm border-[#E2E8F0] hover:shadow-md transition-shadow group flex flex-col">
-              <CardHeader className="p-5 pb-0 flex-1">
-                <div className="flex justify-between items-start mb-3">
-                  <span className="text-[10px] uppercase font-bold text-[#64748B] tracking-wider">{exp.cat.replace("-", " ")}</span>
-                </div>
-                <CardTitle className="text-base leading-tight mb-4">{exp.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="p-5 pt-0 mt-auto">
-                <div className="flex justify-between text-xs mb-1.5 font-medium">
-                  <span className="text-[#64748B]">Progress</span>
-                  <span>{exp.progress}%</span>
-                </div>
-                <Progress value={exp.progress} className="h-1.5 mb-4" />
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-[#64748B] flex items-center gap-1"><Clock className="h-3 w-3" /> {exp.updated}</span>
-                  <Link href={`/experiments/${exp.id}`}>
-                    <Button size="sm" className="h-8 text-xs bg-white bg-none shadow-none text-blue-700 border border-blue-200 hover:bg-blue-50">Continue</Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-8 mb-12">
-        <div className="col-span-2">
-          <h2 className="text-xl font-semibold tracking-tight mb-4">Recommended for you</h2>
-          <div className="space-y-3">
-            {EXPERIMENTS.slice(3, 7).map((rec, i) => (
-              <Link key={i} href={`/experiments/${rec.id}`}>
-                <div className="group flex items-center justify-between p-4 bg-white rounded-xl border border-[#E2E8F0] shadow-sm hover:border-blue-200 transition-colors cursor-pointer">
-                  <div className="pr-4">
-                    <h4 className="font-medium text-sm mb-1 group-hover:text-blue-700 transition-colors">{rec.title}</h4>
-                    <div className="flex items-center gap-3 text-xs text-[#64748B]">
-                      <span className="font-medium text-[#0F172A] capitalize">{rec.categoryId.replace("-", " ")}</span>
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {rec.estimatedTime}</span>
-                      <Badge variant="outline" className="text-[9px] h-4 px-1.5 font-semibold bg-[#F8FAFC]">{rec.difficulty}</Badge>
-                    </div>
+      {/* ── Featured minds ───────────────────────────────────────── */}
+      {featuredMinds.length > 0 && (
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold tracking-tight text-[#0F172A]">From the Directory</h2>
+            <Link href="/directory" className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
+              Browse all <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-none">
+            {featuredMinds.map(p => (
+              <Link key={p.slug} href={`/directory/${p.slug}`}>
+                <div className="flex-shrink-0 w-28 group cursor-pointer">
+                  <div className="h-20 w-20 mx-auto rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-sm group-hover:shadow-md transition-shadow mb-2">
+                    <img
+                      src={p.imageUrl}
+                      alt={p.name}
+                      className="h-full w-full object-cover"
+                      onError={e => {
+                        const el = e.currentTarget;
+                        el.style.display = "none";
+                        const parent = el.parentElement;
+                        if (parent) {
+                          parent.className = parent.className + " bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center";
+                          parent.innerHTML = `<span class="text-slate-500 text-lg font-bold">${initials(p.name)}</span>`;
+                        }
+                      }}
+                    />
                   </div>
-                  <ChevronRight className="h-4 w-4 text-[#cbd5e1] group-hover:text-blue-600 flex-shrink-0" />
+                  <p className="text-xs font-semibold text-[#0F172A] text-center leading-tight group-hover:text-blue-600 transition-colors line-clamp-2">
+                    {p.name}
+                  </p>
+                  {p.field && (
+                    <p className="text-[10px] text-[#94a3b8] text-center mt-0.5 line-clamp-1">{p.field}</p>
+                  )}
                 </div>
               </Link>
             ))}
           </div>
         </div>
+      )}
 
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold tracking-tight">Recent Notes</h2>
-            <Link href="/notebook">
-              <Button variant="ghost" size="sm" className="h-8 px-2 text-[#64748B]">View all</Button>
-            </Link>
-          </div>
-          <Card className="shadow-sm border-[#E2E8F0] bg-white overflow-hidden">
-            <div className="divide-y divide-[#E2E8F0]">
-              {recentNotes.length > 0 ? (
-                recentNotes.map((note, i) => (
-                  <div key={i} className="p-4 hover:bg-[#F8FAFC] transition-colors">
-                    <div className="flex justify-between items-baseline mb-1">
-                      <span className="text-[10px] font-bold uppercase text-[#64748B]">{new Date(note.date).toLocaleDateString()}</span>
-                      <span className="text-xs font-medium bg-gray-100 px-1.5 rounded">{note.categorySlug}</span>
-                    </div>
-                    <p className="text-sm text-[#0F172A] line-clamp-2 leading-relaxed">{note.observation}</p>
-                  </div>
-                ))
-              ) : (
-                <div className="p-8 text-center text-sm text-[#64748B]">
-                  No notebook entries yet. Start an experiment to add one!
+      {/* ── Continue your work ───────────────────────────────────── */}
+      <div className="mb-12">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold tracking-tight text-[#0F172A]">
+            {started.length > 0 ? "Continue your work" : "Start an experiment"}
+          </h2>
+          <Link href="/experiments" className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
+            All experiments <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-3">
+          {activeExps.map((exp, i) => (
+            <Link key={i} href={`/experiments/${exp.id}`}>
+              <div className="group flex flex-col gap-3 p-4 bg-white rounded-2xl border border-[#E2E8F0] shadow-sm hover:border-blue-200 hover:shadow-md transition-all cursor-pointer h-full">
+                <span className="text-[10px] uppercase font-bold text-[#94a3b8] tracking-wider">
+                  {exp.cat.replace(/-/g, " ")}
+                </span>
+                <p className="text-sm font-medium text-[#0F172A] leading-snug flex-1 group-hover:text-blue-700 transition-colors">
+                  {exp.title}
+                </p>
+                <div className="flex items-center justify-between text-xs text-[#64748B]">
+                  {exp.progress > 0 ? (
+                    <>
+                      <div className="flex-1 h-1 bg-[#E2E8F0] rounded-full mr-3 overflow-hidden">
+                        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${exp.progress}%` }} />
+                      </div>
+                      <span className="font-medium">{exp.progress}%</span>
+                    </>
+                  ) : (
+                    <span className="flex items-center gap-1 text-[#94a3b8]">
+                      <Clock className="h-3 w-3" /> Not started
+                    </span>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="bg-[#F8FAFC] p-3 text-center border-t border-[#E2E8F0]">
-              <Link href="/notebook" className="text-xs font-medium text-blue-600 hover:text-blue-700">Open Notebook →</Link>
-            </div>
-          </Card>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
+
+      {/* ── Science fields ───────────────────────────────────────── */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold tracking-tight text-[#0F172A]">Explore science fields</h2>
+          <Link href="/categories" className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
+            All fields <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {showcaseCategories.map(cat => (
+            <Link key={cat.slug} href={`/category/${cat.slug}`}>
+              <div
+                className="group flex items-center gap-3 p-4 bg-white rounded-2xl border border-[#E2E8F0] shadow-sm hover:shadow-md transition-all cursor-pointer"
+                style={{ borderLeftWidth: 3, borderLeftColor: cat.accent }}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-[#0F172A] group-hover:text-blue-700 transition-colors">
+                    {cat.name}
+                  </p>
+                  <p className="text-xs text-[#94a3b8] mt-0.5">{cat.difficulty}</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-[#cbd5e1] group-hover:text-blue-500 flex-shrink-0 transition-colors" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }
