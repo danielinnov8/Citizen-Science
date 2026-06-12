@@ -1,1 +1,1 @@
-ALTER TABLE "featured_profiles" ADD COLUMN "nobel_prizes" jsonb DEFAULT '[]'::jsonb NOT NULL;
+ALTER TABLE "featured_profiles" ADD COLUMN IF NOT EXISTS "nobel_prizes" jsonb DEFAULT '[]'::jsonb NOT NULL;
