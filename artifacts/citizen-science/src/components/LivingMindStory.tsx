@@ -530,12 +530,6 @@ export function LivingMindStory({
                 </span>
               </div>
               <div className="mt-7 flex flex-wrap items-center gap-4">
-                <span
-                  className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-medium text-white/90"
-                  style={{ border: `1px solid ${theme.accent}55` }}
-                >
-                  {story.era}
-                </span>
                 <button
                   type="button"
                   onClick={() => startMentorship(story.slug)}
