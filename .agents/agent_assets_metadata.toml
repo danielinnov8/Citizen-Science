@@ -24,8 +24,20 @@ uri = "file://attached_assets/generated_images/cover-alexander-wissner-gross.png
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "KlCjpr_zL3L0L8TPpMLQP"
+uri = "file://artifacts/citizen-science/public/opengraph.png"
+type = "image"
+title = "citizen-science-og-image"
+
 [[outputs]]
 id = "Ux4wEZPEMPOfpu-hNGQIE"
 uri = "file://attached_assets/albert-einstein.jpg"
 type = "image"
 title = "Albert Einstein"
+
+[[outputs]]
+id = "J1x8m53KMMedHzFUr7fqd"
+uri = "file://artifacts/citizen-science/public/opengraph.png"
+type = "image"
+title = "Open Graph image — Humanity's Research Network"
