@@ -26,10 +26,18 @@ export const FALLBACK_CREDIT_COST = {
   chat: 3,
   research: 5,
   fieldNotes: 2,
-  avatar: 2,
+  avatar: 50,
   // AI-drafting a mentoring course from the mentor's context.
   courseDraft: 4,
 } as const;
+
+// Fixed credits charged when a talking-avatar session is first opened.
+// Covers the D-ID stream setup cost regardless of how many messages follow.
+export const AVATAR_SESSION_CREDITS = 250;
+
+// Fixed credits charged per spoken message in a talking-avatar session.
+// Not token-metered — the cost is predictable and disclosed upfront.
+export const AVATAR_MESSAGE_CREDITS = 50;
 
 export type AiAction = keyof typeof FALLBACK_CREDIT_COST;
 
@@ -116,11 +124,18 @@ export const CREDIT_ACTIONS: CreditActionInfo[] = [
     metered: true,
   },
   {
-    id: "avatar",
-    label: "Talking-avatar reply",
-    description: "A spoken reply from a living talking-avatar persona.",
-    credits: FALLBACK_CREDIT_COST.avatar,
-    metered: true,
+    id: "avatar-session",
+    label: "Talking-avatar session",
+    description: "Opening a live talking-avatar session (one-time charge per conversation).",
+    credits: AVATAR_SESSION_CREDITS,
+    metered: false,
+  },
+  {
+    id: "avatar-message",
+    label: "Talking-avatar message",
+    description: "Each spoken message sent to a live avatar persona.",
+    credits: AVATAR_MESSAGE_CREDITS,
+    metered: false,
   },
   {
     id: "courseDraft",

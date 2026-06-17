@@ -18,8 +18,8 @@ import {
 import { rateLimit } from "../middlewares/rateLimit";
 import { getAvatarPersona, isTalkable } from "../lib/avatar/personas";
 import { resolveBillingSubject } from "../lib/credits/subject";
-import { consumeCredits, hasCreditsAvailable } from "../lib/credits/credits";
-import { creditsForUsage } from "../lib/credits/plans";
+import { consumeCredits, getCreditState } from "../lib/credits/credits";
+import { AVATAR_SESSION_CREDITS, AVATAR_MESSAGE_CREDITS } from "../lib/credits/plans";
 
 // These are paid, per-minute third-party APIs, so we hard-cap every live
 // conversation. The client also shows a countdown and ends gracefully, but the
@@ -210,17 +210,17 @@ router.post(
       return;
     }
 
-    // Gate on credits before starting a (paid) live session. Resolve the subject
-    // here (user or guest), and stash it on the session so each /say meters the
-    // right account. Fail-open if the credit lookup errors.
+    // Gate on credits before starting a (paid) live session. The session open
+    // itself costs AVATAR_SESSION_CREDITS (250); verify the balance covers that
+    // before spinning up the expensive D-ID stream. Fail-open on lookup error.
     const subject = await resolveBillingSubject(req, res);
     try {
-      const ok = await hasCreditsAvailable(subject.subjectKey, subject.monthlyGrant);
-      if (!ok) {
+      const state = await getCreditState(subject.subjectKey, subject.monthlyGrant);
+      if (state.totalRemaining < AVATAR_SESSION_CREDITS) {
         res.status(402).json({
           error: subject.isGuest
-            ? "You've used up this month's guest credits. Create a free account for more."
-            : "You're out of credits. Top up or upgrade your plan to start a live conversation.",
+            ? `Starting a live avatar requires ${AVATAR_SESSION_CREDITS} credits. Create a free account to get more.`
+            : `Starting a live avatar requires ${AVATAR_SESSION_CREDITS} credits. Top up or upgrade your plan.`,
           outOfCredits: true,
           isGuest: subject.isGuest,
           upgradeHref: subject.isGuest ? "/login" : "/pricing",
@@ -274,6 +274,14 @@ router.post(
         expiresAt: now + SESSION_MAX_MS,
       };
       sessions.set(id, session);
+
+      // Charge the session-open fee now that the stream is live. Fail-open so
+      // a billing hiccup doesn't strand the user mid-session.
+      try {
+        await consumeCredits(subject.subjectKey, subject.monthlyGrant, AVATAR_SESSION_CREDITS);
+      } catch (meterErr) {
+        req.log?.warn({ err: meterErr }, "avatar session credit deduction failed");
+      }
 
       res.json({
         sessionId: id,
@@ -394,11 +402,12 @@ router.post(
     }
 
     // Gate each spoken turn on the session subject's credit balance.
+    // Each message costs AVATAR_MESSAGE_CREDITS (50) — verify that upfront.
     try {
-      const ok = await hasCreditsAvailable(s.subjectKey, s.monthlyGrant);
-      if (!ok) {
+      const state = await getCreditState(s.subjectKey, s.monthlyGrant);
+      if (state.totalRemaining < AVATAR_MESSAGE_CREDITS) {
         res.status(402).json({
-          error: "You're out of credits. Top up or upgrade your plan to keep the conversation going.",
+          error: `Each message costs ${AVATAR_MESSAGE_CREDITS} credits. Top up or upgrade your plan to keep the conversation going.`,
           outOfCredits: true,
           upgradeHref: "/pricing",
         });
@@ -464,10 +473,9 @@ router.post(
       s.history = s.history.slice(-HISTORY_TURNS * 2);
     }
 
-    // Meter the spoken turn against the session's subject. Fail-open.
+    // Deduct the fixed per-message cost. Fail-open.
     try {
-      const cost = creditsForUsage("avatar", usageTokens);
-      await consumeCredits(s.subjectKey, s.monthlyGrant, cost);
+      await consumeCredits(s.subjectKey, s.monthlyGrant, AVATAR_MESSAGE_CREDITS);
     } catch (meterErr) {
       req.log?.warn({ err: meterErr }, "credit deduction failed after avatar say");
     }
