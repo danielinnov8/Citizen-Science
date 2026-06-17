@@ -33,11 +33,11 @@ export const FALLBACK_CREDIT_COST = {
 
 // Fixed credits charged when a talking-avatar session is first opened.
 // Covers the D-ID stream setup cost regardless of how many messages follow.
-export const AVATAR_SESSION_CREDITS = 250;
+export const AVATAR_SESSION_CREDITS = 50;
 
 // Fixed credits charged per spoken message in a talking-avatar session.
 // Not token-metered — the cost is predictable and disclosed upfront.
-export const AVATAR_MESSAGE_CREDITS = 50;
+export const AVATAR_MESSAGE_CREDITS = 10;
 
 export type AiAction = keyof typeof FALLBACK_CREDIT_COST;
 
