@@ -71,8 +71,8 @@ async function initStripe(): Promise<void> {
 
     // 4. Backfill existing Stripe data into the local stripe schema (async —
     //    doesn't block the server; errors are logged, not fatal).
-    stripeSync.syncBackfill().then(() => {
-      logger.info("Stripe data backfill complete");
+    stripeSync.syncBackfill({ object: "all" }).then((result) => {
+      logger.info({ result }, "Stripe data backfill complete");
     }).catch((err: unknown) => {
       logger.warn({ err }, "Stripe backfill failed (non-fatal)");
     });

@@ -72,7 +72,7 @@ router.get(
   "/billing/prices",
   async (_req: Request, res: Response): Promise<void> => {
     try {
-      const rows = (await db.execute(sql`
+      const result = await db.execute(sql`
         SELECT
           pr.id            AS price_id,
           pr.unit_amount,
@@ -86,7 +86,9 @@ router.get(
         JOIN stripe.prices pr ON pr.product = p.id
         WHERE p.active = true AND pr.active = true
         ORDER BY pr.unit_amount ASC
-      `) as unknown) as Array<Record<string, unknown>>;
+      `);
+      const rows = (result as unknown as { rows?: Array<Record<string, unknown>> }).rows
+        ?? (result as unknown as Array<Record<string, unknown>>);
 
       const subscriptions: unknown[] = [];
       const topups: unknown[] = [];
