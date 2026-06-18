@@ -78,6 +78,13 @@
       "when": 1781208846319,
       "tag": "0010_oval_liz_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1750269600000,
+      "tag": "0011_add_stripe_columns",
+      "breakpoints": true
     }
   ]
 }

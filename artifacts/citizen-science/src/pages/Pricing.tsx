@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearch } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -25,6 +26,7 @@ import { LogoIcon, Logo } from "@/components/Logo";
 import {
   useGetBillingPrices,
   useCreateCheckoutSession,
+  getGetCreditBalanceQueryKey,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
 
@@ -162,6 +164,13 @@ function CheckoutBanner() {
   const params = new URLSearchParams(search);
   const status = params.get("checkout");
   const [visible, setVisible] = useState(!!status);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (status === "success") {
+      void queryClient.invalidateQueries({ queryKey: getGetCreditBalanceQueryKey() });
+    }
+  }, [status, queryClient]);
 
   if (!visible || !status) return null;
 

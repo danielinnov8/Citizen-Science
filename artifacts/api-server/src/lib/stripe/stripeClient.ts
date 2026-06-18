@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 import { StripeSync } from "stripe-replit-sync";
 
-async function getStripeCredentials(): Promise<{
+export async function getStripeCredentials(): Promise<{
   secretKey: string;
   webhookSecret?: string;
 }> {
