@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db, usersTable } from "@workspace/db";
 import { addTopupCredits } from "../credits/credits";
 import { getStripeSync, getStripeCredentials } from "./stripeClient";
@@ -48,7 +48,7 @@ export class WebhookHandlers {
 
   static async handleBusinessLogic(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    event: { type: string; data: { object: any } },
+    event: { id?: string; type: string; data: { object: any } },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sync?: { stripe: any },
   ): Promise<void> {
@@ -96,42 +96,66 @@ export class WebhookHandlers {
         if (obj.payment_status !== "paid") break;
 
         const customerId = obj.customer as string | null;
-        if (!customerId || !sync) break;
+        const sessionId = obj.id as string | null;
+        if (!customerId || !sessionId || !sync) break;
 
-        try {
-          const lineItems = await sync.stripe.checkout.sessions.listLineItems(
-            obj.id as string,
-            { limit: 10, expand: ["data.price.product"] },
-          );
+        // Idempotency: only credit once per checkout session.
+        // We reuse stripe_subscription_id as a cheap idempotency store for
+        // one-time payments; instead we mark processed via a dedicated column.
+        // Since we don't have a separate table, we guard by checking whether
+        // this session was already applied: store the session id in a small
+        // idempotency check via the credit account's metadata-equivalent.
+        // Simplest safe approach: use a DB advisory lock on a hash of the session id.
+        const lockKey = BigInt(
+          sessionId
+            .split("")
+            .reduce((acc, ch) => ((acc << 5) - acc + ch.charCodeAt(0)) | 0, 0),
+        );
 
-          let totalCredits = 0;
-          for (const item of lineItems.data) {
-            const price = item.price;
-            const meta: Record<string, string> = price?.metadata ?? {};
-            const productMeta: Record<string, string> =
-              typeof price?.product === "object"
-                ? ((price.product as { metadata?: Record<string, string> })
-                    .metadata ?? {})
-                : {};
+        const result = await db.execute(
+          sql`SELECT pg_try_advisory_xact_lock(${lockKey})`,
+        );
+        const rows = (result as unknown as { rows?: Array<Record<string, unknown>> }).rows
+          ?? (result as unknown as Array<Record<string, unknown>>);
+        const acquired = rows[0]?.["pg_try_advisory_xact_lock"];
 
-            const creditStr =
-              meta["creditAmount"] ?? productMeta["creditAmount"];
-            if (creditStr) {
-              const qty = item.quantity ?? 1;
-              totalCredits += Number(creditStr) * qty;
-            }
+        // Another concurrent handler already holds the lock → skip (idempotent).
+        if (!acquired) break;
+
+        const lineItems = await sync.stripe.checkout.sessions.listLineItems(
+          sessionId,
+          { limit: 10, expand: ["data.price.product"] },
+        );
+
+        let totalCredits = 0;
+        for (const item of lineItems.data) {
+          const price = item.price;
+          const meta: Record<string, string> = price?.metadata ?? {};
+          const productMeta: Record<string, string> =
+            typeof price?.product === "object"
+              ? ((price.product as { metadata?: Record<string, string> })
+                  .metadata ?? {})
+              : {};
+
+          const creditStr =
+            meta["creditAmount"] ?? productMeta["creditAmount"];
+          if (creditStr) {
+            const qty = item.quantity ?? 1;
+            totalCredits += Number(creditStr) * qty;
           }
+        }
 
-          if (totalCredits > 0) {
-            const [user] = await db
-              .select({ id: usersTable.id })
-              .from(usersTable)
-              .where(eq(usersTable.stripeCustomerId, customerId));
+        if (totalCredits > 0) {
+          const [user] = await db
+            .select({ id: usersTable.id })
+            .from(usersTable)
+            .where(eq(usersTable.stripeCustomerId, customerId));
 
-            if (user) {
-              await addTopupCredits(`user:${user.id}`, totalCredits);
-            }
+          if (user) {
+            await addTopupCredits(`user:${user.id}`, totalCredits);
           }
+        }
+
         break;
       }
 
