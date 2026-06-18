@@ -85,6 +85,13 @@
       "when": 1750269600000,
       "tag": "0011_add_stripe_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1750269660000,
+      "tag": "0012_stripe_idempotency",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
-import { eq, sql } from "drizzle-orm";
-import { db, usersTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
+import { db, usersTable, stripeProcessedEventsTable } from "@workspace/db";
 import { addTopupCredits } from "../credits/credits";
 import { getStripeSync, getStripeCredentials } from "./stripeClient";
 import type { PlanId } from "../credits/plans";
@@ -97,30 +97,21 @@ export class WebhookHandlers {
 
         const customerId = obj.customer as string | null;
         const sessionId = obj.id as string | null;
-        if (!customerId || !sessionId || !sync) break;
+        const eventId = event.id ?? sessionId;
 
-        // Idempotency: only credit once per checkout session.
-        // We reuse stripe_subscription_id as a cheap idempotency store for
-        // one-time payments; instead we mark processed via a dedicated column.
-        // Since we don't have a separate table, we guard by checking whether
-        // this session was already applied: store the session id in a small
-        // idempotency check via the credit account's metadata-equivalent.
-        // Simplest safe approach: use a DB advisory lock on a hash of the session id.
-        const lockKey = BigInt(
-          sessionId
-            .split("")
-            .reduce((acc, ch) => ((acc << 5) - acc + ch.charCodeAt(0)) | 0, 0),
-        );
+        if (!customerId || !sessionId || !sync || !eventId) break;
 
-        const result = await db.execute(
-          sql`SELECT pg_try_advisory_xact_lock(${lockKey})`,
-        );
-        const rows = (result as unknown as { rows?: Array<Record<string, unknown>> }).rows
-          ?? (result as unknown as Array<Record<string, unknown>>);
-        const acquired = rows[0]?.["pg_try_advisory_xact_lock"];
+        // Persistent idempotency: insert the event id with a unique constraint.
+        // If a duplicate event is delivered, the insert will fail silently and
+        // we skip re-crediting the user.
+        const inserted = await db
+          .insert(stripeProcessedEventsTable)
+          .values({ stripeEventId: eventId, eventType: event.type })
+          .onConflictDoNothing()
+          .returning({ id: stripeProcessedEventsTable.id });
 
-        // Another concurrent handler already holds the lock → skip (idempotent).
-        if (!acquired) break;
+        // Already processed — skip to avoid duplicate credits.
+        if (inserted.length === 0) break;
 
         const lineItems = await sync.stripe.checkout.sessions.listLineItems(
           sessionId,
