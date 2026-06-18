@@ -341,6 +341,8 @@ export interface BillingPrice {
 export interface BillingPrices {
   subscriptions: BillingPrice[];
   topups: BillingPrice[];
+  /** One-time founding member price(s) */
+  founding: BillingPrice[];
 }
 
 export interface CreateCheckoutInput {

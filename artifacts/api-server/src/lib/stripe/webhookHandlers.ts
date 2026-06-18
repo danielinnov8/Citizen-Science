@@ -160,13 +160,47 @@ export class WebhookHandlers {
           }
         }
 
-        if (totalCredits > 0) {
-          const [user] = await db
-            .select({ id: usersTable.id })
-            .from(usersTable)
-            .where(eq(usersTable.stripeCustomerId, customerId));
+        // Determine the purchased product type from line-item metadata.
+        // founding → grant planId as lifetime plan; topup → add credits.
+        let purchasedPlanId: string | null = null;
 
-          if (user) {
+        for (const item of lineItems.data) {
+          const price = item.price;
+          const meta: Record<string, string> = price?.metadata ?? {};
+          const productMeta: Record<string, string> =
+            typeof price?.product === "object"
+              ? ((price.product as { metadata?: Record<string, string> })
+                  .metadata ?? {})
+              : {};
+
+          const itemType = meta["type"] ?? productMeta["type"];
+          const creditStr =
+            meta["creditAmount"] ?? productMeta["creditAmount"];
+          const planStr = meta["planId"] ?? productMeta["planId"];
+
+          if (itemType === "founding" && planStr) {
+            purchasedPlanId = planStr;
+          } else if (creditStr) {
+            const qty = item.quantity ?? 1;
+            totalCredits += Number(creditStr) * qty;
+          }
+        }
+
+        const [user] = await db
+          .select({ id: usersTable.id, plan: usersTable.plan })
+          .from(usersTable)
+          .where(eq(usersTable.stripeCustomerId, customerId));
+
+        if (user) {
+          // Grant lifetime plan upgrade (founding member).
+          if (purchasedPlanId) {
+            await db
+              .update(usersTable)
+              .set({ plan: purchasedPlanId })
+              .where(eq(usersTable.id, user.id));
+          }
+          // Add top-up credits (credit packs).
+          if (totalCredits > 0) {
             await addTopupCredits(`user:${user.id}`, totalCredits);
           }
         }

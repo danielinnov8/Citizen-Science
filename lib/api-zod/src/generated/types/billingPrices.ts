@@ -10,4 +10,6 @@ import type { BillingPrice } from "./billingPrice";
 export interface BillingPrices {
   subscriptions: BillingPrice[];
   topups: BillingPrice[];
+  /** One-time founding member price(s) */
+  founding: BillingPrice[];
 }

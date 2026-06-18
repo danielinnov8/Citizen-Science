@@ -132,6 +132,48 @@ async function seedProducts() {
     );
   }
 
+  // ── Founding Member ──────────────────────────────────────────────────────
+  const foundingProduct = {
+    productKey: "cs-founding-member",
+    name: "Founding Member",
+    description:
+      "Lifetime Researcher access — one-time founding membership for early believers in the mission.",
+    planId: "researcher",
+    unitAmount: 250000, // $2,500.00
+  };
+
+  const existingFounding = await stripe.products.search({
+    query: `metadata["productKey"]:"${foundingProduct.productKey}"`,
+  });
+
+  if (existingFounding.data.length > 0) {
+    console.log("  ✓ Founding Member already exists — skipping");
+  } else {
+    const product = await stripe.products.create({
+      name: foundingProduct.name,
+      description: foundingProduct.description,
+      metadata: {
+        productKey: foundingProduct.productKey,
+        planId: foundingProduct.planId,
+        type: "founding",
+      },
+    });
+
+    const price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: foundingProduct.unitAmount,
+      currency: "usd",
+      metadata: {
+        planId: foundingProduct.planId,
+        type: "founding",
+      },
+    });
+
+    console.log(
+      `  + Created Founding Member: product=${product.id} price=${price.id} ($${foundingProduct.unitAmount / 100} one-time)`,
+    );
+  }
+
   console.log("Done! Webhooks will sync these products to the database.");
 }
 

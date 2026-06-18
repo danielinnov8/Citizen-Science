@@ -489,6 +489,39 @@ export const GetBillingPricesResponse = zod.object({
         .describe("Credits included for top-up packs"),
     }),
   ),
+  founding: zod
+    .array(
+      zod.object({
+        id: zod.string().describe("Stripe price ID"),
+        productId: zod.string().describe("Stripe product ID"),
+        name: zod.string().describe("Product display name"),
+        unitAmount: zod
+          .number()
+          .describe("Price in the smallest currency unit (e.g. cents for USD)"),
+        currency: zod.string().describe("ISO 4217 currency code"),
+        interval: zod
+          .string()
+          .nullish()
+          .describe(
+            "Billing interval for subscriptions (month\/year), null for one-time",
+          ),
+        planId: zod
+          .string()
+          .nullish()
+          .describe(
+            "Internal plan ID (researcher\/pioneer) for subscription prices",
+          ),
+        packId: zod
+          .string()
+          .nullish()
+          .describe("Internal pack ID (pack-500 etc.) for top-up prices"),
+        creditAmount: zod
+          .number()
+          .nullish()
+          .describe("Credits included for top-up packs"),
+      }),
+    )
+    .describe("One-time founding member price(s)"),
 });
 
 /**

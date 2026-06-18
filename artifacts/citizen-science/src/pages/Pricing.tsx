@@ -511,6 +511,28 @@ const FOUNDING_PERKS: {
 const FOUNDING_SPOTS = 100;
 
 function FoundingMember() {
+  const { isAuthenticated } = useAuth();
+  const { data: prices } = useGetBillingPrices();
+  const mutation = useCreateCheckoutSession();
+  const [loading, setLoading] = useState(false);
+
+  const foundingPriceId = prices?.founding?.[0]?.id;
+
+  const handleCheckout = async () => {
+    if (!foundingPriceId) return;
+    if (!isAuthenticated) {
+      window.location.href = "/login?redirect=/pricing#founding";
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await mutation.mutateAsync({ data: { priceId: foundingPriceId } });
+      if (result.url) window.location.href = result.url;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section
       id="founding"
@@ -562,9 +584,10 @@ function FoundingMember() {
             </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <a
-                href="mailto:56289968+danielinnov8@users.noreply.github.com?subject=Founding%20Member%20—%20Citizen%20Science"
-                className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold text-[#0B1120] transition-transform hover:scale-[1.02]"
+              <button
+                onClick={() => void handleCheckout()}
+                disabled={loading || !foundingPriceId}
+                className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold text-[#0B1120] transition-transform hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                 style={{
                   backgroundImage:
                     "linear-gradient(to bottom right, #F4D77B, #E4C75B 45%, #C9A93B)",
@@ -572,9 +595,13 @@ function FoundingMember() {
                 }}
                 data-testid="founding-cta"
               >
-                <Crown className="h-4 w-4" />
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Crown className="h-4 w-4" />
+                )}
                 Become a founding member
-              </a>
+              </button>
               <span className="inline-flex items-center justify-center gap-2 text-sm text-white/50">
                 Only {FOUNDING_SPOTS} spots — first come, first served
               </span>

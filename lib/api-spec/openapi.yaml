@@ -2138,6 +2138,7 @@ components:
       required:
         - subscriptions
         - topups
+        - founding
       properties:
         subscriptions:
           type: array
@@ -2145,6 +2146,11 @@ components:
             $ref: "#/components/schemas/BillingPrice"
         topups:
           type: array
+          items:
+            $ref: "#/components/schemas/BillingPrice"
+        founding:
+          type: array
+          description: One-time founding member price(s)
           items:
             $ref: "#/components/schemas/BillingPrice"
     CreateCheckoutInput:

@@ -92,6 +92,7 @@ router.get(
 
       const subscriptions: unknown[] = [];
       const topups: unknown[] = [];
+      const founding: unknown[] = [];
 
       for (const row of rows) {
         const priceMeta =
@@ -128,16 +129,18 @@ router.get(
 
         if (type === "topup") {
           topups.push(entry);
+        } else if (type === "founding") {
+          founding.push(entry);
         } else {
           subscriptions.push(entry);
         }
       }
 
-      res.json(GetBillingPricesResponse.parse({ subscriptions, topups }));
+      res.json(GetBillingPricesResponse.parse({ subscriptions, topups, founding }));
     } catch {
       // Stripe schema not ready yet — return empty lists.
       res.json(
-        GetBillingPricesResponse.parse({ subscriptions: [], topups: [] }),
+        GetBillingPricesResponse.parse({ subscriptions: [], topups: [], founding: [] }),
       );
     }
   },
