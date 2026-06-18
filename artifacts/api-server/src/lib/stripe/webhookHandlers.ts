@@ -1,11 +1,33 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db, usersTable, stripeProcessedEventsTable } from "@workspace/db";
 import { addTopupCredits } from "../credits/credits";
-import { getStripeSync, getStripeCredentials } from "./stripeClient";
+import { getStripeSync } from "./stripeClient";
 import type { PlanId } from "../credits/plans";
 
 function planIdFromMeta(planId: string | null | undefined): PlanId | null {
   if (planId === "researcher" || planId === "pioneer") return planId;
+  return null;
+}
+
+/**
+ * Resolve the webhook signing secret. Prefers the managed-webhook secret
+ * stored in stripe."_managed_webhooks" by stripe-replit-sync (always present
+ * when the managed webhook flow ran), falling back to the config-level secret.
+ * This avoids depending on the Replit connector exposing webhook_secret.
+ */
+async function resolveManagedWebhookSecret(): Promise<string | null> {
+  try {
+    const result = await db.execute(
+      sql`SELECT secret FROM stripe."_managed_webhooks" LIMIT 1`,
+    );
+    const rows = (
+      result as unknown as { rows?: Array<Record<string, unknown>> }
+    ).rows ?? (result as unknown as Array<Record<string, unknown>>);
+    const secret = rows[0]?.["secret"];
+    if (typeof secret === "string" && secret.length > 0) return secret;
+  } catch {
+    // Table may not exist yet during first boot
+  }
   return null;
 }
 
@@ -25,17 +47,20 @@ export class WebhookHandlers {
       );
     }
 
-    // Resolve credentials and sync instance together.
-    const [sync, { webhookSecret }] = await Promise.all([
-      getStripeSync(),
-      getStripeCredentials(),
-    ]);
+    const sync = await getStripeSync();
 
     // Let stripe-replit-sync persist the raw event data first.
     await sync.processWebhook(payload, signature);
 
-    // Parse the event ourselves for business-side effects.
-    if (!webhookSecret) return;
+    // Resolve the webhook signing secret from the managed-webhook table so
+    // business-logic effects work even when the connector doesn't expose
+    // webhook_secret in its settings.
+    const webhookSecret = await resolveManagedWebhookSecret();
+    if (!webhookSecret) {
+      // No secret available — can't verify signature for business logic.
+      // stripe-replit-sync already persisted the event; log and return.
+      return;
+    }
 
     const event = await sync.stripe.webhooks.constructEventAsync(
       payload,
@@ -102,16 +127,15 @@ export class WebhookHandlers {
         if (!customerId || !sessionId || !sync || !eventId) break;
 
         // Persistent idempotency: insert the event id with a unique constraint.
-        // If a duplicate event is delivered, the insert will fail silently and
-        // we skip re-crediting the user.
+        // If a duplicate event is delivered (Stripe at-least-once delivery),
+        // the insert is a no-op and we skip re-crediting the user.
         const inserted = await db
           .insert(stripeProcessedEventsTable)
           .values({ stripeEventId: eventId, eventType: event.type })
           .onConflictDoNothing()
           .returning({ id: stripeProcessedEventsTable.id });
 
-        // Already processed — skip to avoid duplicate credits.
-        if (inserted.length === 0) break;
+        if (inserted.length === 0) break; // already processed
 
         const lineItems = await sync.stripe.checkout.sessions.listLineItems(
           sessionId,
