@@ -132,10 +132,6 @@ export class WebhookHandlers {
               await addTopupCredits(`user:${user.id}`, totalCredits);
             }
           }
-        } catch {
-          // Non-fatal — degrade gracefully
-        }
-
         break;
       }
 

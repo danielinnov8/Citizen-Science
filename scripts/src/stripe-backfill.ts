@@ -3,7 +3,7 @@ import { getStripeSync } from "./stripeClient";
 async function main() {
   const sync = await getStripeSync();
   console.log("Running Stripe backfill for products and prices...");
-  await sync.syncBackfill({ stripeObjects: ["products", "prices"] });
+  await sync.syncBackfill({ object: "all" });
   console.log("Backfill done");
 }
 
