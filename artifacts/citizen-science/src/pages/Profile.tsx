@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { LogOut, Trash2, Check, Plus, LogIn, BookOpen, ArrowRight } from "lucide-react";
+import { LogOut, Trash2, Check, Plus, LogIn, BookOpen, ArrowRight, CreditCard, Loader2, ExternalLink } from "lucide-react";
 import {
   useGetMyEnrollments,
   getGetMyEnrollmentsQueryKey,
+  useCreatePortalSession,
 } from "@workspace/api-client-react";
+import { useCreditBalance } from "@/components/CreditMeter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -53,6 +55,73 @@ function MyEnrollments() {
               </div>
             </Link>
           ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SubscriptionCard() {
+  const { data: balance } = useCreditBalance();
+  const mutation = useCreatePortalSession();
+  const [loading, setLoading] = useState(false);
+
+  const isPaidPlan =
+    balance?.plan === "researcher" || balance?.plan === "pioneer";
+
+  const handleManage = async () => {
+    setLoading(true);
+    try {
+      const result = await mutation.mutateAsync();
+      if (result.url) {
+        window.location.href = result.url;
+      }
+    } catch {
+      // portal unavailable (no Stripe customer yet)
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card className="shadow-sm border-[#E2E8F0] mb-8">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <h3 className="font-semibold text-lg">Subscription</h3>
+            <p className="text-sm text-[#64748B] mt-0.5">
+              {balance
+                ? `${balance.plan.charAt(0).toUpperCase() + balance.plan.slice(1)} plan · ${balance.totalRemaining.toLocaleString()} credits remaining`
+                : "Loading…"}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {!isPaidPlan && (
+              <Link href="/pricing">
+                <Button variant="default" size="sm" className="gap-1.5">
+                  <ArrowRight className="h-3.5 w-3.5" />
+                  Upgrade plan
+                </Button>
+              </Link>
+            )}
+            {isPaidPlan && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => void handleManage()}
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <CreditCard className="h-3.5 w-3.5" />
+                )}
+                Manage subscription
+                <ExternalLink className="h-3 w-3 opacity-50" />
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -147,6 +216,8 @@ export function Profile() {
       {user?.isMentor && <MentorshipManager />}
 
       <MyEnrollments />
+
+      <SubscriptionCard />
 
       <Card className="shadow-sm border-[#E2E8F0] mb-8">
         <CardContent className="p-6 space-y-6">

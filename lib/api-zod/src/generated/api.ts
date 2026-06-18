@@ -422,6 +422,102 @@ export const GetCreditEconomyResponse = zod
   );
 
 /**
+ * Public. Returns subscription plan prices and one-time top-up pack prices synced from Stripe. Returns empty arrays when the Stripe integration is not yet connected.
+
+ * @summary List available Stripe subscription and top-up prices
+ */
+export const GetBillingPricesResponse = zod.object({
+  subscriptions: zod.array(
+    zod.object({
+      id: zod.string().describe("Stripe price ID"),
+      productId: zod.string().describe("Stripe product ID"),
+      name: zod.string().describe("Product display name"),
+      unitAmount: zod
+        .number()
+        .describe("Price in the smallest currency unit (e.g. cents for USD)"),
+      currency: zod.string().describe("ISO 4217 currency code"),
+      interval: zod
+        .string()
+        .nullish()
+        .describe(
+          "Billing interval for subscriptions (month\/year), null for one-time",
+        ),
+      planId: zod
+        .string()
+        .nullish()
+        .describe(
+          "Internal plan ID (researcher\/pioneer) for subscription prices",
+        ),
+      packId: zod
+        .string()
+        .nullish()
+        .describe("Internal pack ID (pack-500 etc.) for top-up prices"),
+      creditAmount: zod
+        .number()
+        .nullish()
+        .describe("Credits included for top-up packs"),
+    }),
+  ),
+  topups: zod.array(
+    zod.object({
+      id: zod.string().describe("Stripe price ID"),
+      productId: zod.string().describe("Stripe product ID"),
+      name: zod.string().describe("Product display name"),
+      unitAmount: zod
+        .number()
+        .describe("Price in the smallest currency unit (e.g. cents for USD)"),
+      currency: zod.string().describe("ISO 4217 currency code"),
+      interval: zod
+        .string()
+        .nullish()
+        .describe(
+          "Billing interval for subscriptions (month\/year), null for one-time",
+        ),
+      planId: zod
+        .string()
+        .nullish()
+        .describe(
+          "Internal plan ID (researcher\/pioneer) for subscription prices",
+        ),
+      packId: zod
+        .string()
+        .nullish()
+        .describe("Internal pack ID (pack-500 etc.) for top-up prices"),
+      creditAmount: zod
+        .number()
+        .nullish()
+        .describe("Credits included for top-up packs"),
+    }),
+  ),
+});
+
+/**
+ * Auth required. Creates a Stripe Checkout session for a subscription plan or a one-time credit top-up pack. Returns a URL to redirect the user to Stripe's hosted checkout page.
+
+ * @summary Create a Stripe checkout session
+ */
+export const CreateCheckoutSessionBody = zod.object({
+  priceId: zod.string().describe("Stripe price ID to purchase"),
+});
+
+export const CreateCheckoutSessionResponse = zod.object({
+  url: zod
+    .string()
+    .describe("Stripe-hosted checkout URL to redirect the user to"),
+});
+
+/**
+ * Auth required. Creates a Stripe Billing Portal session so the user can manage their subscription, update their payment method, or cancel. Returns a URL to redirect the user to.
+
+ * @summary Create a Stripe customer portal session
+ */
+export const CreatePortalSessionResponse = zod.object({
+  url: zod
+    .string()
+    .describe("Stripe Billing Portal URL to redirect the user to"),
+});
+
+/**
  * Superadmin-only. Headline platform metrics and trend sparklines.
  * @summary Admin overview KPIs
  */

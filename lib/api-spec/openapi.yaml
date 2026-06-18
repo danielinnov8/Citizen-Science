@@ -357,6 +357,96 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CreditEconomy"
+  /billing/prices:
+    get:
+      operationId: getBillingPrices
+      tags: [billing]
+      summary: List available Stripe subscription and top-up prices
+      description: >
+        Public. Returns subscription plan prices and one-time top-up pack
+        prices synced from Stripe. Returns empty arrays when the Stripe
+        integration is not yet connected.
+      responses:
+        "200":
+          description: Available prices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingPrices"
+  /billing/checkout:
+    post:
+      operationId: createCheckoutSession
+      tags: [billing]
+      summary: Create a Stripe checkout session
+      description: >
+        Auth required. Creates a Stripe Checkout session for a subscription
+        plan or a one-time credit top-up pack. Returns a URL to redirect the
+        user to Stripe's hosted checkout page.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCheckoutInput"
+      responses:
+        "200":
+          description: Checkout session URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutUrl"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "503":
+          description: Stripe not connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /billing/portal:
+    post:
+      operationId: createPortalSession
+      tags: [billing]
+      summary: Create a Stripe customer portal session
+      description: >
+        Auth required. Creates a Stripe Billing Portal session so the user
+        can manage their subscription, update their payment method, or cancel.
+        Returns a URL to redirect the user to.
+      responses:
+        "200":
+          description: Portal session URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortalUrl"
+        "400":
+          description: No billing account found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "503":
+          description: Stripe not connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /admin/overview:
     get:
       operationId: getAdminOverview
@@ -2007,6 +2097,80 @@ components:
         - actions
         - tiers
         - topups
+    BillingPrice:
+      type: object
+      required:
+        - id
+        - productId
+        - name
+        - unitAmount
+        - currency
+      properties:
+        id:
+          type: string
+          description: Stripe price ID
+        productId:
+          type: string
+          description: Stripe product ID
+        name:
+          type: string
+          description: Product display name
+        unitAmount:
+          type: integer
+          description: Price in the smallest currency unit (e.g. cents for USD)
+        currency:
+          type: string
+          description: ISO 4217 currency code
+        interval:
+          type: ["string", "null"]
+          description: Billing interval for subscriptions (month/year), null for one-time
+        planId:
+          type: ["string", "null"]
+          description: Internal plan ID (researcher/pioneer) for subscription prices
+        packId:
+          type: ["string", "null"]
+          description: Internal pack ID (pack-500 etc.) for top-up prices
+        creditAmount:
+          type: ["integer", "null"]
+          description: Credits included for top-up packs
+    BillingPrices:
+      type: object
+      required:
+        - subscriptions
+        - topups
+      properties:
+        subscriptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/BillingPrice"
+        topups:
+          type: array
+          items:
+            $ref: "#/components/schemas/BillingPrice"
+    CreateCheckoutInput:
+      type: object
+      required:
+        - priceId
+      properties:
+        priceId:
+          type: string
+          description: Stripe price ID to purchase
+    CheckoutUrl:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          description: Stripe-hosted checkout URL to redirect the user to
+    PortalUrl:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          description: Stripe Billing Portal URL to redirect the user to
     AdminTrendPoint:
       type: object
       properties:

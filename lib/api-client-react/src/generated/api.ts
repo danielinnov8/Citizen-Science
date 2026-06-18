@@ -27,6 +27,8 @@ import type {
   AdminUser,
   AdminUserList,
   AuthUser,
+  BillingPrices,
+  CheckoutUrl,
   CitizenxChapter,
   CitizenxChapterInput,
   CitizenxEvent,
@@ -37,6 +39,7 @@ import type {
   CourseDraft,
   CourseDraftInput,
   CourseInput,
+  CreateCheckoutInput,
   CreditBalance,
   CreditEconomy,
   EnrollInput,
@@ -60,6 +63,7 @@ import type {
   MessageResponse,
   MyProfileClaimStatus,
   OutOfCreditsError,
+  PortalUrl,
   RegisterInput,
   SendMessageInput,
   SetUserMentorInput,
@@ -1221,6 +1225,254 @@ export function useGetCreditEconomy<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Public. Returns subscription plan prices and one-time top-up pack prices synced from Stripe. Returns empty arrays when the Stripe integration is not yet connected.
+
+ * @summary List available Stripe subscription and top-up prices
+ */
+export const getGetBillingPricesUrl = () => {
+  return `/api/billing/prices`;
+};
+
+export const getBillingPrices = async (
+  options?: RequestInit,
+): Promise<BillingPrices> => {
+  return customFetch<BillingPrices>(getGetBillingPricesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetBillingPricesQueryKey = () => {
+  return [`/api/billing/prices`] as const;
+};
+
+export const getGetBillingPricesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getBillingPrices>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getBillingPrices>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetBillingPricesQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getBillingPrices>>
+  > = ({ signal }) => getBillingPrices({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getBillingPrices>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetBillingPricesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getBillingPrices>>
+>;
+export type GetBillingPricesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List available Stripe subscription and top-up prices
+ */
+
+export function useGetBillingPrices<
+  TData = Awaited<ReturnType<typeof getBillingPrices>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getBillingPrices>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetBillingPricesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Auth required. Creates a Stripe Checkout session for a subscription plan or a one-time credit top-up pack. Returns a URL to redirect the user to Stripe's hosted checkout page.
+
+ * @summary Create a Stripe checkout session
+ */
+export const getCreateCheckoutSessionUrl = () => {
+  return `/api/billing/checkout`;
+};
+
+export const createCheckoutSession = async (
+  createCheckoutInput: CreateCheckoutInput,
+  options?: RequestInit,
+): Promise<CheckoutUrl> => {
+  return customFetch<CheckoutUrl>(getCreateCheckoutSessionUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createCheckoutInput),
+  });
+};
+
+export const getCreateCheckoutSessionMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createCheckoutSession>>,
+    TError,
+    { data: BodyType<CreateCheckoutInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createCheckoutSession>>,
+  TError,
+  { data: BodyType<CreateCheckoutInput> },
+  TContext
+> => {
+  const mutationKey = ["createCheckoutSession"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createCheckoutSession>>,
+    { data: BodyType<CreateCheckoutInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createCheckoutSession(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateCheckoutSessionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createCheckoutSession>>
+>;
+export type CreateCheckoutSessionMutationBody = BodyType<CreateCheckoutInput>;
+export type CreateCheckoutSessionMutationError = ErrorType<Error>;
+
+/**
+ * @summary Create a Stripe checkout session
+ */
+export const useCreateCheckoutSession = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createCheckoutSession>>,
+    TError,
+    { data: BodyType<CreateCheckoutInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createCheckoutSession>>,
+  TError,
+  { data: BodyType<CreateCheckoutInput> },
+  TContext
+> => {
+  return useMutation(getCreateCheckoutSessionMutationOptions(options));
+};
+
+/**
+ * Auth required. Creates a Stripe Billing Portal session so the user can manage their subscription, update their payment method, or cancel. Returns a URL to redirect the user to.
+
+ * @summary Create a Stripe customer portal session
+ */
+export const getCreatePortalSessionUrl = () => {
+  return `/api/billing/portal`;
+};
+
+export const createPortalSession = async (
+  options?: RequestInit,
+): Promise<PortalUrl> => {
+  return customFetch<PortalUrl>(getCreatePortalSessionUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getCreatePortalSessionMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createPortalSession>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createPortalSession>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["createPortalSession"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createPortalSession>>,
+    void
+  > = () => {
+    return createPortalSession(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreatePortalSessionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createPortalSession>>
+>;
+
+export type CreatePortalSessionMutationError = ErrorType<Error>;
+
+/**
+ * @summary Create a Stripe customer portal session
+ */
+export const useCreatePortalSession = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createPortalSession>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createPortalSession>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getCreatePortalSessionMutationOptions(options));
+};
 
 /**
  * Superadmin-only. Headline platform metrics and trend sparklines.

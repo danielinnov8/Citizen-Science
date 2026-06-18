@@ -14,6 +14,10 @@ export const usersTable = pgTable("users", {
   // up a mentor profile and publish mentoring courses others enroll in. Set by
   // the admin portal only (Task #83 mentorship marketplace).
   isMentor: boolean("is_mentor").notNull().default(false),
+  // Stripe billing identifiers. Populated when the user first initiates a
+  // checkout session (customer) or completes a subscription (subscription).
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

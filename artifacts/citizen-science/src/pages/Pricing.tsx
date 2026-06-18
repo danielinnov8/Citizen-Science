@@ -1,8 +1,32 @@
-import React, { useEffect } from "react";
-import { Link } from "wouter";
+import React, { useEffect, useState } from "react";
+import { Link, useSearch } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Check, Sparkles, Compass, FlaskConical, Rocket, Mail, Crown, Star, Megaphone, Infinity as InfinityIcon, MessageCircle, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  Sparkles,
+  Compass,
+  FlaskConical,
+  Rocket,
+  Mail,
+  Crown,
+  Star,
+  Megaphone,
+  Infinity as InfinityIcon,
+  MessageCircle,
+  Zap,
+  Loader2,
+  X,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+} from "lucide-react";
 import { LogoIcon, Logo } from "@/components/Logo";
+import {
+  useGetBillingPrices,
+  useCreateCheckoutSession,
+} from "@workspace/api-client-react";
+import { useAuth } from "@/lib/auth";
 
 const GRID_BG = {
   backgroundImage:
@@ -17,16 +41,13 @@ type Tier = {
   icon: React.ComponentType<{ className?: string }>;
   monthly: number;
   credits: number;
-  cta: { label: string; href: string };
+  cta: string;
   featured?: boolean;
   features: string[];
 };
 
 const CONTACT_EMAIL = "56289968+danielinnov8@users.noreply.github.com";
 
-// Monthly credit grants mirror the server's PLAN_MONTHLY_CREDITS. Credits meter
-// every AI feature (copilot chat, web research, field-notes, talking avatar) at
-// roughly 1 credit per 1,000 Gemini tokens.
 const TIERS: Tier[] = [
   {
     id: "free",
@@ -35,7 +56,7 @@ const TIERS: Tier[] = [
     icon: Compass,
     monthly: 0,
     credits: 200,
-    cta: { label: "Get started free", href: "/login" },
+    cta: "Get started free",
     features: [
       "~200 AI credits / month",
       "All 14 science categories",
@@ -52,7 +73,7 @@ const TIERS: Tier[] = [
     icon: FlaskConical,
     monthly: 20,
     credits: 2000,
-    cta: { label: "Start researching", href: "/login" },
+    cta: "Start researching",
     featured: true,
     features: [
       "~2,000 AI credits / month",
@@ -70,7 +91,7 @@ const TIERS: Tier[] = [
     icon: Rocket,
     monthly: 100,
     credits: 12000,
-    cta: { label: "Go Pioneer", href: "/login" },
+    cta: "Go Pioneer",
     features: [
       "~12,000 AI credits / month",
       "Everything in Researcher",
@@ -82,7 +103,6 @@ const TIERS: Tier[] = [
   },
 ];
 
-// Placeholder one-off credit packs. Buttons are stubs — no real payment yet.
 type TopupPack = {
   id: string;
   credits: number;
@@ -104,11 +124,88 @@ function formatCredits(value: number) {
   return value.toLocaleString("en-US");
 }
 
+// ── Checkout hook ────────────────────────────────────────────────────────────
+
+function useCheckout() {
+  const { isAuthenticated } = useAuth();
+  const mutation = useCreateCheckoutSession();
+  const [loading, setLoading] = useState<string | null>(null);
+
+  const checkout = async (priceId: string | undefined, key: string) => {
+    if (!priceId) return;
+
+    if (!isAuthenticated) {
+      window.location.href = "/login?redirect=/pricing";
+      return;
+    }
+
+    setLoading(key);
+    try {
+      const result = await mutation.mutateAsync({ data: { priceId } });
+      if (result.url) {
+        window.location.href = result.url;
+      }
+    } catch {
+      // error is surfaced via mutation state
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  return { checkout, loading, error: mutation.error };
+}
+
+// ── Checkout result banner ───────────────────────────────────────────────────
+
+function CheckoutBanner() {
+  const search = useSearch();
+  const params = new URLSearchParams(search);
+  const status = params.get("checkout");
+  const [visible, setVisible] = useState(!!status);
+
+  if (!visible || !status) return null;
+
+  const isSuccess = status === "success";
+
+  return (
+    <div
+      className={`fixed top-20 left-1/2 z-50 -translate-x-1/2 flex items-center gap-3 rounded-2xl border px-5 py-3 shadow-xl backdrop-blur-md text-sm font-medium transition-all ${
+        isSuccess
+          ? "border-green-200 bg-green-50 text-green-800"
+          : "border-amber-200 bg-amber-50 text-amber-800"
+      }`}
+    >
+      {isSuccess ? (
+        <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+      ) : (
+        <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
+      )}
+      <span>
+        {isSuccess
+          ? "Payment complete! Your plan has been upgraded."
+          : "Checkout canceled. No charge was made."}
+      </span>
+      <button
+        type="button"
+        onClick={() => setVisible(false)}
+        className="ml-2 rounded-full p-0.5 opacity-60 hover:opacity-100"
+        aria-label="Dismiss"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
+// ── Price block ──────────────────────────────────────────────────────────────
+
 function PriceBlock({ tier }: { tier: Tier }) {
   if (tier.monthly === 0) {
     return (
       <div className="flex items-baseline gap-1">
-        <span className="font-serif text-4xl tracking-tight text-[#0F172A]">Free</span>
+        <span className="font-serif text-4xl tracking-tight text-[#0F172A]">
+          Free
+        </span>
       </div>
     );
   }
@@ -116,7 +213,9 @@ function PriceBlock({ tier }: { tier: Tier }) {
   return (
     <div className="flex flex-col">
       <div className="flex items-baseline gap-1">
-        <span className="font-serif text-5xl tracking-tight text-[#0F172A]">{formatPrice(tier.monthly)}</span>
+        <span className="font-serif text-5xl tracking-tight text-[#0F172A]">
+          {formatPrice(tier.monthly)}
+        </span>
         <span className="text-sm font-medium text-[#64748B]">/ mo</span>
       </div>
       <p className="mt-1 text-xs text-[#94A3B8]">billed monthly</p>
@@ -124,9 +223,38 @@ function PriceBlock({ tier }: { tier: Tier }) {
   );
 }
 
-function TierCard({ tier }: { tier: Tier }) {
+// ── Tier card ────────────────────────────────────────────────────────────────
+
+function TierCard({
+  tier,
+  priceId,
+  onCheckout,
+  isLoading,
+}: {
+  tier: Tier;
+  priceId: string | undefined;
+  onCheckout: (priceId: string | undefined, key: string) => void;
+  isLoading: boolean;
+}) {
+  const { isAuthenticated } = useAuth();
   const Icon = tier.icon;
   const featured = tier.featured;
+  const isFree = tier.id === "free";
+
+  const handleClick = () => {
+    if (isFree) return;
+    onCheckout(priceId, tier.id);
+  };
+
+  const ctaDisabled = !isFree && !priceId && isAuthenticated;
+  const ctaLabel = isLoading ? (
+    <Loader2 className="h-4 w-4 animate-spin" />
+  ) : (
+    <>
+      {tier.cta}
+      <ArrowRight className="h-4 w-4" />
+    </>
+  );
 
   return (
     <div
@@ -154,8 +282,12 @@ function TierCard({ tier }: { tier: Tier }) {
         <Icon className="h-5 w-5" />
       </div>
 
-      <h3 className="mt-4 text-xl font-semibold tracking-tight text-[#0F172A]">{tier.name}</h3>
-      <p className="mt-1.5 min-h-[40px] text-sm leading-relaxed text-[#64748B]">{tier.tagline}</p>
+      <h3 className="mt-4 text-xl font-semibold tracking-tight text-[#0F172A]">
+        {tier.name}
+      </h3>
+      <p className="mt-1.5 min-h-[40px] text-sm leading-relaxed text-[#64748B]">
+        {tier.tagline}
+      </p>
 
       <div className="mt-5 min-h-[88px]">
         <PriceBlock tier={tier} />
@@ -163,30 +295,51 @@ function TierCard({ tier }: { tier: Tier }) {
 
       <div
         className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold ${
-          featured ? "bg-blue-50 text-blue-700" : "bg-[#F8FAFC] text-[#334155]"
+          featured
+            ? "bg-blue-50 text-blue-700"
+            : "bg-[#F8FAFC] text-[#334155]"
         }`}
       >
-        <Zap className={`h-4 w-4 ${featured ? "text-blue-600" : "text-[#64748B]"}`} />
+        <Zap
+          className={`h-4 w-4 ${featured ? "text-blue-600" : "text-[#64748B]"}`}
+        />
         ~{formatCredits(tier.credits)} credits / month
       </div>
 
-      <Link
-        href={tier.cta.href}
-        className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-medium transition-colors ${
-          featured ? "btn-metal-blue" : "btn-metal-ink"
-        }`}
-        data-testid={`pricing-cta-${tier.id}`}
-      >
-        {tier.cta.label}
-        <ArrowRight className="h-4 w-4" />
-      </Link>
+      {isFree ? (
+        <Link
+          href="/login"
+          className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-medium transition-colors btn-metal-ink`}
+          data-testid={`pricing-cta-${tier.id}`}
+        >
+          {tier.cta}
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={handleClick}
+          disabled={isLoading || ctaDisabled}
+          className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+            featured ? "btn-metal-blue" : "btn-metal-ink"
+          }`}
+          data-testid={`pricing-cta-${tier.id}`}
+        >
+          {ctaLabel}
+        </button>
+      )}
 
       <ul className="mt-6 space-y-3 border-t border-[#F1F5F9] pt-6 text-sm">
         {tier.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-2.5 text-[#334155]">
+          <li
+            key={feature}
+            className="flex items-start gap-2.5 text-[#334155]"
+          >
             <span
               className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
-                featured ? "bg-blue-100 text-blue-700" : "bg-green-50 text-green-600"
+                featured
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-green-50 text-green-600"
               }`}
             >
               <Check className="h-3 w-3" strokeWidth={3} />
@@ -199,9 +352,22 @@ function TierCard({ tier }: { tier: Tier }) {
   );
 }
 
-function TopupPacks() {
+// ── Top-up packs ─────────────────────────────────────────────────────────────
+
+function TopupPacks({
+  pricesData,
+  onCheckout,
+  loadingKey,
+}: {
+  pricesData: { topups: { id: string; packId?: string | null; creditAmount?: number | null }[] } | undefined;
+  onCheckout: (priceId: string | undefined, key: string) => void;
+  loadingKey: string | null;
+}) {
   return (
-    <section id="topups" className="container mx-auto max-w-5xl px-4 lg:px-8 py-16 lg:py-20">
+    <section
+      id="topups"
+      className="container mx-auto max-w-5xl px-4 lg:px-8 py-16 lg:py-20"
+    >
       <div className="text-center mb-10">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-3 py-1 text-xs font-medium text-[#64748B]">
           <Zap className="h-3 w-3 text-blue-600" />
@@ -211,84 +377,125 @@ function TopupPacks() {
           Top up your <span className="italic text-blue-600">credits</span>
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#64748B]">
-          One-time credit packs that never expire — they stack on top of your monthly
-          allotment. Buy more whenever you run low, no plan change required.
+          One-time credit packs that never expire — they stack on top of your
+          monthly allotment. Buy more whenever you run low, no plan change
+          required.
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-        {TOPUP_PACKS.map((pack) => (
-          <div
-            key={pack.id}
-            className={`relative flex flex-col items-center rounded-2xl border bg-white p-6 text-center transition-all ${
-              pack.popular
-                ? "border-blue-300 shadow-lg shadow-blue-900/10 ring-1 ring-blue-200"
-                : "border-[#E2E8F0] shadow-sm hover:border-blue-200 hover:shadow-md"
-            }`}
-            data-testid={`topup-card-${pack.id}`}
-          >
-            {pack.popular && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-3 py-0.5 text-[11px] font-semibold text-white shadow-md">
-                Best value
-              </span>
-            )}
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-              <Zap className="h-5 w-5" />
-            </div>
-            <p className="mt-4 font-serif text-3xl tracking-tight text-[#0F172A]">
-              {formatCredits(pack.credits)}
-            </p>
-            <p className="text-xs font-medium uppercase tracking-wider text-[#94A3B8]">credits</p>
-            <p className="mt-3 text-lg font-semibold text-[#0F172A]">{formatPrice(pack.price)}</p>
-            <button
-              type="button"
-              disabled
-              title="Coming soon"
-              className="mt-5 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-5 py-2.5 text-sm font-medium text-[#94A3B8]"
-              data-testid={`topup-cta-${pack.id}`}
+        {TOPUP_PACKS.map((pack) => {
+          const stripePack = pricesData?.topups.find(
+            (t) => t.packId === pack.id,
+          );
+          const priceId = stripePack?.id;
+          const isLoading = loadingKey === pack.id;
+
+          return (
+            <div
+              key={pack.id}
+              className={`relative flex flex-col items-center rounded-2xl border bg-white p-6 text-center transition-all ${
+                pack.popular
+                  ? "border-blue-300 shadow-lg shadow-blue-900/10 ring-1 ring-blue-200"
+                  : "border-[#E2E8F0] shadow-sm hover:border-blue-200 hover:shadow-md"
+              }`}
+              data-testid={`topup-card-${pack.id}`}
             >
-              Coming soon
-            </button>
-          </div>
-        ))}
+              {pack.popular && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-3 py-0.5 text-[11px] font-semibold text-white shadow-md">
+                  Best value
+                </span>
+              )}
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                <Zap className="h-5 w-5" />
+              </div>
+              <p className="mt-4 font-serif text-3xl tracking-tight text-[#0F172A]">
+                {formatCredits(pack.credits)}
+              </p>
+              <p className="text-xs font-medium uppercase tracking-wider text-[#94A3B8]">
+                credits
+              </p>
+              <p className="mt-3 text-lg font-semibold text-[#0F172A]">
+                {formatPrice(pack.price)}
+              </p>
+              <button
+                type="button"
+                onClick={() => onCheckout(priceId, pack.id)}
+                disabled={!priceId || isLoading}
+                className={`mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors ${
+                  priceId && !isLoading
+                    ? "btn-metal-blue"
+                    : "cursor-not-allowed border border-[#E2E8F0] bg-[#F8FAFC] text-[#94A3B8]"
+                }`}
+                data-testid={`topup-cta-${pack.id}`}
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : priceId ? (
+                  <>
+                    Buy now
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </>
+                ) : (
+                  "Coming soon"
+                )}
+              </button>
+            </div>
+          );
+        })}
       </div>
-      <p className="mt-6 text-center text-xs text-[#94A3B8]">
-        Top-up purchases are not yet live — these packs are a preview of what's coming.
-      </p>
+      {!pricesData?.topups.length && (
+        <p className="mt-6 text-center text-xs text-[#94A3B8]">
+          Top-up purchases are not yet live — these packs are a preview of
+          what&apos;s coming.
+        </p>
+      )}
     </section>
   );
 }
 
-const FOUNDING_PERKS: { icon: React.ComponentType<{ className?: string }>; title: string; description: string }[] = [
+// ── Founding member section ──────────────────────────────────────────────────
+
+const FOUNDING_PERKS: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+}[] = [
   {
     icon: InfinityIcon,
     title: "Lifetime Researcher access",
-    description: "Every paid Researcher feature, unlocked forever. You never pay a subscription again.",
+    description:
+      "Every paid Researcher feature, unlocked forever. You never pay a subscription again.",
   },
   {
     icon: Star,
     title: "Featured on our homepage",
-    description: "Your name and photo in the founding members showcase, seen by every visitor.",
+    description:
+      "Your name and photo in the founding members showcase, seen by every visitor.",
   },
   {
     icon: Megaphone,
     title: "A shout-out in every newsletter",
-    description: "We thank our founders by name in all newsletters going out to the community.",
+    description:
+      "We thank our founders by name in all newsletters going out to the community.",
   },
   {
     icon: Crown,
     title: "Founding Member badge",
-    description: "A permanent badge across the platform marking you as one of the originals.",
+    description:
+      "A permanent badge across the platform marking you as one of the originals.",
   },
   {
     icon: MessageCircle,
     title: "A direct line to the founders",
-    description: "Private channel to the team — share ideas and help shape the roadmap.",
+    description:
+      "Private channel to the team — share ideas and help shape the roadmap.",
   },
   {
     icon: Rocket,
     title: "Early access to everything",
-    description: "Be first to try new labs and features, and help name what we build next.",
+    description:
+      "Be first to try new labs and features, and help name what we build next.",
   },
 ];
 
@@ -296,42 +503,64 @@ const FOUNDING_SPOTS = 100;
 
 function FoundingMember() {
   return (
-    <section id="founding" className="relative overflow-hidden bg-[#0B1120] text-white">
-      <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={GRID_BG} />
+    <section
+      id="founding"
+      className="relative overflow-hidden bg-[#0B1120] text-white"
+    >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.12]"
+        style={GRID_BG}
+      />
       <div className="pointer-events-none absolute -top-40 left-1/2 h-[460px] w-[700px] -translate-x-1/2 rounded-full bg-amber-500/15 blur-[150px]" />
       <div className="pointer-events-none absolute bottom-0 right-1/4 h-[360px] w-[360px] translate-x-1/2 rounded-full bg-blue-600/20 blur-[140px]" />
 
       <div className="relative container mx-auto max-w-6xl px-4 lg:px-8 py-20 lg:py-28">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
-          {/* Left: pitch + price */}
           <div>
             <span
               className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wider"
-              style={{ borderColor: "rgba(212,175,55,0.4)", color: "#E4C75B", backgroundColor: "rgba(212,175,55,0.08)" }}
+              style={{
+                borderColor: "rgba(212,175,55,0.4)",
+                color: "#E4C75B",
+                backgroundColor: "rgba(212,175,55,0.08)",
+              }}
             >
               <Crown className="h-3.5 w-3.5" />
               Founding Member · limited to {FOUNDING_SPOTS}
             </span>
             <h2 className="mt-5 font-serif text-4xl lg:text-5xl tracking-tight leading-[1.05]">
               Help us build{" "}
-              <span className="italic" style={{ color: "#E4C75B" }}>humanity&apos;s research network</span>
+              <span className="italic" style={{ color: "#E4C75B" }}>
+                humanity&apos;s research network
+              </span>
             </h2>
             <p className="mt-5 max-w-md text-lg leading-relaxed text-white/70">
-              For the believers who want to do more than subscribe. Founding members fund
-              the mission, get everything for life, and are celebrated as the people who
-              made it possible.
+              For the believers who want to do more than subscribe. Founding
+              members fund the mission, get everything for life, and are
+              celebrated as the people who made it possible.
             </p>
 
             <div className="mt-8 flex items-end gap-3">
-              <span className="font-serif text-6xl tracking-tight" style={{ color: "#E4C75B" }}>$2,500</span>
-              <span className="pb-2 text-sm font-medium text-white/60">one-time · lifetime</span>
+              <span
+                className="font-serif text-6xl tracking-tight"
+                style={{ color: "#E4C75B" }}
+              >
+                $2,500
+              </span>
+              <span className="pb-2 text-sm font-medium text-white/60">
+                one-time · lifetime
+              </span>
             </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
                 href="mailto:56289968+danielinnov8@users.noreply.github.com?subject=Founding%20Member%20—%20Citizen%20Science"
                 className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold text-[#0B1120] transition-transform hover:scale-[1.02]"
-                style={{ backgroundImage: "linear-gradient(to bottom right, #F4D77B, #E4C75B 45%, #C9A93B)", border: "1px solid #E4C75B" }}
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to bottom right, #F4D77B, #E4C75B 45%, #C9A93B)",
+                  border: "1px solid #E4C75B",
+                }}
                 data-testid="founding-cta"
               >
                 <Crown className="h-4 w-4" />
@@ -343,7 +572,6 @@ function FoundingMember() {
             </div>
           </div>
 
-          {/* Right: perks */}
           <div className="grid gap-3 sm:grid-cols-2">
             {FOUNDING_PERKS.map((perk) => {
               const Icon = perk.icon;
@@ -354,12 +582,19 @@ function FoundingMember() {
                 >
                   <span
                     className="flex h-9 w-9 items-center justify-center rounded-lg"
-                    style={{ backgroundColor: "rgba(212,175,55,0.12)", color: "#E4C75B" }}
+                    style={{
+                      backgroundColor: "rgba(212,175,55,0.12)",
+                      color: "#E4C75B",
+                    }}
                   >
                     <Icon className="h-4 w-4" />
                   </span>
-                  <h3 className="mt-3 text-sm font-semibold text-white">{perk.title}</h3>
-                  <p className="mt-1 text-xs leading-relaxed text-white/60">{perk.description}</p>
+                  <h3 className="mt-3 text-sm font-semibold text-white">
+                    {perk.title}
+                  </h3>
+                  <p className="mt-1 text-xs leading-relaxed text-white/60">
+                    {perk.description}
+                  </p>
                 </div>
               );
             })}
@@ -369,6 +604,8 @@ function FoundingMember() {
     </section>
   );
 }
+
+// ── FAQ ──────────────────────────────────────────────────────────────────────
 
 const FAQS: { q: string; a: string }[] = [
   {
@@ -385,11 +622,11 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Do top-up credits expire?",
-    a: "No. Top-up packs are one-time purchases that stack on top of your monthly allotment and never expire. (Top-up checkout isn't live yet — it's coming soon.)",
+    a: "No. Top-up packs are one-time purchases that stack on top of your monthly allotment and never expire.",
   },
   {
     q: "Can I change or cancel my plan later?",
-    a: "Absolutely. Upgrade, downgrade, or cancel whenever you like — your notebook and progress stay with your account.",
+    a: "Absolutely. Upgrade, downgrade, or cancel anytime through the subscription management portal — your notebook and progress stay with your account.",
   },
   {
     q: "What is a Founding Member?",
@@ -397,31 +634,61 @@ const FAQS: { q: string; a: string }[] = [
   },
 ];
 
+// ── Main page ────────────────────────────────────────────────────────────────
+
 export default function Pricing() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  const { data: pricesData } = useGetBillingPrices();
+  const { checkout, loading } = useCheckout();
+
+  const getPlanPriceId = (planId: string) =>
+    pricesData?.subscriptions.find((s) => s.planId === planId)?.id;
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans selection:bg-blue-100 selection:text-blue-900">
+      <CheckoutBanner />
+
       {/* HEADER */}
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0B1120]/90 text-white backdrop-blur-md">
         <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 font-semibold text-lg tracking-tight">
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-semibold text-lg tracking-tight"
+          >
             <LogoIcon className="h-8 w-8" />
             <span>Citizen Science™</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
-            <Link href="/#vision" className="transition-colors hover:text-white">Vision</Link>
-            <Link href="/#discover" className="transition-colors hover:text-white">Discover</Link>
-            <Link href="/#impact" className="transition-colors hover:text-white">Impact</Link>
-            <Link href="/pricing" className="text-white transition-colors">Pricing</Link>
+            <Link href="/#vision" className="transition-colors hover:text-white">
+              Vision
+            </Link>
+            <Link
+              href="/#discover"
+              className="transition-colors hover:text-white"
+            >
+              Discover
+            </Link>
+            <Link href="/#impact" className="transition-colors hover:text-white">
+              Impact
+            </Link>
+            <Link href="/pricing" className="text-white transition-colors">
+              Pricing
+            </Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="hidden sm:inline text-sm font-medium text-white/70 transition-colors hover:text-white">
+            <Link
+              href="/login"
+              className="hidden sm:inline text-sm font-medium text-white/70 transition-colors hover:text-white"
+            >
               Sign in
             </Link>
-            <Link href="/login" className="btn-metal-blue inline-flex items-center rounded-full px-6 py-2 text-sm font-medium transition-colors">
+            <Link
+              href="/login"
+              className="btn-metal-blue inline-flex items-center rounded-full px-6 py-2 text-sm font-medium transition-colors"
+            >
               Join
             </Link>
           </div>
@@ -435,7 +702,10 @@ export default function Pricing() {
             <div className="absolute -top-40 left-1/4 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-blue-600/30 blur-[150px]" />
             <div className="absolute top-10 right-1/4 h-[420px] w-[420px] translate-x-1/2 rounded-full bg-violet-600/25 blur-[150px]" />
           </div>
-          <div className="pointer-events-none absolute inset-0 opacity-[0.18]" style={GRID_BG} />
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.18]"
+            style={GRID_BG}
+          />
           <div className="relative container mx-auto max-w-3xl px-4 lg:px-8 py-20 lg:py-28 text-center">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -451,33 +721,43 @@ export default function Pricing() {
                 <span className="italic text-blue-300">at every level</span>
               </h1>
               <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-white/70">
-                Start free and explore real science forever. Every plan comes with AI
-                credits — upgrade or top up when you're ready for more. No hidden fees.
+                Start free and explore real science forever. Every plan comes
+                with AI credits — upgrade or top up when you&apos;re ready for
+                more. No hidden fees.
               </p>
             </motion.div>
           </div>
         </section>
 
-        {/* PRICING */}
+        {/* PRICING TIERS */}
         <section className="relative">
           <div className="container mx-auto max-w-6xl px-4 lg:px-8">
-            {/* Tier grid */}
             <div className="-mt-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:items-start">
               {TIERS.map((tier) => (
-                <TierCard key={tier.id} tier={tier} />
+                <TierCard
+                  key={tier.id}
+                  tier={tier}
+                  priceId={getPlanPriceId(tier.id)}
+                  onCheckout={checkout}
+                  isLoading={loading === tier.id}
+                />
               ))}
             </div>
 
             <p className="mt-8 text-center text-sm text-[#94A3B8]">
-              Every plan includes a monthly pool of AI credits that power the copilot,
-              web research, notebook analysis, and talking avatars. ~1 credit ≈ 1,000
-              tokens. Prices in USD.
+              Every plan includes a monthly pool of AI credits that power the
+              copilot, web research, notebook analysis, and talking avatars.
+              ~1&nbsp;credit&nbsp;≈&nbsp;1,000 tokens. Prices in USD.
             </p>
           </div>
         </section>
 
         {/* TOP-UP PACKS */}
-        <TopupPacks />
+        <TopupPacks
+          pricesData={pricesData}
+          onCheckout={checkout}
+          loadingKey={loading}
+        />
 
         {/* FOUNDING MEMBER */}
         <div className="mt-20 lg:mt-24">
@@ -488,14 +768,22 @@ export default function Pricing() {
         <section className="container mx-auto max-w-3xl px-4 lg:px-8 py-20 lg:py-24">
           <div className="text-center mb-10">
             <h2 className="font-serif text-3xl lg:text-4xl tracking-tight">
-              Frequently asked <span className="italic text-blue-600">questions</span>
+              Frequently asked{" "}
+              <span className="italic text-blue-600">questions</span>
             </h2>
           </div>
           <div className="space-y-4">
             {FAQS.map((faq) => (
-              <div key={faq.q} className="rounded-2xl border border-[#E2E8F0] bg-white p-6">
-                <h3 className="text-base font-semibold text-[#0F172A]">{faq.q}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#64748B]">{faq.a}</p>
+              <div
+                key={faq.q}
+                className="rounded-2xl border border-[#E2E8F0] bg-white p-6"
+              >
+                <h3 className="text-base font-semibold text-[#0F172A]">
+                  {faq.q}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
+                  {faq.a}
+                </p>
               </div>
             ))}
           </div>
@@ -503,15 +791,18 @@ export default function Pricing() {
 
         {/* CTA */}
         <section className="relative overflow-hidden bg-[#0B1120] text-white">
-          <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={GRID_BG} />
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.12]"
+            style={GRID_BG}
+          />
           <div className="pointer-events-none absolute -bottom-32 left-1/2 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-blue-600/25 blur-[150px]" />
           <div className="relative container mx-auto max-w-3xl px-4 lg:px-8 py-20 text-center">
             <h2 className="font-serif text-4xl lg:text-5xl tracking-tight leading-tight">
               Ready to start exploring?
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-lg text-white/70">
-              Join free today. No card, no commitment — just your curiosity and a
-              notebook ready to fill.
+              Join free today. No card, no commitment — just your curiosity and
+              a notebook ready to fill.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
@@ -540,11 +831,30 @@ export default function Pricing() {
         <div className="container mx-auto max-w-7xl px-4 lg:px-8 py-12 flex flex-col items-center justify-between gap-6 md:flex-row">
           <Logo variant="full" theme="dark" />
           <div className="flex flex-wrap justify-center gap-6 text-sm">
-            <Link href="/pricing" className="transition-colors hover:text-white">Pricing</Link>
-            <Link href="/categories" className="transition-colors hover:text-white">Categories</Link>
-            <Link href="/brand" className="transition-colors hover:text-white">Brand</Link>
-            <Link href="/privacy" className="transition-colors hover:text-white">Privacy</Link>
-            <Link href="/terms" className="transition-colors hover:text-white">Terms</Link>
+            <Link
+              href="/pricing"
+              className="transition-colors hover:text-white"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/categories"
+              className="transition-colors hover:text-white"
+            >
+              Categories
+            </Link>
+            <Link href="/brand" className="transition-colors hover:text-white">
+              Brand
+            </Link>
+            <Link
+              href="/privacy"
+              className="transition-colors hover:text-white"
+            >
+              Privacy
+            </Link>
+            <Link href="/terms" className="transition-colors hover:text-white">
+              Terms
+            </Link>
           </div>
           <div className="text-sm">
             &copy; {new Date().getFullYear()} Citizen Science™.

@@ -8,12 +8,35 @@ import { existsSync } from "node:fs";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { awaitMigrations } from "./lib/startup/migrations";
+import { WebhookHandlers } from "./lib/stripe/webhookHandlers";
 
 const app: Express = express();
 
 // Behind the Replit reverse proxy: trust x-forwarded-* so req.secure and
 // req.protocol reflect the external HTTPS scheme (needed for secure cookies).
 app.set("trust proxy", true);
+
+// ── Stripe webhook ── must be registered BEFORE express.json() so the body
+// arrives as a raw Buffer that Stripe can verify with its signing secret.
+app.post(
+  "/api/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    const signature = req.headers["stripe-signature"];
+    if (!signature) {
+      res.status(400).json({ error: "Missing stripe-signature header" });
+      return;
+    }
+    const sig = Array.isArray(signature) ? signature[0] : signature;
+    try {
+      await WebhookHandlers.processWebhook(req.body as Buffer, sig);
+      res.status(200).json({ received: true });
+    } catch (err) {
+      logger.error({ err }, "Stripe webhook processing failed");
+      res.status(400).json({ error: "Webhook processing error" });
+    }
+  },
+);
 
 app.use(
   pinoHttp({

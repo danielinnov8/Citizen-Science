@@ -305,6 +305,59 @@ export interface CreditEconomy {
   topups: CreditTopupPack[];
 }
 
+export interface BillingPrice {
+  /** Stripe price ID */
+  id: string;
+  /** Stripe product ID */
+  productId: string;
+  /** Product display name */
+  name: string;
+  /** Price in the smallest currency unit (e.g. cents for USD) */
+  unitAmount: number;
+  /** ISO 4217 currency code */
+  currency: string;
+  /**
+   * Billing interval for subscriptions (month/year), null for one-time
+   * @nullable
+   */
+  interval?: string | null;
+  /**
+   * Internal plan ID (researcher/pioneer) for subscription prices
+   * @nullable
+   */
+  planId?: string | null;
+  /**
+   * Internal pack ID (pack-500 etc.) for top-up prices
+   * @nullable
+   */
+  packId?: string | null;
+  /**
+   * Credits included for top-up packs
+   * @nullable
+   */
+  creditAmount?: number | null;
+}
+
+export interface BillingPrices {
+  subscriptions: BillingPrice[];
+  topups: BillingPrice[];
+}
+
+export interface CreateCheckoutInput {
+  /** Stripe price ID to purchase */
+  priceId: string;
+}
+
+export interface CheckoutUrl {
+  /** Stripe-hosted checkout URL to redirect the user to */
+  url: string;
+}
+
+export interface PortalUrl {
+  /** Stripe Billing Portal URL to redirect the user to */
+  url: string;
+}
+
 export interface AdminTrendPoint {
   /** A day ("YYYY-MM-DD") or month ("YYYY-MM") bucket. */
   date: string;
