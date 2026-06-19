@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown, Smartphone, Users, Eye, Lightbulb, Wheat, ShieldCheck, GraduationCap, Handshake, Wrench, Building2, UserPlus, Cpu, Mail, Twitter, Linkedin, Github, Youtube, Send, MapPin } from "lucide-react";
+import { Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown, Smartphone, Users, Eye, Lightbulb, Wheat, ShieldCheck, GraduationCap, Handshake, Wrench, Building2, UserPlus, Cpu, Mail, Twitter, Linkedin, Github, Youtube, Send, MapPin, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1103,15 +1103,71 @@ const PILLARS = [
   },
 ];
 
-const IMPACT_AREAS = [
-  { icon: CloudSun, name: "Climate", desc: "Track a changing planet in real time." },
-  { icon: Leaf, name: "Biodiversity", desc: "Map the species around us." },
-  { icon: HeartPulse, name: "Public Health", desc: "Spot patterns before they spread." },
-  { icon: Wheat, name: "Agriculture", desc: "Grow more with less." },
-  { icon: Droplet, name: "Water", desc: "Protect the source of life." },
-  { icon: ShieldCheck, name: "Disaster Resilience", desc: "See risk early, respond faster." },
-  { icon: GraduationCap, name: "Education", desc: "Learn by contributing to real science." },
-  { icon: Users, name: "Community Science", desc: "Solve local problems together." },
+const TOP_CHALLENGES = [
+  {
+    slug: "climate-change",
+    title: "Halt Catastrophic Climate Change",
+    domain: "Climate",
+    urgency: "critical" as const,
+    summary: "Limit global warming to 1.5°C to prevent irreversible damage to ecosystems and human civilization.",
+    icon: CloudSun,
+  },
+  {
+    slug: "clean-energy-access",
+    title: "Universal Clean Energy Access",
+    domain: "Energy",
+    urgency: "critical" as const,
+    summary: "Provide affordable, reliable, and sustainable energy to the 750 million people still without electricity.",
+    icon: Zap,
+  },
+  {
+    slug: "pandemic-preparedness",
+    title: "Prevent the Next Pandemic",
+    domain: "Health",
+    urgency: "critical" as const,
+    summary: "Build global systems to detect, contain, and neutralise novel pathogens before they become pandemics.",
+    icon: HeartPulse,
+  },
+  {
+    slug: "ocean-health",
+    title: "Restore Ocean Health",
+    domain: "Biodiversity",
+    urgency: "high" as const,
+    summary: "Reverse ocean acidification, overfishing, and plastic pollution to restore marine ecosystems by 2050.",
+    icon: Leaf,
+  },
+  {
+    slug: "food-security",
+    title: "End Global Hunger",
+    domain: "Food",
+    urgency: "critical" as const,
+    summary: "Feed a world of 10 billion people sustainably while halving food waste and ending malnutrition.",
+    icon: Wheat,
+  },
+  {
+    slug: "clean-water",
+    title: "Safe Water for All",
+    domain: "Water",
+    urgency: "critical" as const,
+    summary: "Ensure universal access to safe drinking water and sanitation, and prevent global water scarcity.",
+    icon: Droplet,
+  },
+  {
+    slug: "ai-safety",
+    title: "Align AI with Human Values",
+    domain: "AI Safety",
+    urgency: "critical" as const,
+    summary: "Ensure advanced AI systems remain safe, interpretable, and aligned with human values as they surpass human capabilities.",
+    icon: Cpu,
+  },
+  {
+    slug: "antibiotic-resistance",
+    title: "Stop Antibiotic Resistance",
+    domain: "Health",
+    urgency: "critical" as const,
+    summary: "Develop new antimicrobials and stewardship frameworks before drug-resistant infections become untreatable.",
+    icon: ShieldCheck,
+  },
 ];
 
 const PATHWAYS = [
@@ -1517,32 +1573,66 @@ export function Landing() {
           </div>
         </section>
 
-        {/* AREAS OF IMPACT */}
+        {/* HUMANITY'S GREATEST CHALLENGES */}
         <section id="impact" className="border-y border-[#E2E8F0] bg-[#F8FAFC] py-32 lg:py-40">
           <div className="container mx-auto max-w-7xl px-4 lg:px-8">
             <Reveal>
               <div className="mx-auto mb-16 max-w-2xl text-center">
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
-                  Areas of Impact
+                  Humanity's Greatest Challenges
                 </span>
                 <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
-                  Pointed at humanity's hardest problems.
+                  The problems that define our era.
                 </h2>
+                <p className="mt-5 text-lg leading-relaxed text-[#64748B]">
+                  Each one is solvable. None can be solved alone.
+                </p>
               </div>
             </Reveal>
-            <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
-              {IMPACT_AREAS.map((area, i) => (
-                <Reveal key={area.name} delay={(i % 4) * 0.06}>
-                  <div className="group flex h-full flex-col rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
-                    <div className="icon-tile-metal mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 group-hover:text-white">
-                      <area.icon className="h-6 w-6" />
-                    </div>
-                    <h3 className="text-lg font-semibold">{area.name}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-[#64748B]">{area.desc}</p>
-                  </div>
-                </Reveal>
-              ))}
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {TOP_CHALLENGES.map((ch, i) => {
+                const Icon = ch.icon;
+                const urgencyColor =
+                  ch.urgency === "critical"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-amber-100 text-amber-700";
+                return (
+                  <Reveal key={ch.slug} delay={(i % 4) * 0.06}>
+                    <Link
+                      href={`/challenges/${ch.slug}`}
+                      className="group flex h-full flex-col rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-blue-200 hover:shadow-md"
+                    >
+                      <div className="mb-4 flex items-center gap-2">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${urgencyColor}`}>
+                          {ch.urgency}
+                        </span>
+                        <span className="text-[11px] font-medium text-[#94A3B8]">{ch.domain}</span>
+                      </div>
+                      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <h3 className="font-semibold leading-snug text-[#0F172A]">{ch.title}</h3>
+                      <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-[#64748B]">
+                        {ch.summary}
+                      </p>
+                      <div className="mt-auto flex items-center gap-1 pt-4 text-xs font-semibold text-blue-600 transition-all group-hover:gap-2">
+                        Explore challenge <ArrowRight className="h-3 w-3" />
+                      </div>
+                    </Link>
+                  </Reveal>
+                );
+              })}
             </div>
+            <Reveal delay={0.2}>
+              <div className="mt-12 text-center">
+                <Link
+                  href="/challenges"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white px-6 py-2.5 text-sm font-semibold text-[#0F172A] shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
+                >
+                  View all 25 challenges <ArrowRight className="h-4 w-4 text-blue-600" />
+                </Link>
+              </div>
+            </Reveal>
           </div>
         </section>
 
@@ -1835,7 +1925,7 @@ export function Landing() {
                 <ul className="mt-4 space-y-3 text-sm">
                   <li><a href="#vision" className="transition-colors hover:text-white">Our Vision</a></li>
                   <li><a href="#discover" className="transition-colors hover:text-white">Discover</a></li>
-                  <li><a href="#impact" className="transition-colors hover:text-white">Areas of Impact</a></li>
+                  <li><a href="#impact" className="transition-colors hover:text-white">Challenges</a></li>
                   <li><a href="#participate" className="transition-colors hover:text-white">Participate</a></li>
                   <li><a href="#community" className="transition-colors hover:text-white">Community</a></li>
                 </ul>
