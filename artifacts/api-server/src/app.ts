@@ -10,6 +10,7 @@ import { logger } from "./lib/logger";
 import { awaitMigrations } from "./lib/startup/migrations";
 import { WebhookHandlers } from "./lib/stripe/webhookHandlers";
 import { startOutreachScheduler } from "./lib/outreach/scheduler";
+import { isResendConfigured } from "./lib/outreach/resend";
 
 const app: Express = express();
 
@@ -94,7 +95,10 @@ app.use("/api", router);
 // Start the outreach email scheduler after migrations settle. It checks
 // wall-clock hour once per minute and fires the daily batch when the
 // configured send hour is reached. No-ops when RESEND_API_KEY is absent.
-void awaitMigrations().then(() => startOutreachScheduler());
+void awaitMigrations().then(() => {
+  logger.info({ resendConfigured: isResendConfigured() }, "outreach: Resend status");
+  startOutreachScheduler();
+});
 
 // In production container images (e.g. Google Cloud Run) the built web client
 // is copied next to this server bundle, so a single service serves both the API

@@ -14,8 +14,8 @@ import { logger } from "../logger";
 // Default settings used when the DB row doesn't exist yet.
 const DEFAULT_SEND_HOUR = 9;
 const DEFAULT_BATCH_SIZE = 20;
-const DEFAULT_FROM_EMAIL = "outreach@citizenscience.app";
-const DEFAULT_FROM_NAME = "Citizen Science";
+const DEFAULT_FROM_EMAIL = "daniel@citizen-science.org";
+const DEFAULT_FROM_NAME = "Daniel";
 
 // Check every minute whether it's time to fire the daily batch.
 const TICK_INTERVAL_MS = 60_000;

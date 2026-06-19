@@ -16,6 +16,21 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
 
+## Required Secrets
+
+Set these in Replit Secrets (never in source code):
+
+| Secret | Purpose |
+|--------|---------|
+| `SESSION_SECRET` | Signs the `cs_session` auth cookie |
+| `GEMINI_API_KEY` | Powers the AI copilot, field-notes analyzer, and avatar brain |
+| `RESEND_API_KEY` | Sends outreach emails via Resend (resend.com); domain `citizen-science.org` must be verified in Resend with SPF + DKIM TXT records |
+| `GOOGLE_CLIENT_ID` | Google OAuth "Continue with Google" (optional) |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth (optional) |
+| `YOUTUBE_API_KEY` | Finds verified science video clips in chat (optional) |
+| `ELEVENLABS_API_KEY` | Voices for the talking avatar feature (optional) |
+| `DID_API_KEY` | Live avatar streaming via D-ID (optional) |
+
 ## Key Commands
 
 - `pnpm run typecheck` — full typecheck across all packages
