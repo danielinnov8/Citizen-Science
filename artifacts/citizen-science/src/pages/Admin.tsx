@@ -12,6 +12,14 @@ import {
   TrendingUp,
   CreditCard,
   BadgeCheck,
+  Mail,
+  Plus,
+  Trash2,
+  Pencil,
+  Send,
+  Upload,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import {
   AreaChart,
@@ -47,8 +55,27 @@ import {
   useApproveClaim,
   useDenyClaim,
   useSetUserMentor,
+  useListOutreachProspects,
+  getListOutreachProspectsQueryKey,
+  useCreateOutreachProspect,
+  useBulkImportOutreachProspects,
+  useUpdateOutreachProspect,
+  useDeleteOutreachProspect,
+  useListOutreachTemplates,
+  getListOutreachTemplatesQueryKey,
+  useUpdateOutreachTemplate,
+  useListOutreachSends,
+  getListOutreachSendsQueryKey,
+  useTriggerOutreachBatch,
+  useGetOutreachSettings,
+  getGetOutreachSettingsQueryKey,
+  useUpdateOutreachSettings,
   type AdminUser,
   type AdminClaim,
+  type OutreachProspect,
+  type OutreachTemplate,
+  type ListOutreachProspectsParams,
+  type ListOutreachSendsParams,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -1094,6 +1121,830 @@ function ClaimsTab() {
   );
 }
 
+/* ---------------------------------- Outreach --------------------------------- */
+
+const PROSPECT_TYPE_LABELS: Record<string, string> = {
+  researcher: "Researcher",
+  scientist: "Scientist",
+  investor: "Investor",
+  user: "User",
+};
+
+const PROSPECT_STATUS_COLORS: Record<
+  string,
+  { bg: string; text: string; label: string }
+> = {
+  pending: { bg: "bg-blue-50", text: "text-blue-700", label: "Pending" },
+  contacted: { bg: "bg-amber-50", text: "text-amber-700", label: "Contacted" },
+  replied: { bg: "bg-green-50", text: "text-green-700", label: "Replied" },
+  unsubscribed: { bg: "bg-slate-100", text: "text-slate-500", label: "Unsub'd" },
+};
+
+const SEND_STATUS_COLORS: Record<
+  string,
+  { bg: string; text: string; label: string }
+> = {
+  pending: { bg: "bg-blue-50", text: "text-blue-700", label: "Pending" },
+  delivered: { bg: "bg-green-50", text: "text-green-700", label: "Delivered" },
+  bounced: { bg: "bg-red-50", text: "text-red-700", label: "Bounced" },
+  complained: { bg: "bg-orange-50", text: "text-orange-700", label: "Spam" },
+};
+
+function ProspectTypeBadge({ type }: { type: string }) {
+  return (
+    <span className="rounded-full bg-violet-50 px-2 py-0.5 text-[11px] font-medium text-violet-700">
+      {PROSPECT_TYPE_LABELS[type] ?? type}
+    </span>
+  );
+}
+
+function StatusBadge({
+  status,
+  map,
+}: {
+  status: string;
+  map: Record<string, { bg: string; text: string; label: string }>;
+}) {
+  const s = map[status] ?? { bg: "bg-slate-100", text: "text-slate-500", label: status };
+  return (
+    <span
+      className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${s.bg} ${s.text}`}
+    >
+      {s.label}
+    </span>
+  );
+}
+
+// ---------- Add/Edit Prospect Dialog ----------
+
+function ProspectDialog({
+  open,
+  onOpenChange,
+  editing,
+  onSuccess,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  editing: OutreachProspect | null;
+  onSuccess: () => void;
+}) {
+  const { toast } = useToast();
+  const create = useCreateOutreachProspect();
+  const update = useUpdateOutreachProspect();
+
+  const [name, setName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [type, setType] = React.useState<string>("user");
+  const [notes, setNotes] = React.useState("");
+
+  React.useEffect(() => {
+    if (open) {
+      setName(editing?.name ?? "");
+      setEmail(editing?.email ?? "");
+      setType(editing?.type ?? "user");
+      setNotes(editing?.notes ?? "");
+    }
+  }, [open, editing]);
+
+  const isPending = create.isPending || update.isPending;
+
+  const save = async () => {
+    if (!name.trim() || !email.trim()) {
+      toast({ title: "Name and email are required", variant: "destructive" });
+      return;
+    }
+    try {
+      if (editing) {
+        await update.mutateAsync({
+          id: editing.id,
+          data: { name: name.trim(), email: email.trim(), type: type as "researcher" | "scientist" | "investor" | "user", notes: notes.trim() },
+        });
+        toast({ title: "Prospect updated" });
+      } else {
+        await create.mutateAsync({
+          data: { name: name.trim(), email: email.trim(), type: type as "researcher" | "scientist" | "investor" | "user", notes: notes.trim() },
+        });
+        toast({ title: "Prospect added" });
+      }
+      onSuccess();
+      onOpenChange(false);
+    } catch (err) {
+      toast({
+        title: editing ? "Couldn't update prospect" : "Couldn't add prospect",
+        description: (err as Error)?.message ?? "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{editing ? "Edit Prospect" : "Add Prospect"}</DialogTitle>
+          <DialogDescription>
+            {editing ? "Update this prospect's details." : "Add a new prospect to the outreach list."}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Name</label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Smith" />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Email</label>
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="jane@example.com" />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Type</label>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="researcher">Researcher</SelectItem>
+                <SelectItem value="scientist">Scientist</SelectItem>
+                <SelectItem value="investor">Investor</SelectItem>
+                <SelectItem value="user">General User</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Notes <span className="text-[#94A3B8]">(optional)</span></label>
+            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Context for personalisation…" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={save} disabled={isPending}>
+            {isPending ? "Saving…" : editing ? "Save changes" : "Add"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ---------- Bulk Import Dialog ----------
+
+function BulkImportDialog({
+  open,
+  onOpenChange,
+  onSuccess,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onSuccess: () => void;
+}) {
+  const { toast } = useToast();
+  const bulkImport = useBulkImportOutreachProspects();
+  const [csv, setCsv] = React.useState("");
+  const [result, setResult] = React.useState<{
+    imported: number;
+    skipped: number;
+    errors: string[];
+  } | null>(null);
+
+  const handleImport = async () => {
+    if (!csv.trim()) return;
+    try {
+      const r = await bulkImport.mutateAsync({ data: { csv } });
+      setResult(r);
+      toast({ title: `Imported ${r.imported} prospects`, description: r.skipped > 0 ? `${r.skipped} skipped` : undefined });
+      onSuccess();
+    } catch (err) {
+      toast({ title: "Import failed", description: (err as Error)?.message, variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) { setCsv(""); setResult(null); } }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Bulk Import Prospects</DialogTitle>
+          <DialogDescription>
+            Paste CSV rows — one per line. Header row is optional.
+            Format: <code className="text-xs bg-slate-100 px-1 rounded">name,email,type,notes</code>
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3 py-2">
+          <textarea
+            className="h-40 w-full rounded-md border border-[#E2E8F0] bg-white p-3 text-sm font-mono text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            placeholder={`name,email,type,notes\nJane Smith,jane@example.com,researcher,Studies climate\nBob Jones,bob@lab.edu,scientist,`}
+            value={csv}
+            onChange={(e) => setCsv(e.target.value)}
+          />
+          {result && (
+            <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+              ✓ Imported {result.imported} · Skipped {result.skipped}
+              {result.errors.length > 0 && (
+                <ul className="mt-1 space-y-0.5 text-xs text-red-600">
+                  {result.errors.slice(0, 5).map((e, i) => <li key={i}>{e}</li>)}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Close</Button>
+          <Button onClick={handleImport} disabled={bulkImport.isPending || !csv.trim()}>
+            <Upload className="h-4 w-4" />
+            {bulkImport.isPending ? "Importing…" : "Import"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ---------- Prospects sub-tab ----------
+
+function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [searchInput, setSearchInput] = React.useState("");
+  const [search, setSearch] = React.useState("");
+  const [typeFilter, setTypeFilter] = React.useState<string>("all");
+  const [statusFilter, setStatusFilter] = React.useState<string>("all");
+  const [page, setPage] = React.useState(1);
+  const pageSize = 25;
+
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [editing, setEditing] = React.useState<OutreachProspect | null>(null);
+  const [bulkOpen, setBulkOpen] = React.useState(false);
+
+  const deleteProspect = useDeleteOutreachProspect();
+
+  const params: ListOutreachProspectsParams = {
+    search: search || undefined,
+    type: typeFilter !== "all" ? typeFilter : undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    page,
+    pageSize,
+  };
+
+  const { data, isLoading } = useListOutreachProspects(params, {
+    query: { queryKey: getListOutreachProspectsQueryKey(params), staleTime: 10_000 },
+  });
+
+  const refetch = () => void queryClient.invalidateQueries({ queryKey: ["/api/admin/outreach/prospects"] });
+
+  const totalPages = data ? Math.max(1, Math.ceil(data.total / pageSize)) : 1;
+
+  const onDelete = async (p: OutreachProspect) => {
+    if (!confirm(`Delete ${p.email}?`)) return;
+    try {
+      await deleteProspect.mutateAsync({ id: p.id });
+      toast({ title: "Prospect deleted" });
+      refetch();
+    } catch {
+      toast({ title: "Couldn't delete prospect", variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {resendMissing && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <div>
+            <strong>RESEND_API_KEY not configured.</strong> Emails won't send until you add it as a Replit secret.
+            Set <code className="rounded bg-amber-100 px-1 text-xs">RESEND_API_KEY</code> in your Replit secrets panel.
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-wrap gap-2">
+        <form
+          onSubmit={(e) => { e.preventDefault(); setPage(1); setSearch(searchInput.trim()); }}
+          className="flex gap-2 flex-1"
+        >
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
+            <Input
+              placeholder="Search name or email…"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Button type="submit" variant="secondary">Search</Button>
+        </form>
+
+        <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(1); }}>
+          <SelectTrigger className="w-36">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All types</SelectItem>
+            <SelectItem value="researcher">Researcher</SelectItem>
+            <SelectItem value="scientist">Scientist</SelectItem>
+            <SelectItem value="investor">Investor</SelectItem>
+            <SelectItem value="user">User</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+          <SelectTrigger className="w-36">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="contacted">Contacted</SelectItem>
+            <SelectItem value="replied">Replied</SelectItem>
+            <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Button variant="secondary" onClick={() => { setEditing(null); setDialogOpen(true); }}>
+          <Plus className="h-4 w-4" />
+          Add
+        </Button>
+        <Button variant="secondary" onClick={() => setBulkOpen(true)}>
+          <Upload className="h-4 w-4" />
+          Import CSV
+        </Button>
+      </div>
+
+      <Card>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name / Email</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Last contacted</TableHead>
+                <TableHead>Notes</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="py-8 text-center text-sm text-[#94A3B8]">Loading…</TableCell>
+                </TableRow>
+              ) : !data?.prospects.length ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="py-10 text-center text-sm text-[#94A3B8]">
+                    No prospects yet. Add one or import a CSV file.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                data.prospects.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell>
+                      <div className="font-medium text-[#0F172A]">{p.name}</div>
+                      <div className="text-xs text-[#94A3B8]">{p.email}</div>
+                    </TableCell>
+                    <TableCell><ProspectTypeBadge type={p.type} /></TableCell>
+                    <TableCell>
+                      <StatusBadge status={p.status} map={PROSPECT_STATUS_COLORS} />
+                    </TableCell>
+                    <TableCell className="text-sm text-[#64748B]">
+                      {p.lastContactedAt
+                        ? new Date(p.lastContactedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="max-w-[160px] truncate text-sm text-[#64748B]">
+                      {p.notes || "—"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => { setEditing(p); setDialogOpen(true); }}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => onDelete(p)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
+
+      {data && data.total > 0 && (
+        <div className="flex items-center justify-between text-sm text-[#64748B]">
+          <span>{fmt(data.total)} prospect{data.total === 1 ? "" : "s"} · page {page} of {totalPages}</span>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Previous</Button>
+            <Button size="sm" variant="outline" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>Next</Button>
+          </div>
+        </div>
+      )}
+
+      <ProspectDialog open={dialogOpen} onOpenChange={setDialogOpen} editing={editing} onSuccess={refetch} />
+      <BulkImportDialog open={bulkOpen} onOpenChange={setBulkOpen} onSuccess={refetch} />
+    </div>
+  );
+}
+
+// ---------- Templates sub-tab ----------
+
+function TemplatesPanel() {
+  const { data, isLoading } = useListOutreachTemplates({ query: { queryKey: getListOutreachTemplatesQueryKey(), staleTime: 30_000 } });
+  const updateTemplate = useUpdateOutreachTemplate();
+  const { toast } = useToast();
+
+  const [drafts, setDrafts] = React.useState<Record<string, { subject: string; body: string }>>({});
+  const [saving, setSaving] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (data) {
+      const init: Record<string, { subject: string; body: string }> = {};
+      for (const t of data) {
+        init[t.id] = { subject: t.subjectTemplate, body: t.bodyTemplate };
+      }
+      setDrafts(init);
+    }
+  }, [data]);
+
+  const save = async (template: OutreachTemplate) => {
+    const draft = drafts[template.id];
+    if (!draft) return;
+    setSaving(template.id);
+    try {
+      await updateTemplate.mutateAsync({
+        id: template.id,
+        data: { subjectTemplate: draft.subject, bodyTemplate: draft.body },
+      });
+      toast({ title: "Template saved" });
+    } catch {
+      toast({ title: "Couldn't save template", variant: "destructive" });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  if (isLoading) return <div className="py-8 text-center text-sm text-[#94A3B8]">Loading templates…</div>;
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-[#64748B]">
+        One template per audience type. Variables:{" "}
+        {["{{name}}", "{{opening}}"].map((v) => (
+          <code key={v} className="mx-0.5 rounded bg-blue-50 px-1.5 py-0.5 text-xs font-mono text-blue-700">{v}</code>
+        ))}{" "}
+        — <code className="rounded bg-blue-50 px-1.5 py-0.5 text-xs font-mono text-blue-700">{"{{opening}}"}</code> is the AI-drafted personalised paragraph.
+      </p>
+
+      {(data ?? []).map((template) => {
+        const draft = drafts[template.id];
+        const changed =
+          draft &&
+          (draft.subject !== template.subjectTemplate || draft.body !== template.bodyTemplate);
+
+        return (
+          <Card key={template.id}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ProspectTypeBadge type={template.type} />
+                {PROSPECT_TYPE_LABELS[template.type] ?? template.type} template
+              </CardTitle>
+              <CardDescription>
+                Last edited {new Date(template.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Subject template</label>
+                <Input
+                  value={draft?.subject ?? ""}
+                  onChange={(e) =>
+                    setDrafts((prev) => ({
+                      ...prev,
+                      [template.id]: { ...prev[template.id]!, subject: e.target.value },
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Body template</label>
+                <textarea
+                  className="h-52 w-full rounded-md border border-[#E2E8F0] p-3 text-sm text-[#0F172A] font-mono resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={draft?.body ?? ""}
+                  onChange={(e) =>
+                    setDrafts((prev) => ({
+                      ...prev,
+                      [template.id]: { ...prev[template.id]!, body: e.target.value },
+                    }))
+                  }
+                />
+              </div>
+              <div className="flex justify-end">
+                <Button
+                  onClick={() => save(template)}
+                  disabled={!changed || saving === template.id}
+                >
+                  {saving === template.id ? "Saving…" : "Save template"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
+// ---------- Settings sub-tab ----------
+
+function SettingsPanel() {
+  const { data, isLoading } = useGetOutreachSettings({ query: { queryKey: getGetOutreachSettingsQueryKey(), staleTime: 30_000 } });
+  const updateSettings = useUpdateOutreachSettings();
+  const { toast } = useToast();
+
+  const [sendHour, setSendHour] = React.useState<string>("9");
+  const [batchSize, setBatchSize] = React.useState<string>("20");
+  const [fromEmail, setFromEmail] = React.useState("");
+  const [fromName, setFromName] = React.useState("");
+
+  React.useEffect(() => {
+    if (data) {
+      setSendHour(String(data.sendHour));
+      setBatchSize(String(data.batchSize));
+      setFromEmail(data.fromEmail);
+      setFromName(data.fromName);
+    }
+  }, [data]);
+
+  const save = async () => {
+    const hour = parseInt(sendHour, 10);
+    const batch = parseInt(batchSize, 10);
+    if (isNaN(hour) || hour < 0 || hour > 23) {
+      toast({ title: "Send hour must be 0–23", variant: "destructive" });
+      return;
+    }
+    if (isNaN(batch) || batch < 1 || batch > 500) {
+      toast({ title: "Batch size must be 1–500", variant: "destructive" });
+      return;
+    }
+    try {
+      await updateSettings.mutateAsync({
+        data: { sendHour: hour, batchSize: batch, fromEmail: fromEmail.trim(), fromName: fromName.trim() },
+      });
+      toast({ title: "Settings saved" });
+    } catch {
+      toast({ title: "Couldn't save settings", variant: "destructive" });
+    }
+  };
+
+  if (isLoading) return <div className="py-8 text-center text-sm text-[#94A3B8]">Loading settings…</div>;
+
+  return (
+    <Card className="max-w-lg">
+      <CardHeader>
+        <CardTitle className="text-base">Scheduler settings</CardTitle>
+        <CardDescription>
+          Configure the daily send schedule and sender identity.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Send hour (UTC, 0–23)</label>
+            <Input
+              type="number"
+              min={0}
+              max={23}
+              value={sendHour}
+              onChange={(e) => setSendHour(e.target.value)}
+            />
+            <p className="text-xs text-[#94A3B8]">Hour at which the daily batch fires</p>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Batch size</label>
+            <Input
+              type="number"
+              min={1}
+              max={500}
+              value={batchSize}
+              onChange={(e) => setBatchSize(e.target.value)}
+            />
+            <p className="text-xs text-[#94A3B8]">Prospects contacted per daily run</p>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">From name</label>
+          <Input value={fromName} onChange={(e) => setFromName(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">From email</label>
+          <Input type="email" value={fromEmail} onChange={(e) => setFromEmail(e.target.value)} />
+          <p className="text-xs text-[#94A3B8]">Must be a verified sender address in your Resend account</p>
+        </div>
+
+        <div className="flex justify-end">
+          <Button onClick={save} disabled={updateSettings.isPending}>
+            {updateSettings.isPending ? "Saving…" : "Save settings"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------- History sub-tab ----------
+
+function HistoryPanel({ resendMissing }: { resendMissing: boolean }) {
+  const [statusFilter, setStatusFilter] = React.useState<string>("all");
+  const [page, setPage] = React.useState(1);
+  const pageSize = 25;
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const triggerBatch = useTriggerOutreachBatch();
+
+  const params: ListOutreachSendsParams = {
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    page,
+    pageSize,
+  };
+
+  const { data, isLoading } = useListOutreachSends(params, {
+    query: { queryKey: getListOutreachSendsQueryKey(params), staleTime: 15_000 },
+  });
+
+  const totalPages = data ? Math.max(1, Math.ceil(data.total / pageSize)) : 1;
+
+  const onSendNow = async () => {
+    try {
+      const result = await triggerBatch.mutateAsync(undefined as void);
+      toast({ title: `Batch sent`, description: `${result.sent} sent, ${result.errors} errors` });
+      void queryClient.invalidateQueries({ queryKey: ["/api/admin/outreach/sends"] });
+      void queryClient.invalidateQueries({ queryKey: ["/api/admin/outreach/prospects"] });
+    } catch (err) {
+      toast({ title: "Send failed", description: (err as Error)?.message, variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {resendMissing && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <div>
+            <strong>RESEND_API_KEY not configured.</strong> Add it as a Replit secret to enable sending.
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Filter status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="delivered">Delivered</SelectItem>
+            <SelectItem value="bounced">Bounced</SelectItem>
+            <SelectItem value="complained">Complained</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <div className="ml-auto flex gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => void queryClient.invalidateQueries({ queryKey: ["/api/admin/outreach/sends"] })}
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+          <Button
+            onClick={onSendNow}
+            disabled={resendMissing || triggerBatch.isPending}
+          >
+            <Send className="h-4 w-4" />
+            {triggerBatch.isPending ? "Sending…" : "Send next batch"}
+          </Button>
+        </div>
+      </div>
+
+      <Card>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Prospect</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Subject</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Sent</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="py-8 text-center text-sm text-[#94A3B8]">Loading…</TableCell>
+                </TableRow>
+              ) : !data?.sends.length ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="py-10 text-center text-sm text-[#94A3B8]">
+                    No emails sent yet. Add prospects and click "Send next batch".
+                  </TableCell>
+                </TableRow>
+              ) : (
+                data.sends.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell>
+                      <div className="font-medium text-[#0F172A]">{s.prospectName}</div>
+                      <div className="text-xs text-[#94A3B8]">{s.prospectEmail}</div>
+                    </TableCell>
+                    <TableCell><ProspectTypeBadge type={s.prospectType} /></TableCell>
+                    <TableCell className="max-w-[200px] truncate text-sm">{s.subject}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={s.status} map={SEND_STATUS_COLORS} />
+                    </TableCell>
+                    <TableCell className="text-sm text-[#64748B]">
+                      {new Date(s.sentAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
+
+      {data && data.total > 0 && (
+        <div className="flex items-center justify-between text-sm text-[#64748B]">
+          <span>{fmt(data.total)} send{data.total === 1 ? "" : "s"} · page {page} of {totalPages}</span>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Previous</Button>
+            <Button size="sm" variant="outline" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>Next</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------- Main Outreach Tab ----------
+
+const OUTREACH_SUBTABS = [
+  { value: "prospects", label: "Prospects" },
+  { value: "templates", label: "Templates" },
+  { value: "settings", label: "Settings" },
+  { value: "history", label: "History" },
+] as const;
+
+function OutreachTab() {
+  const { data: systemData } = useGetAdminSystem({
+    query: { queryKey: getGetAdminSystemQueryKey(), staleTime: 60_000 },
+  });
+  const [subTab, setSubTab] =
+    React.useState<(typeof OUTREACH_SUBTABS)[number]["value"]>("prospects");
+
+  const resendMissing =
+    systemData !== undefined &&
+    !systemData.features.some((f) => f.key === "resend" && f.configured);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-blue-600 text-white">
+          <Mail className="h-4 w-4" />
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-[#0F172A]">Outreach Campaigns</h2>
+          <p className="text-xs text-[#64748B]">AI-personalised email outreach via Resend</p>
+        </div>
+      </div>
+
+      <div className="flex gap-1 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-1">
+        {OUTREACH_SUBTABS.map((t) => (
+          <button
+            key={t.value}
+            onClick={() => setSubTab(t.value)}
+            className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              subTab === t.value
+                ? "bg-white shadow-sm text-[#0F172A]"
+                : "text-[#64748B] hover:text-[#0F172A]"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {subTab === "prospects" && <ProspectsPanel resendMissing={resendMissing} />}
+      {subTab === "templates" && <TemplatesPanel />}
+      {subTab === "settings" && <SettingsPanel />}
+      {subTab === "history" && <HistoryPanel resendMissing={resendMissing} />}
+    </div>
+  );
+}
+
 /* ----------------------------------- Page ------------------------------------ */
 
 const TABS = [
@@ -1104,6 +1955,7 @@ const TABS = [
   { value: "usage", label: "Usage", icon: Activity },
   { value: "content", label: "Content", icon: Boxes },
   { value: "system", label: "System", icon: Server },
+  { value: "outreach", label: "Outreach", icon: Mail },
 ];
 
 export function Admin() {
@@ -1155,6 +2007,9 @@ export function Admin() {
         </TabsContent>
         <TabsContent value="system">
           <SystemTab />
+        </TabsContent>
+        <TabsContent value="outreach">
+          <OutreachTab />
         </TabsContent>
       </Tabs>
     </div>

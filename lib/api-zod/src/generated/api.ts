@@ -707,6 +707,289 @@ export const SetUserMentorResponse = zod.object({
 });
 
 /**
+ * Superadmin-only. Paginated, searchable, filterable prospect list.
+ * @summary List outreach prospects
+ */
+
+export const listOutreachProspectsQueryPageSizeMax = 100;
+
+export const ListOutreachProspectsQueryParams = zod.object({
+  search: zod.coerce.string().optional(),
+  type: zod.coerce.string().optional(),
+  status: zod.coerce.string().optional(),
+  page: zod.coerce.number().min(1).optional(),
+  pageSize: zod.coerce
+    .number()
+    .min(1)
+    .max(listOutreachProspectsQueryPageSizeMax)
+    .optional(),
+});
+
+export const ListOutreachProspectsResponse = zod.object({
+  prospects: zod.array(
+    zod.object({
+      id: zod.string(),
+      name: zod.string(),
+      email: zod.string(),
+      type: zod.enum(["researcher", "scientist", "investor", "user"]),
+      notes: zod.string(),
+      status: zod.enum(["pending", "contacted", "replied", "unsubscribed"]),
+      createdAt: zod.coerce.date(),
+      lastContactedAt: zod.coerce.date().nullable(),
+      updatedAt: zod.coerce.date(),
+    }),
+  ),
+  total: zod.number(),
+  page: zod.number(),
+  pageSize: zod.number(),
+});
+
+/**
+ * Superadmin-only. Adds a single prospect.
+ * @summary Add a prospect
+ */
+export const createOutreachProspectBodyNameMax = 200;
+
+export const createOutreachProspectBodyNotesMax = 2000;
+
+export const CreateOutreachProspectBody = zod.object({
+  name: zod.string().min(1).max(createOutreachProspectBodyNameMax),
+  email: zod.string().email(),
+  type: zod.enum(["researcher", "scientist", "investor", "user"]),
+  notes: zod.string().max(createOutreachProspectBodyNotesMax).optional(),
+});
+
+/**
+ * Superadmin-only. Imports prospects from CSV text (name,email,type,notes rows).
+ * @summary Bulk import prospects via CSV
+ */
+
+export const BulkImportOutreachProspectsBody = zod.object({
+  csv: zod
+    .string()
+    .min(1)
+    .describe("CSV text with header row (name,email,type,notes)"),
+});
+
+export const BulkImportOutreachProspectsResponse = zod.object({
+  imported: zod.number(),
+  skipped: zod.number(),
+  errors: zod.array(zod.string()),
+});
+
+/**
+ * Superadmin-only. Updates prospect fields or marks as unsubscribed.
+ * @summary Edit a prospect
+ */
+export const UpdateOutreachProspectParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const updateOutreachProspectBodyNameMax = 200;
+
+export const updateOutreachProspectBodyNotesMax = 2000;
+
+export const UpdateOutreachProspectBody = zod.object({
+  name: zod.string().min(1).max(updateOutreachProspectBodyNameMax).optional(),
+  email: zod.string().email().optional(),
+  type: zod.enum(["researcher", "scientist", "investor", "user"]).optional(),
+  notes: zod.string().max(updateOutreachProspectBodyNotesMax).optional(),
+  status: zod
+    .enum(["pending", "contacted", "replied", "unsubscribed"])
+    .optional(),
+});
+
+export const UpdateOutreachProspectResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  email: zod.string(),
+  type: zod.enum(["researcher", "scientist", "investor", "user"]),
+  notes: zod.string(),
+  status: zod.enum(["pending", "contacted", "replied", "unsubscribed"]),
+  createdAt: zod.coerce.date(),
+  lastContactedAt: zod.coerce.date().nullable(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * Superadmin-only. Permanently removes a prospect and their send history.
+ * @summary Delete a prospect
+ */
+export const DeleteOutreachProspectParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const DeleteOutreachProspectResponse = zod.object({
+  success: zod.boolean(),
+  held: zod
+    .boolean()
+    .optional()
+    .describe(
+      "True when the message was held for an unclaimed living member and will be delivered once they claim their profile.\n",
+    ),
+});
+
+/**
+ * Superadmin-only. Returns all three default outreach templates.
+ * @summary List email templates
+ */
+export const ListOutreachTemplatesResponseItem = zod.object({
+  id: zod.string(),
+  type: zod.enum(["researcher", "scientist", "investor", "user"]),
+  subjectTemplate: zod.string(),
+  bodyTemplate: zod.string(),
+  updatedAt: zod.coerce.date(),
+});
+export const ListOutreachTemplatesResponse = zod.array(
+  ListOutreachTemplatesResponseItem,
+);
+
+/**
+ * Superadmin-only. Updates subject and/or body template.
+ * @summary Edit an email template
+ */
+export const UpdateOutreachTemplateParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const updateOutreachTemplateBodySubjectTemplateMax = 200;
+
+export const updateOutreachTemplateBodyBodyTemplateMax = 10000;
+
+export const UpdateOutreachTemplateBody = zod.object({
+  subjectTemplate: zod
+    .string()
+    .min(1)
+    .max(updateOutreachTemplateBodySubjectTemplateMax)
+    .optional(),
+  bodyTemplate: zod
+    .string()
+    .min(1)
+    .max(updateOutreachTemplateBodyBodyTemplateMax)
+    .optional(),
+});
+
+export const UpdateOutreachTemplateResponse = zod.object({
+  id: zod.string(),
+  type: zod.enum(["researcher", "scientist", "investor", "user"]),
+  subjectTemplate: zod.string(),
+  bodyTemplate: zod.string(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * Superadmin-only. Paginated, filterable send history.
+ * @summary List send history
+ */
+
+export const listOutreachSendsQueryPageSizeMax = 100;
+
+export const ListOutreachSendsQueryParams = zod.object({
+  status: zod.coerce.string().optional(),
+  page: zod.coerce.number().min(1).optional(),
+  pageSize: zod.coerce
+    .number()
+    .min(1)
+    .max(listOutreachSendsQueryPageSizeMax)
+    .optional(),
+});
+
+export const ListOutreachSendsResponse = zod.object({
+  sends: zod.array(
+    zod.object({
+      id: zod.string(),
+      prospectId: zod.string(),
+      prospectName: zod.string(),
+      prospectEmail: zod.string(),
+      prospectType: zod.enum(["researcher", "scientist", "investor", "user"]),
+      subject: zod.string(),
+      status: zod.enum(["pending", "delivered", "bounced", "complained"]),
+      resendMessageId: zod.string().nullable(),
+      sentAt: zod.coerce.date(),
+    }),
+  ),
+  total: zod.number(),
+  page: zod.number(),
+  pageSize: zod.number(),
+});
+
+/**
+ * Superadmin-only. Sends the next batch of pending prospects right now.
+ * @summary Trigger an immediate send batch
+ */
+export const TriggerOutreachBatchResponse = zod.object({
+  sent: zod.number(),
+  errors: zod.number(),
+});
+
+/**
+ * Superadmin-only. Returns current scheduler configuration.
+ * @summary Get outreach scheduler settings
+ */
+export const getOutreachSettingsResponseSendHourMin = 0;
+export const getOutreachSettingsResponseSendHourMax = 23;
+
+export const getOutreachSettingsResponseBatchSizeMax = 500;
+
+export const GetOutreachSettingsResponse = zod.object({
+  sendHour: zod
+    .number()
+    .min(getOutreachSettingsResponseSendHourMin)
+    .max(getOutreachSettingsResponseSendHourMax),
+  batchSize: zod.number().min(1).max(getOutreachSettingsResponseBatchSizeMax),
+  fromEmail: zod.string(),
+  fromName: zod.string(),
+});
+
+/**
+ * Superadmin-only. Updates send hour, batch size, and from address.
+ * @summary Update outreach scheduler settings
+ */
+export const updateOutreachSettingsBodySendHourMin = 0;
+export const updateOutreachSettingsBodySendHourMax = 23;
+
+export const updateOutreachSettingsBodyBatchSizeMax = 500;
+
+export const updateOutreachSettingsBodyFromNameMax = 100;
+
+export const UpdateOutreachSettingsBody = zod.object({
+  sendHour: zod
+    .number()
+    .min(updateOutreachSettingsBodySendHourMin)
+    .max(updateOutreachSettingsBodySendHourMax)
+    .optional(),
+  batchSize: zod
+    .number()
+    .min(1)
+    .max(updateOutreachSettingsBodyBatchSizeMax)
+    .optional(),
+  fromEmail: zod.string().email().optional(),
+  fromName: zod
+    .string()
+    .min(1)
+    .max(updateOutreachSettingsBodyFromNameMax)
+    .optional(),
+});
+
+export const updateOutreachSettingsResponseSendHourMin = 0;
+export const updateOutreachSettingsResponseSendHourMax = 23;
+
+export const updateOutreachSettingsResponseBatchSizeMax = 500;
+
+export const UpdateOutreachSettingsResponse = zod.object({
+  sendHour: zod
+    .number()
+    .min(updateOutreachSettingsResponseSendHourMin)
+    .max(updateOutreachSettingsResponseSendHourMax),
+  batchSize: zod
+    .number()
+    .min(1)
+    .max(updateOutreachSettingsResponseBatchSizeMax),
+  fromEmail: zod.string(),
+  fromName: zod.string(),
+});
+
+/**
  * Public. Returns mentors who have a profile and at least one published course, as lightweight cards.
 
  * @summary List public mentors

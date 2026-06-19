@@ -28,6 +28,8 @@ import type {
   AdminUserList,
   AuthUser,
   BillingPrices,
+  BulkImportProspectsInput,
+  BulkImportResult,
   CheckoutUrl,
   CitizenxChapter,
   CitizenxChapterInput,
@@ -53,6 +55,8 @@ import type {
   LegendWaitlistStatus,
   ListAdminClaimsParams,
   ListAdminUsersParams,
+  ListOutreachProspectsParams,
+  ListOutreachSendsParams,
   LoginInput,
   MentorCourse,
   MentorDetail,
@@ -63,6 +67,16 @@ import type {
   MessageResponse,
   MyProfileClaimStatus,
   OutOfCreditsError,
+  OutreachBatchResult,
+  OutreachProspect,
+  OutreachProspectInput,
+  OutreachProspectList,
+  OutreachProspectPatch,
+  OutreachSendList,
+  OutreachSettings,
+  OutreachSettingsInput,
+  OutreachTemplate,
+  OutreachTemplateInput,
   PortalUrl,
   RegisterInput,
   SendMessageInput,
@@ -1907,6 +1921,972 @@ export const useSetUserMentor = <
   TContext
 > => {
   return useMutation(getSetUserMentorMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Paginated, searchable, filterable prospect list.
+ * @summary List outreach prospects
+ */
+export const getListOutreachProspectsUrl = (
+  params?: ListOutreachProspectsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/admin/outreach/prospects?${stringifiedParams}`
+    : `/api/admin/outreach/prospects`;
+};
+
+export const listOutreachProspects = async (
+  params?: ListOutreachProspectsParams,
+  options?: RequestInit,
+): Promise<OutreachProspectList> => {
+  return customFetch<OutreachProspectList>(
+    getListOutreachProspectsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListOutreachProspectsQueryKey = (
+  params?: ListOutreachProspectsParams,
+) => {
+  return [
+    `/api/admin/outreach/prospects`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getListOutreachProspectsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listOutreachProspects>>,
+  TError = ErrorType<Error>,
+>(
+  params?: ListOutreachProspectsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listOutreachProspects>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListOutreachProspectsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listOutreachProspects>>
+  > = ({ signal }) =>
+    listOutreachProspects(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listOutreachProspects>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListOutreachProspectsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listOutreachProspects>>
+>;
+export type ListOutreachProspectsQueryError = ErrorType<Error>;
+
+/**
+ * @summary List outreach prospects
+ */
+
+export function useListOutreachProspects<
+  TData = Awaited<ReturnType<typeof listOutreachProspects>>,
+  TError = ErrorType<Error>,
+>(
+  params?: ListOutreachProspectsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listOutreachProspects>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListOutreachProspectsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Superadmin-only. Adds a single prospect.
+ * @summary Add a prospect
+ */
+export const getCreateOutreachProspectUrl = () => {
+  return `/api/admin/outreach/prospects`;
+};
+
+export const createOutreachProspect = async (
+  outreachProspectInput: OutreachProspectInput,
+  options?: RequestInit,
+): Promise<OutreachProspect> => {
+  return customFetch<OutreachProspect>(getCreateOutreachProspectUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(outreachProspectInput),
+  });
+};
+
+export const getCreateOutreachProspectMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createOutreachProspect>>,
+    TError,
+    { data: BodyType<OutreachProspectInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createOutreachProspect>>,
+  TError,
+  { data: BodyType<OutreachProspectInput> },
+  TContext
+> => {
+  const mutationKey = ["createOutreachProspect"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createOutreachProspect>>,
+    { data: BodyType<OutreachProspectInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createOutreachProspect(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateOutreachProspectMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createOutreachProspect>>
+>;
+export type CreateOutreachProspectMutationBody =
+  BodyType<OutreachProspectInput>;
+export type CreateOutreachProspectMutationError = ErrorType<Error>;
+
+/**
+ * @summary Add a prospect
+ */
+export const useCreateOutreachProspect = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createOutreachProspect>>,
+    TError,
+    { data: BodyType<OutreachProspectInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createOutreachProspect>>,
+  TError,
+  { data: BodyType<OutreachProspectInput> },
+  TContext
+> => {
+  return useMutation(getCreateOutreachProspectMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Imports prospects from CSV text (name,email,type,notes rows).
+ * @summary Bulk import prospects via CSV
+ */
+export const getBulkImportOutreachProspectsUrl = () => {
+  return `/api/admin/outreach/prospects/bulk`;
+};
+
+export const bulkImportOutreachProspects = async (
+  bulkImportProspectsInput: BulkImportProspectsInput,
+  options?: RequestInit,
+): Promise<BulkImportResult> => {
+  return customFetch<BulkImportResult>(getBulkImportOutreachProspectsUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(bulkImportProspectsInput),
+  });
+};
+
+export const getBulkImportOutreachProspectsMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bulkImportOutreachProspects>>,
+    TError,
+    { data: BodyType<BulkImportProspectsInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof bulkImportOutreachProspects>>,
+  TError,
+  { data: BodyType<BulkImportProspectsInput> },
+  TContext
+> => {
+  const mutationKey = ["bulkImportOutreachProspects"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof bulkImportOutreachProspects>>,
+    { data: BodyType<BulkImportProspectsInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return bulkImportOutreachProspects(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type BulkImportOutreachProspectsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof bulkImportOutreachProspects>>
+>;
+export type BulkImportOutreachProspectsMutationBody =
+  BodyType<BulkImportProspectsInput>;
+export type BulkImportOutreachProspectsMutationError = ErrorType<Error>;
+
+/**
+ * @summary Bulk import prospects via CSV
+ */
+export const useBulkImportOutreachProspects = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof bulkImportOutreachProspects>>,
+    TError,
+    { data: BodyType<BulkImportProspectsInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof bulkImportOutreachProspects>>,
+  TError,
+  { data: BodyType<BulkImportProspectsInput> },
+  TContext
+> => {
+  return useMutation(getBulkImportOutreachProspectsMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Updates prospect fields or marks as unsubscribed.
+ * @summary Edit a prospect
+ */
+export const getUpdateOutreachProspectUrl = (id: string) => {
+  return `/api/admin/outreach/prospects/${id}`;
+};
+
+export const updateOutreachProspect = async (
+  id: string,
+  outreachProspectPatch: OutreachProspectPatch,
+  options?: RequestInit,
+): Promise<OutreachProspect> => {
+  return customFetch<OutreachProspect>(getUpdateOutreachProspectUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(outreachProspectPatch),
+  });
+};
+
+export const getUpdateOutreachProspectMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateOutreachProspect>>,
+    TError,
+    { id: string; data: BodyType<OutreachProspectPatch> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateOutreachProspect>>,
+  TError,
+  { id: string; data: BodyType<OutreachProspectPatch> },
+  TContext
+> => {
+  const mutationKey = ["updateOutreachProspect"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateOutreachProspect>>,
+    { id: string; data: BodyType<OutreachProspectPatch> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateOutreachProspect(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateOutreachProspectMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateOutreachProspect>>
+>;
+export type UpdateOutreachProspectMutationBody =
+  BodyType<OutreachProspectPatch>;
+export type UpdateOutreachProspectMutationError = ErrorType<Error>;
+
+/**
+ * @summary Edit a prospect
+ */
+export const useUpdateOutreachProspect = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateOutreachProspect>>,
+    TError,
+    { id: string; data: BodyType<OutreachProspectPatch> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateOutreachProspect>>,
+  TError,
+  { id: string; data: BodyType<OutreachProspectPatch> },
+  TContext
+> => {
+  return useMutation(getUpdateOutreachProspectMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Permanently removes a prospect and their send history.
+ * @summary Delete a prospect
+ */
+export const getDeleteOutreachProspectUrl = (id: string) => {
+  return `/api/admin/outreach/prospects/${id}`;
+};
+
+export const deleteOutreachProspect = async (
+  id: string,
+  options?: RequestInit,
+): Promise<MessageResponse> => {
+  return customFetch<MessageResponse>(getDeleteOutreachProspectUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteOutreachProspectMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteOutreachProspect>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteOutreachProspect>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteOutreachProspect"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteOutreachProspect>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteOutreachProspect(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteOutreachProspectMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteOutreachProspect>>
+>;
+
+export type DeleteOutreachProspectMutationError = ErrorType<Error>;
+
+/**
+ * @summary Delete a prospect
+ */
+export const useDeleteOutreachProspect = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteOutreachProspect>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteOutreachProspect>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteOutreachProspectMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Returns all three default outreach templates.
+ * @summary List email templates
+ */
+export const getListOutreachTemplatesUrl = () => {
+  return `/api/admin/outreach/templates`;
+};
+
+export const listOutreachTemplates = async (
+  options?: RequestInit,
+): Promise<OutreachTemplate[]> => {
+  return customFetch<OutreachTemplate[]>(getListOutreachTemplatesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListOutreachTemplatesQueryKey = () => {
+  return [`/api/admin/outreach/templates`] as const;
+};
+
+export const getListOutreachTemplatesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listOutreachTemplates>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listOutreachTemplates>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListOutreachTemplatesQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listOutreachTemplates>>
+  > = ({ signal }) => listOutreachTemplates({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listOutreachTemplates>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListOutreachTemplatesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listOutreachTemplates>>
+>;
+export type ListOutreachTemplatesQueryError = ErrorType<Error>;
+
+/**
+ * @summary List email templates
+ */
+
+export function useListOutreachTemplates<
+  TData = Awaited<ReturnType<typeof listOutreachTemplates>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listOutreachTemplates>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListOutreachTemplatesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Superadmin-only. Updates subject and/or body template.
+ * @summary Edit an email template
+ */
+export const getUpdateOutreachTemplateUrl = (id: string) => {
+  return `/api/admin/outreach/templates/${id}`;
+};
+
+export const updateOutreachTemplate = async (
+  id: string,
+  outreachTemplateInput: OutreachTemplateInput,
+  options?: RequestInit,
+): Promise<OutreachTemplate> => {
+  return customFetch<OutreachTemplate>(getUpdateOutreachTemplateUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(outreachTemplateInput),
+  });
+};
+
+export const getUpdateOutreachTemplateMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateOutreachTemplate>>,
+    TError,
+    { id: string; data: BodyType<OutreachTemplateInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateOutreachTemplate>>,
+  TError,
+  { id: string; data: BodyType<OutreachTemplateInput> },
+  TContext
+> => {
+  const mutationKey = ["updateOutreachTemplate"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateOutreachTemplate>>,
+    { id: string; data: BodyType<OutreachTemplateInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateOutreachTemplate(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateOutreachTemplateMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateOutreachTemplate>>
+>;
+export type UpdateOutreachTemplateMutationBody =
+  BodyType<OutreachTemplateInput>;
+export type UpdateOutreachTemplateMutationError = ErrorType<Error>;
+
+/**
+ * @summary Edit an email template
+ */
+export const useUpdateOutreachTemplate = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateOutreachTemplate>>,
+    TError,
+    { id: string; data: BodyType<OutreachTemplateInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateOutreachTemplate>>,
+  TError,
+  { id: string; data: BodyType<OutreachTemplateInput> },
+  TContext
+> => {
+  return useMutation(getUpdateOutreachTemplateMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Paginated, filterable send history.
+ * @summary List send history
+ */
+export const getListOutreachSendsUrl = (params?: ListOutreachSendsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/admin/outreach/sends?${stringifiedParams}`
+    : `/api/admin/outreach/sends`;
+};
+
+export const listOutreachSends = async (
+  params?: ListOutreachSendsParams,
+  options?: RequestInit,
+): Promise<OutreachSendList> => {
+  return customFetch<OutreachSendList>(getListOutreachSendsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListOutreachSendsQueryKey = (
+  params?: ListOutreachSendsParams,
+) => {
+  return [`/api/admin/outreach/sends`, ...(params ? [params] : [])] as const;
+};
+
+export const getListOutreachSendsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listOutreachSends>>,
+  TError = ErrorType<Error>,
+>(
+  params?: ListOutreachSendsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listOutreachSends>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListOutreachSendsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listOutreachSends>>
+  > = ({ signal }) => listOutreachSends(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listOutreachSends>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListOutreachSendsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listOutreachSends>>
+>;
+export type ListOutreachSendsQueryError = ErrorType<Error>;
+
+/**
+ * @summary List send history
+ */
+
+export function useListOutreachSends<
+  TData = Awaited<ReturnType<typeof listOutreachSends>>,
+  TError = ErrorType<Error>,
+>(
+  params?: ListOutreachSendsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listOutreachSends>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListOutreachSendsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Superadmin-only. Sends the next batch of pending prospects right now.
+ * @summary Trigger an immediate send batch
+ */
+export const getTriggerOutreachBatchUrl = () => {
+  return `/api/admin/outreach/send-now`;
+};
+
+export const triggerOutreachBatch = async (
+  options?: RequestInit,
+): Promise<OutreachBatchResult> => {
+  return customFetch<OutreachBatchResult>(getTriggerOutreachBatchUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getTriggerOutreachBatchMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof triggerOutreachBatch>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof triggerOutreachBatch>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["triggerOutreachBatch"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof triggerOutreachBatch>>,
+    void
+  > = () => {
+    return triggerOutreachBatch(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type TriggerOutreachBatchMutationResult = NonNullable<
+  Awaited<ReturnType<typeof triggerOutreachBatch>>
+>;
+
+export type TriggerOutreachBatchMutationError = ErrorType<Error>;
+
+/**
+ * @summary Trigger an immediate send batch
+ */
+export const useTriggerOutreachBatch = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof triggerOutreachBatch>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof triggerOutreachBatch>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getTriggerOutreachBatchMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Returns current scheduler configuration.
+ * @summary Get outreach scheduler settings
+ */
+export const getGetOutreachSettingsUrl = () => {
+  return `/api/admin/outreach/settings`;
+};
+
+export const getOutreachSettings = async (
+  options?: RequestInit,
+): Promise<OutreachSettings> => {
+  return customFetch<OutreachSettings>(getGetOutreachSettingsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetOutreachSettingsQueryKey = () => {
+  return [`/api/admin/outreach/settings`] as const;
+};
+
+export const getGetOutreachSettingsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOutreachSettings>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getOutreachSettings>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetOutreachSettingsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOutreachSettings>>
+  > = ({ signal }) => getOutreachSettings({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOutreachSettings>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetOutreachSettingsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOutreachSettings>>
+>;
+export type GetOutreachSettingsQueryError = ErrorType<Error>;
+
+/**
+ * @summary Get outreach scheduler settings
+ */
+
+export function useGetOutreachSettings<
+  TData = Awaited<ReturnType<typeof getOutreachSettings>>,
+  TError = ErrorType<Error>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getOutreachSettings>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetOutreachSettingsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Superadmin-only. Updates send hour, batch size, and from address.
+ * @summary Update outreach scheduler settings
+ */
+export const getUpdateOutreachSettingsUrl = () => {
+  return `/api/admin/outreach/settings`;
+};
+
+export const updateOutreachSettings = async (
+  outreachSettingsInput: OutreachSettingsInput,
+  options?: RequestInit,
+): Promise<OutreachSettings> => {
+  return customFetch<OutreachSettings>(getUpdateOutreachSettingsUrl(), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(outreachSettingsInput),
+  });
+};
+
+export const getUpdateOutreachSettingsMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateOutreachSettings>>,
+    TError,
+    { data: BodyType<OutreachSettingsInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateOutreachSettings>>,
+  TError,
+  { data: BodyType<OutreachSettingsInput> },
+  TContext
+> => {
+  const mutationKey = ["updateOutreachSettings"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateOutreachSettings>>,
+    { data: BodyType<OutreachSettingsInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return updateOutreachSettings(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateOutreachSettingsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateOutreachSettings>>
+>;
+export type UpdateOutreachSettingsMutationBody =
+  BodyType<OutreachSettingsInput>;
+export type UpdateOutreachSettingsMutationError = ErrorType<Error>;
+
+/**
+ * @summary Update outreach scheduler settings
+ */
+export const useUpdateOutreachSettings = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateOutreachSettings>>,
+    TError,
+    { data: BodyType<OutreachSettingsInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateOutreachSettings>>,
+  TError,
+  { data: BodyType<OutreachSettingsInput> },
+  TContext
+> => {
+  return useMutation(getUpdateOutreachSettingsMutationOptions(options));
 };
 
 /**

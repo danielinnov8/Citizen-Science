@@ -20,6 +20,10 @@ import {
   featuredProfilesTable,
   profileClaimsTable,
   messagesTable,
+  outreachProspectsTable,
+  outreachTemplatesTable,
+  outreachSendsTable,
+  outreachSettingsTable,
   type User,
   type ProfileClaim,
 } from "@workspace/db";
@@ -42,6 +46,9 @@ import {
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/requireAuth";
 import { requireSuperAdmin } from "../lib/admin/superadmin";
+import { runOutreachBatch } from "../lib/outreach/scheduler";
+import { isResendConfigured } from "../lib/outreach/resend";
+import { ensureDefaultTemplates } from "../lib/outreach/templates";
 import {
   PLAN_MONTHLY_CREDITS,
   monthlyCreditsForPlan,
@@ -612,6 +619,12 @@ router.get(
         configured: dbReachable,
         detail: dbReachable ? "Connected" : "Not reachable",
       },
+      {
+        key: "resend",
+        label: "Resend Email",
+        configured: isResendConfigured(),
+        detail: "AI-personalised outreach email delivery",
+      },
     ];
 
     res.json(
@@ -797,6 +810,639 @@ router.post(
 
     const updated = await loadAdminClaim(id);
     res.json(DenyClaimResponse.parse(toAdminClaim(updated!)));
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Outreach: default template seeds (inserted on first GET if missing)
+// ---------------------------------------------------------------------------
+
+
+// ---------------------------------------------------------------------------
+// Outreach: Webhook (no auth — verified via svix-signature header)
+// ---------------------------------------------------------------------------
+
+// This route is mounted OUTSIDE the requireAuth/requireSuperAdmin chain so
+// Resend can POST to it without credentials. The outer router.use("/admin", ...)
+// above doesn't apply here because we register on the root router directly.
+// We export the handler for mounting in routes/index.ts instead.
+
+export function buildOutreachWebhookHandler() {
+  const r = Router();
+
+  r.post(
+    "/admin/outreach/webhook",
+    async (req: Request, res: Response): Promise<void> => {
+      // When RESEND_WEBHOOK_SECRET is set, verify the svix HMAC signature.
+      // When it is NOT set, accept the request body for logging only — no DB
+      // mutations — so an unconfigured endpoint can't be used to forge state.
+      const secret = process.env.RESEND_WEBHOOK_SECRET;
+
+      if (secret) {
+        const svixId = req.headers["svix-id"];
+        const svixTimestamp = req.headers["svix-timestamp"];
+        const svixSignature = req.headers["svix-signature"];
+
+        if (!svixId || !svixTimestamp || !svixSignature) {
+          res.status(401).json({ error: "Missing svix headers" });
+          return;
+        }
+
+        // Basic svix v1 signature verification: HMAC-SHA256 of
+        // "<svix-id>.<svix-timestamp>.<body>" with the secret (base64).
+        const { createHmac } = await import("node:crypto");
+        const rawBody = JSON.stringify(req.body);
+        const toSign = `${svixId}.${svixTimestamp}.${rawBody}`;
+        const keyBytes = Buffer.from(secret.replace("whsec_", ""), "base64");
+        const expected = createHmac("sha256", keyBytes)
+          .update(toSign)
+          .digest("base64");
+
+        const signatures = (svixSignature as string)
+          .split(" ")
+          .map((s) => s.split(",")[1] ?? "");
+
+        if (!signatures.includes(expected)) {
+          req.log?.warn("outreach webhook: signature mismatch");
+          res.status(401).json({ error: "Invalid signature" });
+          return;
+        }
+      }
+
+      const event = req.body as {
+        type?: string;
+        data?: { email_id?: string; to?: string[] };
+      };
+
+      const eventType = event.type;
+      const messageId = event.data?.email_id;
+
+      req.log?.info({ eventType, messageId, secured: !!secret }, "outreach webhook received");
+
+      // No secret configured: log-only mode — do not mutate DB state from an
+      // unauthenticated caller.
+      if (!secret) {
+        res.json({ ok: true });
+        return;
+      }
+
+      if (!messageId) {
+        res.json({ ok: true });
+        return;
+      }
+
+      const [send] = await db
+        .select()
+        .from(outreachSendsTable)
+        .where(eq(outreachSendsTable.resendMessageId, messageId))
+        .limit(1);
+
+      if (!send) {
+        res.json({ ok: true });
+        return;
+      }
+
+      const now = new Date();
+
+      if (eventType === "email.delivered") {
+        await db
+          .update(outreachSendsTable)
+          .set({ status: "delivered", updatedAt: now })
+          .where(eq(outreachSendsTable.id, send.id));
+      } else if (
+        eventType === "email.bounced" ||
+        eventType === "email.complained"
+      ) {
+        const sendStatus =
+          eventType === "email.bounced" ? "bounced" : "complained";
+
+        await db
+          .update(outreachSendsTable)
+          .set({ status: sendStatus, updatedAt: now })
+          .where(eq(outreachSendsTable.id, send.id));
+
+        await db
+          .update(outreachProspectsTable)
+          .set({ status: "unsubscribed", updatedAt: now })
+          .where(eq(outreachProspectsTable.id, send.prospectId));
+      }
+
+      res.json({ ok: true });
+    },
+  );
+
+  return r;
+}
+
+// ---------------------------------------------------------------------------
+// Outreach: Prospects
+// ---------------------------------------------------------------------------
+
+const VALID_PROSPECT_TYPES = [
+  "researcher",
+  "scientist",
+  "investor",
+  "user",
+] as const;
+type ProspectType = (typeof VALID_PROSPECT_TYPES)[number];
+const VALID_PROSPECT_STATUSES = [
+  "pending",
+  "contacted",
+  "replied",
+  "unsubscribed",
+] as const;
+
+function isValidProspectType(v: unknown): v is ProspectType {
+  return VALID_PROSPECT_TYPES.includes(v as ProspectType);
+}
+
+function toProspectWire(p: {
+  id: string;
+  name: string;
+  email: string;
+  type: string;
+  notes: string;
+  status: string;
+  createdAt: Date;
+  lastContactedAt: Date | null;
+  updatedAt: Date;
+}) {
+  return {
+    id: p.id,
+    name: p.name,
+    email: p.email,
+    type: p.type,
+    notes: p.notes,
+    status: p.status,
+    createdAt: p.createdAt.toISOString(),
+    lastContactedAt: p.lastContactedAt ? p.lastContactedAt.toISOString() : null,
+    updatedAt: p.updatedAt.toISOString(),
+  };
+}
+
+router.get(
+  "/admin/outreach/prospects",
+  async (req: Request, res: Response): Promise<void> => {
+    const search =
+      typeof req.query.search === "string" ? req.query.search.trim() : "";
+    const typeFilter =
+      typeof req.query.type === "string" ? req.query.type.trim() : "";
+    const statusFilter =
+      typeof req.query.status === "string" ? req.query.status.trim() : "";
+    const page = Math.max(1, toInt(req.query.page) || 1);
+    const pageSize = Math.min(100, Math.max(1, toInt(req.query.pageSize) || 25));
+    const offset = (page - 1) * pageSize;
+
+    const conditions = [];
+    if (search) {
+      conditions.push(
+        or(
+          ilike(outreachProspectsTable.email, `%${search}%`),
+          ilike(outreachProspectsTable.name, `%${search}%`),
+        ),
+      );
+    }
+    if (typeFilter && isValidProspectType(typeFilter)) {
+      conditions.push(eq(outreachProspectsTable.type, typeFilter));
+    }
+    if (
+      statusFilter &&
+      VALID_PROSPECT_STATUSES.includes(
+        statusFilter as (typeof VALID_PROSPECT_STATUSES)[number],
+      )
+    ) {
+      conditions.push(
+        eq(
+          outreachProspectsTable.status,
+          statusFilter as (typeof VALID_PROSPECT_STATUSES)[number],
+        ),
+      );
+    }
+
+    const where = conditions.length
+      ? conditions.length === 1
+        ? conditions[0]
+        : and(...conditions)
+      : undefined;
+
+    const [rows, totalRow] = await Promise.all([
+      db
+        .select()
+        .from(outreachProspectsTable)
+        .where(where)
+        .orderBy(desc(outreachProspectsTable.createdAt))
+        .limit(pageSize)
+        .offset(offset),
+      db.select({ c: count() }).from(outreachProspectsTable).where(where),
+    ]);
+
+    res.json({
+      prospects: rows.map(toProspectWire),
+      total: toInt(totalRow[0]?.c),
+      page,
+      pageSize,
+    });
+  },
+);
+
+router.post(
+  "/admin/outreach/prospects",
+  async (req: Request, res: Response): Promise<void> => {
+    const { name, email, type, notes } = req.body as Record<string, unknown>;
+
+    if (
+      typeof name !== "string" ||
+      !name.trim() ||
+      typeof email !== "string" ||
+      !email.trim() ||
+      !isValidProspectType(type)
+    ) {
+      res.status(400).json({ error: "name, email, and valid type are required." });
+      return;
+    }
+
+    try {
+      const [row] = await db
+        .insert(outreachProspectsTable)
+        .values({
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          type: type as ProspectType,
+          notes: typeof notes === "string" ? notes.trim() : "",
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      res.status(201).json(toProspectWire(row));
+    } catch (err: unknown) {
+      if (
+        err instanceof Error &&
+        err.message.toLowerCase().includes("unique")
+      ) {
+        res.status(409).json({ error: "A prospect with this email already exists." });
+        return;
+      }
+      throw err;
+    }
+  },
+);
+
+router.post(
+  "/admin/outreach/prospects/bulk",
+  async (req: Request, res: Response): Promise<void> => {
+    const { csv } = req.body as { csv?: string };
+    if (typeof csv !== "string" || !csv.trim()) {
+      res.status(400).json({ error: "csv is required." });
+      return;
+    }
+
+    const lines = csv.trim().split(/\r?\n/);
+    // Skip header row if it matches the expected pattern
+    const startIdx =
+      lines[0]?.toLowerCase().includes("email") ||
+      lines[0]?.toLowerCase().includes("name")
+        ? 1
+        : 0;
+
+    let imported = 0;
+    let skipped = 0;
+    const errors: string[] = [];
+
+    for (const line of lines.slice(startIdx)) {
+      if (!line.trim()) continue;
+
+      // Parse CSV: handle optional quoted fields
+      const parts = line
+        .split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/)
+        .map((p) => p.trim().replace(/^"|"$/g, ""));
+
+      const [rawName, rawEmail, rawType, rawNotes] = parts;
+
+      if (!rawName || !rawEmail) {
+        errors.push(`Skipped row (missing name or email): ${line.slice(0, 60)}`);
+        skipped++;
+        continue;
+      }
+
+      const emailVal = rawEmail.trim().toLowerCase();
+      const nameVal = rawName.trim();
+      const typeVal =
+        rawType && isValidProspectType(rawType.trim().toLowerCase())
+          ? (rawType.trim().toLowerCase() as ProspectType)
+          : "user";
+      const notesVal = rawNotes?.trim() ?? "";
+
+      try {
+        const rows = await db
+          .insert(outreachProspectsTable)
+          .values({
+            name: nameVal,
+            email: emailVal,
+            type: typeVal,
+            notes: notesVal,
+            updatedAt: new Date(),
+          })
+          .onConflictDoNothing()
+          .returning({ id: outreachProspectsTable.id });
+        if (rows.length > 0) {
+          imported++;
+        } else {
+          skipped++; // Duplicate email — silently skipped by conflict rule
+        }
+      } catch {
+        errors.push(`Error importing ${emailVal}`);
+        skipped++;
+      }
+    }
+
+    res.json({ imported, skipped, errors });
+  },
+);
+
+router.patch(
+  "/admin/outreach/prospects/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    const id = String(req.params.id);
+    const { name, email, type, notes, status } = req.body as Record<
+      string,
+      unknown
+    >;
+
+    const updates: Record<string, unknown> = { updatedAt: new Date() };
+    if (typeof name === "string" && name.trim()) updates.name = name.trim();
+    if (typeof email === "string" && email.trim())
+      updates.email = email.trim().toLowerCase();
+    if (isValidProspectType(type)) updates.type = type;
+    if (typeof notes === "string") updates.notes = notes.trim();
+    if (
+      typeof status === "string" &&
+      VALID_PROSPECT_STATUSES.includes(
+        status as (typeof VALID_PROSPECT_STATUSES)[number],
+      )
+    ) {
+      updates.status = status;
+    }
+
+    const [updated] = await db
+      .update(outreachProspectsTable)
+      .set(updates)
+      .where(eq(outreachProspectsTable.id, id))
+      .returning();
+
+    if (!updated) {
+      res.status(404).json({ error: "Prospect not found." });
+      return;
+    }
+
+    res.json(toProspectWire(updated));
+  },
+);
+
+router.delete(
+  "/admin/outreach/prospects/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    const id = String(req.params.id);
+
+    const deleted = await db
+      .delete(outreachProspectsTable)
+      .where(eq(outreachProspectsTable.id, id))
+      .returning({ id: outreachProspectsTable.id });
+
+    if (deleted.length === 0) {
+      res.status(404).json({ error: "Prospect not found." });
+      return;
+    }
+
+    res.json({ message: "Prospect deleted." });
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Outreach: Templates
+// ---------------------------------------------------------------------------
+
+function toTemplateWire(t: {
+  id: string;
+  type: string;
+  subjectTemplate: string;
+  bodyTemplate: string;
+  updatedAt: Date;
+}) {
+  return {
+    id: t.id,
+    type: t.type,
+    subjectTemplate: t.subjectTemplate,
+    bodyTemplate: t.bodyTemplate,
+    updatedAt: t.updatedAt.toISOString(),
+  };
+}
+
+router.get(
+  "/admin/outreach/templates",
+  async (_req: Request, res: Response): Promise<void> => {
+    await ensureDefaultTemplates();
+    const rows = await db
+      .select()
+      .from(outreachTemplatesTable)
+      .orderBy(outreachTemplatesTable.type);
+    res.json(rows.map(toTemplateWire));
+  },
+);
+
+router.patch(
+  "/admin/outreach/templates/:id",
+  async (req: Request, res: Response): Promise<void> => {
+    const id = String(req.params.id);
+    const { subjectTemplate, bodyTemplate } = req.body as Record<
+      string,
+      unknown
+    >;
+
+    const updates: Record<string, unknown> = { updatedAt: new Date() };
+    if (typeof subjectTemplate === "string" && subjectTemplate.trim())
+      updates.subjectTemplate = subjectTemplate.trim();
+    if (typeof bodyTemplate === "string" && bodyTemplate.trim())
+      updates.bodyTemplate = bodyTemplate.trim();
+
+    const [updated] = await db
+      .update(outreachTemplatesTable)
+      .set(updates)
+      .where(eq(outreachTemplatesTable.id, id))
+      .returning();
+
+    if (!updated) {
+      res.status(404).json({ error: "Template not found." });
+      return;
+    }
+
+    res.json(toTemplateWire(updated));
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Outreach: Send history
+// ---------------------------------------------------------------------------
+
+router.get(
+  "/admin/outreach/sends",
+  async (req: Request, res: Response): Promise<void> => {
+    const statusFilter =
+      typeof req.query.status === "string" ? req.query.status.trim() : "";
+    const page = Math.max(1, toInt(req.query.page) || 1);
+    const pageSize = Math.min(100, Math.max(1, toInt(req.query.pageSize) || 25));
+    const offset = (page - 1) * pageSize;
+
+    const VALID_SEND_STATUSES = ["pending", "delivered", "bounced", "complained"];
+
+    const where =
+      statusFilter && VALID_SEND_STATUSES.includes(statusFilter)
+        ? eq(
+            outreachSendsTable.status,
+            statusFilter as "pending" | "delivered" | "bounced" | "complained",
+          )
+        : undefined;
+
+    const [rows, totalRow] = await Promise.all([
+      db
+        .select({
+          id: outreachSendsTable.id,
+          prospectId: outreachSendsTable.prospectId,
+          prospectName: outreachProspectsTable.name,
+          prospectEmail: outreachProspectsTable.email,
+          prospectType: outreachProspectsTable.type,
+          subject: outreachSendsTable.subject,
+          status: outreachSendsTable.status,
+          resendMessageId: outreachSendsTable.resendMessageId,
+          sentAt: outreachSendsTable.sentAt,
+        })
+        .from(outreachSendsTable)
+        .innerJoin(
+          outreachProspectsTable,
+          eq(outreachSendsTable.prospectId, outreachProspectsTable.id),
+        )
+        .where(where)
+        .orderBy(desc(outreachSendsTable.sentAt))
+        .limit(pageSize)
+        .offset(offset),
+      db
+        .select({ c: count() })
+        .from(outreachSendsTable)
+        .where(where),
+    ]);
+
+    res.json({
+      sends: rows.map((r) => ({
+        id: r.id,
+        prospectId: r.prospectId,
+        prospectName: r.prospectName,
+        prospectEmail: r.prospectEmail,
+        prospectType: r.prospectType,
+        subject: r.subject,
+        status: r.status,
+        resendMessageId: r.resendMessageId,
+        sentAt: r.sentAt.toISOString(),
+      })),
+      total: toInt(totalRow[0]?.c),
+      page,
+      pageSize,
+    });
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Outreach: Trigger immediate batch
+// ---------------------------------------------------------------------------
+
+router.post(
+  "/admin/outreach/send-now",
+  async (req: Request, res: Response): Promise<void> => {
+    if (!isResendConfigured()) {
+      res
+        .status(503)
+        .json({ error: "RESEND_API_KEY is not configured. Cannot send emails." });
+      return;
+    }
+
+    const result = await runOutreachBatch();
+    res.json(result);
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Outreach: Settings
+// ---------------------------------------------------------------------------
+
+async function getOrCreateSettings() {
+  const [row] = await db.select().from(outreachSettingsTable).limit(1);
+  if (row) return row;
+  const [inserted] = await db
+    .insert(outreachSettingsTable)
+    .values({ id: 1, updatedAt: new Date() })
+    .onConflictDoNothing()
+    .returning();
+  return (
+    inserted ?? {
+      id: 1,
+      sendHour: 9,
+      batchSize: 20,
+      fromEmail: "outreach@citizenscience.app",
+      fromName: "Citizen Science",
+      updatedAt: new Date(),
+    }
+  );
+}
+
+function toSettingsWire(s: {
+  sendHour: number;
+  batchSize: number;
+  fromEmail: string;
+  fromName: string;
+}) {
+  return {
+    sendHour: s.sendHour,
+    batchSize: s.batchSize,
+    fromEmail: s.fromEmail,
+    fromName: s.fromName,
+  };
+}
+
+router.get(
+  "/admin/outreach/settings",
+  async (_req: Request, res: Response): Promise<void> => {
+    const settings = await getOrCreateSettings();
+    res.json(toSettingsWire(settings));
+  },
+);
+
+router.patch(
+  "/admin/outreach/settings",
+  async (req: Request, res: Response): Promise<void> => {
+    const { sendHour, batchSize, fromEmail, fromName } = req.body as Record<
+      string,
+      unknown
+    >;
+
+    const updates: Record<string, unknown> = { updatedAt: new Date() };
+
+    if (typeof sendHour === "number" && sendHour >= 0 && sendHour <= 23)
+      updates.sendHour = Math.floor(sendHour);
+    if (typeof batchSize === "number" && batchSize >= 1 && batchSize <= 500)
+      updates.batchSize = Math.floor(batchSize);
+    if (typeof fromEmail === "string" && fromEmail.trim())
+      updates.fromEmail = fromEmail.trim();
+    if (typeof fromName === "string" && fromName.trim())
+      updates.fromName = fromName.trim();
+
+    await db
+      .insert(outreachSettingsTable)
+      .values({ id: 1, ...updates, updatedAt: new Date() })
+      .onConflictDoUpdate({
+        target: outreachSettingsTable.id,
+        set: updates,
+      });
+
+    const settings = await getOrCreateSettings();
+    res.json(toSettingsWire(settings));
   },
 );
 

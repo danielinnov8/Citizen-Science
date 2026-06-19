@@ -6,7 +6,7 @@ import profilesRouter from "./profiles";
 import avatarRouter from "./avatar";
 import billingRouter from "./billing";
 import messagesRouter from "./messages";
-import adminRouter from "./admin";
+import adminRouter, { buildOutreachWebhookHandler } from "./admin";
 import citizenxRouter from "./citizenx";
 import mentorshipRouter from "./mentorship";
 import digitalMentorRouter from "./digitalMentor";
@@ -20,6 +20,8 @@ router.use(profilesRouter);
 router.use(avatarRouter);
 router.use(billingRouter);
 router.use(messagesRouter);
+// Resend webhook: no auth, must be mounted before the auth-gated adminRouter
+router.use(buildOutreachWebhookHandler());
 router.use(adminRouter);
 router.use(citizenxRouter);
 router.use(mentorshipRouter);

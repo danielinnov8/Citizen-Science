@@ -565,6 +565,225 @@ export interface EnrollResult {
   totalRemaining: number;
 }
 
+export type OutreachProspectType =
+  (typeof OutreachProspectType)[keyof typeof OutreachProspectType];
+
+export const OutreachProspectType = {
+  researcher: "researcher",
+  scientist: "scientist",
+  investor: "investor",
+  user: "user",
+} as const;
+
+export type OutreachProspectStatus =
+  (typeof OutreachProspectStatus)[keyof typeof OutreachProspectStatus];
+
+export const OutreachProspectStatus = {
+  pending: "pending",
+  contacted: "contacted",
+  replied: "replied",
+  unsubscribed: "unsubscribed",
+} as const;
+
+export interface OutreachProspect {
+  id: string;
+  name: string;
+  email: string;
+  type: OutreachProspectType;
+  notes: string;
+  status: OutreachProspectStatus;
+  createdAt: string;
+  /** @nullable */
+  lastContactedAt: string | null;
+  updatedAt: string;
+}
+
+export type OutreachProspectInputType =
+  (typeof OutreachProspectInputType)[keyof typeof OutreachProspectInputType];
+
+export const OutreachProspectInputType = {
+  researcher: "researcher",
+  scientist: "scientist",
+  investor: "investor",
+  user: "user",
+} as const;
+
+export interface OutreachProspectInput {
+  /**
+   * @minLength 1
+   * @maxLength 200
+   */
+  name: string;
+  email: string;
+  type: OutreachProspectInputType;
+  /** @maxLength 2000 */
+  notes?: string;
+}
+
+export type OutreachProspectPatchType =
+  (typeof OutreachProspectPatchType)[keyof typeof OutreachProspectPatchType];
+
+export const OutreachProspectPatchType = {
+  researcher: "researcher",
+  scientist: "scientist",
+  investor: "investor",
+  user: "user",
+} as const;
+
+export type OutreachProspectPatchStatus =
+  (typeof OutreachProspectPatchStatus)[keyof typeof OutreachProspectPatchStatus];
+
+export const OutreachProspectPatchStatus = {
+  pending: "pending",
+  contacted: "contacted",
+  replied: "replied",
+  unsubscribed: "unsubscribed",
+} as const;
+
+export interface OutreachProspectPatch {
+  /**
+   * @minLength 1
+   * @maxLength 200
+   */
+  name?: string;
+  email?: string;
+  type?: OutreachProspectPatchType;
+  /** @maxLength 2000 */
+  notes?: string;
+  status?: OutreachProspectPatchStatus;
+}
+
+export interface OutreachProspectList {
+  prospects: OutreachProspect[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface BulkImportProspectsInput {
+  /**
+   * CSV text with header row (name,email,type,notes)
+   * @minLength 1
+   */
+  csv: string;
+}
+
+export interface BulkImportResult {
+  imported: number;
+  skipped: number;
+  errors: string[];
+}
+
+export type OutreachTemplateType =
+  (typeof OutreachTemplateType)[keyof typeof OutreachTemplateType];
+
+export const OutreachTemplateType = {
+  researcher: "researcher",
+  scientist: "scientist",
+  investor: "investor",
+  user: "user",
+} as const;
+
+export interface OutreachTemplate {
+  id: string;
+  type: OutreachTemplateType;
+  subjectTemplate: string;
+  bodyTemplate: string;
+  updatedAt: string;
+}
+
+export interface OutreachTemplateInput {
+  /**
+   * @minLength 1
+   * @maxLength 200
+   */
+  subjectTemplate?: string;
+  /**
+   * @minLength 1
+   * @maxLength 10000
+   */
+  bodyTemplate?: string;
+}
+
+export type OutreachSendItemProspectType =
+  (typeof OutreachSendItemProspectType)[keyof typeof OutreachSendItemProspectType];
+
+export const OutreachSendItemProspectType = {
+  researcher: "researcher",
+  scientist: "scientist",
+  investor: "investor",
+  user: "user",
+} as const;
+
+export type OutreachSendItemStatus =
+  (typeof OutreachSendItemStatus)[keyof typeof OutreachSendItemStatus];
+
+export const OutreachSendItemStatus = {
+  pending: "pending",
+  delivered: "delivered",
+  bounced: "bounced",
+  complained: "complained",
+} as const;
+
+export interface OutreachSendItem {
+  id: string;
+  prospectId: string;
+  prospectName: string;
+  prospectEmail: string;
+  prospectType: OutreachSendItemProspectType;
+  subject: string;
+  status: OutreachSendItemStatus;
+  /** @nullable */
+  resendMessageId: string | null;
+  sentAt: string;
+}
+
+export interface OutreachSendList {
+  sends: OutreachSendItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface OutreachBatchResult {
+  sent: number;
+  errors: number;
+}
+
+export interface OutreachSettings {
+  /**
+   * @minimum 0
+   * @maximum 23
+   */
+  sendHour: number;
+  /**
+   * @minimum 1
+   * @maximum 500
+   */
+  batchSize: number;
+  fromEmail: string;
+  fromName: string;
+}
+
+export interface OutreachSettingsInput {
+  /**
+   * @minimum 0
+   * @maximum 23
+   */
+  sendHour?: number;
+  /**
+   * @minimum 1
+   * @maximum 500
+   */
+  batchSize?: number;
+  fromEmail?: string;
+  /**
+   * @minLength 1
+   * @maxLength 100
+   */
+  fromName?: string;
+}
+
 export interface AdminPlanRevenue {
   plan: string;
   count: number;
@@ -794,6 +1013,34 @@ export interface CitizenxExperimentInput {
 
 export type ListAdminUsersParams = {
   search?: string;
+  /**
+   * @minimum 1
+   */
+  page?: number;
+  /**
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: number;
+};
+
+export type ListOutreachProspectsParams = {
+  search?: string;
+  type?: string;
+  status?: string;
+  /**
+   * @minimum 1
+   */
+  page?: number;
+  /**
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: number;
+};
+
+export type ListOutreachSendsParams = {
+  status?: string;
   /**
    * @minimum 1
    */
