@@ -22,6 +22,8 @@ tags:
     description: CitizenX community program — chapters, events, and published experiments
   - name: mentorship
     description: Mentorship marketplace — mentor profiles, courses, and enrollments
+  - name: challenges
+    description: Humanity's Greatest Challenges hub — join challenges and submit solutions
 paths:
   /healthz:
     get:
@@ -1825,8 +1827,296 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /challenges:
+    get:
+      operationId: listChallenges
+      tags: [challenges]
+      summary: List humanity's greatest challenges
+      description: >
+        Public. Returns all 25 curated challenges with their joiner count.
+      responses:
+        "200":
+          description: List of challenges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChallengeSummary"
+  /challenges/{slug}:
+    get:
+      operationId: getChallenge
+      tags: [challenges]
+      summary: Get a challenge by slug
+      description: >
+        Public. Returns full challenge detail including teams and joiner count.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The challenge
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChallengeDetail"
+        "404":
+          description: Challenge not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /challenges/{slug}/join:
+    post:
+      operationId: joinChallenge
+      tags: [challenges]
+      summary: Join or leave a challenge
+      description: >
+        Auth required. Idempotent toggle — if already joined, leaves; otherwise joins.
+        Returns the new joined state and the updated member count.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Join/leave result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JoinChallengeResult"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Challenge not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /challenges/{slug}/solutions:
+    get:
+      operationId: listChallengeSolutions
+      tags: [challenges]
+      summary: List community solutions for a challenge
+      description: >
+        Public. Returns submitted solution proposals for the given challenge,
+        newest first.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of solutions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChallengeSolutionView"
+        "404":
+          description: Challenge not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: createChallengeSolution
+      tags: [challenges]
+      summary: Submit a solution proposal
+      description: >
+        Auth required. Submits a solution proposal for the given challenge.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateChallengeSolutionInput"
+      responses:
+        "201":
+          description: Solution submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChallengeSolutionView"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Challenge not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
+    ChallengeTeam:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+      required:
+        - name
+        - description
+        - url
+    ChallengeSummary:
+      type: object
+      properties:
+        slug:
+          type: string
+        title:
+          type: string
+        domain:
+          type: string
+        urgency:
+          type: string
+        summary:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        memberCount:
+          type: integer
+        isJoined:
+          type: boolean
+      required:
+        - slug
+        - title
+        - domain
+        - urgency
+        - summary
+        - imageUrl
+        - memberCount
+        - isJoined
+    ChallengeDetail:
+      type: object
+      properties:
+        slug:
+          type: string
+        title:
+          type: string
+        domain:
+          type: string
+        urgency:
+          type: string
+        summary:
+          type: string
+        whyItMatters:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        teams:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChallengeTeam"
+        memberCount:
+          type: integer
+        isJoined:
+          type: boolean
+      required:
+        - slug
+        - title
+        - domain
+        - urgency
+        - summary
+        - whyItMatters
+        - imageUrl
+        - teams
+        - memberCount
+        - isJoined
+    JoinChallengeResult:
+      type: object
+      properties:
+        joined:
+          type: boolean
+        count:
+          type: integer
+      required:
+        - joined
+        - count
+    ChallengeSolutionView:
+      type: object
+      properties:
+        id:
+          type: string
+        challengeSlug:
+          type: string
+        userId:
+          type: string
+        userName:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        approach:
+          type: string
+        link:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - challengeSlug
+        - userId
+        - userName
+        - title
+        - description
+        - approach
+        - link
+        - createdAt
+    CreateChallengeSolutionInput:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 160
+        description:
+          type: string
+          minLength: 10
+          maxLength: 2000
+        approach:
+          type: string
+          minLength: 10
+          maxLength: 2000
+        link:
+          type: string
+          maxLength: 500
+      required:
+        - title
+        - description
+        - approach
     HealthStatus:
       type: object
       properties:

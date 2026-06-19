@@ -5,6 +5,76 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface ChallengeTeam {
+  name: string;
+  description: string;
+  url: string;
+}
+
+export interface ChallengeSummary {
+  slug: string;
+  title: string;
+  domain: string;
+  urgency: string;
+  summary: string;
+  /** @nullable */
+  imageUrl: string | null;
+  memberCount: number;
+  isJoined: boolean;
+}
+
+export interface ChallengeDetail {
+  slug: string;
+  title: string;
+  domain: string;
+  urgency: string;
+  summary: string;
+  whyItMatters: string;
+  /** @nullable */
+  imageUrl: string | null;
+  teams: ChallengeTeam[];
+  memberCount: number;
+  isJoined: boolean;
+}
+
+export interface JoinChallengeResult {
+  joined: boolean;
+  count: number;
+}
+
+export interface ChallengeSolutionView {
+  id: string;
+  challengeSlug: string;
+  userId: string;
+  userName: string;
+  title: string;
+  description: string;
+  approach: string;
+  /** @nullable */
+  link: string | null;
+  createdAt: string;
+}
+
+export interface CreateChallengeSolutionInput {
+  /**
+   * @minLength 3
+   * @maxLength 160
+   */
+  title: string;
+  /**
+   * @minLength 10
+   * @maxLength 2000
+   */
+  description: string;
+  /**
+   * @minLength 10
+   * @maxLength 2000
+   */
+  approach: string;
+  /** @maxLength 500 */
+  link?: string;
+}
+
 export interface HealthStatus {
   status: string;
 }

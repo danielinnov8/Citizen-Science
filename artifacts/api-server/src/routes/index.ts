@@ -10,6 +10,7 @@ import adminRouter, { buildOutreachWebhookHandler } from "./admin";
 import citizenxRouter from "./citizenx";
 import mentorshipRouter from "./mentorship";
 import digitalMentorRouter from "./digitalMentor";
+import challengesRouter from "./challenges";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(adminRouter);
 router.use(citizenxRouter);
 router.use(mentorshipRouter);
 router.use(digitalMentorRouter);
+router.use(challengesRouter);
 
 export default router;

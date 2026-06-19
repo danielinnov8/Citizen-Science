@@ -30,6 +30,9 @@ import type {
   BillingPrices,
   BulkImportProspectsInput,
   BulkImportResult,
+  ChallengeDetail,
+  ChallengeSolutionView,
+  ChallengeSummary,
   CheckoutUrl,
   CitizenxChapter,
   CitizenxChapterInput,
@@ -41,6 +44,7 @@ import type {
   CourseDraft,
   CourseDraftInput,
   CourseInput,
+  CreateChallengeSolutionInput,
   CreateCheckoutInput,
   CreditBalance,
   CreditEconomy,
@@ -52,6 +56,7 @@ import type {
   FeaturedProfileSummary,
   GrantCreditsInput,
   HealthStatus,
+  JoinChallengeResult,
   LegendWaitlistStatus,
   ListAdminClaimsParams,
   ListAdminUsersParams,
@@ -5628,4 +5633,443 @@ export const useMarkMessageRead = <
   TContext
 > => {
   return useMutation(getMarkMessageReadMutationOptions(options));
+};
+
+/**
+ * Public. Returns all 25 curated challenges with their joiner count.
+
+ * @summary List humanity's greatest challenges
+ */
+export const getListChallengesUrl = () => {
+  return `/api/challenges`;
+};
+
+export const listChallenges = async (
+  options?: RequestInit,
+): Promise<ChallengeSummary[]> => {
+  return customFetch<ChallengeSummary[]>(getListChallengesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListChallengesQueryKey = () => {
+  return [`/api/challenges`] as const;
+};
+
+export const getListChallengesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listChallenges>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listChallenges>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListChallengesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listChallenges>>> = ({
+    signal,
+  }) => listChallenges({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listChallenges>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListChallengesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listChallenges>>
+>;
+export type ListChallengesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List humanity's greatest challenges
+ */
+
+export function useListChallenges<
+  TData = Awaited<ReturnType<typeof listChallenges>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listChallenges>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListChallengesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Public. Returns full challenge detail including teams and joiner count.
+
+ * @summary Get a challenge by slug
+ */
+export const getGetChallengeUrl = (slug: string) => {
+  return `/api/challenges/${slug}`;
+};
+
+export const getChallenge = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<ChallengeDetail> => {
+  return customFetch<ChallengeDetail>(getGetChallengeUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetChallengeQueryKey = (slug: string) => {
+  return [`/api/challenges/${slug}`] as const;
+};
+
+export const getGetChallengeQueryOptions = <
+  TData = Awaited<ReturnType<typeof getChallenge>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getChallenge>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetChallengeQueryKey(slug);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getChallenge>>> = ({
+    signal,
+  }) => getChallenge(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getChallenge>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetChallengeQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getChallenge>>
+>;
+export type GetChallengeQueryError = ErrorType<Error>;
+
+/**
+ * @summary Get a challenge by slug
+ */
+
+export function useGetChallenge<
+  TData = Awaited<ReturnType<typeof getChallenge>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getChallenge>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetChallengeQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Auth required. Idempotent toggle — if already joined, leaves; otherwise joins. Returns the new joined state and the updated member count.
+
+ * @summary Join or leave a challenge
+ */
+export const getJoinChallengeUrl = (slug: string) => {
+  return `/api/challenges/${slug}/join`;
+};
+
+export const joinChallenge = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<JoinChallengeResult> => {
+  return customFetch<JoinChallengeResult>(getJoinChallengeUrl(slug), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getJoinChallengeMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof joinChallenge>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof joinChallenge>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  const mutationKey = ["joinChallenge"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof joinChallenge>>,
+    { slug: string }
+  > = (props) => {
+    const { slug } = props ?? {};
+
+    return joinChallenge(slug, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type JoinChallengeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof joinChallenge>>
+>;
+
+export type JoinChallengeMutationError = ErrorType<Error>;
+
+/**
+ * @summary Join or leave a challenge
+ */
+export const useJoinChallenge = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof joinChallenge>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof joinChallenge>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  return useMutation(getJoinChallengeMutationOptions(options));
+};
+
+/**
+ * Public. Returns submitted solution proposals for the given challenge, newest first.
+
+ * @summary List community solutions for a challenge
+ */
+export const getListChallengeSolutionsUrl = (slug: string) => {
+  return `/api/challenges/${slug}/solutions`;
+};
+
+export const listChallengeSolutions = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<ChallengeSolutionView[]> => {
+  return customFetch<ChallengeSolutionView[]>(
+    getListChallengeSolutionsUrl(slug),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getListChallengeSolutionsQueryKey = (slug: string) => {
+  return [`/api/challenges/${slug}/solutions`] as const;
+};
+
+export const getListChallengeSolutionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listChallengeSolutions>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listChallengeSolutions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListChallengeSolutionsQueryKey(slug);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listChallengeSolutions>>
+  > = ({ signal }) =>
+    listChallengeSolutions(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listChallengeSolutions>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListChallengeSolutionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listChallengeSolutions>>
+>;
+export type ListChallengeSolutionsQueryError = ErrorType<Error>;
+
+/**
+ * @summary List community solutions for a challenge
+ */
+
+export function useListChallengeSolutions<
+  TData = Awaited<ReturnType<typeof listChallengeSolutions>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listChallengeSolutions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListChallengeSolutionsQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Auth required. Submits a solution proposal for the given challenge.
+
+ * @summary Submit a solution proposal
+ */
+export const getCreateChallengeSolutionUrl = (slug: string) => {
+  return `/api/challenges/${slug}/solutions`;
+};
+
+export const createChallengeSolution = async (
+  slug: string,
+  createChallengeSolutionInput: CreateChallengeSolutionInput,
+  options?: RequestInit,
+): Promise<ChallengeSolutionView> => {
+  return customFetch<ChallengeSolutionView>(
+    getCreateChallengeSolutionUrl(slug),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(createChallengeSolutionInput),
+    },
+  );
+};
+
+export const getCreateChallengeSolutionMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createChallengeSolution>>,
+    TError,
+    { slug: string; data: BodyType<CreateChallengeSolutionInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createChallengeSolution>>,
+  TError,
+  { slug: string; data: BodyType<CreateChallengeSolutionInput> },
+  TContext
+> => {
+  const mutationKey = ["createChallengeSolution"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createChallengeSolution>>,
+    { slug: string; data: BodyType<CreateChallengeSolutionInput> }
+  > = (props) => {
+    const { slug, data } = props ?? {};
+
+    return createChallengeSolution(slug, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateChallengeSolutionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createChallengeSolution>>
+>;
+export type CreateChallengeSolutionMutationBody =
+  BodyType<CreateChallengeSolutionInput>;
+export type CreateChallengeSolutionMutationError = ErrorType<Error>;
+
+/**
+ * @summary Submit a solution proposal
+ */
+export const useCreateChallengeSolution = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createChallengeSolution>>,
+    TError,
+    { slug: string; data: BodyType<CreateChallengeSolutionInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createChallengeSolution>>,
+  TError,
+  { slug: string; data: BodyType<CreateChallengeSolutionInput> },
+  TContext
+> => {
+  return useMutation(getCreateChallengeSolutionMutationOptions(options));
 };

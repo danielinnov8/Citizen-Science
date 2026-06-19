@@ -1,0 +1,311 @@
+import { Router, type IRouter } from "express";
+import { and, count, desc, eq } from "drizzle-orm";
+import {
+  db,
+  challengesTable,
+  challengeMembersTable,
+  challengeSolutionsTable,
+  usersTable,
+} from "@workspace/db";
+import {
+  ListChallengesResponse,
+  GetChallengeResponse,
+  JoinChallengeResponse,
+  ListChallengeSolutionsResponse,
+  ListChallengeSolutionsResponseItem,
+  CreateChallengeSolutionBody,
+} from "@workspace/api-zod";
+import { requireAuth } from "../middlewares/requireAuth";
+import { getUserBySession, SESSION_COOKIE } from "../lib/auth/session";
+
+const router: IRouter = Router();
+
+async function optionalUserId(req: import("express").Request): Promise<string | null> {
+  const token = req.signedCookies?.[SESSION_COOKIE] as string | undefined;
+  if (!token) return null;
+  try {
+    const user = await getUserBySession(token);
+    return user?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ─── GET /api/challenges ─────────────────────────────────────────────────────
+
+router.get("/challenges", async (req, res) => {
+  try {
+    const userId = await optionalUserId(req);
+    const rows = await db.select().from(challengesTable).orderBy(challengesTable.slug);
+
+    const memberCounts = await db
+      .select({
+        challengeSlug: challengeMembersTable.challengeSlug,
+        cnt: count(challengeMembersTable.id),
+      })
+      .from(challengeMembersTable)
+      .groupBy(challengeMembersTable.challengeSlug);
+
+    const countMap: Record<string, number> = {};
+    for (const { challengeSlug, cnt } of memberCounts) {
+      countMap[challengeSlug] = cnt;
+    }
+
+    let joinedSlugs = new Set<string>();
+    if (userId) {
+      const joined = await db
+        .select({ challengeSlug: challengeMembersTable.challengeSlug })
+        .from(challengeMembersTable)
+        .where(eq(challengeMembersTable.userId, userId));
+      joinedSlugs = new Set(joined.map((j) => j.challengeSlug));
+    }
+
+    const result = rows.map((ch) => ({
+      slug: ch.slug,
+      title: ch.title,
+      domain: ch.domain,
+      urgency: ch.urgency,
+      summary: ch.summary,
+      imageUrl: ch.imageUrl ?? null,
+      memberCount: countMap[ch.slug] ?? 0,
+      isJoined: joinedSlugs.has(ch.slug),
+    }));
+
+    res.json(ListChallengesResponse.parse(result));
+  } catch (err) {
+    req.log.error({ err }, "Failed to list challenges");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── GET /api/challenges/:slug ───────────────────────────────────────────────
+
+router.get("/challenges/:slug", async (req, res) => {
+  try {
+    const slug = String(req.params.slug);
+    const userId = await optionalUserId(req);
+
+    const [challenge] = await db
+      .select()
+      .from(challengesTable)
+      .where(eq(challengesTable.slug, slug));
+
+    if (!challenge) {
+      res.status(404).json({ error: "Challenge not found" });
+      return;
+    }
+
+    const [{ cnt }] = await db
+      .select({ cnt: count(challengeMembersTable.id) })
+      .from(challengeMembersTable)
+      .where(eq(challengeMembersTable.challengeSlug, slug));
+
+    let isJoined = false;
+    if (userId) {
+      const [existing] = await db
+        .select()
+        .from(challengeMembersTable)
+        .where(
+          and(
+            eq(challengeMembersTable.challengeSlug, slug),
+            eq(challengeMembersTable.userId, userId),
+          ),
+        );
+      isJoined = !!existing;
+    }
+
+    let teams: Array<{ name: string; description: string; url: string }> = [];
+    try {
+      teams = JSON.parse(challenge.teamsJson) as typeof teams;
+    } catch {
+      teams = [];
+    }
+
+    res.json(
+      GetChallengeResponse.parse({
+        slug: challenge.slug,
+        title: challenge.title,
+        domain: challenge.domain,
+        urgency: challenge.urgency,
+        summary: challenge.summary,
+        whyItMatters: challenge.whyItMatters,
+        imageUrl: challenge.imageUrl ?? null,
+        teams,
+        memberCount: cnt,
+        isJoined,
+      }),
+    );
+  } catch (err) {
+    req.log.error({ err }, "Failed to get challenge");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── POST /api/challenges/:slug/join ────────────────────────────────────────
+
+router.post("/challenges/:slug/join", requireAuth, async (req, res) => {
+  try {
+    const slug = String(req.params.slug);
+    const userId = req.user!.id;
+
+    const [challenge] = await db
+      .select({ slug: challengesTable.slug })
+      .from(challengesTable)
+      .where(eq(challengesTable.slug, slug));
+
+    if (!challenge) {
+      res.status(404).json({ error: "Challenge not found" });
+      return;
+    }
+
+    const [existing] = await db
+      .select()
+      .from(challengeMembersTable)
+      .where(
+        and(
+          eq(challengeMembersTable.challengeSlug, slug),
+          eq(challengeMembersTable.userId, userId),
+        ),
+      );
+
+    let joined: boolean;
+    if (existing) {
+      await db
+        .delete(challengeMembersTable)
+        .where(eq(challengeMembersTable.id, existing.id));
+      joined = false;
+    } else {
+      await db
+        .insert(challengeMembersTable)
+        .values({ challengeSlug: slug, userId })
+        .onConflictDoNothing();
+      joined = true;
+    }
+
+    const [{ cnt }] = await db
+      .select({ cnt: count(challengeMembersTable.id) })
+      .from(challengeMembersTable)
+      .where(eq(challengeMembersTable.challengeSlug, slug));
+
+    res.json(JoinChallengeResponse.parse({ joined, count: cnt }));
+  } catch (err) {
+    req.log.error({ err }, "Failed to toggle challenge membership");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── GET /api/challenges/:slug/solutions ────────────────────────────────────
+
+router.get("/challenges/:slug/solutions", async (req, res) => {
+  try {
+    const slug = String(req.params.slug);
+
+    const [challenge] = await db
+      .select({ slug: challengesTable.slug })
+      .from(challengesTable)
+      .where(eq(challengesTable.slug, slug));
+
+    if (!challenge) {
+      res.status(404).json({ error: "Challenge not found" });
+      return;
+    }
+
+    const solutions = await db
+      .select({
+        id: challengeSolutionsTable.id,
+        challengeSlug: challengeSolutionsTable.challengeSlug,
+        userId: challengeSolutionsTable.userId,
+        userName: usersTable.name,
+        title: challengeSolutionsTable.title,
+        description: challengeSolutionsTable.description,
+        approach: challengeSolutionsTable.approach,
+        link: challengeSolutionsTable.link,
+        createdAt: challengeSolutionsTable.createdAt,
+      })
+      .from(challengeSolutionsTable)
+      .innerJoin(usersTable, eq(challengeSolutionsTable.userId, usersTable.id))
+      .where(eq(challengeSolutionsTable.challengeSlug, slug))
+      .orderBy(desc(challengeSolutionsTable.createdAt));
+
+    res.json(
+      ListChallengeSolutionsResponse.parse(
+        solutions.map((s) => ({
+          ...s,
+          link: s.link ?? null,
+          createdAt: s.createdAt.toISOString(),
+        })),
+      ),
+    );
+  } catch (err) {
+    req.log.error({ err }, "Failed to list challenge solutions");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── POST /api/challenges/:slug/solutions ───────────────────────────────────
+
+router.post("/challenges/:slug/solutions", requireAuth, async (req, res) => {
+  try {
+    const slug = String(req.params.slug);
+    const userId = req.user!.id;
+
+    const bodyResult = CreateChallengeSolutionBody.safeParse(req.body);
+    if (!bodyResult.success) {
+      res.status(400).json({ error: "Invalid input" });
+      return;
+    }
+
+    const [challenge] = await db
+      .select({ slug: challengesTable.slug })
+      .from(challengesTable)
+      .where(eq(challengesTable.slug, slug));
+
+    if (!challenge) {
+      res.status(404).json({ error: "Challenge not found" });
+      return;
+    }
+
+    const { title, description, approach, link } = bodyResult.data;
+
+    const [inserted] = await db
+      .insert(challengeSolutionsTable)
+      .values({
+        challengeSlug: slug,
+        userId,
+        title,
+        description,
+        approach,
+        link: link ?? null,
+      })
+      .returning();
+
+    if (!inserted) {
+      res.status(500).json({ error: "Failed to insert solution" });
+      return;
+    }
+
+    const [userRow] = await db
+      .select({ name: usersTable.name })
+      .from(usersTable)
+      .where(eq(usersTable.id, userId));
+
+    res.status(201).json(
+      ListChallengeSolutionsResponseItem.parse({
+        id: inserted.id,
+        challengeSlug: inserted.challengeSlug,
+        userId: inserted.userId,
+        userName: userRow?.name ?? "Anonymous",
+        title: inserted.title,
+        description: inserted.description,
+        approach: inserted.approach,
+        link: inserted.link ?? null,
+        createdAt: inserted.createdAt.toISOString(),
+      }),
+    );
+  } catch (err) {
+    req.log.error({ err }, "Failed to create challenge solution");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+export default router;

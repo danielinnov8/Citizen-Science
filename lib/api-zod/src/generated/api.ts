@@ -1823,3 +1823,122 @@ export const MarkMessageReadResponse = zod.object({
       "True when the message was held for an unclaimed living member and will be delivered once they claim their profile.\n",
     ),
 });
+
+/**
+ * Public. Returns all 25 curated challenges with their joiner count.
+
+ * @summary List humanity's greatest challenges
+ */
+export const ListChallengesResponseItem = zod.object({
+  slug: zod.string(),
+  title: zod.string(),
+  domain: zod.string(),
+  urgency: zod.string(),
+  summary: zod.string(),
+  imageUrl: zod.string().nullable(),
+  memberCount: zod.number(),
+  isJoined: zod.boolean(),
+});
+export const ListChallengesResponse = zod.array(ListChallengesResponseItem);
+
+/**
+ * Public. Returns full challenge detail including teams and joiner count.
+
+ * @summary Get a challenge by slug
+ */
+export const GetChallengeParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetChallengeResponse = zod.object({
+  slug: zod.string(),
+  title: zod.string(),
+  domain: zod.string(),
+  urgency: zod.string(),
+  summary: zod.string(),
+  whyItMatters: zod.string(),
+  imageUrl: zod.string().nullable(),
+  teams: zod.array(
+    zod.object({
+      name: zod.string(),
+      description: zod.string(),
+      url: zod.string(),
+    }),
+  ),
+  memberCount: zod.number(),
+  isJoined: zod.boolean(),
+});
+
+/**
+ * Auth required. Idempotent toggle — if already joined, leaves; otherwise joins. Returns the new joined state and the updated member count.
+
+ * @summary Join or leave a challenge
+ */
+export const JoinChallengeParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const JoinChallengeResponse = zod.object({
+  joined: zod.boolean(),
+  count: zod.number(),
+});
+
+/**
+ * Public. Returns submitted solution proposals for the given challenge, newest first.
+
+ * @summary List community solutions for a challenge
+ */
+export const ListChallengeSolutionsParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const ListChallengeSolutionsResponseItem = zod.object({
+  id: zod.string(),
+  challengeSlug: zod.string(),
+  userId: zod.string(),
+  userName: zod.string(),
+  title: zod.string(),
+  description: zod.string(),
+  approach: zod.string(),
+  link: zod.string().nullable(),
+  createdAt: zod.coerce.date(),
+});
+export const ListChallengeSolutionsResponse = zod.array(
+  ListChallengeSolutionsResponseItem,
+);
+
+/**
+ * Auth required. Submits a solution proposal for the given challenge.
+
+ * @summary Submit a solution proposal
+ */
+export const CreateChallengeSolutionParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const createChallengeSolutionBodyTitleMin = 3;
+export const createChallengeSolutionBodyTitleMax = 160;
+
+export const createChallengeSolutionBodyDescriptionMin = 10;
+export const createChallengeSolutionBodyDescriptionMax = 2000;
+
+export const createChallengeSolutionBodyApproachMin = 10;
+export const createChallengeSolutionBodyApproachMax = 2000;
+
+export const createChallengeSolutionBodyLinkMax = 500;
+
+export const CreateChallengeSolutionBody = zod.object({
+  title: zod
+    .string()
+    .min(createChallengeSolutionBodyTitleMin)
+    .max(createChallengeSolutionBodyTitleMax),
+  description: zod
+    .string()
+    .min(createChallengeSolutionBodyDescriptionMin)
+    .max(createChallengeSolutionBodyDescriptionMax),
+  approach: zod
+    .string()
+    .min(createChallengeSolutionBodyApproachMin)
+    .max(createChallengeSolutionBodyApproachMax),
+  link: zod.string().max(createChallengeSolutionBodyLinkMax).optional(),
+});

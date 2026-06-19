@@ -18,6 +18,7 @@ import {
   Shield,
   Globe2,
   Inbox as InboxIcon,
+  Flag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
@@ -71,6 +72,7 @@ const NAV_GROUPS: NavGroup[] = [
       { icon: Beaker, label: "Experiments", href: "/experiments", public: false },
       { icon: Users, label: "Directory", href: "/directory", public: true },
       { icon: GraduationCap, label: "Mentors", href: "/mentors", public: true },
+      { icon: Flag, label: "Challenges", href: "/challenges", public: true },
     ],
   },
   {
