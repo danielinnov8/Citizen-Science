@@ -12,8 +12,8 @@ import {
   Send,
   Loader2,
   Zap,
-  ThumbsUp,
-  ThumbsDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import {
   useGetChallenge,
@@ -139,7 +139,7 @@ function VoteWidget({ solution, slug, isAuthenticated, onLoginRequired }: VoteWi
           pending && "opacity-60 cursor-wait",
         )}
       >
-        <ThumbsUp className="h-3.5 w-3.5" />
+        <ArrowUp className="h-3.5 w-3.5" />
       </button>
       <span
         className={cn(
@@ -162,7 +162,7 @@ function VoteWidget({ solution, slug, isAuthenticated, onLoginRequired }: VoteWi
           pending && "opacity-60 cursor-wait",
         )}
       >
-        <ThumbsDown className="h-3.5 w-3.5" />
+        <ArrowDown className="h-3.5 w-3.5" />
       </button>
     </div>
   );
