@@ -6075,6 +6075,97 @@ export function useListChallengeSolutions<
 }
 
 /**
+ * @summary Get a single solution with parent challenge context
+ */
+export const getGetChallengeSolutionUrl = (slug: string, solutionId: string) => {
+  return `/api/challenges/${slug}/solutions/${solutionId}`;
+};
+
+export const getChallengeSolution = async (
+  slug: string,
+  solutionId: string,
+  options?: RequestInit,
+): Promise<GetChallengeSolutionResponse> => {
+  return customFetch<GetChallengeSolutionResponse>(
+    getGetChallengeSolutionUrl(slug, solutionId),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetChallengeSolutionQueryKey = (slug: string, solutionId: string) => {
+  return [`/api/challenges/${slug}/solutions/${solutionId}`] as const;
+};
+
+export const getGetChallengeSolutionQueryOptions = <
+  TData = Awaited<ReturnType<typeof getChallengeSolution>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  solutionId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getChallengeSolution>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetChallengeSolutionQueryKey(slug, solutionId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getChallengeSolution>>
+  > = ({ signal }) =>
+    getChallengeSolution(slug, solutionId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug && !!solutionId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getChallengeSolution>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetChallengeSolutionQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getChallengeSolution>>
+>;
+export type GetChallengeSolutionQueryError = ErrorType<Error>;
+
+export function useGetChallengeSolution<
+  TData = Awaited<ReturnType<typeof getChallengeSolution>>,
+  TError = ErrorType<Error>,
+>(
+  slug: string,
+  solutionId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getChallengeSolution>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetChallengeSolutionQueryOptions(slug, solutionId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * Auth required. Submits a solution proposal for the given challenge.
 
  * @summary Submit a solution proposal

@@ -383,6 +383,106 @@ router.post("/challenges/:slug/solutions", requireAuth, async (req, res) => {
   }
 });
 
+// ─── GET /api/challenges/:slug/solutions/:solutionId ────────────────────────
+
+router.get("/challenges/:slug/solutions/:solutionId", async (req, res) => {
+  try {
+    const slug = String(req.params.slug);
+    const solutionId = String(req.params.solutionId);
+    const userId = await optionalUserId(req);
+
+    const [row] = await db
+      .select({
+        id: challengeSolutionsTable.id,
+        title: challengeSolutionsTable.title,
+        description: challengeSolutionsTable.description,
+        approach: challengeSolutionsTable.approach,
+        link: challengeSolutionsTable.link,
+        createdAt: challengeSolutionsTable.createdAt,
+        authorName: challengeSolutionsTable.authorName,
+        authorSlug: challengeSolutionsTable.authorSlug,
+        userName: usersTable.name,
+        voteScore: sql<number>`COALESCE(SUM(${challengeSolutionVotesTable.direction}), 0)`,
+        challengeSlug: challengesTable.slug,
+        challengeTitle: challengesTable.title,
+        challengeSummary: challengesTable.summary,
+        challengeWhyItMatters: challengesTable.whyItMatters,
+        challengeDomain: challengesTable.domain,
+        challengeUrgency: challengesTable.urgency,
+        challengeImageUrl: challengesTable.imageUrl,
+      })
+      .from(challengeSolutionsTable)
+      .innerJoin(
+        challengesTable,
+        eq(challengeSolutionsTable.challengeSlug, challengesTable.slug),
+      )
+      .leftJoin(usersTable, eq(challengeSolutionsTable.userId, usersTable.id))
+      .leftJoin(
+        challengeSolutionVotesTable,
+        eq(challengeSolutionVotesTable.solutionId, challengeSolutionsTable.id),
+      )
+      .where(
+        and(
+          eq(challengeSolutionsTable.id, solutionId),
+          eq(challengeSolutionsTable.challengeSlug, slug),
+        ),
+      )
+      .groupBy(
+        challengeSolutionsTable.id,
+        challengesTable.slug,
+        challengesTable.title,
+        challengesTable.summary,
+        challengesTable.whyItMatters,
+        challengesTable.domain,
+        challengesTable.urgency,
+        challengesTable.imageUrl,
+        usersTable.name,
+      );
+
+    if (!row) {
+      res.status(404).json({ error: "Solution not found" });
+      return;
+    }
+
+    let userVote: number | null = null;
+    if (userId) {
+      const [vote] = await db
+        .select({ direction: challengeSolutionVotesTable.direction })
+        .from(challengeSolutionVotesTable)
+        .where(
+          and(
+            eq(challengeSolutionVotesTable.solutionId, solutionId),
+            eq(challengeSolutionVotesTable.userId, userId),
+          ),
+        );
+      userVote = vote?.direction ?? null;
+    }
+
+    res.json({
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      approach: row.approach,
+      link: row.link ?? null,
+      createdAt: row.createdAt.toISOString(),
+      voteScore: Number(row.voteScore),
+      userVote,
+      authorName: row.authorName ?? row.userName ?? "Anonymous",
+      authorSlug: row.authorSlug ?? null,
+      challengeSlug: row.challengeSlug,
+      challengeTitle: row.challengeTitle,
+      challengeSummary: row.challengeSummary,
+      challengeWhyItMatters: row.challengeWhyItMatters,
+      challengeDomain: row.challengeDomain,
+      challengeUrgency: row.challengeUrgency,
+      challengeImageUrl: row.challengeImageUrl ?? null,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Failed to get challenge solution");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // ─── POST /api/challenges/:slug/solutions/:solutionId/vote ──────────────────
 
 router.post(

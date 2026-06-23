@@ -1998,6 +1998,39 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /challenges/{slug}/solutions/{solutionId}:
+    get:
+      operationId: getChallengeSolution
+      tags: [challenges]
+      summary: Get a single solution with parent challenge context
+      description: >
+        Public. Returns the solution fields plus the parent challenge title,
+        summary, whyItMatters, domain, urgency, and imageUrl so the solution
+        detail page can present the problem before the answer.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: solutionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Solution with challenge context
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetChallengeSolutionResponse"
+        "404":
+          description: Solution not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /challenges/{slug}/solutions/{solutionId}/vote:
     post:
       operationId: voteSolution
@@ -2171,6 +2204,62 @@ components:
         - challengeTitle
         - challengeDomain
         - challengeUrgency
+    GetChallengeSolutionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        approach:
+          type: string
+        link:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        voteScore:
+          type: integer
+        userVote:
+          type: ["integer", "null"]
+        authorName:
+          type: string
+        authorSlug:
+          type: ["string", "null"]
+        challengeSlug:
+          type: string
+        challengeTitle:
+          type: string
+        challengeSummary:
+          type: string
+        challengeWhyItMatters:
+          type: string
+        challengeDomain:
+          type: string
+        challengeUrgency:
+          type: string
+        challengeImageUrl:
+          type: ["string", "null"]
+      required:
+        - id
+        - title
+        - description
+        - approach
+        - link
+        - createdAt
+        - voteScore
+        - userVote
+        - authorName
+        - authorSlug
+        - challengeSlug
+        - challengeTitle
+        - challengeSummary
+        - challengeWhyItMatters
+        - challengeDomain
+        - challengeUrgency
+        - challengeImageUrl
     ChallengeSolutionView:
       type: object
       properties:

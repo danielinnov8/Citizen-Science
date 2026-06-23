@@ -47,6 +47,7 @@ import { CitizenXExperiments } from "@/pages/CitizenXExperiments";
 import { CitizenXExperimentDetail } from "@/pages/CitizenXExperimentDetail";
 import { Challenges } from "@/pages/Challenges";
 import { ChallengeDetail } from "@/pages/ChallengeDetail";
+import { ChallengeSolutionDetail } from "@/pages/ChallengeSolutionDetail";
 
 import { AppShell } from "@/components/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -112,6 +113,9 @@ function Router() {
       {/* Challenges hub */}
       <Route path="/challenges">
         <AppShell><Challenges /></AppShell>
+      </Route>
+      <Route path="/challenges/:slug/solutions/:solutionId">
+        <AppShell><ChallengeSolutionDetail /></AppShell>
       </Route>
       <Route path="/challenges/:slug">
         <AppShell><ChallengeDetail /></AppShell>

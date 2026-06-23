@@ -554,9 +554,12 @@ export function ChallengeDetail() {
                   className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
-                    <h4 className="font-semibold text-[#0F172A] text-base leading-snug">
+                    <Link
+                      href={`/challenges/${slug}/solutions/${solution.id}`}
+                      className="font-semibold text-[#0F172A] text-base leading-snug hover:text-blue-700 transition-colors"
+                    >
                       {solution.title}
-                    </h4>
+                    </Link>
                     <VoteWidget
                       solution={solution}
                       slug={slug}

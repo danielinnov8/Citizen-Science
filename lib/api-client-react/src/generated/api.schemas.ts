@@ -81,6 +81,30 @@ export interface ChallengeSolutionView {
   userVote: number | null;
 }
 
+export interface GetChallengeSolutionResponse {
+  id: string;
+  title: string;
+  description: string;
+  approach: string;
+  /** @nullable */
+  link: string | null;
+  createdAt: string;
+  voteScore: number;
+  /** @nullable */
+  userVote: number | null;
+  authorName: string;
+  /** @nullable */
+  authorSlug: string | null;
+  challengeSlug: string;
+  challengeTitle: string;
+  challengeSummary: string;
+  challengeWhyItMatters: string;
+  challengeDomain: string;
+  challengeUrgency: string;
+  /** @nullable */
+  challengeImageUrl: string | null;
+}
+
 /**
  * 1 = upvote, -1 = downvote, 0 = remove vote
  */
