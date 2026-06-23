@@ -1895,13 +1895,19 @@ export const ListChallengeSolutionsParams = zod.object({
 export const ListChallengeSolutionsResponseItem = zod.object({
   id: zod.string(),
   challengeSlug: zod.string(),
-  userId: zod.string(),
-  userName: zod.string(),
+  userId: zod.string().nullable(),
+  authorName: zod.string(),
+  authorSlug: zod.string().nullable(),
   title: zod.string(),
   description: zod.string(),
   approach: zod.string(),
   link: zod.string().nullable(),
   createdAt: zod.coerce.date(),
+  voteScore: zod.number().describe("Net vote score (upvotes minus downvotes)"),
+  userVote: zod
+    .number()
+    .nullable()
+    .describe("The current user's vote direction (1, -1) or null if not voted"),
 });
 export const ListChallengeSolutionsResponse = zod.array(
   ListChallengeSolutionsResponseItem,
@@ -1941,4 +1947,25 @@ export const CreateChallengeSolutionBody = zod.object({
     .min(createChallengeSolutionBodyApproachMin)
     .max(createChallengeSolutionBodyApproachMax),
   link: zod.string().max(createChallengeSolutionBodyLinkMax).optional(),
+});
+
+/**
+ * Auth required. Casts a vote (1 = upvote, -1 = downvote) on a solution. Sending the same direction again removes the vote (toggle). Sending 0 explicitly removes any existing vote.
+
+ * @summary Upvote or downvote a solution
+ */
+export const VoteSolutionParams = zod.object({
+  slug: zod.coerce.string(),
+  solutionId: zod.coerce.string(),
+});
+
+export const VoteSolutionBody = zod.object({
+  direction: zod
+    .union([zod.literal(1), zod.literal(-1), zod.literal(0)])
+    .describe("1 = upvote, -1 = downvote, 0 = remove vote"),
+});
+
+export const VoteSolutionResponse = zod.object({
+  voteScore: zod.number(),
+  userVote: zod.number().nullable(),
 });

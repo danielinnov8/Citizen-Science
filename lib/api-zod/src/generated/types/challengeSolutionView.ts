@@ -9,12 +9,22 @@
 export interface ChallengeSolutionView {
   id: string;
   challengeSlug: string;
-  userId: string;
-  userName: string;
+  /** @nullable */
+  userId: string | null;
+  authorName: string;
+  /** @nullable */
+  authorSlug: string | null;
   title: string;
   description: string;
   approach: string;
   /** @nullable */
   link: string | null;
   createdAt: Date;
+  /** Net vote score (upvotes minus downvotes) */
+  voteScore: number;
+  /**
+   * The current user's vote direction (1, -1) or null if not voted
+   * @nullable
+   */
+  userVote: number | null;
 }

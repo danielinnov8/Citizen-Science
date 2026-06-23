@@ -1,10 +1,11 @@
 import { Router, type IRouter } from "express";
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import {
   db,
   challengesTable,
   challengeMembersTable,
   challengeSolutionsTable,
+  challengeSolutionVotesTable,
   usersTable,
 } from "@workspace/db";
 import {
@@ -14,6 +15,8 @@ import {
   ListChallengeSolutionsResponse,
   ListChallengeSolutionsResponseItem,
   CreateChallengeSolutionBody,
+  VoteSolutionBody,
+  VoteSolutionResponse,
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/requireAuth";
 import { getUserBySession, SESSION_COOKIE } from "../lib/auth/session";
@@ -199,6 +202,7 @@ router.post("/challenges/:slug/join", requireAuth, async (req, res) => {
 router.get("/challenges/:slug/solutions", async (req, res) => {
   try {
     const slug = String(req.params.slug);
+    const userId = await optionalUserId(req);
 
     const [challenge] = await db
       .select({ slug: challengesTable.slug })
@@ -210,29 +214,80 @@ router.get("/challenges/:slug/solutions", async (req, res) => {
       return;
     }
 
+    // Fetch solutions with vote score aggregated via subquery
     const solutions = await db
       .select({
         id: challengeSolutionsTable.id,
         challengeSlug: challengeSolutionsTable.challengeSlug,
         userId: challengeSolutionsTable.userId,
+        authorName: challengeSolutionsTable.authorName,
+        authorSlug: challengeSolutionsTable.authorSlug,
         userName: usersTable.name,
         title: challengeSolutionsTable.title,
         description: challengeSolutionsTable.description,
         approach: challengeSolutionsTable.approach,
         link: challengeSolutionsTable.link,
         createdAt: challengeSolutionsTable.createdAt,
+        voteScore: sql<number>`coalesce(sum(${challengeSolutionVotesTable.direction}), 0)`,
       })
       .from(challengeSolutionsTable)
-      .innerJoin(usersTable, eq(challengeSolutionsTable.userId, usersTable.id))
+      .leftJoin(usersTable, eq(challengeSolutionsTable.userId, usersTable.id))
+      .leftJoin(
+        challengeSolutionVotesTable,
+        eq(challengeSolutionVotesTable.solutionId, challengeSolutionsTable.id),
+      )
       .where(eq(challengeSolutionsTable.challengeSlug, slug))
+      .groupBy(
+        challengeSolutionsTable.id,
+        challengeSolutionsTable.challengeSlug,
+        challengeSolutionsTable.userId,
+        challengeSolutionsTable.authorName,
+        challengeSolutionsTable.authorSlug,
+        challengeSolutionsTable.title,
+        challengeSolutionsTable.description,
+        challengeSolutionsTable.approach,
+        challengeSolutionsTable.link,
+        challengeSolutionsTable.createdAt,
+        usersTable.name,
+      )
       .orderBy(desc(challengeSolutionsTable.createdAt));
+
+    // Fetch current user's votes for these solutions
+    let userVoteMap: Record<string, number> = {};
+    if (userId && solutions.length > 0) {
+      const solutionIds = solutions.map((s) => s.id);
+      const userVotes = await db
+        .select({
+          solutionId: challengeSolutionVotesTable.solutionId,
+          direction: challengeSolutionVotesTable.direction,
+        })
+        .from(challengeSolutionVotesTable)
+        .where(
+          and(
+            eq(challengeSolutionVotesTable.userId, userId),
+            inArray(challengeSolutionVotesTable.solutionId, solutionIds),
+          ),
+        );
+      for (const v of userVotes) {
+        userVoteMap[v.solutionId] = v.direction;
+      }
+    }
 
     res.json(
       ListChallengeSolutionsResponse.parse(
         solutions.map((s) => ({
-          ...s,
+          id: s.id,
+          challengeSlug: s.challengeSlug,
+          userId: s.userId ?? null,
+          authorName: s.authorName ?? s.userName ?? "Anonymous",
+          authorSlug: s.authorSlug ?? null,
+          title: s.title,
+          description: s.description,
+          approach: s.approach,
           link: s.link ?? null,
           createdAt: s.createdAt.toISOString(),
+          voteScore: Number(s.voteScore),
+          userVote: userVoteMap[s.id] ?? null,
         })),
       ),
     );
@@ -289,17 +344,22 @@ router.post("/challenges/:slug/solutions", requireAuth, async (req, res) => {
       .from(usersTable)
       .where(eq(usersTable.id, userId));
 
+    const authorName = userRow?.name ?? "Anonymous";
+
     res.status(201).json(
       ListChallengeSolutionsResponseItem.parse({
         id: inserted.id,
         challengeSlug: inserted.challengeSlug,
-        userId: inserted.userId,
-        userName: userRow?.name ?? "Anonymous",
+        userId: inserted.userId ?? null,
+        authorName,
+        authorSlug: null,
         title: inserted.title,
         description: inserted.description,
         approach: inserted.approach,
         link: inserted.link ?? null,
         createdAt: inserted.createdAt.toISOString(),
+        voteScore: 0,
+        userVote: null,
       }),
     );
   } catch (err) {
@@ -307,5 +367,111 @@ router.post("/challenges/:slug/solutions", requireAuth, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// ─── POST /api/challenges/:slug/solutions/:solutionId/vote ──────────────────
+
+router.post(
+  "/challenges/:slug/solutions/:solutionId/vote",
+  requireAuth,
+  async (req, res) => {
+    try {
+      const solutionId = String(req.params.solutionId);
+      const userId = req.user!.id;
+
+      const bodyResult = VoteSolutionBody.safeParse(req.body);
+      if (!bodyResult.success) {
+        res.status(400).json({ error: "Invalid input" });
+        return;
+      }
+
+      const [solution] = await db
+        .select({ id: challengeSolutionsTable.id })
+        .from(challengeSolutionsTable)
+        .where(eq(challengeSolutionsTable.id, solutionId));
+
+      if (!solution) {
+        res.status(404).json({ error: "Solution not found" });
+        return;
+      }
+
+      const { direction } = bodyResult.data;
+
+      if (direction === 0) {
+        // Remove any existing vote
+        await db
+          .delete(challengeSolutionVotesTable)
+          .where(
+            and(
+              eq(challengeSolutionVotesTable.solutionId, solutionId),
+              eq(challengeSolutionVotesTable.userId, userId),
+            ),
+          );
+      } else {
+        // Check for existing vote to implement toggle
+        const [existing] = await db
+          .select({ direction: challengeSolutionVotesTable.direction })
+          .from(challengeSolutionVotesTable)
+          .where(
+            and(
+              eq(challengeSolutionVotesTable.solutionId, solutionId),
+              eq(challengeSolutionVotesTable.userId, userId),
+            ),
+          );
+
+        if (existing && existing.direction === direction) {
+          // Same direction clicked again → toggle off (remove)
+          await db
+            .delete(challengeSolutionVotesTable)
+            .where(
+              and(
+                eq(challengeSolutionVotesTable.solutionId, solutionId),
+                eq(challengeSolutionVotesTable.userId, userId),
+              ),
+            );
+        } else {
+          // Upsert: insert or update direction
+          await db
+            .insert(challengeSolutionVotesTable)
+            .values({ solutionId, userId, direction })
+            .onConflictDoUpdate({
+              target: [
+                challengeSolutionVotesTable.solutionId,
+                challengeSolutionVotesTable.userId,
+              ],
+              set: { direction },
+            });
+        }
+      }
+
+      // Compute updated score and user vote
+      const [{ score }] = await db
+        .select({
+          score: sql<number>`coalesce(sum(${challengeSolutionVotesTable.direction}), 0)`,
+        })
+        .from(challengeSolutionVotesTable)
+        .where(eq(challengeSolutionVotesTable.solutionId, solutionId));
+
+      const [userVoteRow] = await db
+        .select({ direction: challengeSolutionVotesTable.direction })
+        .from(challengeSolutionVotesTable)
+        .where(
+          and(
+            eq(challengeSolutionVotesTable.solutionId, solutionId),
+            eq(challengeSolutionVotesTable.userId, userId),
+          ),
+        );
+
+      res.json(
+        VoteSolutionResponse.parse({
+          voteScore: Number(score),
+          userVote: userVoteRow?.direction ?? null,
+        }),
+      );
+    } catch (err) {
+      req.log.error({ err }, "Failed to vote on solution");
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
+);
 
 export default router;

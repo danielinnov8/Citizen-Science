@@ -4,6 +4,7 @@ import {
   timestamp,
   uuid,
   unique,
+  smallint,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./users";
 
@@ -44,8 +45,9 @@ export const challengeSolutionsTable = pgTable("challenge_solutions", {
     .notNull()
     .references(() => challengesTable.slug, { onDelete: "cascade" }),
   userId: uuid("user_id")
-    .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
+  authorName: text("author_name"),
+  authorSlug: text("author_slug"),
   title: text("title").notNull(),
   description: text("description").notNull(),
   approach: text("approach").notNull(),
@@ -55,9 +57,29 @@ export const challengeSolutionsTable = pgTable("challenge_solutions", {
     .defaultNow(),
 });
 
+export const challengeSolutionVotesTable = pgTable(
+  "challenge_solution_votes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    solutionId: uuid("solution_id")
+      .notNull()
+      .references(() => challengeSolutionsTable.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    direction: smallint("direction").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [unique().on(t.solutionId, t.userId)],
+);
+
 export type Challenge = typeof challengesTable.$inferSelect;
 export type InsertChallenge = typeof challengesTable.$inferInsert;
 export type ChallengeMember = typeof challengeMembersTable.$inferSelect;
 export type InsertChallengeMember = typeof challengeMembersTable.$inferInsert;
 export type ChallengeSolution = typeof challengeSolutionsTable.$inferSelect;
 export type InsertChallengeSolution = typeof challengeSolutionsTable.$inferInsert;
+export type ChallengeSolutionVote = typeof challengeSolutionVotesTable.$inferSelect;
+export type InsertChallengeSolutionVote = typeof challengeSolutionVotesTable.$inferInsert;

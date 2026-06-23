@@ -1,7 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { seedFeaturedProfiles } from "./lib/seed/featuredProfiles";
-import { seedChallenges as seedChallengesData } from "./lib/seed/challenges";
+import { seedChallenges as seedChallengesData, seedManuSolution } from "./lib/seed/challenges";
 import { startMigrations } from "./lib/startup/migrations";
 import { runMigrations } from "stripe-replit-sync";
 import { getStripeSync } from "./lib/stripe/stripeClient";
@@ -40,7 +40,7 @@ app.listen(port, (err) => {
   // the Stripe integration (stripe schema + managed webhook + initial backfill).
   void migrations.then(async () => {
     void seedFeaturedProfiles();
-    void seedChallengesData();
+    void seedChallengesData().then(() => seedManuSolution());
     void initStripe();
   });
 });

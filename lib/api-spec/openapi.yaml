@@ -1974,6 +1974,51 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /challenges/{slug}/solutions/{solutionId}/vote:
+    post:
+      operationId: voteSolution
+      tags: [challenges]
+      summary: Upvote or downvote a solution
+      description: >
+        Auth required. Casts a vote (1 = upvote, -1 = downvote) on a solution.
+        Sending the same direction again removes the vote (toggle). Sending 0
+        explicitly removes any existing vote.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: solutionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VoteSolutionInput"
+      responses:
+        "200":
+          description: Updated vote totals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoteSolutionResult"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Solution not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     ChallengeTeam:
@@ -2071,9 +2116,11 @@ components:
         challengeSlug:
           type: string
         userId:
+          type: ["string", "null"]
+        authorName:
           type: string
-        userName:
-          type: string
+        authorSlug:
+          type: ["string", "null"]
         title:
           type: string
         description:
@@ -2085,16 +2132,44 @@ components:
         createdAt:
           type: string
           format: date-time
+        voteScore:
+          type: integer
+          description: Net vote score (upvotes minus downvotes)
+        userVote:
+          type: ["integer", "null"]
+          description: The current user's vote direction (1, -1) or null if not voted
       required:
         - id
         - challengeSlug
         - userId
-        - userName
+        - authorName
+        - authorSlug
         - title
         - description
         - approach
         - link
         - createdAt
+        - voteScore
+        - userVote
+    VoteSolutionInput:
+      type: object
+      properties:
+        direction:
+          type: integer
+          description: "1 = upvote, -1 = downvote, 0 = remove vote"
+          enum: [1, -1, 0]
+      required:
+        - direction
+    VoteSolutionResult:
+      type: object
+      properties:
+        voteScore:
+          type: integer
+        userVote:
+          type: ["integer", "null"]
+      required:
+        - voteScore
+        - userVote
     CreateChallengeSolutionInput:
       type: object
       properties:

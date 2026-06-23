@@ -45,14 +45,47 @@ export interface JoinChallengeResult {
 export interface ChallengeSolutionView {
   id: string;
   challengeSlug: string;
-  userId: string;
-  userName: string;
+  /** @nullable */
+  userId: string | null;
+  authorName: string;
+  /** @nullable */
+  authorSlug: string | null;
   title: string;
   description: string;
   approach: string;
   /** @nullable */
   link: string | null;
   createdAt: string;
+  /** Net vote score (upvotes minus downvotes) */
+  voteScore: number;
+  /**
+   * The current user's vote direction (1, -1) or null if not voted
+   * @nullable
+   */
+  userVote: number | null;
+}
+
+/**
+ * 1 = upvote, -1 = downvote, 0 = remove vote
+ */
+export type VoteSolutionInputDirection =
+  (typeof VoteSolutionInputDirection)[keyof typeof VoteSolutionInputDirection];
+
+export const VoteSolutionInputDirection = {
+  NUMBER_1: 1,
+  NUMBER_MINUS_1: -1,
+  NUMBER_0: 0,
+} as const;
+
+export interface VoteSolutionInput {
+  /** 1 = upvote, -1 = downvote, 0 = remove vote */
+  direction: VoteSolutionInputDirection;
+}
+
+export interface VoteSolutionResult {
+  voteScore: number;
+  /** @nullable */
+  userVote: number | null;
 }
 
 export interface CreateChallengeSolutionInput {

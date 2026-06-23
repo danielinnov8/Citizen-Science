@@ -88,6 +88,8 @@ import type {
   SetUserMentorInput,
   UpdateProfileInput,
   UpdateUserPlanInput,
+  VoteSolutionInput,
+  VoteSolutionResult,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -6072,4 +6074,94 @@ export const useCreateChallengeSolution = <
   TContext
 > => {
   return useMutation(getCreateChallengeSolutionMutationOptions(options));
+};
+
+/**
+ * Auth required. Casts a vote (1 = upvote, -1 = downvote) on a solution. Sending the same direction again removes the vote (toggle). Sending 0 explicitly removes any existing vote.
+
+ * @summary Upvote or downvote a solution
+ */
+export const getVoteSolutionUrl = (slug: string, solutionId: string) => {
+  return `/api/challenges/${slug}/solutions/${solutionId}/vote`;
+};
+
+export const voteSolution = async (
+  slug: string,
+  solutionId: string,
+  voteSolutionInput: VoteSolutionInput,
+  options?: RequestInit,
+): Promise<VoteSolutionResult> => {
+  return customFetch<VoteSolutionResult>(getVoteSolutionUrl(slug, solutionId), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(voteSolutionInput),
+  });
+};
+
+export const getVoteSolutionMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof voteSolution>>,
+    TError,
+    { slug: string; solutionId: string; data: BodyType<VoteSolutionInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof voteSolution>>,
+  TError,
+  { slug: string; solutionId: string; data: BodyType<VoteSolutionInput> },
+  TContext
+> => {
+  const mutationKey = ["voteSolution"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof voteSolution>>,
+    { slug: string; solutionId: string; data: BodyType<VoteSolutionInput> }
+  > = (props) => {
+    const { slug, solutionId, data } = props ?? {};
+
+    return voteSolution(slug, solutionId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type VoteSolutionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof voteSolution>>
+>;
+export type VoteSolutionMutationBody = BodyType<VoteSolutionInput>;
+export type VoteSolutionMutationError = ErrorType<Error>;
+
+/**
+ * @summary Upvote or downvote a solution
+ */
+export const useVoteSolution = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof voteSolution>>,
+    TError,
+    { slug: string; solutionId: string; data: BodyType<VoteSolutionInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof voteSolution>>,
+  TError,
+  { slug: string; solutionId: string; data: BodyType<VoteSolutionInput> },
+  TContext
+> => {
+  return useMutation(getVoteSolutionMutationOptions(options));
 };

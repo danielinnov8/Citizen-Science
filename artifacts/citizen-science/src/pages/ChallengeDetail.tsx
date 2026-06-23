@@ -12,15 +12,19 @@ import {
   Send,
   Loader2,
   Zap,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 import {
   useGetChallenge,
   useJoinChallenge,
   useListChallengeSolutions,
   useCreateChallengeSolution,
+  useVoteSolution,
   getListChallengeSolutionsQueryKey,
   getGetChallengeQueryKey,
 } from "@workspace/api-client-react";
+import type { ChallengeSolutionView } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
@@ -61,6 +65,110 @@ function formatRelativeDate(isoDate: string): string {
   if (days < 365) return `${Math.floor(days / 30)} months ago`;
   return `${Math.floor(days / 365)} years ago`;
 }
+
+// ─── Vote widget ─────────────────────────────────────────────────────────────
+
+interface VoteWidgetProps {
+  solution: ChallengeSolutionView;
+  slug: string;
+  isAuthenticated: boolean;
+  onLoginRequired: () => void;
+}
+
+function VoteWidget({ solution, slug, isAuthenticated, onLoginRequired }: VoteWidgetProps) {
+  const queryClient = useQueryClient();
+
+  const voteMutation = useVoteSolution({
+    mutation: {
+      onMutate: async ({ data }) => {
+        const queryKey = getListChallengeSolutionsQueryKey(slug);
+        await queryClient.cancelQueries({ queryKey });
+        const previous = queryClient.getQueryData<ChallengeSolutionView[]>(queryKey);
+
+        queryClient.setQueryData<ChallengeSolutionView[]>(queryKey, (old) => {
+          if (!old) return old;
+          return old.map((s) => {
+            if (s.id !== solution.id) return s;
+            const prevDir = s.userVote ?? 0;
+            const newDir = data.direction === prevDir ? 0 : data.direction;
+            return {
+              ...s,
+              voteScore: s.voteScore + (newDir - prevDir),
+              userVote: newDir === 0 ? null : newDir,
+            };
+          });
+        });
+
+        return { previous };
+      },
+      onError: (_err, _vars, context) => {
+        if (context?.previous) {
+          queryClient.setQueryData(getListChallengeSolutionsQueryKey(slug), context.previous);
+        }
+      },
+      onSettled: () => {
+        void queryClient.invalidateQueries({ queryKey: getListChallengeSolutionsQueryKey(slug) });
+      },
+    },
+  });
+
+  function handleVote(direction: 1 | -1) {
+    if (!isAuthenticated) {
+      onLoginRequired();
+      return;
+    }
+    voteMutation.mutate({ slug, solutionId: solution.id, data: { direction } });
+  }
+
+  const score = solution.voteScore;
+  const userVote = solution.userVote;
+  const pending = voteMutation.isPending;
+
+  return (
+    <div className="flex items-center gap-1 shrink-0">
+      <button
+        type="button"
+        onClick={() => handleVote(1)}
+        disabled={pending}
+        title={isAuthenticated ? "Upvote" : "Sign in to vote"}
+        className={cn(
+          "flex items-center justify-center h-7 w-7 rounded-md border transition-all",
+          userVote === 1
+            ? "border-emerald-400 bg-emerald-50 text-emerald-600"
+            : "border-[#E2E8F0] bg-white text-[#94A3B8] hover:border-emerald-300 hover:text-emerald-500",
+          pending && "opacity-60 cursor-wait",
+        )}
+      >
+        <ThumbsUp className="h-3.5 w-3.5" />
+      </button>
+      <span
+        className={cn(
+          "min-w-[28px] text-center text-sm font-semibold tabular-nums",
+          score > 0 ? "text-emerald-600" : score < 0 ? "text-red-500" : "text-[#94A3B8]",
+        )}
+      >
+        {score > 0 ? `+${score}` : score}
+      </span>
+      <button
+        type="button"
+        onClick={() => handleVote(-1)}
+        disabled={pending}
+        title={isAuthenticated ? "Downvote" : "Sign in to vote"}
+        className={cn(
+          "flex items-center justify-center h-7 w-7 rounded-md border transition-all",
+          userVote === -1
+            ? "border-red-400 bg-red-50 text-red-500"
+            : "border-[#E2E8F0] bg-white text-[#94A3B8] hover:border-red-300 hover:text-red-400",
+          pending && "opacity-60 cursor-wait",
+        )}
+      >
+        <ThumbsDown className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
+// ─── Main page ───────────────────────────────────────────────────────────────
 
 export function ChallengeDetail() {
   const [, params] = useRoute("/challenges/:slug");
@@ -445,13 +553,16 @@ export function ChallengeDetail() {
                   key={solution.id}
                   className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm"
                 >
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <h4 className="font-semibold text-[#0F172A] text-base">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <h4 className="font-semibold text-[#0F172A] text-base leading-snug">
                       {solution.title}
                     </h4>
-                    <span className="shrink-0 text-[11px] text-[#94A3B8]">
-                      {formatRelativeDate(solution.createdAt)}
-                    </span>
+                    <VoteWidget
+                      solution={solution}
+                      slug={slug}
+                      isAuthenticated={isAuthenticated}
+                      onLoginRequired={() => navigate("/login")}
+                    />
                   </div>
                   <p className="text-sm text-[#64748B] mb-3 leading-relaxed">
                     {solution.description}
@@ -465,17 +576,32 @@ export function ChallengeDetail() {
                     </p>
                   </div>
                   <div className="flex items-center justify-between text-xs text-[#94A3B8]">
-                    <span>by {solution.userName}</span>
-                    {solution.link && (
-                      <a
-                        href={solution.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-blue-600 hover:underline"
-                      >
-                        Learn more <ExternalLink className="h-3 w-3" />
-                      </a>
-                    )}
+                    <span>
+                      by{" "}
+                      {solution.authorSlug ? (
+                        <Link
+                          href={`/directory/${solution.authorSlug}`}
+                          className="text-blue-600 hover:underline font-medium"
+                        >
+                          {solution.authorName}
+                        </Link>
+                      ) : (
+                        <span className="font-medium text-[#64748B]">{solution.authorName}</span>
+                      )}
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <span>{formatRelativeDate(solution.createdAt)}</span>
+                      {solution.link && (
+                        <a
+                          href={solution.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-blue-600 hover:underline"
+                        >
+                          Learn more <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

@@ -1,5 +1,5 @@
-import { db, challengesTable } from "@workspace/db";
-import { sql } from "drizzle-orm";
+import { db, challengesTable, challengeSolutionsTable } from "@workspace/db";
+import { and, eq, sql } from "drizzle-orm";
 import { logger } from "../logger";
 
 interface ChallengeTeam {
@@ -375,5 +375,46 @@ export async function seedChallenges(): Promise<void> {
     logger.info({ seeded: rows.length }, "Seeded humanity's greatest challenges");
   } catch (err) {
     logger.error({ err }, "Failed to seed challenges");
+  }
+}
+
+/**
+ * Seeds Manu Rehani's solution on the "Reverse Soil Degradation" challenge.
+ * Idempotent: skips if a solution with author_slug="manu-rehani" already
+ * exists on that challenge. Failures are logged, never thrown.
+ */
+export async function seedManuSolution(): Promise<void> {
+  try {
+    const [existing] = await db
+      .select({ id: challengeSolutionsTable.id })
+      .from(challengeSolutionsTable)
+      .where(
+        and(
+          eq(challengeSolutionsTable.challengeSlug, "soil-degradation"),
+          eq(challengeSolutionsTable.authorSlug, "manu-rehani"),
+        ),
+      );
+
+    if (existing) {
+      logger.info("Manu Rehani soil solution already seeded, skipping");
+      return;
+    }
+
+    await db.insert(challengeSolutionsTable).values({
+      challengeSlug: "soil-degradation",
+      userId: null,
+      authorName: "Manu Rehani",
+      authorSlug: "manu-rehani",
+      title: "Biochar + Precision Fermentation Soil Stack",
+      description:
+        "A combined application of biochar and precision-fermented microbial consortia to rebuild degraded topsoil — sequestering carbon, restoring soil biology, and recovering agricultural productivity simultaneously.",
+      approach:
+        "Apply biochar (produced from agricultural waste via slow pyrolysis) as a permanent carbon-stable matrix in depleted soils. Inoculate with precision-fermented microbial consortia (mycorrhizal networks, nitrogen-fixers, phosphate-solubilisers) tailored to the local soil microbiome using metagenomic profiling. The biochar's porous structure retains moisture and creates habitat for microbial colonies, while the fermented consortia accelerate decomposition of organic matter and restore nutrient cycling. Pilots can begin at the farm level within months; satellite-grade soil-carbon monitoring via hyperspectral imaging tracks sequestration in near-real time.",
+      link: "https://biochar-international.org",
+    });
+
+    logger.info("Seeded Manu Rehani soil-degradation solution");
+  } catch (err) {
+    logger.error({ err }, "Failed to seed Manu Rehani solution");
   }
 }

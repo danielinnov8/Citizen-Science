@@ -113,3 +113,6 @@ export * from "./setUserMentorInput";
 export * from "./updateProfileInput";
 export * from "./updateUserPlanInput";
 export * from "./updateUserPlanInputPlan";
+export * from "./voteSolutionInput";
+export * from "./voteSolutionInputDirection";
+export * from "./voteSolutionResult";
