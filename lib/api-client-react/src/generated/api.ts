@@ -83,6 +83,7 @@ import type {
   OutreachTemplate,
   OutreachTemplateInput,
   PortalUrl,
+  ProfileSolutionItem,
   RegisterInput,
   SendMessageInput,
   SetUserMentorInput,
@@ -1092,6 +1093,96 @@ export const useClaimProfile = <
 > => {
   return useMutation(getClaimProfileMutationOptions(options));
 };
+
+/**
+ * Public. Returns all challenge solutions where the author_slug matches the given profile slug, with the parent challenge's title, domain, and urgency included for linking and display.
+
+ * @summary List all challenge solutions submitted by a directory profile
+ */
+export const getListProfileSolutionsUrl = (slug: string) => {
+  return `/api/profiles/${slug}/solutions`;
+};
+
+export const listProfileSolutions = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<ProfileSolutionItem[]> => {
+  return customFetch<ProfileSolutionItem[]>(getListProfileSolutionsUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListProfileSolutionsQueryKey = (slug: string) => {
+  return [`/api/profiles/${slug}/solutions`] as const;
+};
+
+export const getListProfileSolutionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listProfileSolutions>>,
+  TError = ErrorType<unknown>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listProfileSolutions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListProfileSolutionsQueryKey(slug);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listProfileSolutions>>
+  > = ({ signal }) => listProfileSolutions(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listProfileSolutions>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListProfileSolutionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listProfileSolutions>>
+>;
+export type ListProfileSolutionsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all challenge solutions submitted by a directory profile
+ */
+
+export function useListProfileSolutions<
+  TData = Awaited<ReturnType<typeof listProfileSolutions>>,
+  TError = ErrorType<unknown>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listProfileSolutions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListProfileSolutionsQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * Returns the credit balance for the caller — a signed-in user or, when logged out, the anonymous guest identified by the browser's anon cookie. Credits meter all AI features (copilot chat, web-grounded research, field-notes analysis, and the talking avatar).

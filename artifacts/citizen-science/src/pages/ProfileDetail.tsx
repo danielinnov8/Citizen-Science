@@ -11,7 +11,11 @@ import {
   FileText,
   Award,
 } from "lucide-react";
-import { useGetFeaturedProfile } from "@workspace/api-client-react";
+import {
+  useGetFeaturedProfile,
+  useListProfileSolutions,
+  getListProfileSolutionsQueryKey,
+} from "@workspace/api-client-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -59,6 +63,12 @@ export function ProfileDetail() {
   const { data: profile, isLoading, isError, error } = useGetFeaturedProfile(
     slug ?? "",
   );
+  const { data: solutions } = useListProfileSolutions(slug ?? "", {
+    query: {
+      queryKey: getListProfileSolutionsQueryKey(slug ?? ""),
+      staleTime: 60_000,
+    },
+  });
 
   const notFound =
     isError &&
@@ -96,7 +106,11 @@ export function ProfileDetail() {
   if (livingStory) {
     return (
       <>
-        <LivingMindStory story={livingStory} profile={profile ?? undefined} />
+        <LivingMindStory
+            story={livingStory}
+            profile={profile ?? undefined}
+            solutions={solutions}
+          />
         {ownership}
       </>
     );
@@ -113,7 +127,11 @@ export function ProfileDetail() {
     if (dbStory) {
       return (
         <>
-          <GreatMindStory story={dbStory} profile={profile} />
+          <GreatMindStory
+            story={dbStory}
+            profile={profile}
+            solutions={solutions}
+          />
           {ownership}
         </>
       );
@@ -425,6 +443,49 @@ export function ProfileDetail() {
                 </div>
               </section>
             )
+          )}
+
+          {/* Challenge Solutions */}
+          {solutions && solutions.length > 0 && (
+            <section>
+              <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight mb-4">
+                <Lightbulb className="h-5 w-5 text-[#7C3AED]" />
+                Challenge Solutions
+              </h2>
+              <div className="space-y-3">
+                {solutions.map((s) => (
+                  <Link
+                    key={s.id}
+                    href={`/challenges/${s.challengeSlug}`}
+                    className="group block bg-white rounded-xl border border-[#E2E8F0] p-4 hover:border-violet-200 hover:shadow-sm transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-[#0F172A] group-hover:text-[#7C3AED] transition-colors truncate">
+                          {s.title}
+                        </div>
+                        <div className="text-xs text-[#64748B] mt-0.5 truncate">
+                          {s.challengeTitle}
+                          <span className="mx-1.5 text-[#CBD5E1]">·</span>
+                          {s.challengeDomain}
+                        </div>
+                        <p className="text-sm text-[#475569] mt-2 line-clamp-2">
+                          {s.description}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0 flex flex-col items-center gap-0.5 text-xs font-semibold text-[#64748B]">
+                        <span className="text-base leading-none">▲</span>
+                        <span>{s.voteScore}</span>
+                      </div>
+                    </div>
+                    <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[#7C3AED]">
+                      View challenge
+                      <ChevronRight className="h-3 w-3" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
           )}
 
           {/* Sources */}

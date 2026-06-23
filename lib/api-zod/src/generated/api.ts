@@ -346,6 +346,32 @@ export const ClaimProfileParams = zod.object({
 });
 
 /**
+ * Public. Returns all challenge solutions where the author_slug matches the given profile slug, with the parent challenge's title, domain, and urgency included for linking and display.
+
+ * @summary List all challenge solutions submitted by a directory profile
+ */
+export const ListProfileSolutionsParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const ListProfileSolutionsResponseItem = zod.object({
+  id: zod.string(),
+  title: zod.string(),
+  description: zod.string(),
+  approach: zod.string(),
+  link: zod.string().nullable(),
+  createdAt: zod.coerce.date(),
+  voteScore: zod.number().describe("Net vote score (upvotes minus downvotes)"),
+  challengeSlug: zod.string(),
+  challengeTitle: zod.string(),
+  challengeDomain: zod.string(),
+  challengeUrgency: zod.string(),
+});
+export const ListProfileSolutionsResponse = zod.array(
+  ListProfileSolutionsResponseItem,
+);
+
+/**
  * Returns the credit balance for the caller — a signed-in user or, when logged out, the anonymous guest identified by the browser's anon cookie. Credits meter all AI features (copilot chat, web-grounded research, field-notes analysis, and the talking avatar).
 
  * @summary Get the current credit balance

@@ -1,7 +1,10 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import {
   db,
+  challengeSolutionsTable,
+  challengeSolutionVotesTable,
+  challengesTable,
   featuredProfilesTable,
   profileClaimsTable,
   type FeaturedProfile,
@@ -12,6 +15,7 @@ import {
   ListFeaturedProfilesResponse,
   GetFeaturedProfileResponse,
   GetMyProfileClaimResponse,
+  ListProfileSolutionsResponse,
   UpdateMyProfileBody,
   UpdateMyProfileResponse,
 } from "@workspace/api-zod";
@@ -266,6 +270,61 @@ router.patch(
       .returning();
 
     res.json(UpdateMyProfileResponse.parse(toProfileResponse(updated)));
+  },
+);
+
+// ─── GET /api/profiles/:slug/solutions ──────────────────────────────────────
+// Public. Returns all challenge solutions where author_slug = :slug, joined
+// with the parent challenge for display context.
+
+router.get(
+  "/profiles/:slug/solutions",
+  async (req: Request, res: Response): Promise<void> => {
+    const slug = String(req.params.slug);
+
+    const rows = await db
+      .select({
+        id: challengeSolutionsTable.id,
+        title: challengeSolutionsTable.title,
+        description: challengeSolutionsTable.description,
+        approach: challengeSolutionsTable.approach,
+        link: challengeSolutionsTable.link,
+        createdAt: challengeSolutionsTable.createdAt,
+        challengeSlug: challengesTable.slug,
+        challengeTitle: challengesTable.title,
+        challengeDomain: challengesTable.domain,
+        challengeUrgency: challengesTable.urgency,
+        voteScore: sql<number>`COALESCE(SUM(${challengeSolutionVotesTable.direction}), 0)`,
+      })
+      .from(challengeSolutionsTable)
+      .innerJoin(
+        challengesTable,
+        eq(challengeSolutionsTable.challengeSlug, challengesTable.slug),
+      )
+      .leftJoin(
+        challengeSolutionVotesTable,
+        eq(challengeSolutionVotesTable.solutionId, challengeSolutionsTable.id),
+      )
+      .where(eq(challengeSolutionsTable.authorSlug, slug))
+      .groupBy(
+        challengeSolutionsTable.id,
+        challengesTable.slug,
+        challengesTable.title,
+        challengesTable.domain,
+        challengesTable.urgency,
+      )
+      .orderBy(challengeSolutionsTable.createdAt);
+
+    res.json(
+      ListProfileSolutionsResponse.parse(
+        rows.map((r) => ({
+          ...r,
+          link: r.link ?? null,
+          createdAt: r.createdAt.toISOString(),
+          voteScore: Number(r.voteScore ?? 0),
+        })),
+      ),
+    );
   },
 );
 

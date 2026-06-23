@@ -323,6 +323,30 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /profiles/{slug}/solutions:
+    get:
+      operationId: listProfileSolutions
+      tags: [profiles]
+      summary: List all challenge solutions submitted by a directory profile
+      description: >
+        Public. Returns all challenge solutions where the author_slug matches
+        the given profile slug, with the parent challenge's title, domain, and
+        urgency included for linking and display.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Solutions submitted by this profile
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProfileSolutionItem"
   /billing/credits:
     get:
       operationId: getCreditBalance
@@ -2108,6 +2132,45 @@ components:
       required:
         - joined
         - count
+    ProfileSolutionItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        approach:
+          type: string
+        link:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        voteScore:
+          type: integer
+          description: Net vote score (upvotes minus downvotes)
+        challengeSlug:
+          type: string
+        challengeTitle:
+          type: string
+        challengeDomain:
+          type: string
+        challengeUrgency:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - approach
+        - link
+        - createdAt
+        - voteScore
+        - challengeSlug
+        - challengeTitle
+        - challengeDomain
+        - challengeUrgency
     ChallengeSolutionView:
       type: object
       properties:

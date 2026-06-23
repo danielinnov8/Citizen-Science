@@ -103,6 +103,7 @@ export * from "./profileClaimStatus";
 export * from "./profileGroup";
 export * from "./profileNobelPrize";
 export * from "./profilePatent";
+export * from "./profileSolutionItem";
 export * from "./profileSource";
 export * from "./profileStoryContribution";
 export * from "./profileStoryTheme";

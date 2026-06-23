@@ -42,6 +42,22 @@ export interface JoinChallengeResult {
   count: number;
 }
 
+export interface ProfileSolutionItem {
+  id: string;
+  title: string;
+  description: string;
+  approach: string;
+  /** @nullable */
+  link: string | null;
+  createdAt: string;
+  /** Net vote score (upvotes minus downvotes) */
+  voteScore: number;
+  challengeSlug: string;
+  challengeTitle: string;
+  challengeDomain: string;
+  challengeUrgency: string;
+}
+
 export interface ChallengeSolutionView {
   id: string;
   challengeSlug: string;

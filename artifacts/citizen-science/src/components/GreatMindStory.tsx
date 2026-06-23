@@ -17,7 +17,10 @@ import {
   MapPin,
   CalendarDays,
 } from "lucide-react";
-import type { FeaturedProfile } from "@workspace/api-client-react";
+import type {
+  FeaturedProfile,
+  ProfileSolutionItem,
+} from "@workspace/api-client-react";
 import { CATEGORIES } from "@/lib/categories";
 import { selectFootstepExperiments } from "@/lib/experiments";
 import type {
@@ -760,9 +763,11 @@ function MarketsHero({ y }: { y: MotionValue<number> }) {
 export function GreatMindStory({
   story,
   profile,
+  solutions,
 }: {
   story: GreatMindStoryData;
   profile?: FeaturedProfile;
+  solutions?: ProfileSolutionItem[];
 }) {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -1411,6 +1416,49 @@ export function GreatMindStory({
             </div>
           </section>
           )
+        )}
+
+        {/* Challenge Solutions */}
+        {solutions && solutions.length > 0 && (
+          <section className="pb-14">
+            <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight mb-4">
+              <Lightbulb className="h-5 w-5 text-[#7C3AED]" />
+              Challenge Solutions
+            </h2>
+            <div className="space-y-3">
+              {solutions.map((s) => (
+                <Link
+                  key={s.id}
+                  href={`/challenges/${s.challengeSlug}`}
+                  className="group block bg-white rounded-xl border border-[#E2E8F0] p-4 hover:border-violet-200 hover:shadow-sm transition-all"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-[#0F172A] group-hover:text-[#7C3AED] transition-colors truncate">
+                        {s.title}
+                      </div>
+                      <div className="text-xs text-[#64748B] mt-0.5 truncate">
+                        {s.challengeTitle}
+                        <span className="mx-1.5 text-[#CBD5E1]">·</span>
+                        {s.challengeDomain}
+                      </div>
+                      <p className="text-sm text-[#475569] mt-2 line-clamp-2">
+                        {s.description}
+                      </p>
+                    </div>
+                    <div className="flex-shrink-0 flex flex-col items-center gap-0.5 text-xs font-semibold text-[#64748B]">
+                      <span className="text-base leading-none">▲</span>
+                      <span>{s.voteScore}</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[#7C3AED]">
+                    View challenge
+                    <ChevronRight className="h-3 w-3" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
         )}
 
         {/* Sources */}
