@@ -384,10 +384,17 @@ router.post(
         return;
       }
 
+      const slug = String(req.params.slug);
+
       const [solution] = await db
         .select({ id: challengeSolutionsTable.id })
         .from(challengeSolutionsTable)
-        .where(eq(challengeSolutionsTable.id, solutionId));
+        .where(
+          and(
+            eq(challengeSolutionsTable.id, solutionId),
+            eq(challengeSolutionsTable.challengeSlug, slug),
+          ),
+        );
 
       if (!solution) {
         res.status(404).json({ error: "Solution not found" });

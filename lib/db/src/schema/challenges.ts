@@ -1,4 +1,6 @@
+import { sql } from "drizzle-orm";
 import {
+  check,
   pgTable,
   text,
   timestamp,
@@ -72,7 +74,10 @@ export const challengeSolutionVotesTable = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (t) => [unique().on(t.solutionId, t.userId)],
+  (t) => [
+    unique().on(t.solutionId, t.userId),
+    check("direction_valid", sql`${t.direction} IN (1, -1)`),
+  ],
 );
 
 export type Challenge = typeof challengesTable.$inferSelect;
