@@ -98,10 +98,25 @@ router.get("/challenges/:slug", async (req, res) => {
       return;
     }
 
-    const [{ cnt }] = await db
-      .select({ cnt: count(challengeMembersTable.id) })
+    // Count formal members + distinct solution authors (implicit contributors).
+    const [{ memberCnt }] = await db
+      .select({ memberCnt: count(challengeMembersTable.id) })
       .from(challengeMembersTable)
       .where(eq(challengeMembersTable.challengeSlug, slug));
+
+    const [{ solutionAuthorCnt }] = await db
+      .select({
+        solutionAuthorCnt: sql<number>`COUNT(DISTINCT ${challengeSolutionsTable.authorSlug})`,
+      })
+      .from(challengeSolutionsTable)
+      .where(
+        and(
+          eq(challengeSolutionsTable.challengeSlug, slug),
+          sql`${challengeSolutionsTable.authorSlug} IS NOT NULL`,
+        ),
+      );
+
+    const cnt = memberCnt + Number(solutionAuthorCnt);
 
     let isJoined = false;
     if (userId) {
