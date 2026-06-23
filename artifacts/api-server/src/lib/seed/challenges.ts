@@ -300,6 +300,7 @@ const CHALLENGES: ChallengeSeedRow[] = [
     summary: "Restore the world's depleted and eroded soils before we lose the productive capacity to feed humanity.",
     whyItMatters: "Topsoil is being lost 10–100× faster than it forms. 40% of agricultural land is already degraded. Without soil, there is no agriculture, no food security, and no terrestrial biodiversity. We could run out of fertile topsoil within 60 harvests.",
     teams: [
+      { name: "SaveSoil", description: "Global movement to reverse soil extinction, backed by 4+ billion people across 193 nations.", url: "https://www.savesoil.org" },
       { name: "4 per 1000 Initiative", description: "Global program to increase carbon stocks in agricultural soils.", url: "https://www.4p1000.org" },
       { name: "Soil Association", description: "UK charity championing organic farming and healthy soils.", url: "https://www.soilassociation.org" },
       { name: "Commonland", description: "Landscape restoration projects combating land degradation at scale.", url: "https://www.commonland.com" },
