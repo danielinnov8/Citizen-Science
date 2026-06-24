@@ -28,16 +28,19 @@ description: Quirks when wiring the Replit Stripe connector to stripe-replit-syn
 
 **How to apply:** Any time the Stripe integration is re-wired (new Repl, Cloud Run deploy, fresh checkout), verify these 5 points before debugging why products/prices aren't showing up.
 
-## Publishing Stripe to the Cloud Run deployment
+## Publishing Stripe to the live site (self-managed Cloud Run, NOT Replit)
 
-Symptom: dev `/pricing` works (top-ups "Buy now", checkout creates sessions) but the **published** site shows top-ups greyed "Coming soon" and subscription/founding buttons do nothing. Cause: `/api/billing/prices` returns empty on prod, so the frontend never gets price IDs (top-ups disable, checkout early-returns on missing priceId). The frontend is correct — do NOT rewrite it.
+**CRITICAL topology gotcha:** the LIVE site (`citizen-science.org`) is the user's OWN Google Cloud Run service, built from the repo-root `Dockerfile` (deploy via GitHub→Cloud Build). It is **separate** from the Replit Autoscale deployment (`citizenscience.replit.app`, which `getDeploymentInfo` reports as `primaryUrl` with no custom domains and is stale/unused). Confirm with `getDeploymentInfo` (primaryUrl + empty `additionalUrls`) and by cur`l`-ing both hosts. Consequence: **secrets/env vars set in Replit (workspace secrets OR production-scoped env vars) do NOT reach the live site.** The Dockerfile comment says it plainly — env like `GEMINI_API_KEY` is set in the **Cloud Run "Variables & Secrets" panel**. Don't waste a cycle setting a Replit secret + `suggestDeploy` for a live-site env problem; that only redeploys the unused Replit copy.
 
-Root cause: prod (Replit Cloud Run deploy) can't reach the Replit Stripe connector. `getStripeCredentials()` is env-first: it needs `STRIPE_SECRET_KEY` in the environment, else it falls back to the connector (which only works in the dev Repl). With no key, boot `initStripe()` skips → no products/prices synced → empty catalog.
+Symptom: dev `/pricing` works but the live site shows top-ups greyed "Coming soon" and subscription/founding buttons silently do nothing. Cause: `citizen-science.org/api/billing/prices` returns empty (route works, catalog empty), so the frontend never gets price IDs. The frontend is correct — do NOT rewrite it.
 
-Fix (no code change): set `STRIPE_SECRET_KEY` scoped to **production only** (not a global secret — global would override the dev connector via env-first; production-scoped keeps dev untouched), then **republish** (a running deploy won't pick up new env until redeployed). On boot prod runs migrations → `findOrCreateManagedWebhook` (registers the prod webhook + stores its signing secret) → `syncBackfill({object:"all"})` pulls the catalog.
+Root cause: Cloud Run can't reach the Replit Stripe connector. `getStripeCredentials()` is env-first: it needs `STRIPE_SECRET_KEY` in the environment, else falls back to the connector (Replit-only). With no key on Cloud Run, boot `initStripe()` throws→catches→"Stripe init skipped" → no catalog synced → empty `/billing/prices`.
 
-**Why:** mirrors the Gemini "own API key on Cloud Run" pattern — Replit connectors are unreachable off-Replit.
+Fix (no code change): in the **Cloud Run console** for the live service → Edit & Deploy New Revision → Variables & Secrets → add `STRIPE_SECRET_KEY` (same panel as `GEMINI_API_KEY`), confirm `PUBLIC_BASE_URL=https://citizen-science.org` is present, then Deploy. On boot the new revision migrates the stripe schema → `findOrCreateManagedWebhook(${PUBLIC_BASE_URL}/api/stripe/webhook)` → `syncBackfill({object:"all"})` pulls the catalog.
+
+**Why:** mirrors the Gemini "own API key on Cloud Run" pattern — Replit connectors are unreachable off-Replit, and a self-managed Cloud Run reads only its own env.
 
 **How to apply:**
-- Use the same Stripe **account** as the dev connector. Use the **test** key (`sk_test_`) to run the live URL in sandbox mode (card 4242 works); the test catalog already exists. A **live** key (`sk_live_`) has a SEPARATE empty catalog — products/prices must be created in live mode first (Replit's Publish-pane Stripe flow copies test→live, or run the seed against live).
+- `PUBLIC_BASE_URL` must be set on Cloud Run: both checkout success/cancel URLs (`routes/billing.ts`) and the webhook registration (`index.ts`) derive the domain from it (REPLIT_DOMAINS fallback is empty on Cloud Run). Missing it = malformed success_url + no webhook registered = credits never granted after purchase.
+- Use the same Stripe **account** as the dev connector. Use the **test** key (`sk_test_`) to run the live URL in sandbox mode (card 4242 works); the test catalog already exists. A **live** key (`sk_live_`) has a SEPARATE empty catalog — create products/prices in live mode first.
 - `STRIPE_WEBHOOK_SECRET` is NOT required: the managed webhook stores its secret in `stripe."_managed_webhooks"`; both the lib's verifier and `resolveManagedWebhookSecret()` read it from there.
