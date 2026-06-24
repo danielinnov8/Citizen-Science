@@ -16,7 +16,7 @@ import {
   useVoteSolution,
   getGetChallengeSolutionQueryKey,
 } from "@workspace/api-client-react";
-import type { GetChallengeSolutionResponse } from "@workspace/api-client-react";
+import type { ChallengeSolutionDetail as ChallengeSolutionDetailResponse } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
@@ -57,7 +57,7 @@ function formatDate(isoDate: string): string {
 // ─── Inline vote widget (larger, page-level) ──────────────────────────────────
 
 interface PageVoteWidgetProps {
-  solution: GetChallengeSolutionResponse;
+  solution: ChallengeSolutionDetailResponse;
   isAuthenticated: boolean;
   onLoginRequired: () => void;
 }

@@ -1976,6 +1976,36 @@ export const CreateChallengeSolutionBody = zod.object({
 });
 
 /**
+ * Public. Returns the solution fields plus the parent challenge title, summary, whyItMatters, domain, urgency, and imageUrl so the solution detail page can present the problem before the answer.
+
+ * @summary Get a single solution with parent challenge context
+ */
+export const GetChallengeSolutionParams = zod.object({
+  slug: zod.coerce.string(),
+  solutionId: zod.coerce.string(),
+});
+
+export const GetChallengeSolutionResponse = zod.object({
+  id: zod.string(),
+  title: zod.string(),
+  description: zod.string(),
+  approach: zod.string(),
+  link: zod.string().nullable(),
+  createdAt: zod.coerce.date(),
+  voteScore: zod.number(),
+  userVote: zod.number().nullable(),
+  authorName: zod.string(),
+  authorSlug: zod.string().nullable(),
+  challengeSlug: zod.string(),
+  challengeTitle: zod.string(),
+  challengeSummary: zod.string(),
+  challengeWhyItMatters: zod.string(),
+  challengeDomain: zod.string(),
+  challengeUrgency: zod.string(),
+  challengeImageUrl: zod.string().nullable(),
+});
+
+/**
  * Auth required. Casts a vote (1 = upvote, -1 = downvote) on a solution. Sending the same direction again removes the vote (toggle). Sending 0 explicitly removes any existing vote.
 
  * @summary Upvote or downvote a solution

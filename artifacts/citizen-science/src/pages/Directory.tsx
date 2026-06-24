@@ -53,13 +53,6 @@ function ProfileCard({ p }: { p: FeaturedProfileSummary }) {
       className="group bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden hover:border-blue-200 hover:shadow-md transition-all flex flex-col"
     >
       <div className="aspect-[4/5] bg-[#F1F5F9] overflow-hidden relative">
-        {hasNobel(p) && (
-          <NobelBadge
-            prizes={p.nobelPrizes}
-            variant="chip"
-            className="absolute left-2 top-2 z-10 drop-shadow-sm"
-          />
-        )}
         {p.imageUrl ? (
           <img
             src={p.imageUrl}
@@ -83,6 +76,9 @@ function ProfileCard({ p }: { p: FeaturedProfileSummary }) {
         <h3 className="font-semibold text-[#0F172A] leading-snug group-hover:text-blue-700 transition-colors">
           {p.name}
         </h3>
+        {hasNobel(p) && (
+          <NobelBadge prizes={p.nobelPrizes} variant="chip" className="mt-1.5" />
+        )}
         <p className="text-sm text-[#2563EB] font-medium mt-1">{p.field}</p>
         <p className="text-xs text-[#64748B] mt-0.5">{p.era}</p>
         {isLivingEra(p.era) && (

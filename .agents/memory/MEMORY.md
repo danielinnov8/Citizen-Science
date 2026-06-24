@@ -23,3 +23,4 @@
 - [Message hold-on-claim](message-hold-on-claim.md) — msgs to unclaimed LIVING members held (recipient null + profile_slug) & delivered on claim approve; isLivingEra dup'd client+server, keep in lockstep.
 - [Long-running seeds & bash hang](long-running-seeds-bash-hang.md) — bulk seeds hang the bash tool at exit -1; make idempotent/resumable + drive with timed `timeout -s KILL` foreground passes to a logfile.
 - [Contemporary vs historical classification](contemporary-profile-bc-era.md) — eyebrow uses lifespan; BC/short-year ranges must read as historical, not Modern Visionaries.
+- [Orval response-name collision](orval-response-name-collision.md) — never name a component schema {OperationId}Response; zod barrel re-exports value+type of same name → TS2308.

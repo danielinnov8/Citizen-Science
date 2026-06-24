@@ -27,6 +27,7 @@ export * from "./billingPrices";
 export * from "./bulkImportProspectsInput";
 export * from "./bulkImportResult";
 export * from "./challengeDetail";
+export * from "./challengeSolutionDetail";
 export * from "./challengeSolutionView";
 export * from "./challengeSummary";
 export * from "./challengeTeam";

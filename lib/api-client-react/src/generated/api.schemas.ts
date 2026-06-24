@@ -58,30 +58,7 @@ export interface ProfileSolutionItem {
   challengeUrgency: string;
 }
 
-export interface ChallengeSolutionView {
-  id: string;
-  challengeSlug: string;
-  /** @nullable */
-  userId: string | null;
-  authorName: string;
-  /** @nullable */
-  authorSlug: string | null;
-  title: string;
-  description: string;
-  approach: string;
-  /** @nullable */
-  link: string | null;
-  createdAt: string;
-  /** Net vote score (upvotes minus downvotes) */
-  voteScore: number;
-  /**
-   * The current user's vote direction (1, -1) or null if not voted
-   * @nullable
-   */
-  userVote: number | null;
-}
-
-export interface GetChallengeSolutionResponse {
+export interface ChallengeSolutionDetail {
   id: string;
   title: string;
   description: string;
@@ -103,6 +80,29 @@ export interface GetChallengeSolutionResponse {
   challengeUrgency: string;
   /** @nullable */
   challengeImageUrl: string | null;
+}
+
+export interface ChallengeSolutionView {
+  id: string;
+  challengeSlug: string;
+  /** @nullable */
+  userId: string | null;
+  authorName: string;
+  /** @nullable */
+  authorSlug: string | null;
+  title: string;
+  description: string;
+  approach: string;
+  /** @nullable */
+  link: string | null;
+  createdAt: string;
+  /** Net vote score (upvotes minus downvotes) */
+  voteScore: number;
+  /**
+   * The current user's vote direction (1, -1) or null if not voted
+   * @nullable
+   */
+  userVote: number | null;
 }
 
 /**

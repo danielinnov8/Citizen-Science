@@ -2024,7 +2024,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetChallengeSolutionResponse"
+                $ref: "#/components/schemas/ChallengeSolutionDetail"
         "404":
           description: Solution not found
           content:
@@ -2204,7 +2204,7 @@ components:
         - challengeTitle
         - challengeDomain
         - challengeUrgency
-    GetChallengeSolutionResponse:
+    ChallengeSolutionDetail:
       type: object
       properties:
         id:
