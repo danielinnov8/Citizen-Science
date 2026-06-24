@@ -41,3 +41,9 @@ id = "J1x8m53KMMedHzFUr7fqd"
 uri = "file://artifacts/citizen-science/public/opengraph.png"
 type = "image"
 title = "Open Graph image — Humanity's Research Network"
+
+[[outputs]]
+id = "h7guyLL9ogb4UyDxk79HZ"
+uri = "file://artifacts/citizen-science/public/favicon.svg"
+type = "image"
+title = "Citizen Science icon (favicon.svg)"
