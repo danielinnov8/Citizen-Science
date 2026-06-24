@@ -1380,6 +1380,69 @@ export function Landing() {
           </div>
         </section>
 
+        {/* HUMANITY'S GREATEST CHALLENGES */}
+        <section id="impact" className="border-b border-[#E2E8F0] bg-[#F8FAFC] py-24 lg:py-32">
+          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+            <Reveal>
+              <div className="mx-auto mb-16 max-w-2xl text-center">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                  Humanity's Greatest Challenges
+                </span>
+                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
+                  The problems that define our era.
+                </h2>
+                <p className="mt-5 text-lg leading-relaxed text-[#64748B]">
+                  Each one is solvable. None can be solved alone.
+                </p>
+              </div>
+            </Reveal>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {TOP_CHALLENGES.map((ch, i) => {
+                const Icon = ch.icon;
+                const urgencyColor =
+                  ch.urgency === "critical"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-amber-100 text-amber-700";
+                return (
+                  <Reveal key={ch.slug} delay={(i % 4) * 0.06}>
+                    <Link
+                      href={`/challenges/${ch.slug}`}
+                      className="group flex h-full flex-col rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-blue-200 hover:shadow-md"
+                    >
+                      <div className="mb-4 flex items-center gap-2">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${urgencyColor}`}>
+                          {ch.urgency}
+                        </span>
+                        <span className="text-[11px] font-medium text-[#94A3B8]">{ch.domain}</span>
+                      </div>
+                      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <h3 className="font-semibold leading-snug text-[#0F172A]">{ch.title}</h3>
+                      <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-[#64748B]">
+                        {ch.summary}
+                      </p>
+                      <div className="mt-auto flex items-center gap-1 pt-4 text-xs font-semibold text-blue-600 transition-all group-hover:gap-2">
+                        Explore challenge <ArrowRight className="h-3 w-3" />
+                      </div>
+                    </Link>
+                  </Reveal>
+                );
+              })}
+            </div>
+            <Reveal delay={0.2}>
+              <div className="mt-12 text-center">
+                <Link
+                  href="/challenges"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white px-6 py-2.5 text-sm font-semibold text-[#0F172A] shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
+                >
+                  View all 25 challenges <ArrowRight className="h-4 w-4 text-blue-600" />
+                </Link>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
         {/* VISION — THE BELIEF */}
         <section id="vision" className="bg-white py-32 lg:py-40">
           <div className="container mx-auto max-w-4xl px-4 text-center lg:px-8">
@@ -1569,69 +1632,6 @@ export function Landing() {
 
             <Reveal delay={0.1}>
               <PeopleNetwork />
-            </Reveal>
-          </div>
-        </section>
-
-        {/* HUMANITY'S GREATEST CHALLENGES */}
-        <section id="impact" className="border-y border-[#E2E8F0] bg-[#F8FAFC] py-32 lg:py-40">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-            <Reveal>
-              <div className="mx-auto mb-16 max-w-2xl text-center">
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
-                  Humanity's Greatest Challenges
-                </span>
-                <h2 className="mt-6 font-serif text-4xl tracking-tight lg:text-5xl">
-                  The problems that define our era.
-                </h2>
-                <p className="mt-5 text-lg leading-relaxed text-[#64748B]">
-                  Each one is solvable. None can be solved alone.
-                </p>
-              </div>
-            </Reveal>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {TOP_CHALLENGES.map((ch, i) => {
-                const Icon = ch.icon;
-                const urgencyColor =
-                  ch.urgency === "critical"
-                    ? "bg-red-100 text-red-700"
-                    : "bg-amber-100 text-amber-700";
-                return (
-                  <Reveal key={ch.slug} delay={(i % 4) * 0.06}>
-                    <Link
-                      href={`/challenges/${ch.slug}`}
-                      className="group flex h-full flex-col rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-blue-200 hover:shadow-md"
-                    >
-                      <div className="mb-4 flex items-center gap-2">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${urgencyColor}`}>
-                          {ch.urgency}
-                        </span>
-                        <span className="text-[11px] font-medium text-[#94A3B8]">{ch.domain}</span>
-                      </div>
-                      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <h3 className="font-semibold leading-snug text-[#0F172A]">{ch.title}</h3>
-                      <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-[#64748B]">
-                        {ch.summary}
-                      </p>
-                      <div className="mt-auto flex items-center gap-1 pt-4 text-xs font-semibold text-blue-600 transition-all group-hover:gap-2">
-                        Explore challenge <ArrowRight className="h-3 w-3" />
-                      </div>
-                    </Link>
-                  </Reveal>
-                );
-              })}
-            </div>
-            <Reveal delay={0.2}>
-              <div className="mt-12 text-center">
-                <Link
-                  href="/challenges"
-                  className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white px-6 py-2.5 text-sm font-semibold text-[#0F172A] shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
-                >
-                  View all 25 challenges <ArrowRight className="h-4 w-4 text-blue-600" />
-                </Link>
-              </div>
             </Reveal>
           </div>
         </section>
