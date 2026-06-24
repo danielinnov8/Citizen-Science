@@ -937,9 +937,6 @@ export function GreatMindStory({
                   {story.tagline}
                 </p>
               )}
-              {profile?.nobelPrizes && profile.nobelPrizes.length > 0 && (
-                <NobelBadge prizes={profile.nobelPrizes} className="mt-6" />
-              )}
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/80">
                 <span className="inline-flex items-center gap-2">
                   <Beaker className="h-4 w-4" style={{ color: theme.accent }} />
@@ -969,6 +966,10 @@ export function GreatMindStory({
                   {story.era}
                 </span>
               </div>
+
+              {profile?.nobelPrizes && profile.nobelPrizes.length > 0 && (
+                <NobelBadge prizes={profile.nobelPrizes} className="mt-6" />
+              )}
 
               {showTalk && (
                 <div className="mt-8">

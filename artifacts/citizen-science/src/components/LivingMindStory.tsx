@@ -514,9 +514,6 @@ export function LivingMindStory({
               <p className="mt-5 max-w-xl text-lg sm:text-xl text-white/75 leading-relaxed font-serif italic">
                 {story.tagline}
               </p>
-              {profile?.nobelPrizes && profile.nobelPrizes.length > 0 && (
-                <NobelBadge prizes={profile.nobelPrizes} className="mt-6" />
-              )}
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/80">
                 <span className="inline-flex items-center gap-2">
                   <Beaker className="h-4 w-4" style={{ color: theme.accent }} />
@@ -534,6 +531,9 @@ export function LivingMindStory({
                   {story.base}
                 </span>
               </div>
+              {profile?.nobelPrizes && profile.nobelPrizes.length > 0 && (
+                <NobelBadge prizes={profile.nobelPrizes} className="mt-6" />
+              )}
               <div className="mt-7 flex flex-wrap items-center gap-4">
                 <button
                   type="button"
