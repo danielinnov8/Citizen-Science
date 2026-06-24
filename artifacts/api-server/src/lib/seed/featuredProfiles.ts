@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import {
   db,
   featuredProfilesTable,
@@ -14,42 +13,30 @@ const SEED_PROFILES = seedData as InsertFeaturedProfile[];
  *
  * Replit's publish flow syncs the SCHEMA from dev to prod but never copies data,
  * so a freshly published production database starts empty and every DB-backed
- * profile page 404s. This seeder bridges that gap: on boot it checks whether the
- * table already has rows and, if empty, bulk-inserts the committed snapshot
- * (`data/featured-profiles.json`, produced by `dump-featured-profiles`).
- *
- * It is safe to run on every start and across multiple instances: it no-ops when
- * the table is already populated, and inserts use `ON CONFLICT (slug) DO NOTHING`
- * so concurrent boots can't create duplicates. Failures are logged, never thrown,
- * so seeding can never take the server down.
+ * profile page 404s. This seeder bridges that gap: on every boot it bulk-inserts
+ * the committed snapshot (`data/featured-profiles.json`, produced by
+ * `dump-featured-profiles`) using `ON CONFLICT (slug) DO NOTHING`, so existing
+ * rows are never overwritten and concurrent boots can't create duplicates.
+ * Failures are logged, never thrown, so seeding can never take the server down.
  */
 export async function seedFeaturedProfiles(): Promise<void> {
   try {
-    const [{ count }] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(featuredProfilesTable);
-
-    if (count > 0) {
-      logger.info(
-        { count },
-        "Featured profiles already present, skipping seed",
-      );
-      return;
-    }
-
     if (SEED_PROFILES.length === 0) {
       logger.warn("No featured-profile seed data available, skipping seed");
       return;
     }
 
-    await db
+    const result = await db
       .insert(featuredProfilesTable)
       .values(SEED_PROFILES)
       .onConflictDoNothing({ target: featuredProfilesTable.slug });
 
+    const inserted = result.rowCount ?? 0;
+    const skipped = SEED_PROFILES.length - inserted;
+
     logger.info(
-      { seeded: SEED_PROFILES.length },
-      "Seeded featured profiles into empty database",
+      { total: SEED_PROFILES.length, inserted, skipped },
+      "Featured profiles seed complete",
     );
   } catch (err) {
     logger.error({ err }, "Failed to seed featured profiles");
