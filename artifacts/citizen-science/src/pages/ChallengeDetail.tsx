@@ -29,6 +29,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
+import { simulatedSolutionVotes, displaySolutionScore } from "@/lib/challengeSim";
 
 const DOMAIN_COLORS: Record<string, { bg: string; text: string; border: string; accent: string }> = {
   climate:      { bg: "bg-emerald-50",  text: "text-emerald-700",  border: "border-emerald-200", accent: "#10B981" },
@@ -120,7 +121,7 @@ function VoteWidget({ solution, slug, isAuthenticated, onLoginRequired }: VoteWi
     voteMutation.mutate({ slug, solutionId: solution.id, data: { direction } });
   }
 
-  const score = solution.voteScore;
+  const score = solution.voteScore + simulatedSolutionVotes(solution.id);
   const userVote = solution.userVote;
   const pending = voteMutation.isPending;
 
@@ -195,6 +196,11 @@ export function ChallengeDetail() {
   const { data: solutions = [], isLoading: solutionsLoading } = useListChallengeSolutions(slug, {
     query: { queryKey: getListChallengeSolutionsQueryKey(slug), staleTime: 1000 * 30 },
   });
+
+  // Rank solutions by their displayed (simulated + real) upvote score.
+  const rankedSolutions = [...solutions].sort(
+    (a, b) => displaySolutionScore(b) - displaySolutionScore(a),
+  );
 
   const joinMutation = useJoinChallenge({
     mutation: {
@@ -548,7 +554,7 @@ export function ChallengeDetail() {
             </div>
           ) : (
             <div className="space-y-4">
-              {solutions.map((solution) => (
+              {rankedSolutions.map((solution) => (
                 <div
                   key={solution.id}
                   className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm"

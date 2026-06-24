@@ -21,6 +21,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
+import { displaySolutionScore } from "@/lib/challengeSim";
 
 const DOMAIN_COLORS: Record<string, { bg: string; text: string; border: string; accent: string; dark: string }> = {
   climate:         { bg: "bg-emerald-50",  text: "text-emerald-700",  border: "border-emerald-200", accent: "#10B981", dark: "#065F46" },
@@ -99,18 +100,19 @@ function PageVoteWidget({ solution, isAuthenticated, onLoginRequired }: PageVote
       >
         <ArrowUp className="h-5 w-5" />
       </button>
-      <span
-        className={cn(
-          "text-lg font-bold tabular-nums",
-          solution.voteScore > 0
-            ? "text-emerald-600"
-            : solution.voteScore < 0
-            ? "text-red-500"
-            : "text-[#94A3B8]",
-        )}
-      >
-        {solution.voteScore}
-      </span>
+      {(() => {
+        const score = displaySolutionScore(solution);
+        return (
+          <span
+            className={cn(
+              "text-lg font-bold tabular-nums",
+              score > 0 ? "text-emerald-600" : score < 0 ? "text-red-500" : "text-[#94A3B8]",
+            )}
+          >
+            {score}
+          </span>
+        );
+      })()}
       <button
         onClick={() => handleVote(-1)}
         disabled={pending}

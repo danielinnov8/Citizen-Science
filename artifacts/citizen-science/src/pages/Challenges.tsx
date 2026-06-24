@@ -1,9 +1,19 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Search, Users, Zap, ChevronRight, AlertTriangle } from "lucide-react";
+import {
+  Search,
+  Users,
+  Zap,
+  ChevronRight,
+  AlertTriangle,
+  ArrowBigUp,
+  LayoutGrid,
+  List as ListIcon,
+} from "lucide-react";
 import { useListChallenges, getListChallengesQueryKey } from "@workspace/api-client-react";
 import { cn } from "@/lib/utils";
+import { simulatedChallengeUpvotes } from "@/lib/challengeSim";
 
 function Reveal({
   children,
@@ -59,6 +69,7 @@ const ALL_DOMAINS = [
 export function Challenges() {
   const [search, setSearch] = useState("");
   const [activeDomain, setActiveDomain] = useState("All");
+  const [view, setView] = useState<"list" | "grid">("list");
 
   const { data: challenges = [], isLoading } = useListChallenges({
     query: { queryKey: getListChallengesQueryKey(), staleTime: 1000 * 60, refetchOnWindowFocus: false },
@@ -78,6 +89,8 @@ export function Challenges() {
           c.domain.toLowerCase().includes(q),
       );
     }
+    // Rank by upvotes (descending) so the most-supported challenges lead.
+    list.sort((a, b) => simulatedChallengeUpvotes(b.slug) - simulatedChallengeUpvotes(a.slug));
     return list;
   }, [challenges, activeDomain, search]);
 
@@ -166,6 +179,32 @@ export function Challenges() {
               );
             })}
           </div>
+          <div className="shrink-0 flex items-center gap-1 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-0.5">
+            <button
+              type="button"
+              onClick={() => setView("list")}
+              aria-label="List view"
+              aria-pressed={view === "list"}
+              className={cn(
+                "flex items-center justify-center h-7 w-7 rounded-md transition-colors",
+                view === "list" ? "bg-white text-[#0F172A] shadow-sm" : "text-[#94A3B8] hover:text-[#475569]",
+              )}
+            >
+              <ListIcon className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setView("grid")}
+              aria-label="Grid view"
+              aria-pressed={view === "grid"}
+              className={cn(
+                "flex items-center justify-center h-7 w-7 rounded-md transition-colors",
+                view === "grid" ? "bg-white text-[#0F172A] shadow-sm" : "text-[#94A3B8] hover:text-[#475569]",
+              )}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -189,11 +228,65 @@ export function Challenges() {
               Clear filters
             </button>
           </div>
+        ) : view === "list" ? (
+          <div className="space-y-2.5">
+            {filtered.map((challenge, i) => {
+              const ds = domainStyle(challenge.domain);
+              const urgency = URGENCY_CONFIG[challenge.urgency] ?? { label: challenge.urgency, color: "text-slate-500" };
+              const upvotes = simulatedChallengeUpvotes(challenge.slug);
+              return (
+                <Reveal key={challenge.slug} delay={Math.min(i * 0.03, 0.25)}>
+                  <Link href={`/challenges/${challenge.slug}`}>
+                    <div className="group flex items-center gap-4 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:border-blue-200 cursor-pointer">
+                      <div className="w-6 shrink-0 text-center text-sm font-bold text-[#CBD5E1]">
+                        {i + 1}
+                      </div>
+
+                      <div className="flex w-14 shrink-0 flex-col items-center gap-0.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] py-1.5">
+                        <ArrowBigUp className="h-4 w-4 text-emerald-500" />
+                        <span className="text-sm font-bold tabular-nums text-[#0F172A]">{upvotes}</span>
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                              ds.bg, ds.text,
+                            )}
+                          >
+                            <span className={cn("h-1.5 w-1.5 rounded-full", ds.dot)} />
+                            {challenge.domain}
+                          </span>
+                          <span className={cn("text-[10px] font-bold uppercase tracking-wide", urgency.color)}>
+                            {urgency.label}
+                          </span>
+                        </div>
+                        <h3 className="text-[15px] font-semibold text-[#0F172A] leading-snug group-hover:text-blue-700 transition-colors truncate">
+                          {challenge.title}
+                        </h3>
+                        <p className="text-[13px] text-[#64748B] leading-relaxed line-clamp-1">
+                          {challenge.summary}
+                        </p>
+                      </div>
+
+                      <span className="hidden sm:flex items-center gap-1 text-[12px] text-[#94A3B8] shrink-0">
+                        <Users className="h-3.5 w-3.5" />
+                        {challenge.memberCount.toLocaleString()}
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-[#CBD5E1] shrink-0 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" />
+                    </div>
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {filtered.map((challenge, i) => {
               const ds = domainStyle(challenge.domain);
               const urgency = URGENCY_CONFIG[challenge.urgency] ?? { label: challenge.urgency, color: "text-slate-500" };
+              const upvotes = simulatedChallengeUpvotes(challenge.slug);
               return (
                 <Reveal key={challenge.slug} delay={Math.min(i * 0.04, 0.3)}>
                   <Link href={`/challenges/${challenge.slug}`}>
@@ -222,12 +315,16 @@ export function Challenges() {
                       </p>
 
                       <div className="flex items-center justify-between mt-auto pt-3 border-t border-[#F1F5F9]">
-                        <span className="flex items-center gap-1 text-[12px] text-[#94A3B8]">
-                          <Users className="h-3.5 w-3.5" />
-                          {challenge.memberCount.toLocaleString()}
-                          {" "}
-                          {challenge.memberCount === 1 ? "member" : "members"}
-                        </span>
+                        <div className="flex items-center gap-3 text-[12px] text-[#94A3B8]">
+                          <span className="flex items-center gap-1 font-semibold text-emerald-600">
+                            <ArrowBigUp className="h-3.5 w-3.5" />
+                            {upvotes}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3.5 w-3.5" />
+                            {challenge.memberCount.toLocaleString()}
+                          </span>
+                        </div>
                         <span className="flex items-center gap-1 text-[12px] font-medium text-blue-600 group-hover:translate-x-0.5 transition-transform">
                           Explore <ChevronRight className="h-3.5 w-3.5" />
                         </span>
