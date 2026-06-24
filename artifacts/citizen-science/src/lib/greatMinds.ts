@@ -7,6 +7,7 @@
 // profile page merges in its related categories, sources, and patents.
 
 import einsteinPhoto from "@assets/albert-einstein.jpg";
+import { isLivingEra } from "./living";
 
 export interface StoryTimelineEntry {
   year: string;
@@ -51,7 +52,7 @@ export interface GreatMindStory {
   name: string;
   field: string;
   // Hero pill label. Defaults to "Great Minds of the Past" in the component;
-  // contemporary/living figures built from the DB get "Modern Visionaries".
+  // living figures built from the DB get "Currently Active".
   eyebrow?: string;
   era: string; // descriptive era, e.g. "Modern Physics"
   lifespan: string; // e.g. "1879 – 1955"
@@ -1195,27 +1196,21 @@ function summaryToBiography(summary: string): string[] {
   ].filter(Boolean);
 }
 
-// A DB profile row describes a living/contemporary figure (not a historical
-// "great mind of the past") when its era reads as present-tense or when its
-// lifespan lacks a closed "YYYY – YYYY" range (historical figures always carry
-// a death year; the living do not). Used to pick the hero pill label.
-function isContemporaryProfile(
+// Decide the hero pill for a DB story row. A figure reads as LIVING only when
+// the lifespan does not encode a death: a closed birth–death range (any year
+// length, optional "c." prefix) or a BC/BCE date always means deceased — even
+// when `era` is descriptive (e.g. "Classical Antiquity" with lifespan
+// "287 BCE – 212 BCE"). Otherwise defer to the canonical era-based check, which
+// treats open lifespans like "b. 1943" and present-tense eras as living.
+function isLivingStoryProfile(
   era: string,
   lifespan: string | null | undefined,
 ): boolean {
-  if (/\b(contemporary|present|living|today|current|21st)\b/i.test(era)) {
-    return true;
-  }
   if (lifespan) {
-    // Ancient figures (e.g. "c. 325 BC – c. 265 BC") are always historical.
     if (/\bbce?\b/i.test(lifespan)) return false;
-    // A closed birth–death range (years of any length, optional "c." prefix)
-    // means the figure is deceased — historical, not contemporary.
     if (/\d{1,4}\s*[–—-]\s*(?:c\.?\s*)?\d{1,4}/.test(lifespan)) return false;
-    // Otherwise (e.g. "b. 1947", "since the 1960s") treat as living/modern.
-    return true;
   }
-  return false;
+  return isLivingEra(era);
 }
 
 // Build a cinematic `GreatMindStory` from a database profile row. Returns null
@@ -1258,8 +1253,8 @@ export function buildStoryFromProfile(
     slug: profile.slug,
     name: profile.name,
     field: profile.field,
-    eyebrow: isContemporaryProfile(profile.era, profile.lifespan)
-      ? "Modern Visionaries"
+    eyebrow: isLivingStoryProfile(profile.era, profile.lifespan)
+      ? "Currently Active"
       : "Great Minds of the Past",
     era: profile.era,
     lifespan: profile.lifespan ?? "",
