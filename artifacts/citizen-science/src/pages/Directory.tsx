@@ -100,7 +100,7 @@ export function Directory() {
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState(ALL);
   const [field, setField] = useState(ALL);
-  const [era, setEra] = useState(ALL);
+  const [era, setEra] = useState<"all" | "past" | "present">("all");
   const [nobel, setNobel] = useState(ALL);
   const [nobelCategory, setNobelCategory] = useState(ALL);
   const [awardYear, setAwardYear] = useState(ALL);
@@ -117,10 +117,6 @@ export function Directory() {
   );
   const fields = useMemo(
     () => Array.from(new Set(profiles.map((p) => p.field))).sort(),
-    [profiles],
-  );
-  const eras = useMemo(
-    () => Array.from(new Set(profiles.map((p) => p.era))).sort(),
     [profiles],
   );
   const nobelCategories = useMemo(
@@ -155,7 +151,8 @@ export function Directory() {
     return profiles.filter((p) => {
       if (group !== ALL && p.group !== group) return false;
       if (field !== ALL && p.field !== field) return false;
-      if (era !== ALL && p.era !== era) return false;
+      if (era === "past" && isLivingEra(p.era)) return false;
+      if (era === "present" && !isLivingEra(p.era)) return false;
       const prizes = p.nobelPrizes ?? [];
       if (nobelActive && prizes.length === 0) return false;
       if (
@@ -237,19 +234,21 @@ export function Directory() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={era} onValueChange={setEra}>
-          <SelectTrigger className="bg-white md:w-44">
-            <SelectValue placeholder="All eras" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>All eras</SelectItem>
-            {eras.map((e) => (
-              <SelectItem key={e} value={e}>
-                {e}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-1 rounded-lg border border-[#E2E8F0] bg-white p-1">
+          {(["past", "present"] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setEra(era === v ? "all" : v)}
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                era === v
+                  ? "bg-[#0F172A] text-white"
+                  : "text-[#64748B] hover:text-[#0F172A]"
+              }`}
+            >
+              {v === "past" ? "Of the past" : "Of the present"}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Nobel filters */}
