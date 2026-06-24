@@ -9,6 +9,54 @@ function planIdFromMeta(planId: string | null | undefined): PlanId | null {
   return null;
 }
 
+/** A minimal shape of a Stripe checkout line item (price metadata + quantity). */
+export type CheckoutLineItem = {
+  quantity?: number | null;
+  price?: {
+    metadata?: Record<string, string> | null;
+    // The product may be expanded (object) or just an id (string).
+    product?: unknown;
+  } | null;
+};
+
+/**
+ * Compute the effects of a one-time checkout from its line items in a SINGLE
+ * pass: the total credits to grant (top-up packs) and the lifetime plan to set
+ * (founding member). Each line item contributes exactly once — a founding item
+ * grants its plan; any other item carrying a `creditAmount` grants that many
+ * credits (× quantity). Pure and side-effect free so it is easy to unit test.
+ */
+export function summarizeCheckoutLineItems(items: CheckoutLineItem[]): {
+  totalCredits: number;
+  purchasedPlanId: string | null;
+} {
+  let totalCredits = 0;
+  let purchasedPlanId: string | null = null;
+
+  for (const item of items) {
+    const price = item.price;
+    const meta: Record<string, string> = price?.metadata ?? {};
+    const productMeta: Record<string, string> =
+      typeof price?.product === "object" && price?.product !== null
+        ? ((price.product as { metadata?: Record<string, string> }).metadata ??
+          {})
+        : {};
+
+    const itemType = meta["type"] ?? productMeta["type"];
+    const creditStr = meta["creditAmount"] ?? productMeta["creditAmount"];
+    const planStr = meta["planId"] ?? productMeta["planId"];
+
+    if (itemType === "founding" && planStr) {
+      purchasedPlanId = planStr;
+    } else if (creditStr) {
+      const qty = item.quantity ?? 1;
+      totalCredits += Number(creditStr) * qty;
+    }
+  }
+
+  return { totalCredits, purchasedPlanId };
+}
+
 /**
  * Resolve the webhook signing secret. Prefers the managed-webhook secret
  * stored in stripe."_managed_webhooks" by stripe-replit-sync (always present
@@ -142,49 +190,12 @@ export class WebhookHandlers {
           { limit: 10, expand: ["data.price.product"] },
         );
 
-        let totalCredits = 0;
-        for (const item of lineItems.data) {
-          const price = item.price;
-          const meta: Record<string, string> = price?.metadata ?? {};
-          const productMeta: Record<string, string> =
-            typeof price?.product === "object"
-              ? ((price.product as { metadata?: Record<string, string> })
-                  .metadata ?? {})
-              : {};
-
-          const creditStr =
-            meta["creditAmount"] ?? productMeta["creditAmount"];
-          if (creditStr) {
-            const qty = item.quantity ?? 1;
-            totalCredits += Number(creditStr) * qty;
-          }
-        }
-
-        // Determine the purchased product type from line-item metadata.
-        // founding → grant planId as lifetime plan; topup → add credits.
-        let purchasedPlanId: string | null = null;
-
-        for (const item of lineItems.data) {
-          const price = item.price;
-          const meta: Record<string, string> = price?.metadata ?? {};
-          const productMeta: Record<string, string> =
-            typeof price?.product === "object"
-              ? ((price.product as { metadata?: Record<string, string> })
-                  .metadata ?? {})
-              : {};
-
-          const itemType = meta["type"] ?? productMeta["type"];
-          const creditStr =
-            meta["creditAmount"] ?? productMeta["creditAmount"];
-          const planStr = meta["planId"] ?? productMeta["planId"];
-
-          if (itemType === "founding" && planStr) {
-            purchasedPlanId = planStr;
-          } else if (creditStr) {
-            const qty = item.quantity ?? 1;
-            totalCredits += Number(creditStr) * qty;
-          }
-        }
+        // Single pass over the line items: founding → lifetime plan upgrade,
+        // top-up packs → credits. Each item contributes exactly once (a prior
+        // bug summed credits across two loops, double-crediting top-ups).
+        const { totalCredits, purchasedPlanId } = summarizeCheckoutLineItems(
+          lineItems.data as CheckoutLineItem[],
+        );
 
         const [user] = await db
           .select({ id: usersTable.id, plan: usersTable.plan })
