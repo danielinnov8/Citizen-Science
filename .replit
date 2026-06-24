@@ -47,3 +47,8 @@ externalPort = 3000
 [nix]
 packages = ["dig"]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.production]
+STRIPE_SECRET_KEY = "sk_test_51TjinQRJfJvBa4zAXtYJUaei0hhYCdPxJH3bW5qZf1wzahqKHAgV9WZtt9rrMEFKzg11DcoOMCXcHM2UTIMQg1dt00XJjs3SYN"
