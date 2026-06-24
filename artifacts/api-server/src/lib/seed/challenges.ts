@@ -345,6 +345,19 @@ const CHALLENGES: ChallengeSeedRow[] = [
       { name: "Malala Fund", description: "Championing 12 years of free, quality education for every girl.", url: "https://malala.org" },
     ],
   },
+  {
+    slug: "multiplanetary-life",
+    title: "Make Life Multiplanetary",
+    domain: "space",
+    urgency: "critical",
+    summary: "Establish a self-sustaining human presence beyond Earth to ensure the long-term survival of civilization.",
+    whyItMatters: "Every species that has ever lived on Earth has faced the risk of extinction from a single planetary catastrophe. A self-sustaining civilisation on at least one other world transforms humanity from a single-point-of-failure species into a multi-planetary one. The window to build this insurance policy — before climate change, AI risk, or astronomical events close it — is measured in decades, not centuries.",
+    teams: [
+      { name: "SpaceX", description: "Developing Starship to make life multiplanetary, targeting Mars within this decade.", url: "https://www.spacex.com" },
+      { name: "NASA Artemis", description: "Returning humans to the Moon as the proving ground for deep-space exploration.", url: "https://www.nasa.gov/artemis" },
+      { name: "Mars Society", description: "Advocacy and research organisation devoted to human exploration and settlement of Mars.", url: "https://www.marssociety.org" },
+    ],
+  },
 ];
 
 /**
@@ -376,6 +389,64 @@ export async function seedChallenges(): Promise<void> {
     logger.info({ seeded: rows.length }, "Seeded humanity's greatest challenges");
   } catch (err) {
     logger.error({ err }, "Failed to seed challenges");
+  }
+}
+
+/**
+ * Idempotently inserts the "multiplanetary-life" challenge.
+ * Safe to call even when the DB already has other challenges.
+ */
+export async function seedMultiplanetaryChallenge(): Promise<void> {
+  try {
+    const entry = CHALLENGES.find((c) => c.slug === "multiplanetary-life")!;
+    await db
+      .insert(challengesTable)
+      .values({ ...entry, teamsJson: JSON.stringify(entry.teams) })
+      .onConflictDoNothing({ target: challengesTable.slug });
+    logger.info("Multiplanetary-life challenge seeded (or already present)");
+  } catch (err) {
+    logger.error({ err }, "Failed to seed multiplanetary-life challenge");
+  }
+}
+
+/**
+ * Seeds Elon Musk's solution on the "Make Life Multiplanetary" challenge.
+ * Idempotent: skips if a solution with author_slug="elon-musk" already
+ * exists on that challenge. Failures are logged, never thrown.
+ */
+export async function seedElonSolution(): Promise<void> {
+  try {
+    const [existing] = await db
+      .select({ id: challengeSolutionsTable.id })
+      .from(challengeSolutionsTable)
+      .where(
+        and(
+          eq(challengeSolutionsTable.challengeSlug, "multiplanetary-life"),
+          eq(challengeSolutionsTable.authorSlug, "elon-musk"),
+        ),
+      );
+
+    if (existing) {
+      logger.info("Elon Musk multiplanetary solution already seeded, skipping");
+      return;
+    }
+
+    await db.insert(challengeSolutionsTable).values({
+      challengeSlug: "multiplanetary-life",
+      userId: null,
+      authorName: "Elon Musk",
+      authorSlug: "elon-musk",
+      title: "Fully Reusable Rockets",
+      description:
+        "Radical cost reduction through full rocket reusability is the single enabling technology for a multiplanetary civilisation. A fully and rapidly reusable launch system — like Starship — reduces the cost per kilogram to orbit by a factor of 1,000, making the economics of Mars colonisation viable within a generation.",
+      approach:
+        "Design rockets that land themselves back at the launch pad and can be reflown within hours, just like aircraft. Starship achieves this through a stainless-steel airframe, a full-flow staged-combustion Raptor engine, and a 'catch' mechanism at the launch tower that eliminates landing legs. By reusing the most expensive hardware on every flight, the marginal cost of a launch approaches the cost of propellant alone (~$1M vs $60M+ for expendable rockets). At scale, this enables 1,000-ship fleets ferrying 100 people each to Mars every two years during launch windows — the cadence required to build a self-sustaining city of one million.",
+      link: "https://www.spacex.com/vehicles/starship/",
+    });
+
+    logger.info("Seeded Elon Musk multiplanetary-life solution");
+  } catch (err) {
+    logger.error({ err }, "Failed to seed Elon Musk solution");
   }
 }
 
