@@ -5,6 +5,21 @@ export async function getStripeCredentials(): Promise<{
   secretKey: string;
   webhookSecret?: string;
 }> {
+  // On non-Replit hosts (e.g. the user's own Cloud Run deployment) the Replit
+  // connectors API and its REPL_IDENTITY / WEB_REPL_RENEWAL tokens do not exist,
+  // so the managed Stripe connector is unreachable. Prefer an explicit
+  // STRIPE_SECRET_KEY from the environment when present (mirrors how the app uses
+  // its own GEMINI_API_KEY for AI on Cloud Run); fall back to the Replit
+  // connector in the Replit dev environment.
+  const envSecret = process.env.STRIPE_SECRET_KEY?.trim();
+  if (envSecret) {
+    const envWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
+    return {
+      secretKey: envSecret,
+      webhookSecret: envWebhookSecret || undefined,
+    };
+  }
+
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xReplitToken = process.env.REPL_IDENTITY
     ? "repl " + process.env.REPL_IDENTITY

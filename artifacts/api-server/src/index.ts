@@ -68,10 +68,18 @@ async function initStripe(): Promise<void> {
     // 2. Get a StripeSync instance (after migrations so the schema exists).
     const stripeSync = await getStripeSync();
 
-    // 3. Register or locate the managed webhook for this deployment.
-    const domain = (process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim();
-    if (domain) {
-      const webhookUrl = `https://${domain}/api/stripe/webhook`;
+    // 3. Register or locate the managed webhook for this deployment. Prefer
+    //    PUBLIC_BASE_URL (set on the user's own Cloud Run host, where
+    //    REPLIT_DOMAINS does not exist) and fall back to REPLIT_DOMAINS on
+    //    Replit — mirrors the success/cancel/return URL derivation in
+    //    routes/billing.ts and the OAuth redirect derivation.
+    const base =
+      process.env.PUBLIC_BASE_URL?.replace(/\/+$/, "") ||
+      (process.env.REPLIT_DOMAINS
+        ? `https://${process.env.REPLIT_DOMAINS.split(",")[0]?.trim()}`
+        : "");
+    if (base) {
+      const webhookUrl = `${base}/api/stripe/webhook`;
       await stripeSync.findOrCreateManagedWebhook(webhookUrl);
       logger.info({ webhookUrl }, "Stripe webhook configured");
     }

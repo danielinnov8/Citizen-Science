@@ -71,6 +71,17 @@ Cloud Run build, NOT Replit Publish.
 - `DATABASE_URL` (a real Postgres must still be provisioned + migrated for login),
   `SESSION_SECRET`, `GEMINI_API_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
   `PUBLIC_BASE_URL`.
+- `STRIPE_SECRET_KEY` — REQUIRED for any Stripe feature on Cloud Run. The
+  Replit Stripe **connector is unreachable on Cloud Run** (needs
+  `REPLIT_CONNECTORS_HOSTNAME` + `REPL_IDENTITY`/`WEB_REPL_RENEWAL`, none of which
+  exist there), so `getStripeCredentials()` now prefers `STRIPE_SECRET_KEY` from
+  env and only falls back to the connector in Replit dev — same precedent as the
+  AI-proxy/GEMINI fix. Use the **test-mode** key (`sk_test_…`) to verify with card
+  4242 (no real money). `STRIPE_WEBHOOK_SECRET` is OPTIONAL: `initStripe`
+  auto-registers a managed webhook (built off `PUBLIC_BASE_URL`, not
+  `REPLIT_DOMAINS`) and stores its signing secret in `stripe."_managed_webhooks"`.
+  Symptom of the missing key: `/api/billing/prices` returns empty arrays, checkout
+  503s, no products backfill — because `initStripe` step 2 (`getStripeSync`) throws.
 - `D_ID_API_KEY` — required for the "Talk to Albert" live avatar. A missing key
   is the cause of the in-app "live avatar isn't configured yet" message.
 - `YOUTUBE_API_KEY` — required for the copilot's verified-video cards.
