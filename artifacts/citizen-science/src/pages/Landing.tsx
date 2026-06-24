@@ -1413,13 +1413,13 @@ export function Landing() {
                       className="group flex h-full flex-col rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-blue-200 hover:shadow-md"
                     >
                       <div className="mb-4 flex items-center gap-2">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                          <Icon className="h-4 w-4" />
+                        </div>
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${urgencyColor}`}>
                           {ch.urgency}
                         </span>
                         <span className="text-[11px] font-medium text-[#94A3B8]">{ch.domain}</span>
-                      </div>
-                      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
-                        <Icon className="h-5 w-5" />
                       </div>
                       <h3 className="font-semibold leading-snug text-[#0F172A]">{ch.title}</h3>
                       <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-[#64748B]">
