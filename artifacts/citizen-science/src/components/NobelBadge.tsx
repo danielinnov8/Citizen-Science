@@ -24,9 +24,7 @@ export function NobelBadge({
   const isChip = variant === "chip";
   const pill = (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 font-semibold text-amber-800 ${
-        isChip ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs"
-      }`}
+      className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 font-semibold text-amber-800 px-2.5 py-1 text-xs mt-[15px] mb-[15px]"
     >
       <Award className={isChip ? "h-3 w-3" : "h-3.5 w-3.5"} />
       Nobel Laureate
