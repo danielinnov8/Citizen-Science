@@ -2,6 +2,7 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { seedFeaturedProfiles } from "./lib/seed/featuredProfiles";
 import { seedChallenges as seedChallengesData, seedManuSolution, seedMultiplanetaryChallenge, seedElonSolution } from "./lib/seed/challenges";
+import { seedChallengeContributors } from "./lib/seed/challenge-contributors";
 import { startMigrations } from "./lib/startup/migrations";
 import { runMigrations } from "stripe-replit-sync";
 import { getStripeSync } from "./lib/stripe/stripeClient";
@@ -43,7 +44,8 @@ app.listen(port, (err) => {
     void seedChallengesData()
       .then(() => seedMultiplanetaryChallenge())
       .then(() => seedElonSolution())
-      .then(() => seedManuSolution());
+      .then(() => seedManuSolution())
+      .then(() => seedChallengeContributors());
     void initStripe();
   });
 });

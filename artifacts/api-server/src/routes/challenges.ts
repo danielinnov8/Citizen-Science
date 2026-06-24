@@ -41,6 +41,8 @@ router.get("/challenges", async (req, res) => {
     const userId = await optionalUserId(req);
     const rows = await db.select().from(challengesTable).orderBy(challengesTable.slug);
 
+    // "People working on it" = formal members + distinct solution authors
+    // (implicit contributors). Kept consistent with GET /challenges/:slug.
     const memberCounts = await db
       .select({
         challengeSlug: challengeMembersTable.challengeSlug,
@@ -49,9 +51,21 @@ router.get("/challenges", async (req, res) => {
       .from(challengeMembersTable)
       .groupBy(challengeMembersTable.challengeSlug);
 
+    const authorCounts = await db
+      .select({
+        challengeSlug: challengeSolutionsTable.challengeSlug,
+        cnt: sql<number>`COUNT(DISTINCT ${challengeSolutionsTable.authorSlug})`,
+      })
+      .from(challengeSolutionsTable)
+      .where(sql`${challengeSolutionsTable.authorSlug} IS NOT NULL`)
+      .groupBy(challengeSolutionsTable.challengeSlug);
+
     const countMap: Record<string, number> = {};
     for (const { challengeSlug, cnt } of memberCounts) {
       countMap[challengeSlug] = cnt;
+    }
+    for (const { challengeSlug, cnt } of authorCounts) {
+      countMap[challengeSlug] = (countMap[challengeSlug] ?? 0) + Number(cnt);
     }
 
     let joinedSlugs = new Set<string>();
