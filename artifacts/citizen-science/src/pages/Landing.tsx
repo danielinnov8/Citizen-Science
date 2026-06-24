@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown, Smartphone, Users, Eye, Lightbulb, Wheat, ShieldCheck, GraduationCap, Handshake, Wrench, Building2, UserPlus, Cpu, Mail, Twitter, Linkedin, Github, Youtube, Send, MapPin, Zap } from "lucide-react";
+import { Leaf, Droplet, FlaskConical, HeartPulse, Microscope, UtensilsCrossed, Sprout, Brain, CloudSun, Telescope, Layers, Globe2, ArrowRight, Check, Sparkles, Activity, BookOpen, PenTool, BookMarked, Save, Wand2, CornerDownLeft, ChevronDown, Smartphone, Users, Eye, Lightbulb, Wheat, ShieldCheck, GraduationCap, Handshake, Wrench, Building2, UserPlus, Cpu, Mail, Twitter, Linkedin, Github, Youtube, Send, MapPin, Zap, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1105,12 +1105,12 @@ const PILLARS = [
 
 const TOP_CHALLENGES = [
   {
-    slug: "climate-change",
-    title: "Halt Catastrophic Climate Change",
-    domain: "Climate",
+    slug: "multiplanetary-life",
+    title: "Make Life Multiplanetary",
+    domain: "Space",
     urgency: "critical" as const,
-    summary: "Limit global warming to 1.5°C to prevent irreversible damage to ecosystems and human civilization.",
-    icon: CloudSun,
+    summary: "Establish a self-sustaining human presence beyond Earth to ensure the long-term survival of civilization.",
+    icon: Rocket,
   },
   {
     slug: "clean-energy-access",
