@@ -1397,7 +1397,10 @@ export function Landing() {
               </div>
             </Reveal>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {TOP_CHALLENGES.map((ch, i) => {
+              {[...TOP_CHALLENGES].sort((a, b) => {
+                const order = { critical: 0, high: 1, medium: 2 };
+                return (order[a.urgency] ?? 9) - (order[b.urgency] ?? 9);
+              }).map((ch, i) => {
                 const Icon = ch.icon;
                 const urgencyColor =
                   ch.urgency === "critical"
