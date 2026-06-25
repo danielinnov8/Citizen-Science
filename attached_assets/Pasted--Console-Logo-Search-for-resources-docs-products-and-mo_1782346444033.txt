@@ -1,0 +1,323 @@
+
+Console Logo
+Search (/) for resources, docs, products, and more
+
+Cloud Build
+/
+/
+Build details
+ Successful: 7b262456-6af3-4dc4-bd0b-b2d3d06b7b31
+Started on Jun 24, 2026, 8:07:51 PM
+
+Trigger
+rmgpgab-citizen-science-api-us-east1-danielinnov8-Citizen-Scyls
+Source
+danielinnov8/Citizen-Science 
+Branch
+main
+Commit
+0584147 
+Steps
+Duration
+Build Summary
+3 Steps
+00:02:44
+0: Build
+build --no-cache -t us-east1-docker.pkg.dev/citizen-science-498402/cloud-run-source-deploy/citizen-science/citizen-science-api:058414746ff3a0259a383905388e25785fabbfa4 . -f Dockerfile
+00:01:45
+1: Push
+push us-east1-docker.pkg.dev/citizen-science-498402/cloud-run-source-deploy/citizen-science/citizen-science-api:058414746ff3a0259a383905388e25785fabbfa4
+00:00:09
+2: Deploy
+gcloud run services update citizen-science-api --platform=managed --image=us-east1-docker.pkg.dev/citizen-science-498402/cloud-run-source-deploy/citizen-science/citizen-science-api:058414746ff3a0259a383905388e25785fabbfa4 --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=058414746ff3a0259a383905388e25785fabbfa4,gcb-build-id=7b262456-6af3-4dc4-bd0b-b2d3d06b7b31,gcb-trigger-id=f7efce4b-0912-4afc-adb8-b10562ce3330 --region=us-east1 --quiet
+00:00:38
+Build Summary
+Build log
+Execution details
+Build artifacts
+Log viewer toolbar
+When enabled, log entries which do not fit on one line wrap to the next line.
+When enabled, log entries appear in reverse chronological order.
+When enabled, log entries are shown with timestamps.
+starting build "7b262456-6af3-4dc4-bd0b-b2d3d06b7b31"
+FETCHSOURCE
+From https://github.com/danielinnov8/Citizen-Science
+ * branch            058414746ff3a0259a383905388e25785fabbfa4 -> FETCH_HEAD
+HEAD is now at 0584147 Update screenshot to show product catalog details
+GitCommit:
+058414746ff3a0259a383905388e25785fabbfa4
+BUILD
+Starting Step #0 - "Build"
+Already have image (with digest): gcr.io/cloud-builders/docker
+Sending build context to Docker daemon  72.71MB
+Step 1/19 : FROM node:24-slim AS builder
+24-slim: Pulling from library/node
+68629629b516: Pulling fs layer
+fde66df71f63: Pulling fs layer
+6a1d6381a27f: Pulling fs layer
+37c6775b2d20: Pulling fs layer
+90c0c1ae6457: Pulling fs layer
+fde66df71f63: Verifying Checksum
+fde66df71f63: Download complete
+90c0c1ae6457: Download complete
+37c6775b2d20: Verifying Checksum
+37c6775b2d20: Download complete
+68629629b516: Verifying Checksum
+68629629b516: Download complete
+6a1d6381a27f: Verifying Checksum
+6a1d6381a27f: Download complete
+68629629b516: Pull complete
+fde66df71f63: Pull complete
+6a1d6381a27f: Pull complete
+37c6775b2d20: Pull complete
+90c0c1ae6457: Pull complete
+Digest: sha256:b31e7a42fdf8b8aa5f5ed477c72d694301273f1069c5a2f71d53c6482e99a2fc
+Status: Downloaded newer image for node:24-slim
+ ---> fdff267bf205
+Step 2/19 : RUN corepack enable && corepack prepare pnpm@10.26.1 --activate
+ ---> Running in 9f50bf6e661d
+Preparing pnpm@10.26.1 for immediate activation...
+Removing intermediate container 9f50bf6e661d
+ ---> 8adeae399f63
+Step 3/19 : WORKDIR /repo
+ ---> Running in d3971035d0fc
+Removing intermediate container d3971035d0fc
+ ---> 5877590556f5
+Step 4/19 : COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+ ---> cd3c7ce62754
+Step 5/19 : COPY lib ./lib
+ ---> 0315cda1c41e
+Step 6/19 : COPY artifacts ./artifacts
+ ---> b4b6ae2c9577
+Step 7/19 : COPY scripts ./scripts
+ ---> f1ce38372b5f
+Step 8/19 : COPY tsconfig.base.json tsconfig.json ./
+ ---> 97645ef6721d
+Step 9/19 : RUN pnpm install --frozen-lockfile
+ ---> Running in 1cf4c7f8b3cc
+Scope: all 13 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +627
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   ╭──────────────────────────────────────────────╮
+   │                                              │
+   │     Update available! 10.26.1 → 11.9.0.      │
+   │     Changelog: https://pnpm.io/v/11.9.0      │
+   │   To update, run: corepack use pnpm@11.9.0   │
+   │                                              │
+   ╰──────────────────────────────────────────────╯
+Progress: resolved 627, reused 0, downloaded 59, added 19
+Progress: resolved 627, reused 0, downloaded 182, added 83
+Progress: resolved 627, reused 0, downloaded 298, added 187
+Progress: resolved 627, reused 0, downloaded 381, added 219
+Progress: resolved 627, reused 0, downloaded 385, added 219
+Progress: resolved 627, reused 0, downloaded 396, added 223
+Progress: resolved 627, reused 0, downloaded 465, added 248
+Progress: resolved 627, reused 0, downloaded 521, added 277
+Progress: resolved 627, reused 0, downloaded 586, added 302
+Progress: resolved 627, reused 0, downloaded 627, added 335
+Progress: resolved 627, reused 0, downloaded 627, added 583
+Progress: resolved 627, reused 0, downloaded 627, added 627, done
+.../node_modules/protobufjs postinstall$ node scripts/postinstall
+.../esbuild@0.27.3/node_modules/esbuild postinstall$ node install.js
+.../node_modules/protobufjs postinstall: Done
+.../esbuild@0.27.3/node_modules/esbuild postinstall: Done
+.../node_modules/@google/genai preinstall$ echo 'preinstall: no-op'
+.../node_modules/@google/genai preinstall: preinstall: no-op
+.../node_modules/@google/genai preinstall: Done
+dependencies:
++ stripe 22.2.1
++ stripe-replit-sync 1.0.0
+devDependencies:
++ prettier 3.8.1
++ typescript 5.9.3
+. preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+. preinstall: Done
+Done in 12.6s using pnpm v10.26.1
+Removing intermediate container 1cf4c7f8b3cc
+ ---> d985b47d9eb6
+Step 10/19 : RUN pnpm --filter @workspace/api-server run build
+ ---> Running in 73f3e2436822
+> @workspace/api-server@0.0.0 build /repo/artifacts/api-server
+> node ./build.mjs
+  dist/index.mjs                       4.6mb ⚠️
+  dist/pino-worker.mjs               153.4kb
+  dist/pino-file.mjs                 142.0kb
+  dist/pino-pretty.mjs               114.6kb
+  dist/thread-stream-worker.mjs        7.3kb
+  dist/index.mjs.map                   6.2mb
+  dist/pino-worker.mjs.map           256.9kb
+  dist/pino-file.mjs.map             229.0kb
+  dist/pino-pretty.mjs.map           203.9kb
+  dist/thread-stream-worker.mjs.map   12.0kb
+⚡ Done in 602ms
+Removing intermediate container 73f3e2436822
+ ---> 747883049204
+Step 11/19 : COPY attached_assets ./attached_assets
+ ---> c65abd42ff45
+Step 12/19 : RUN PORT=3000 BASE_PATH=/ pnpm --filter @workspace/citizen-science run build
+ ---> Running in 4c6e126c3f73
+> @workspace/citizen-science@0.0.0 build /repo/artifacts/citizen-science
+> vite build
+vite v7.3.2 building client environment for production...
+transforming...
+src/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+src/components/ui/label.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+src/components/ui/progress.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+src/components/ui/avatar.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+src/components/ui/select.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+✓ 3416 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/public/index.html                                                                       2.91 kB │ gzip:   1.00 kB
+dist/public/assets/65ee191f9cc09e354404b538_Peter_Diamandis_1780697654112-BpN2s8wg.webp     88.13 kB
+dist/public/assets/starman-tesla-roadster-DHqaCjTC.jpg                                     100.46 kB
+dist/public/assets/earth_specular-6aAFN27D.jpg                                             223.42 kB
+dist/public/assets/moonshot-dave-blundin-Dx6iovYr.webp                                     338.52 kB
+dist/public/assets/image_1780677287488-CPhcP9Ln.jpeg                                       489.41 kB
+dist/public/assets/earth_color-d1pdJ3jg.jpg                                                512.61 kB
+dist/public/assets/cover-peter-diamandis-BuR2ZIoy.png                                    1,221.92 kB
+dist/public/assets/cover-dave-blundin-Bk9KFl8f.png                                       1,315.15 kB
+dist/public/assets/cover-salim-ismail-CdT7zEdk.png                                       1,385.62 kB
+dist/public/assets/image_1780697674289-BtiYxzG3.png                                      1,391.99 kB
+dist/public/assets/cover-alexander-wissner-gross-DZRNzqT9.png                            1,420.26 kB
+dist/public/assets/Alex_W_G_1780704314284-CAwN-FTf.png                                   4,946.43 kB
+dist/public/assets/albert-einstein-Bmzo_y3B.jpg                                          8,907.53 kB
+dist/public/assets/index-BSocq-aI.css                                                      219.10 kB │ gzip:  33.16 kB
+dist/public/assets/index-DoMmP3Uz.js                                                     3,053.34 kB │ gzip: 871.75 kB
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 12.10s
+Removing intermediate container 4c6e126c3f73
+ ---> 0d83f9b31499
+Step 13/19 : RUN pnpm --filter @workspace/api-server deploy --prod --legacy /app
+ ---> Running in 510d9f7c4ab7
+ WARN  Shared workspace lockfile detected but configuration forces legacy deploy implementation.
+Packages are copied from the content-addressable store to the virtual store.
+  Content-addressable store is at: /root/.local/share/pnpm/store/v10
+  Virtual store is at:             ../app/node_modules/.pnpm
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 47, reused 0, downloaded 0, added 0
+Progress: resolved 75, reused 0, downloaded 0, added 0
+artifacts/mockup-sandbox                 |  WARN  deprecated recharts@2.15.4
+Progress: resolved 97, reused 0, downloaded 0, added 0
+Progress: resolved 104, reused 0, downloaded 0, added 0
+Progress: resolved 105, reused 0, downloaded 0, added 0
+Progress: resolved 240, reused 0, downloaded 0, added 0
+Progress: resolved 277, reused 0, downloaded 0, added 0
+Progress: resolved 375, reused 0, downloaded 0, added 0
+Progress: resolved 478, reused 0, downloaded 0, added 0
+Progress: resolved 620, reused 0, downloaded 0, added 0
+ WARN  2 deprecated subdependencies found: node-domexception@1.0.0, tsconfck@3.1.6
+Progress: resolved 635, reused 0, downloaded 0, added 0, done
+ WARN  Issues with peer dependencies found
+artifacts/launch-video
+└─┬ @react-three/drei 10.7.7
+  └─┬ maath 0.10.8
+    └── ✕ missing peer @types/three@>=0.134.0
+Peer dependencies that should be installed:
+  @types/three@>=0.134.0
+lib/api-client-react
+└─┬ @tanstack/react-query 5.90.21
+  └── ✕ missing peer react@"^18 || ^19"
+Peer dependencies that should be installed:
+  react@"^18 || ^19"
+.                                        | +154 +++++++++++++++
+. preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+. preinstall: Done
+Removing intermediate container 510d9f7c4ab7
+ ---> 62c7036e579e
+Step 14/19 : FROM node:24-slim AS runtime
+ ---> fdff267bf205
+Step 15/19 : ENV NODE_ENV=production
+ ---> Running in 12f49e5eec47
+Removing intermediate container 12f49e5eec47
+ ---> 651eb4d32548
+Step 16/19 : WORKDIR /app
+ ---> Running in df37650fec05
+Removing intermediate container df37650fec05
+ ---> 4f7bec923db5
+Step 17/19 : COPY --from=builder /app ./
+ ---> 7ca6819f2064
+Step 18/19 : COPY --from=builder /repo/artifacts/citizen-science/dist/public ./dist/public
+ ---> 23bb458d69e9
+Step 19/19 : CMD ["node", "--enable-source-maps", "dist/index.mjs"]
+ ---> Running in efe042a4808d
+Removing intermediate container efe042a4808d
+ ---> d4133bce32d6
+Successfully built d4133bce32d6
+Successfully tagged us-east1-docker.pkg.dev/citizen-science-498402/cloud-run-source-deploy/citizen-science/citizen-science-api:058414746ff3a0259a383905388e25785fabbfa4
+Finished Step #0 - "Build"
+Starting Step #1 - "Push"
+Already have image (with digest): gcr.io/cloud-builders/docker
+The push refers to repository [us-east1-docker.pkg.dev/citizen-science-498402/cloud-run-source-deploy/citizen-science/citizen-science-api]
+01f66bb785c7: Preparing
+a83de518e941: Preparing
+24879f0fbc01: Preparing
+b7746439cac3: Preparing
+f2deae9b9d4b: Preparing
+1310434fbf6d: Preparing
+1e3c00be4e0c: Preparing
+b05a96227958: Preparing
+1e3c00be4e0c: Layer already exists
+b7746439cac3: Layer already exists
+1310434fbf6d: Layer already exists
+f2deae9b9d4b: Layer already exists
+24879f0fbc01: Pushed
+01f66bb785c7: Pushed
+a83de518e941: Pushed
+b05a96227958: Pushed
+058414746ff3a0259a383905388e25785fabbfa4: digest: sha256:c1324a57b7da1007bc9be3c39228ccc1b930b5a88b2072aecb66505107ef726c size: 1998
+Finished Step #1 - "Push"
+Starting Step #2 - "Deploy"
+Pulling image: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+slim: Pulling from google.com/cloudsdktool/cloud-sdk
+72c03230f136: Already exists
+123e17899fb5: Pulling fs layer
+6c2eaf42c939: Pulling fs layer
+3182c9f829c4: Pulling fs layer
+3182c9f829c4: Verifying Checksum
+3182c9f829c4: Download complete
+123e17899fb5: Verifying Checksum
+123e17899fb5: Download complete
+123e17899fb5: Pull complete
+6c2eaf42c939: Verifying Checksum
+6c2eaf42c939: Download complete
+6c2eaf42c939: Pull complete
+3182c9f829c4: Pull complete
+Digest: sha256:e379150995766ed2575edcfc6183e6fe212ed7def3465e7aad0b59d7de8392da
+Status: Downloaded newer image for gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+Deploying...
+Creating Revision.................................................................................................done
+Routing traffic.....done
+Done.
+Service [citizen-science-api] revision [citizen-science-api-00049-kln] has been deployed and is serving 100 percent of traffic.
+Service URL: https://citizen-science-api-109407570732.us-east1.run.app
+Finished Step #2 - "Deploy"
+PUSH
+Pushing us-east1-docker.pkg.dev/citizen-science-498402/cloud-run-source-deploy/citizen-science/citizen-science-api:058414746ff3a0259a383905388e25785fabbfa4
+The push refers to repository [us-east1-docker.pkg.dev/citizen-science-498402/cloud-run-source-deploy/citizen-science/citizen-science-api]
+01f66bb785c7: Preparing
+a83de518e941: Preparing
+24879f0fbc01: Preparing
+b7746439cac3: Preparing
+f2deae9b9d4b: Preparing
+1310434fbf6d: Preparing
+1e3c00be4e0c: Preparing
+b05a96227958: Preparing
+f2deae9b9d4b: Layer already exists
+a83de518e941: Layer already exists
+b7746439cac3: Layer already exists
+1310434fbf6d: Layer already exists
+1e3c00be4e0c: Layer already exists
+b05a96227958: Layer already exists
+24879f0fbc01: Layer already exists
+01f66bb785c7: Layer already exists
+058414746ff3a0259a383905388e25785fabbfa4: digest: sha256:c1324a57b7da1007bc9be3c39228ccc1b930b5a88b2072aecb66505107ef726c size: 1998
+DONE
+
+
