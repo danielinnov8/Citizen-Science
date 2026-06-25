@@ -1,1 +1,3 @@
-ALTER TABLE "challenge_solution_votes" ADD CONSTRAINT "direction_valid" CHECK ("challenge_solution_votes"."direction" IN (1, -1));
+DO $$ BEGIN
+ ALTER TABLE "challenge_solution_votes" ADD CONSTRAINT "direction_valid" CHECK ("challenge_solution_votes"."direction" IN (1, -1));
+EXCEPTION WHEN duplicate_object THEN null; END $$;
