@@ -78,10 +78,25 @@ async function initStripe(): Promise<void> {
       (process.env.REPLIT_DOMAINS
         ? `https://${process.env.REPLIT_DOMAINS.split(",")[0]?.trim()}`
         : "");
+    // Webhook registration must NOT block the catalog backfill below. If it
+    // throws (restricted key, transient Stripe error, etc.) we still want
+    // products/prices populated so the pricing page works — only credit-granting
+    // depends on the webhook, the catalog does not.
     if (base) {
-      const webhookUrl = `${base}/api/stripe/webhook`;
-      await stripeSync.findOrCreateManagedWebhook(webhookUrl);
-      logger.info({ webhookUrl }, "Stripe webhook configured");
+      try {
+        const webhookUrl = `${base}/api/stripe/webhook`;
+        await stripeSync.findOrCreateManagedWebhook(webhookUrl);
+        logger.info({ webhookUrl }, "Stripe webhook configured");
+      } catch (err) {
+        logger.warn(
+          { err },
+          "Stripe webhook registration failed (non-fatal; continuing to backfill)",
+        );
+      }
+    } else {
+      logger.warn(
+        "PUBLIC_BASE_URL/REPLIT_DOMAINS not set — skipping webhook registration (checkout URLs and credit-granting need it)",
+      );
     }
 
     // 4. Backfill existing Stripe data into the local stripe schema (async —
