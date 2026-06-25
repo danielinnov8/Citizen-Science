@@ -23,6 +23,109 @@ interface ContributorSolution {
 }
 
 const CONTRIBUTOR_SOLUTIONS: ContributorSolution[] = [
+  // ─── Make Life Multiplanetary ──────────────────────────────────────────────
+  // Elon Musk's solution is seeded separately (see seedElonSolution in
+  // challenges.ts); these are the additional real contributors.
+  {
+    challengeSlug: "multiplanetary-life",
+    authorSlug: "jeff-bezos",
+    authorName: "Jeff Bezos",
+    title: "Move Heavy Industry Off Earth — O'Neill Colonies",
+    description:
+      "Earth is finite, and the path to a civilisation of a trillion humans is not to abandon our planet but to move its dirtiest, most energy-hungry industry into space. With Blue Origin I am building the road to space so that millions of people can one day live and work off-world while Earth is zoned residential and light.",
+    approach:
+      "Drive the cost of access to space down through reusable rockets — New Shepard and the orbital New Glenn — so that the infrastructure for a spacefaring economy becomes affordable. Build the Blue Moon lander to return humans to the lunar surface and tap the Moon's resources, especially water ice for propellant. The long-term goal is Gerard O'Neill's vision: vast free-floating colonies in orbit, powered by uninterrupted solar energy, where people live in Earth-like gravity and the manufacturing that strains our biosphere is relocated to space.",
+    link: "https://www.blueorigin.com/",
+  },
+  {
+    challengeSlug: "multiplanetary-life",
+    authorSlug: "jared-isaacman",
+    authorName: "Jared Isaacman",
+    title: "Prove Civilians Can Live and Work in Deep Space",
+    description:
+      "Spaceflight cannot remain the preserve of a handful of government astronauts if humanity is to become multiplanetary. I commanded Inspiration4, the first all-civilian orbital mission, and led Polaris Dawn to the first commercial spacewalk — and as NASA's Administrator I now steer the agency's Moon-to-Mars campaign toward a permanent human presence beyond Earth.",
+    approach:
+      "Expand the pool of people who can fly, work, and survive in space by pushing commercial crews farther and testing the technologies a settled frontier requires — new EVA suits, radiation tolerance through the Van Allen belts, and laser communications. Through the Polaris Program these were proven on private missions; at NASA I align the Artemis lunar campaign with commercial industry so that returning to the Moon becomes the proving ground for Mars. The aim is a self-reinforcing space economy where private citizens, not just astronauts, routinely live and operate off-world.",
+    link: "https://polarisprogram.com/",
+  },
+  {
+    challengeSlug: "multiplanetary-life",
+    authorSlug: "gwynne-shotwell",
+    authorName: "Gwynne Shotwell",
+    title: "Operationalise Starship for Routine Mars Transport",
+    description:
+      "A Mars city is not an engineering demo — it is a logistics problem at a scale no one has attempted. As President and COO of SpaceX I turn Starship from a test vehicle into an operational transport system that can fly often, reliably, and cheaply enough to move people and cargo to another planet.",
+    approach:
+      "Build the factories, launch cadence, and supply chains that let a fully reusable Starship fly like an airliner rather than a one-off rocket. Drive launch costs down by an order of magnitude over Falcon 9, scale production so that fleets of ships can depart during each Mars transfer window, and develop orbital propellant transfer so a ship refuelled in orbit can carry a full payload to Mars. Operational discipline — manifesting, refurbishment, and rapid turnaround — is what converts the dream of Mars settlement into a recurring, dependable service.",
+    link: "https://www.spacex.com/vehicles/starship/",
+  },
+  {
+    challengeSlug: "multiplanetary-life",
+    authorSlug: "robert-zubrin",
+    authorName: "Robert Zubrin",
+    title: "Mars Direct — Live Off the Land on the Red Planet",
+    description:
+      "We do not need a giant orbiting infrastructure or decades of delay to reach Mars; we need the will and a smart architecture. My Mars Direct plan, developed in 1990, shows how to send humans to Mars using near-term technology by manufacturing fuel and oxygen from the Martian atmosphere itself.",
+    approach:
+      "Send an unmanned Earth Return Vehicle to Mars first and use a small nuclear reactor to react hydrogen with Martian atmospheric CO₂, producing methane and oxygen propellant on the surface before the crew ever leaves Earth. Because the return fuel is made in situ, the launch mass — and the cost — drops by roughly a factor of eight versus carrying everything from Earth. Establish a permanent base, then a settlement, by progressively exploiting Martian water, minerals, and energy: a 'live off the land' strategy that makes a self-sustaining branch of human civilisation on Mars achievable now, not in some distant century.",
+    link: "https://www.marssociety.org/",
+  },
+  {
+    challengeSlug: "multiplanetary-life",
+    authorSlug: "peter-beck",
+    authorName: "Peter Beck",
+    title: "Frequent, Affordable Access for Planetary Science",
+    description:
+      "Becoming multiplanetary depends on knowing the worlds we hope to reach. At Rocket Lab I built dedicated small-launch and spacecraft systems that make interplanetary science missions routine and affordable, so we can survey the Moon, Mars, and Venus far more often than flagship missions allow.",
+    approach:
+      "Provide responsive, low-cost access to space with the Electron rocket and the larger reusable Neutron, paired with in-house spacecraft that Rocket Lab builds end to end. Fly frequent precursor missions — like the CAPSTONE pathfinder to lunar orbit and privately led probes to Venus — that scout resources, test technologies, and de-risk the destinations of human settlement. By making planetary missions cheap and repeatable rather than rare and enormous, we accelerate the reconnaissance a spacefaring civilisation needs.",
+    link: "https://www.rocketlabusa.com/launch/neutron/",
+  },
+  {
+    challengeSlug: "multiplanetary-life",
+    authorSlug: "tory-bruno",
+    authorName: "Tory Bruno",
+    title: "Build the Cislunar Transportation Backbone",
+    description:
+      "A multiplanetary future needs more than rockets that reach orbit — it needs a sustained economy in the volume between Earth and the Moon. Leading United Launch Alliance, I championed the Vulcan rocket and a cislunar infrastructure that treats space as a place to do business, not just to visit.",
+    approach:
+      "Deliver high-energy launch with the Vulcan Centaur and develop upper stages like ACES/Centaur that can loiter, refuel, and operate for weeks rather than hours — the foundation of an in-space transportation network. Enable propellant depots, tugs, and servicing in cislunar space so that crews and cargo can be moved efficiently to the Moon and staged onward to Mars. Building this reliable, reusable backbone in cislunar space is what turns one-off expeditions into a permanent, self-supporting human presence beyond Earth.",
+    link: "https://www.ulalaunch.com/rockets/vulcan-centaur",
+  },
+  {
+    challengeSlug: "multiplanetary-life",
+    authorSlug: "pamela-melroy",
+    authorName: "Pamela Melroy",
+    title: "Sustainable Human Deep-Space Exploration",
+    description:
+      "I commanded a Space Shuttle and helped assemble the International Space Station, then served as NASA's Deputy Administrator. Becoming multiplanetary is not a sprint to plant a flag — it is the patient work of learning to keep humans alive and productive far from home, permanently.",
+    approach:
+      "Anchor human expansion on the lessons of the ISS and the Artemis lunar campaign: master closed-loop life support, in-space assembly, radiation protection, and international and commercial partnerships before committing crews to Mars. Use the Moon as a sustained testbed for the systems a Mars settlement will depend on, and build the standards and safety culture that let exploration scale responsibly. A durable multiplanetary civilisation is engineered step by step, with the Moon proving what Mars will require.",
+    link: "https://www.nasa.gov/humans-in-space/artemis/",
+  },
+  {
+    challengeSlug: "multiplanetary-life",
+    authorSlug: "amit-kshatriya",
+    authorName: "Amit Kshatriya",
+    title: "Integrate Artemis as the Road to Mars",
+    description:
+      "I led NASA's Moon to Mars Program Office and now, as the agency's Associate Administrator, I am responsible for executing the Artemis campaign. Returning humans to the Moon is not the destination — it is the integrated dress rehearsal for the first human mission to Mars.",
+    approach:
+      "Knit together the rockets, landers, spacesuits, habitats, and ground systems of Artemis into a single architecture explicitly designed to extend to Mars, managing the engineering risk across the whole campaign rather than mission by mission. Establish a recurring cadence of crewed lunar missions and surface infrastructure that exercises long-duration deep-space operations, then carry those validated systems and operational experience forward to Mars. Disciplined, end-to-end program integration is what turns a series of Moon landings into humanity's first permanent step toward another planet.",
+    link: "https://www.nasa.gov/humans-in-space/moon-to-mars/",
+  },
+  {
+    challengeSlug: "multiplanetary-life",
+    authorSlug: "thomas-zurbuchen",
+    authorName: "Thomas Zurbuchen",
+    title: "Let Robotic Science Lead Humans to Mars",
+    description:
+      "As NASA's longest-serving science chief I launched dozens of missions, including the Perseverance rover now caching samples on Mars. Before humans can live on another world, robotic explorers must answer the questions that keep them alive — where the water is, whether the planet was ever habitable, and what hazards await.",
+    approach:
+      "Send the robotic vanguard — orbiters, landers, and rovers — to map resources, characterise radiation and dust, and return Martian samples to Earth so we understand the environment before risking crews. Use these missions to locate accessible water ice and landing sites, test in-situ resource utilisation, and search for past life, retiring the scientific unknowns that make human settlement dangerous. Science and exploration advance together: every robotic discovery makes the eventual human presence on Mars safer, smarter, and more sustainable.",
+    link: "https://science.nasa.gov/mission/mars-2020-perseverance/",
+  },
+
   // ─── Halt Catastrophic Climate Change ──────────────────────────────────────
   {
     challengeSlug: "climate-change",

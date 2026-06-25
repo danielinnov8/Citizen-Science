@@ -2273,6 +2273,9 @@ components:
           type: string
         authorSlug:
           type: ["string", "null"]
+        authorImageUrl:
+          type: ["string", "null"]
+          description: Author's directory profile picture, when the author maps to a featured profile
         title:
           type: string
         description:
@@ -2296,6 +2299,7 @@ components:
         - userId
         - authorName
         - authorSlug
+        - authorImageUrl
         - title
         - description
         - approach

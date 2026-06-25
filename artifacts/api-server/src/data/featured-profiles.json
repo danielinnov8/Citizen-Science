@@ -26783,5 +26783,325 @@
     "didYouKnow": [],
     "storyTheme": null,
     "ownerUserId": null
+  },
+  {
+    "slug": "jared-isaacman",
+    "name": "Jared Isaacman",
+    "group": "inventor",
+    "field": "Spaceflight & Commercial Space",
+    "era": "b. 1983",
+    "summary": "Jared Isaacman is an American entrepreneur, pilot, and astronaut who founded the payments company Shift4 and pioneered private human spaceflight. He commanded Inspiration4, the first all-civilian orbital mission, in 2021, and led the Polaris Dawn mission in 2024, performing the first commercial spacewalk. In December 2025 he became the 15th Administrator of NASA.",
+    "contributions": [
+      "Commanded Inspiration4 (2021), the first all-civilian mission to orbit Earth",
+      "Led Polaris Dawn (2024) and performed the first commercial spacewalk",
+      "Serves as the 15th Administrator of NASA, directing the Moon-to-Mars campaign"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Jared_isaacman_official_portrait.jpg/960px-Jared_isaacman_official_portrait.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://polarisprogram.com/",
+        "title": "Polaris Program"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Jared_Isaacman",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null,
+    "ownerUserId": null
+  },
+  {
+    "slug": "gwynne-shotwell",
+    "name": "Gwynne Shotwell",
+    "group": "inventor",
+    "field": "Aerospace & Spaceflight",
+    "era": "b. 1963",
+    "summary": "Gwynne Shotwell is an American aerospace engineer and business executive who serves as President and Chief Operating Officer of SpaceX, which she joined in 2002. She is responsible for the company's day-to-day operations and has led the growth of the Falcon launch business and the operationalization of the fully reusable Starship.",
+    "contributions": [
+      "Built SpaceX's Falcon launch manifest into the world's most active rocket program",
+      "Negotiated SpaceX's first NASA Commercial Resupply Services contract",
+      "Leads the operational scaling of Starship toward routine deep-space transport"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Gwynne_Shotwell_at_2018_Commercial_Crew_announcement.jpg/960px-Gwynne_Shotwell_at_2018_Commercial_Crew_announcement.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://www.spacex.com/",
+        "title": "SpaceX"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Gwynne_Shotwell",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null,
+    "ownerUserId": null
+  },
+  {
+    "slug": "robert-zubrin",
+    "name": "Robert Zubrin",
+    "group": "inventor",
+    "field": "Aerospace Engineering",
+    "era": "b. 1952",
+    "summary": "Robert Zubrin is an American aerospace engineer and author, and the founder of the Mars Society. He developed Mars Direct, a minimalist mission architecture for sending humans to Mars using near-term technology and manufacturing return propellant from the Martian atmosphere, detailed in his influential book The Case for Mars.",
+    "contributions": [
+      "Devised the Mars Direct architecture for affordable human Mars missions",
+      "Founded the Mars Society to advance the human settlement of Mars",
+      "Authored The Case for Mars, a foundational text for Mars exploration advocacy"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Robert_Zubrin_by_the_Mars_Society.jpg/960px-Robert_Zubrin_by_the_Mars_Society.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://www.marssociety.org/",
+        "title": "The Mars Society"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Robert_Zubrin",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null,
+    "ownerUserId": null
+  },
+  {
+    "slug": "peter-beck",
+    "name": "Peter Beck",
+    "group": "inventor",
+    "field": "Aerospace Engineering",
+    "era": "b. 1977",
+    "summary": "Sir Peter Beck is a New Zealand aerospace engineer and entrepreneur who founded Rocket Lab in 2006. A self-taught engineer, he built the Electron small-launch rocket and the larger reusable Neutron, alongside an end-to-end spacecraft business that makes frequent, affordable planetary science missions possible.",
+    "contributions": [
+      "Founded Rocket Lab and developed the Electron orbital small-launch vehicle",
+      "Leads development of the reusable medium-lift Neutron rocket",
+      "Enabled low-cost interplanetary precursor missions such as the CAPSTONE lunar pathfinder"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Peter_Beck_KNZM_%28cropped%29.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://www.rocketlabusa.com/",
+        "title": "Rocket Lab"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Peter_Beck_(businessman)",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null,
+    "ownerUserId": null
+  },
+  {
+    "slug": "tory-bruno",
+    "name": "Tory Bruno",
+    "group": "inventor",
+    "field": "Aerospace Engineering",
+    "era": "b. 1961",
+    "summary": "Salvatore 'Tory' Bruno is an American aerospace engineer and executive who led United Launch Alliance as President and CEO from 2014 to 2025. He championed the Vulcan Centaur rocket and a vision of cislunar infrastructure — depots, tugs, and long-duration upper stages — to build a sustained in-space economy between Earth and the Moon.",
+    "contributions": [
+      "Led United Launch Alliance and directed development of the Vulcan Centaur rocket",
+      "Advanced high-energy upper stages capable of long-duration cislunar operations",
+      "Championed an in-space transportation economy spanning Earth-to-Moon and beyond"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/95/Tory_Bruno_February_2018_%28crop%29.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://www.ulalaunch.com/",
+        "title": "United Launch Alliance"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Tory_Bruno",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null,
+    "ownerUserId": null
+  },
+  {
+    "slug": "pamela-melroy",
+    "name": "Pamela Melroy",
+    "group": "scientist",
+    "field": "Aeronautics & Space Exploration",
+    "era": "b. 1961",
+    "summary": "Pamela Melroy is a retired U.S. Air Force colonel, former NASA astronaut, and former NASA Deputy Administrator (2021–2025). One of only two women to command a Space Shuttle, she flew three Shuttle missions and helped assemble the International Space Station before leading agency policy on sustainable human deep-space exploration.",
+    "contributions": [
+      "Commanded Space Shuttle mission STS-120 and flew three Shuttle missions total",
+      "Helped assemble the International Space Station as a Shuttle pilot and commander",
+      "Served as NASA Deputy Administrator, guiding the Artemis and deep-space exploration agenda"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/NASA_Deputy_Administrator_Pam_Melroy_Official_Portrait_%28NHQ202303020038%29.jpeg/960px-NASA_Deputy_Administrator_Pam_Melroy_Official_Portrait_%28NHQ202303020038%29.jpeg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://www.nasa.gov/humans-in-space/artemis/",
+        "title": "NASA Artemis"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Pamela_Melroy",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null,
+    "ownerUserId": null
+  },
+  {
+    "slug": "amit-kshatriya",
+    "name": "Amit Kshatriya",
+    "group": "scientist",
+    "field": "Aerospace Engineering",
+    "era": "b. 1979",
+    "summary": "Amit Kshatriya is an American engineer and NASA's Associate Administrator, the agency's highest-ranking civil servant. A former flight director, he led NASA's Moon to Mars Program Office and now oversees the agency's mission directorates and the Artemis campaign, integrating the systems and operations that will carry humans from the Moon to Mars.",
+    "contributions": [
+      "Led NASA's Moon to Mars Program Office, integrating the Artemis architecture",
+      "Serves as NASA's Associate Administrator overseeing mission directorates and field centers",
+      "Directs program execution for crewed lunar missions in preparation for human Mars missions"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Amit_Kshatriya_Portrait_%28NHQ202509150001%29.jpg/960px-Amit_Kshatriya_Portrait_%28NHQ202509150001%29.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://www.nasa.gov/humans-in-space/moon-to-mars/",
+        "title": "NASA Moon to Mars"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Amit_Kshatriya",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null,
+    "ownerUserId": null
+  },
+  {
+    "slug": "thomas-zurbuchen",
+    "name": "Thomas Zurbuchen",
+    "group": "scientist",
+    "field": "Astrophysics & Space Science",
+    "era": "b. 1968",
+    "summary": "Thomas Zurbuchen is a Swiss-American astrophysicist who served as NASA's Associate Administrator for the Science Mission Directorate from 2016 to 2022, the longest tenure in that role. He oversaw dozens of missions, including the James Webb Space Telescope and the Perseverance Mars rover, and now leads ETH Zurich's space initiative.",
+    "contributions": [
+      "Led NASA's science directorate, launching dozens of missions including JWST",
+      "Oversaw the Perseverance rover and Ingenuity helicopter Mars missions",
+      "Directs ETH Zurich Space, advancing robotic exploration that paves the way for human missions"
+    ],
+    "quotes": [],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Thomas_Zurbuchen.jpg/960px-Thomas_Zurbuchen.jpg",
+    "relatedCategorySlugs": [
+      "physics",
+      "astronomy"
+    ],
+    "sources": [
+      {
+        "url": "https://science.nasa.gov/mission/mars-2020-perseverance/",
+        "title": "NASA Mars Perseverance"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Thomas_Zurbuchen",
+        "title": "Wikipedia"
+      }
+    ],
+    "patents": [],
+    "tagline": null,
+    "lifespan": null,
+    "birthplace": null,
+    "biography": [],
+    "timeline": [],
+    "storyContributions": [],
+    "legacy": [],
+    "didYouKnow": [],
+    "storyTheme": null,
+    "ownerUserId": null
   }
 ]

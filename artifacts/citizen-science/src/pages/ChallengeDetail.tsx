@@ -169,6 +169,129 @@ function VoteWidget({ solution, slug, isAuthenticated, onLoginRequired }: VoteWi
   );
 }
 
+// ─── Solution card ─────────────────────────────────────────────────────────────
+
+function authorInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0]!.charAt(0).toUpperCase();
+  return (parts[0]!.charAt(0) + parts[parts.length - 1]!.charAt(0)).toUpperCase();
+}
+
+function AuthorAvatar({ name, imageUrl }: { name: string; imageUrl: string | null }) {
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt={name}
+        className="h-8 w-8 shrink-0 rounded-full object-cover border border-[#E2E8F0]"
+      />
+    );
+  }
+  return (
+    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[11px] font-semibold text-[#4F46E5] border border-[#E2E8F0]">
+      {authorInitials(name)}
+    </span>
+  );
+}
+
+interface SolutionCardProps {
+  solution: ChallengeSolutionView;
+  slug: string;
+  isAuthenticated: boolean;
+  onLoginRequired: () => void;
+}
+
+function SolutionCard({ solution, slug, isAuthenticated, onLoginRequired }: SolutionCardProps) {
+  const [approachOpen, setApproachOpen] = useState(false);
+
+  return (
+    <div className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <AuthorAvatar name={solution.authorName} imageUrl={solution.authorImageUrl} />
+          {solution.authorSlug ? (
+            <Link
+              href={`/directory/${solution.authorSlug}`}
+              className="text-sm font-semibold text-[#0F172A] hover:text-blue-700 transition-colors truncate"
+            >
+              {solution.authorName}
+            </Link>
+          ) : (
+            <span className="text-sm font-semibold text-[#0F172A] truncate">
+              {solution.authorName}
+            </span>
+          )}
+        </div>
+        <VoteWidget
+          solution={solution}
+          slug={slug}
+          isAuthenticated={isAuthenticated}
+          onLoginRequired={onLoginRequired}
+        />
+      </div>
+
+      <Link
+        href={`/challenges/${slug}/solutions/${solution.id}`}
+        className="block font-semibold text-[#0F172A] text-base leading-snug hover:text-blue-700 transition-colors mb-2"
+      >
+        {solution.title}
+      </Link>
+
+      <p className="text-sm text-[#64748B] mb-3 leading-relaxed">
+        {solution.description}
+      </p>
+
+      <div className="rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] mb-3 overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setApproachOpen((v) => !v)}
+          aria-expanded={approachOpen}
+          className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-[#F1F5F9] transition-colors"
+        >
+          <span className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wide">
+            Approach
+          </span>
+          {approachOpen ? (
+            <ChevronUp className="h-4 w-4 text-[#94A3B8] shrink-0" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-[#94A3B8] shrink-0" />
+          )}
+        </button>
+        <AnimatePresence initial={false}>
+          {approachOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <p className="text-sm text-[#475569] leading-relaxed px-3 pb-3">
+                {solution.approach}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="flex items-center justify-between text-xs text-[#94A3B8]">
+        <span>{formatRelativeDate(solution.createdAt)}</span>
+        {solution.link && (
+          <a
+            href={solution.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-blue-600 hover:underline"
+          >
+            Learn more <ExternalLink className="h-3 w-3" />
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main page ───────────────────────────────────────────────────────────────
 
 export function ChallengeDetail() {
@@ -555,64 +678,13 @@ export function ChallengeDetail() {
           ) : (
             <div className="space-y-4">
               {rankedSolutions.map((solution) => (
-                <div
+                <SolutionCard
                   key={solution.id}
-                  className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm"
-                >
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <Link
-                      href={`/challenges/${slug}/solutions/${solution.id}`}
-                      className="font-semibold text-[#0F172A] text-base leading-snug hover:text-blue-700 transition-colors"
-                    >
-                      {solution.title}
-                    </Link>
-                    <VoteWidget
-                      solution={solution}
-                      slug={slug}
-                      isAuthenticated={isAuthenticated}
-                      onLoginRequired={() => navigate("/login")}
-                    />
-                  </div>
-                  <p className="text-sm text-[#64748B] mb-3 leading-relaxed">
-                    {solution.description}
-                  </p>
-                  <div className="rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] p-3 mb-3">
-                    <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wide mb-1">
-                      Approach
-                    </p>
-                    <p className="text-sm text-[#475569] leading-relaxed">
-                      {solution.approach}
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-[#94A3B8]">
-                    <span>
-                      by{" "}
-                      {solution.authorSlug ? (
-                        <Link
-                          href={`/directory/${solution.authorSlug}`}
-                          className="text-blue-600 hover:underline font-medium"
-                        >
-                          {solution.authorName}
-                        </Link>
-                      ) : (
-                        <span className="font-medium text-[#64748B]">{solution.authorName}</span>
-                      )}
-                    </span>
-                    <div className="flex items-center gap-3">
-                      <span>{formatRelativeDate(solution.createdAt)}</span>
-                      {solution.link && (
-                        <a
-                          href={solution.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-blue-600 hover:underline"
-                        >
-                          Learn more <ExternalLink className="h-3 w-3" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                  solution={solution}
+                  slug={slug}
+                  isAuthenticated={isAuthenticated}
+                  onLoginRequired={() => navigate("/login")}
+                />
               ))}
             </div>
           )}

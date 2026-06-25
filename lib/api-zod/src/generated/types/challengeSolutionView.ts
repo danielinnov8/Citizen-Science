@@ -14,6 +14,11 @@ export interface ChallengeSolutionView {
   authorName: string;
   /** @nullable */
   authorSlug: string | null;
+  /**
+   * Author's directory profile picture, when the author maps to a featured profile
+   * @nullable
+   */
+  authorImageUrl: string | null;
   title: string;
   description: string;
   approach: string;

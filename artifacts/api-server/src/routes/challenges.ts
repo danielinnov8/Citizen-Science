@@ -7,6 +7,7 @@ import {
   challengeSolutionsTable,
   challengeSolutionVotesTable,
   usersTable,
+  featuredProfilesTable,
 } from "@workspace/db";
 import {
   ListChallengesResponse,
@@ -251,6 +252,7 @@ router.get("/challenges/:slug/solutions", async (req, res) => {
         userId: challengeSolutionsTable.userId,
         authorName: challengeSolutionsTable.authorName,
         authorSlug: challengeSolutionsTable.authorSlug,
+        authorImageUrl: featuredProfilesTable.imageUrl,
         userName: usersTable.name,
         title: challengeSolutionsTable.title,
         description: challengeSolutionsTable.description,
@@ -262,6 +264,10 @@ router.get("/challenges/:slug/solutions", async (req, res) => {
       .from(challengeSolutionsTable)
       .leftJoin(usersTable, eq(challengeSolutionsTable.userId, usersTable.id))
       .leftJoin(
+        featuredProfilesTable,
+        eq(challengeSolutionsTable.authorSlug, featuredProfilesTable.slug),
+      )
+      .leftJoin(
         challengeSolutionVotesTable,
         eq(challengeSolutionVotesTable.solutionId, challengeSolutionsTable.id),
       )
@@ -272,6 +278,7 @@ router.get("/challenges/:slug/solutions", async (req, res) => {
         challengeSolutionsTable.userId,
         challengeSolutionsTable.authorName,
         challengeSolutionsTable.authorSlug,
+        featuredProfilesTable.imageUrl,
         challengeSolutionsTable.title,
         challengeSolutionsTable.description,
         challengeSolutionsTable.approach,
@@ -310,6 +317,7 @@ router.get("/challenges/:slug/solutions", async (req, res) => {
           userId: s.userId ?? null,
           authorName: s.authorName ?? s.userName ?? "Anonymous",
           authorSlug: s.authorSlug ?? null,
+          authorImageUrl: s.authorImageUrl ?? null,
           title: s.title,
           description: s.description,
           approach: s.approach,

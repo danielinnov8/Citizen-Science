@@ -1924,6 +1924,12 @@ export const ListChallengeSolutionsResponseItem = zod.object({
   userId: zod.string().nullable(),
   authorName: zod.string(),
   authorSlug: zod.string().nullable(),
+  authorImageUrl: zod
+    .string()
+    .nullable()
+    .describe(
+      "Author's directory profile picture, when the author maps to a featured profile",
+    ),
   title: zod.string(),
   description: zod.string(),
   approach: zod.string(),
