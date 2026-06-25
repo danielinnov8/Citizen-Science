@@ -27,3 +27,4 @@
 - [Long-running seeds & bash hang](long-running-seeds-bash-hang.md) — bulk seeds hang the bash tool at exit -1; make idempotent/resumable + drive with timed `timeout -s KILL` foreground passes to a logfile.
 - [Contemporary vs historical classification](contemporary-profile-bc-era.md) — eyebrow uses lifespan; BC/short-year ranges must read as historical, not Modern Visionaries.
 - [Orval response-name collision](orval-response-name-collision.md) — never name a component schema {OperationId}Response; zod barrel re-exports value+type of same name → TS2308.
+- [Post-auth routing via localStorage](post-auth-routing-localstorage.md) — Login/Onboarding route from localStorage flags, NOT ?query params; carry intent (e.g. pendingCheckout) as a flag, resume checkout before onboarding (transaction-first).

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Link, useSearch } from "wouter";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useLocation, useSearch } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
@@ -133,12 +133,26 @@ function useCheckout() {
   const mutation = useCreateCheckoutSession();
   const [loading, setLoading] = useState<string | null>(null);
 
-  const checkout = async (priceId: string | undefined, key: string) => {
-    if (!priceId) return;
+  // Returns true when it has initiated a redirect (to /login or Stripe), false
+  // when nothing happened (missing priceId, failed/empty session) so callers
+  // can recover instead of leaving the user on a dead-end loading state.
+  const checkout = async (
+    priceId: string | undefined,
+    key: string,
+  ): Promise<boolean> => {
+    if (!priceId) return false;
 
     if (!isAuthenticated) {
-      window.location.href = "/login?redirect=/pricing";
-      return;
+      // Remember the intended purchase so we can resume it right after the
+      // user signs in/up — the transaction happens before any onboarding.
+      try {
+        window.localStorage.setItem("cs.pendingCheckout", priceId);
+        window.localStorage.setItem("cs.postAuthRedirect", "/pricing");
+      } catch {
+        /* ignore */
+      }
+      window.location.href = "/login";
+      return true;
     }
 
     setLoading(key);
@@ -146,9 +160,12 @@ function useCheckout() {
       const result = await mutation.mutateAsync({ data: { priceId } });
       if (result.url) {
         window.location.href = result.url;
+        return true;
       }
+      return false;
     } catch {
       // error is surfaced via mutation state
+      return false;
     } finally {
       setLoading(null);
     }
@@ -521,7 +538,13 @@ function FoundingMember() {
   const handleCheckout = async () => {
     if (!foundingPriceId) return;
     if (!isAuthenticated) {
-      window.location.href = "/login?redirect=/pricing#founding";
+      try {
+        window.localStorage.setItem("cs.pendingCheckout", foundingPriceId);
+        window.localStorage.setItem("cs.postAuthRedirect", "/pricing");
+      } catch {
+        /* ignore */
+      }
+      window.location.href = "/login";
       return;
     }
     setLoading(true);
@@ -679,6 +702,56 @@ export default function Pricing() {
 
   const { data: pricesData } = useGetBillingPrices();
   const { checkout, loading } = useCheckout();
+  const { isAuthenticated, hasCompletedOnboarding } = useAuth();
+  const [, setLocation] = useLocation();
+  const search = useSearch();
+  const checkoutStatus = new URLSearchParams(search).get("checkout");
+  const [resuming, setResuming] = useState(false);
+  const resumedRef = useRef(false);
+
+  // Resume a purchase that was started before sign-in: as soon as the user is
+  // authenticated, kick off Stripe checkout — before onboarding runs.
+  useEffect(() => {
+    if (resumedRef.current) return;
+    if (!isAuthenticated) return;
+    if (checkoutStatus) return; // returning from Stripe — don't restart
+    let pending: string | null = null;
+    try {
+      pending = window.localStorage.getItem("cs.pendingCheckout");
+    } catch {
+      /* ignore */
+    }
+    if (!pending) return;
+    resumedRef.current = true;
+    setResuming(true);
+    try {
+      window.localStorage.removeItem("cs.pendingCheckout");
+      window.localStorage.removeItem("cs.postAuthRedirect");
+    } catch {
+      /* ignore */
+    }
+    void checkout(pending, "resume").then((started) => {
+      // If the session couldn't be created (503/network/empty url), release the
+      // overlay so the user isn't stuck — they're now signed in and can retry
+      // from the card directly.
+      if (!started) setResuming(false);
+    });
+  }, [isAuthenticated, checkoutStatus, checkout]);
+
+  // After a successful payment, pass the user through: new users go to
+  // onboarding, returning users go straight to their dashboard.
+  useEffect(() => {
+    if (checkoutStatus !== "success") return;
+    try {
+      window.localStorage.removeItem("cs.pendingCheckout");
+    } catch {
+      /* ignore */
+    }
+    const t = window.setTimeout(() => {
+      setLocation(hasCompletedOnboarding ? "/dashboard" : "/onboarding");
+    }, 1800);
+    return () => window.clearTimeout(t);
+  }, [checkoutStatus, hasCompletedOnboarding, setLocation]);
 
   const getPlanPriceId = (planId: string) =>
     pricesData?.subscriptions.find((s) => s.planId === planId)?.id;
@@ -686,6 +759,14 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans selection:bg-blue-100 selection:text-blue-900">
       <CheckoutBanner />
+      {resuming && (
+        <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-4 bg-[#0B1120]/80 text-white backdrop-blur-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-300" />
+          <p className="text-sm font-medium text-white/80">
+            Starting secure checkout…
+          </p>
+        </div>
+      )}
 
       {/* HEADER */}
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0B1120]/90 text-white backdrop-blur-md">

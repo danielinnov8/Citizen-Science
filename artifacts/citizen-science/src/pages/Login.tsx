@@ -34,11 +34,19 @@ export function Login() {
   const routeAfterAuth = React.useCallback(() => {
     let pendingPrompt: string | null = null;
     let redirect: string | null = null;
+    let pendingCheckout: string | null = null;
     try {
       pendingPrompt = window.localStorage.getItem("cs.pendingPrompt");
       redirect = window.localStorage.getItem("cs.postAuthRedirect");
+      pendingCheckout = window.localStorage.getItem("cs.pendingCheckout");
     } catch {
       /* ignore */
+    }
+    // A pending paid checkout takes precedence over everything else: send the
+    // user to /pricing, which resumes the Stripe transaction before onboarding.
+    if (pendingCheckout) {
+      setLocation("/pricing");
+      return;
     }
     // Only honor same-origin internal paths to avoid open-redirects.
     const safeRedirect =
