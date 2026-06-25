@@ -640,9 +640,11 @@ function RevenueTab() {
     <div className="space-y-6">
       <Card className="border-amber-200 bg-amber-50/50">
         <CardContent className="p-4 text-sm text-amber-800">
-          Revenue is <strong>projected</strong> from plan tiers — there is no live
-          payment processor connected yet, so these are modeled figures, not
-          collected revenue. Founding Member sales are not tracked in the database.
+          Stripe checkout is live and plan tiers reflect <strong>real paying
+          members</strong>. Projected MRR is an <strong>estimate</strong> (paid
+          plans × list price) — it isn&apos;t Stripe&apos;s actual collected
+          revenue, so it excludes proration, discounts, tax, and refunds.
+          Founding Member sales are not tracked in the database.
         </CardContent>
       </Card>
 

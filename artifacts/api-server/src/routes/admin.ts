@@ -68,8 +68,10 @@ const router: IRouter = Router();
 // (requireAuth). Order matters: auth first so req.user is populated.
 router.use("/admin", requireAuth, requireSuperAdmin);
 
-// Pricing used for the projected-revenue model. No live payment processor — MRR
-// is purely derived from how many users sit on each paid tier.
+// List prices used for the projected-revenue model. Stripe checkout is live and
+// subscription webhooks set users.plan, so MRR here is an estimate derived from
+// how many users sit on each paid tier × list price — NOT Stripe's settled
+// revenue (it excludes proration, discounts, tax, and refunds).
 const PLAN_PRICES_USD: Record<string, number> = {
   free: 0,
   researcher: 20,
