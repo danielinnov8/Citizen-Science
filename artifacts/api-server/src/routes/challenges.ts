@@ -253,6 +253,7 @@ router.get("/challenges/:slug/solutions", async (req, res) => {
         authorName: challengeSolutionsTable.authorName,
         authorSlug: challengeSolutionsTable.authorSlug,
         authorImageUrl: featuredProfilesTable.imageUrl,
+        authorNobelPrizes: featuredProfilesTable.nobelPrizes,
         userName: usersTable.name,
         title: challengeSolutionsTable.title,
         description: challengeSolutionsTable.description,
@@ -279,6 +280,7 @@ router.get("/challenges/:slug/solutions", async (req, res) => {
         challengeSolutionsTable.authorName,
         challengeSolutionsTable.authorSlug,
         featuredProfilesTable.imageUrl,
+        featuredProfilesTable.nobelPrizes,
         challengeSolutionsTable.title,
         challengeSolutionsTable.description,
         challengeSolutionsTable.approach,
@@ -318,6 +320,7 @@ router.get("/challenges/:slug/solutions", async (req, res) => {
           authorName: s.authorName ?? s.userName ?? "Anonymous",
           authorSlug: s.authorSlug ?? null,
           authorImageUrl: s.authorImageUrl ?? null,
+          authorNobelPrizes: s.authorNobelPrizes ?? [],
           title: s.title,
           description: s.description,
           approach: s.approach,
@@ -390,6 +393,7 @@ router.post("/challenges/:slug/solutions", requireAuth, async (req, res) => {
         userId: inserted.userId ?? null,
         authorName,
         authorSlug: null,
+        authorImageUrl: null,
         title: inserted.title,
         description: inserted.description,
         approach: inserted.approach,
@@ -397,6 +401,7 @@ router.post("/challenges/:slug/solutions", requireAuth, async (req, res) => {
         createdAt: inserted.createdAt.toISOString(),
         voteScore: 0,
         userVote: null,
+        authorNobelPrizes: [],
       }),
     );
   } catch (err) {
@@ -423,6 +428,7 @@ router.get("/challenges/:slug/solutions/:solutionId", async (req, res) => {
         createdAt: challengeSolutionsTable.createdAt,
         authorName: challengeSolutionsTable.authorName,
         authorSlug: challengeSolutionsTable.authorSlug,
+        authorNobelPrizes: featuredProfilesTable.nobelPrizes,
         userName: usersTable.name,
         voteScore: sql<number>`COALESCE(SUM(${challengeSolutionVotesTable.direction}), 0)`,
         challengeSlug: challengesTable.slug,
@@ -440,6 +446,10 @@ router.get("/challenges/:slug/solutions/:solutionId", async (req, res) => {
       )
       .leftJoin(usersTable, eq(challengeSolutionsTable.userId, usersTable.id))
       .leftJoin(
+        featuredProfilesTable,
+        eq(challengeSolutionsTable.authorSlug, featuredProfilesTable.slug),
+      )
+      .leftJoin(
         challengeSolutionVotesTable,
         eq(challengeSolutionVotesTable.solutionId, challengeSolutionsTable.id),
       )
@@ -451,6 +461,7 @@ router.get("/challenges/:slug/solutions/:solutionId", async (req, res) => {
       )
       .groupBy(
         challengeSolutionsTable.id,
+        featuredProfilesTable.nobelPrizes,
         challengesTable.slug,
         challengesTable.title,
         challengesTable.summary,
@@ -491,6 +502,7 @@ router.get("/challenges/:slug/solutions/:solutionId", async (req, res) => {
       userVote,
       authorName: row.authorName ?? row.userName ?? "Anonymous",
       authorSlug: row.authorSlug ?? null,
+      authorNobelPrizes: row.authorNobelPrizes ?? [],
       challengeSlug: row.challengeSlug,
       challengeTitle: row.challengeTitle,
       challengeSummary: row.challengeSummary,

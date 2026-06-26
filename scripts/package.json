@@ -8,8 +8,10 @@
     "seed-profiles": "tsx ./src/seed-profiles.ts",
     "seed-nobel": "tsx ./src/seed-nobel.ts",
     "seed-stories": "tsx ./src/seed-stories.ts",
+    "seed-nobel-solutions": "tsx ./src/seed-nobel-solutions.ts",
     "seed-homepage-inventors": "tsx ./src/seed-homepage-inventors.ts",
     "dump-featured-profiles": "tsx ./src/dump-featured-profiles.ts",
+    "dump-nobel-solutions": "tsx ./src/dump-nobel-solutions.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "seed-products": "tsx ./src/seed-products.ts"
   },

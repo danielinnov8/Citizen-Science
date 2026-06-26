@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ProfileNobelPrize } from "./profileNobelPrize";
 
 export interface ChallengeSolutionView {
   id: string;
@@ -19,6 +20,8 @@ export interface ChallengeSolutionView {
    * @nullable
    */
   authorImageUrl: string | null;
+  /** Nobel prizes won by the author when they map to a featured profile; empty when the author is not a laureate. */
+  authorNobelPrizes: ProfileNobelPrize[];
   title: string;
   description: string;
   approach: string;

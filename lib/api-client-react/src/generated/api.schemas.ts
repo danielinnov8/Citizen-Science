@@ -58,6 +58,14 @@ export interface ProfileSolutionItem {
   challengeUrgency: string;
 }
 
+export interface ProfileNobelPrize {
+  category: string;
+  categoryCode: string;
+  awardYear: string;
+  motivation: string;
+  portion: string;
+}
+
 export interface ChallengeSolutionDetail {
   id: string;
   title: string;
@@ -72,6 +80,8 @@ export interface ChallengeSolutionDetail {
   authorName: string;
   /** @nullable */
   authorSlug: string | null;
+  /** Nobel prizes won by the author when they map to a featured profile; empty when the author is not a laureate. */
+  authorNobelPrizes: ProfileNobelPrize[];
   challengeSlug: string;
   challengeTitle: string;
   challengeSummary: string;
@@ -95,6 +105,8 @@ export interface ChallengeSolutionView {
    * @nullable
    */
   authorImageUrl: string | null;
+  /** Nobel prizes won by the author when they map to a featured profile; empty when the author is not a laureate. */
+  authorNobelPrizes: ProfileNobelPrize[];
   title: string;
   description: string;
   approach: string;
@@ -248,14 +260,6 @@ export const ProfileGroup = {
   thought_leader: "thought_leader",
   organization: "organization",
 } as const;
-
-export interface ProfileNobelPrize {
-  category: string;
-  categoryCode: string;
-  awardYear: string;
-  motivation: string;
-  portion: string;
-}
 
 export interface ProfileTimelineEntry {
   year: string;

@@ -2442,6 +2442,11 @@ components:
           type: string
         authorSlug:
           type: ["string", "null"]
+        authorNobelPrizes:
+          type: array
+          description: Nobel prizes won by the author when they map to a featured profile; empty when the author is not a laureate.
+          items:
+            $ref: "#/components/schemas/ProfileNobelPrize"
         challengeSlug:
           type: string
         challengeTitle:
@@ -2467,6 +2472,7 @@ components:
         - userVote
         - authorName
         - authorSlug
+        - authorNobelPrizes
         - challengeSlug
         - challengeTitle
         - challengeSummary
@@ -2490,6 +2496,11 @@ components:
         authorImageUrl:
           type: ["string", "null"]
           description: Author's directory profile picture, when the author maps to a featured profile
+        authorNobelPrizes:
+          type: array
+          description: Nobel prizes won by the author when they map to a featured profile; empty when the author is not a laureate.
+          items:
+            $ref: "#/components/schemas/ProfileNobelPrize"
         title:
           type: string
         description:
@@ -2514,6 +2525,7 @@ components:
         - authorName
         - authorSlug
         - authorImageUrl
+        - authorNobelPrizes
         - title
         - description
         - approach

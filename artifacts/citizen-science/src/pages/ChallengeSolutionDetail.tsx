@@ -22,6 +22,7 @@ import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { displaySolutionScore } from "@/lib/challengeSim";
+import { NobelBadge } from "@/components/NobelBadge";
 
 const DOMAIN_COLORS: Record<string, { bg: string; text: string; border: string; accent: string; dark: string }> = {
   climate:         { bg: "bg-emerald-50",  text: "text-emerald-700",  border: "border-emerald-200", accent: "#10B981", dark: "#065F46" },
@@ -286,6 +287,7 @@ export function ChallengeSolutionDetail() {
                   ) : (
                     <span className="font-semibold text-[#0F172A]">{solution.authorName}</span>
                   )}
+                  <NobelBadge prizes={solution.authorNobelPrizes} variant="chip" className="-mt-1 block" />
                 </div>
               </div>
               <div className="flex items-center gap-2 text-xs text-[#94A3B8]">

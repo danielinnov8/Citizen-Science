@@ -3,6 +3,7 @@ import { logger } from "./lib/logger";
 import { seedFeaturedProfiles } from "./lib/seed/featuredProfiles";
 import { seedChallenges as seedChallengesData, seedManuSolution, seedMultiplanetaryChallenge, seedElonSolution } from "./lib/seed/challenges";
 import { seedChallengeContributors } from "./lib/seed/challenge-contributors";
+import { seedNobelSolutions } from "./lib/seed/nobel-solutions";
 import { seedOutreachProspects } from "./lib/seed/outreach-prospects";
 import { startMigrations } from "./lib/startup/migrations";
 import { runMigrations } from "stripe-replit-sync";
@@ -46,7 +47,8 @@ app.listen(port, (err) => {
       .then(() => seedMultiplanetaryChallenge())
       .then(() => seedElonSolution())
       .then(() => seedManuSolution())
-      .then(() => seedChallengeContributors());
+      .then(() => seedChallengeContributors())
+      .then(() => seedNobelSolutions());
     void seedOutreachProspects();
     void initStripe();
   });

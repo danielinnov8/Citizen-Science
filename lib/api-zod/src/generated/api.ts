@@ -2106,6 +2106,19 @@ export const ListChallengeSolutionsResponseItem = zod.object({
     .describe(
       "Author's directory profile picture, when the author maps to a featured profile",
     ),
+  authorNobelPrizes: zod
+    .array(
+      zod.object({
+        category: zod.string(),
+        categoryCode: zod.string(),
+        awardYear: zod.string(),
+        motivation: zod.string(),
+        portion: zod.string(),
+      }),
+    )
+    .describe(
+      "Nobel prizes won by the author when they map to a featured profile; empty when the author is not a laureate.",
+    ),
   title: zod.string(),
   description: zod.string(),
   approach: zod.string(),
@@ -2178,6 +2191,19 @@ export const GetChallengeSolutionResponse = zod.object({
   userVote: zod.number().nullable(),
   authorName: zod.string(),
   authorSlug: zod.string().nullable(),
+  authorNobelPrizes: zod
+    .array(
+      zod.object({
+        category: zod.string(),
+        categoryCode: zod.string(),
+        awardYear: zod.string(),
+        motivation: zod.string(),
+        portion: zod.string(),
+      }),
+    )
+    .describe(
+      "Nobel prizes won by the author when they map to a featured profile; empty when the author is not a laureate.",
+    ),
   challengeSlug: zod.string(),
   challengeTitle: zod.string(),
   challengeSummary: zod.string(),

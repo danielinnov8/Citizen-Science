@@ -30,6 +30,7 @@ import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { simulatedSolutionVotes, displaySolutionScore } from "@/lib/challengeSim";
+import { NobelBadge } from "@/components/NobelBadge";
 
 const DOMAIN_COLORS: Record<string, { bg: string; text: string; border: string; accent: string }> = {
   climate:      { bg: "bg-emerald-50",  text: "text-emerald-700",  border: "border-emerald-200", accent: "#10B981" },
@@ -210,18 +211,21 @@ function SolutionCard({ solution, slug, isAuthenticated, onLoginRequired }: Solu
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <AuthorAvatar name={solution.authorName} imageUrl={solution.authorImageUrl} />
-          {solution.authorSlug ? (
-            <Link
-              href={`/directory/${solution.authorSlug}`}
-              className="text-sm font-semibold text-[#0F172A] hover:text-blue-700 transition-colors truncate"
-            >
-              {solution.authorName}
-            </Link>
-          ) : (
-            <span className="text-sm font-semibold text-[#0F172A] truncate">
-              {solution.authorName}
-            </span>
-          )}
+          <div className="min-w-0 flex flex-col">
+            {solution.authorSlug ? (
+              <Link
+                href={`/directory/${solution.authorSlug}`}
+                className="text-sm font-semibold text-[#0F172A] hover:text-blue-700 transition-colors truncate"
+              >
+                {solution.authorName}
+              </Link>
+            ) : (
+              <span className="text-sm font-semibold text-[#0F172A] truncate">
+                {solution.authorName}
+              </span>
+            )}
+            <NobelBadge prizes={solution.authorNobelPrizes} variant="chip" className="-mt-1" />
+          </div>
         </div>
         <VoteWidget
           solution={solution}
