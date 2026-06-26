@@ -468,6 +468,37 @@ router.get(
     const registered = paidUsers + freeUsers;
     const creditsConsumed = toInt(creditsRow[0]?.s);
 
+    // Founding Member sales are real one-time purchases (a live Stripe checkout,
+    // not a mailto CTA). Count the PAID founding-type checkout line items synced
+    // by stripe-replit-sync and sum their settled totals (cents → dollars).
+    // Degrades to zero if the Stripe schema isn't present (integration not
+    // connected), so the dashboard never breaks.
+    let foundingMembers = 0;
+    let foundingRevenue = 0;
+    try {
+      const foundingRes = await db.execute(sql`
+        SELECT
+          COALESCE(SUM(li.quantity), 0)     AS members,
+          COALESCE(SUM(li.amount_total), 0) AS revenue_cents
+        FROM stripe.checkout_session_line_items li
+        JOIN stripe.prices pr ON pr.id = li.price
+        JOIN stripe.products p ON p.id = pr.product
+        JOIN stripe.checkout_sessions cs ON cs.id = li.checkout_session
+        WHERE COALESCE(pr.metadata->>'type', p.metadata->>'type') = 'founding'
+          AND cs.payment_status = 'paid'
+      `);
+      const fRow =
+        (foundingRes as unknown as { rows?: Array<Record<string, unknown>> })
+          .rows?.[0] ??
+        (foundingRes as unknown as Array<Record<string, unknown>>)[0];
+      if (fRow) {
+        foundingMembers = toInt(fRow["members"]);
+        foundingRevenue = toInt(fRow["revenue_cents"]) / 100;
+      }
+    } catch {
+      // Stripe schema not ready yet — leave founding figures at zero.
+    }
+
     res.json(
       GetAdminRevenueResponse.parse({
         projectedMrr,
@@ -475,10 +506,8 @@ router.get(
         freeUsers,
         conversionRate: registered > 0 ? paidUsers / registered : 0,
         planRevenue,
-        // No founding-member purchase flow exists yet (it's a mailto CTA), so
-        // there is nothing to count in the DB.
-        foundingMembers: 0,
-        foundingRevenue: 0,
+        foundingMembers,
+        foundingRevenue,
         outstandingTopupCredits: toInt(topupRow[0]?.s),
         creditsConsumedThisMonth: creditsConsumed,
         creditValueUsd: Math.round(creditsConsumed * CREDIT_VALUE_USD * 100) / 100,

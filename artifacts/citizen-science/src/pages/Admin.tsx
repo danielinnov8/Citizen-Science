@@ -641,10 +641,11 @@ function RevenueTab() {
       <Card className="border-amber-200 bg-amber-50/50">
         <CardContent className="p-4 text-sm text-amber-800">
           Stripe checkout is live and plan tiers reflect <strong>real paying
-          members</strong>. Projected MRR is an <strong>estimate</strong> (paid
-          plans × list price) — it isn&apos;t Stripe&apos;s actual collected
-          revenue, so it excludes proration, discounts, tax, and refunds.
-          Founding Member sales are not tracked in the database.
+          members</strong>. Founding Member figures are <strong>real one-time
+          purchases</strong> counted from Stripe. Projected MRR, however, is an{" "}
+          <strong>estimate</strong> (paid plans × list price) — not
+          Stripe&apos;s actual collected subscription revenue, so it excludes
+          proration, discounts, tax, and refunds.
         </CardContent>
       </Card>
 
@@ -713,6 +714,12 @@ function RevenueTab() {
                     </TableCell>
                   </TableRow>
                 ))}
+                <TableRow>
+                  <TableCell className="font-semibold">Founding Members</TableCell>
+                  <TableCell colSpan={3} className="text-right tabular-nums">
+                    {fmt(data.foundingMembers)} members · {fmtUsd(data.foundingRevenue)} lifetime
+                  </TableCell>
+                </TableRow>
                 <TableRow>
                   <TableCell className="font-semibold">Outstanding top-ups</TableCell>
                   <TableCell colSpan={3} className="text-right tabular-nums">
