@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
+  ArrowDown,
   Check,
   Sparkles,
   Compass,
@@ -842,6 +843,21 @@ export default function Pricing() {
                 with AI credits — upgrade or top up when you&apos;re ready for
                 more. No hidden fees.
               </p>
+              <a
+                href="#founding"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document
+                    .getElementById("founding")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="mt-7 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-medium text-amber-200 transition-colors hover:bg-amber-300/20"
+                data-testid="pricing-jump-founding"
+              >
+                <Crown className="h-3.5 w-3.5" />
+                Looking for a lifetime membership? Become a Founding Member
+                <ArrowDown className="h-3.5 w-3.5" />
+              </a>
             </motion.div>
           </div>
         </section>
