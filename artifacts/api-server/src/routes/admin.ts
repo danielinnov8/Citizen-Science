@@ -26,6 +26,7 @@ import {
   outreachSettingsTable,
   type User,
   type ProfileClaim,
+  type ProspectContactInfo,
 } from "@workspace/db";
 import {
   GetAdminOverviewResponse,
@@ -46,9 +47,16 @@ import {
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/requireAuth";
 import { requireSuperAdmin } from "../lib/admin/superadmin";
-import { runOutreachBatch } from "../lib/outreach/scheduler";
+import {
+  runOutreachBatch,
+  sendToProspect,
+  getOutreachSettings,
+} from "../lib/outreach/scheduler";
 import { isResendConfigured } from "../lib/outreach/resend";
 import { ensureDefaultTemplates } from "../lib/outreach/templates";
+import { personaliseEmail, buildEmailHtml } from "../lib/outreach/personalise";
+import { researchProspectContact } from "../lib/outreach/research";
+import { isLivingEra } from "../lib/profiles/living";
 import {
   PLAN_MONTHLY_CREDITS,
   monthlyCreditsForPlan,
@@ -987,28 +995,93 @@ function isValidProspectType(v: unknown): v is ProspectType {
   return VALID_PROSPECT_TYPES.includes(v as ProspectType);
 }
 
-function toProspectWire(p: {
-  id: string;
-  name: string;
-  email: string;
-  type: string;
-  notes: string;
-  status: string;
-  createdAt: Date;
-  lastContactedAt: Date | null;
-  updatedAt: Date;
-}) {
+function toProspectWire(
+  p: {
+    id: string;
+    name: string;
+    email: string | null;
+    type: string;
+    notes: string;
+    status: string;
+    profileId: string | null;
+    source: string;
+    reviewState: string;
+    contactInfo: ProspectContactInfo;
+    researchedAt: Date | null;
+    createdAt: Date;
+    lastContactedAt: Date | null;
+    updatedAt: Date;
+  },
+  profileSlug?: string | null,
+) {
   return {
     id: p.id,
     name: p.name,
-    email: p.email,
+    email: p.email ?? null,
     type: p.type,
     notes: p.notes,
     status: p.status,
+    profileId: p.profileId ?? null,
+    profileSlug: profileSlug ?? null,
+    source: p.source,
+    reviewState: p.reviewState,
+    contactInfo: {
+      email: p.contactInfo?.email ?? null,
+      website: p.contactInfo?.website ?? null,
+      contactPage: p.contactInfo?.contactPage ?? null,
+      socials: p.contactInfo?.socials ?? [],
+      notes: p.contactInfo?.notes ?? null,
+    },
+    researchedAt: p.researchedAt ? p.researchedAt.toISOString() : null,
     createdAt: p.createdAt.toISOString(),
     lastContactedAt: p.lastContactedAt ? p.lastContactedAt.toISOString() : null,
     updatedAt: p.updatedAt.toISOString(),
   };
+}
+
+// Map a directory profile's `group` onto a sensible outreach prospect `type`.
+function prospectTypeForGroup(group: string): ProspectType {
+  switch (group) {
+    case "scientist":
+      return "scientist";
+    case "inventor":
+      return "scientist";
+    case "thought_leader":
+      return "researcher";
+    case "organization":
+      return "user";
+    default:
+      return "scientist";
+  }
+}
+
+// Accept a partial, user-edited contact-info object from the admin modal and
+// normalise it into the stored shape (trimmed strings, capped socials list).
+function sanitizeContactInfoInput(raw: unknown): ProspectContactInfo {
+  if (!raw || typeof raw !== "object") return {};
+  const o = raw as Record<string, unknown>;
+  const str = (v: unknown, max: number): string | null => {
+    if (typeof v !== "string") return null;
+    const t = v.trim();
+    return t ? t.slice(0, max) : null;
+  };
+  const socials = Array.isArray(o.socials)
+    ? o.socials
+        .map((s) => str(s, 200))
+        .filter((s): s is string => !!s)
+        .slice(0, 8)
+    : [];
+  const info: ProspectContactInfo = {};
+  const email = str(o.email, 200);
+  const website = str(o.website, 300);
+  const contactPage = str(o.contactPage, 300);
+  const notes = str(o.notes, 600);
+  if (email) info.email = email;
+  if (website) info.website = website;
+  if (contactPage) info.contactPage = contactPage;
+  if (socials.length) info.socials = socials;
+  if (notes) info.notes = notes;
+  return info;
 }
 
 router.get(
@@ -1058,8 +1131,15 @@ router.get(
 
     const [rows, totalRow] = await Promise.all([
       db
-        .select()
+        .select({
+          prospect: outreachProspectsTable,
+          profileSlug: featuredProfilesTable.slug,
+        })
         .from(outreachProspectsTable)
+        .leftJoin(
+          featuredProfilesTable,
+          eq(outreachProspectsTable.profileId, featuredProfilesTable.id),
+        )
         .where(where)
         .orderBy(desc(outreachProspectsTable.createdAt))
         .limit(pageSize)
@@ -1068,7 +1148,7 @@ router.get(
     ]);
 
     res.json({
-      prospects: rows.map(toProspectWire),
+      prospects: rows.map((r) => toProspectWire(r.prospect, r.profileSlug)),
       total: toInt(totalRow[0]?.c),
       page,
       pageSize,
@@ -1194,15 +1274,18 @@ router.patch(
   "/admin/outreach/prospects/:id",
   async (req: Request, res: Response): Promise<void> => {
     const id = String(req.params.id);
-    const { name, email, type, notes, status } = req.body as Record<
-      string,
-      unknown
-    >;
+    const { name, email, type, notes, status, reviewState, contactInfo } =
+      req.body as Record<string, unknown>;
 
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     if (typeof name === "string" && name.trim()) updates.name = name.trim();
-    if (typeof email === "string" && email.trim())
+    // Email is nullable: an explicit null/empty string clears it, a non-empty
+    // string sets it. `undefined` (key absent) leaves it untouched.
+    if (email === null || (typeof email === "string" && !email.trim())) {
+      updates.email = null;
+    } else if (typeof email === "string" && email.trim()) {
       updates.email = email.trim().toLowerCase();
+    }
     if (isValidProspectType(type)) updates.type = type;
     if (typeof notes === "string") updates.notes = notes.trim();
     if (
@@ -1212,6 +1295,12 @@ router.patch(
       )
     ) {
       updates.status = status;
+    }
+    if (reviewState === "needs_review" || reviewState === "approved") {
+      updates.reviewState = reviewState;
+    }
+    if (contactInfo !== undefined) {
+      updates.contactInfo = sanitizeContactInfoInput(contactInfo);
     }
 
     const [updated] = await db
@@ -1225,7 +1314,17 @@ router.patch(
       return;
     }
 
-    res.json(toProspectWire(updated));
+    const slug = updated.profileId
+      ? (
+          await db
+            .select({ slug: featuredProfilesTable.slug })
+            .from(featuredProfilesTable)
+            .where(eq(featuredProfilesTable.id, updated.profileId))
+            .limit(1)
+        )[0]?.slug ?? null
+      : null;
+
+    res.json(toProspectWire(updated, slug));
   },
 );
 
@@ -1245,6 +1344,336 @@ router.delete(
     }
 
     res.json({ message: "Prospect deleted." });
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Outreach: Directory pipeline (queue / research / detail / review / send)
+// ---------------------------------------------------------------------------
+
+// Queue every LIVING directory figure as a directory-sourced prospect, in the
+// `needs_review` state with no email yet. Deceased figures are never queued.
+// Idempotent: re-running only inserts profiles that aren't already prospects
+// (unique index on profile_id + onConflictDoNothing).
+router.post(
+  "/admin/outreach/queue-directory",
+  async (_req: Request, res: Response): Promise<void> => {
+    const profiles = await db
+      .select({
+        id: featuredProfilesTable.id,
+        name: featuredProfilesTable.name,
+        group: featuredProfilesTable.group,
+        era: featuredProfilesTable.era,
+        summary: featuredProfilesTable.summary,
+      })
+      .from(featuredProfilesTable);
+
+    const living = profiles.filter((p) => isLivingEra(p.era));
+
+    let queued = 0;
+    for (const p of living) {
+      const rows = await db
+        .insert(outreachProspectsTable)
+        .values({
+          name: p.name,
+          email: null,
+          type: prospectTypeForGroup(p.group),
+          notes: p.summary?.slice(0, 500) ?? "",
+          status: "pending",
+          profileId: p.id,
+          source: "directory",
+          reviewState: "needs_review",
+          updatedAt: new Date(),
+        })
+        .onConflictDoNothing()
+        .returning({ id: outreachProspectsTable.id });
+      if (rows.length > 0) queued++;
+    }
+
+    res.json({
+      livingCount: living.length,
+      totalProfiles: profiles.length,
+      queued,
+      skipped: living.length - queued,
+    });
+  },
+);
+
+// Run one paced, resumable batch of AI contact research over directory prospects
+// that haven't been researched yet. Stores results in contactInfo + stamps
+// researchedAt only on success, so an interrupted run is safely re-runnable.
+router.post(
+  "/admin/outreach/research-contacts",
+  async (req: Request, res: Response): Promise<void> => {
+    if (!isGeminiConfigured()) {
+      res
+        .status(503)
+        .json({ error: "GEMINI_API_KEY is not configured. Cannot research contacts." });
+      return;
+    }
+
+    const limit = Math.min(10, Math.max(1, toInt(req.body?.limit) || 5));
+
+    const rows = await db
+      .select({
+        prospect: outreachProspectsTable,
+        field: featuredProfilesTable.field,
+        era: featuredProfilesTable.era,
+      })
+      .from(outreachProspectsTable)
+      .leftJoin(
+        featuredProfilesTable,
+        eq(outreachProspectsTable.profileId, featuredProfilesTable.id),
+      )
+      .where(
+        and(
+          eq(outreachProspectsTable.source, "directory"),
+          isNull(outreachProspectsTable.researchedAt),
+        ),
+      )
+      .orderBy(outreachProspectsTable.createdAt)
+      .limit(limit);
+
+    let researched = 0;
+    let withEmail = 0;
+    let failed = 0;
+
+    for (const r of rows) {
+      try {
+        const info = await researchProspectContact({
+          name: r.prospect.name,
+          field: r.field,
+          era: r.era,
+        });
+        await db
+          .update(outreachProspectsTable)
+          .set({
+            contactInfo: info,
+            researchedAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .where(eq(outreachProspectsTable.id, r.prospect.id));
+        researched++;
+        if (info.email) withEmail++;
+        // Gentle pacing to respect the Gemini free-tier rate limits.
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+      } catch (err) {
+        failed++;
+        req.log.warn(
+          { err, prospectId: r.prospect.id },
+          "outreach: contact research failed for prospect",
+        );
+      }
+    }
+
+    const [remainingRow] = await db
+      .select({ c: count() })
+      .from(outreachProspectsTable)
+      .where(
+        and(
+          eq(outreachProspectsTable.source, "directory"),
+          isNull(outreachProspectsTable.researchedAt),
+        ),
+      );
+
+    res.json({
+      researched,
+      withEmail,
+      failed,
+      remaining: toInt(remainingRow?.c),
+    });
+  },
+);
+
+// Full prospect detail joined with its directory profile (portrait/field/era/
+// summary/slug) for the admin review modal.
+router.get(
+  "/admin/outreach/prospects/:id/detail",
+  async (req: Request, res: Response): Promise<void> => {
+    const id = String(req.params.id);
+    const [row] = await db
+      .select({
+        prospect: outreachProspectsTable,
+        profileSlug: featuredProfilesTable.slug,
+        profileName: featuredProfilesTable.name,
+        profileField: featuredProfilesTable.field,
+        profileEra: featuredProfilesTable.era,
+        profileSummary: featuredProfilesTable.summary,
+        profileImageUrl: featuredProfilesTable.imageUrl,
+      })
+      .from(outreachProspectsTable)
+      .leftJoin(
+        featuredProfilesTable,
+        eq(outreachProspectsTable.profileId, featuredProfilesTable.id),
+      )
+      .where(eq(outreachProspectsTable.id, id))
+      .limit(1);
+
+    if (!row) {
+      res.status(404).json({ error: "Prospect not found." });
+      return;
+    }
+
+    res.json({
+      ...toProspectWire(row.prospect, row.profileSlug),
+      profile: row.prospect.profileId
+        ? {
+            slug: row.profileSlug ?? null,
+            name: row.profileName ?? null,
+            field: row.profileField ?? null,
+            era: row.profileEra ?? null,
+            summary: row.profileSummary ?? null,
+            imageUrl: row.profileImageUrl ?? null,
+          }
+        : null,
+    });
+  },
+);
+
+// Render (but do not send) the personalised email this prospect would receive,
+// so the admin can review copy before approving/sending.
+router.post(
+  "/admin/outreach/prospects/:id/preview",
+  async (req: Request, res: Response): Promise<void> => {
+    const id = String(req.params.id);
+    const [prospect] = await db
+      .select()
+      .from(outreachProspectsTable)
+      .where(eq(outreachProspectsTable.id, id))
+      .limit(1);
+
+    if (!prospect) {
+      res.status(404).json({ error: "Prospect not found." });
+      return;
+    }
+
+    await ensureDefaultTemplates();
+    const [template] = await db
+      .select()
+      .from(outreachTemplatesTable)
+      .where(eq(outreachTemplatesTable.type, prospect.type))
+      .limit(1);
+
+    if (!template) {
+      res.status(404).json({ error: "No template for this prospect type." });
+      return;
+    }
+
+    const { subject, openingParagraph } = await personaliseEmail({
+      name: prospect.name,
+      type: prospect.type,
+      notes: prospect.notes,
+      subjectTemplate: template.subjectTemplate,
+      bodyTemplate: template.bodyTemplate,
+    });
+    const html = buildEmailHtml(openingParagraph, template.bodyTemplate, {
+      name: prospect.name,
+    });
+
+    res.json({ subject, html, to: prospect.email ?? null });
+  },
+);
+
+// Approve a prospect for sending. Optionally promote a researched contactInfo
+// email onto the prospect's real `email` column so the scheduler can reach them.
+// Refuses to approve without a confirmed email (the scheduler gate would skip it
+// anyway — fail loudly here instead).
+router.post(
+  "/admin/outreach/prospects/:id/approve",
+  async (req: Request, res: Response): Promise<void> => {
+    const id = String(req.params.id);
+    const [prospect] = await db
+      .select()
+      .from(outreachProspectsTable)
+      .where(eq(outreachProspectsTable.id, id))
+      .limit(1);
+
+    if (!prospect) {
+      res.status(404).json({ error: "Prospect not found." });
+      return;
+    }
+
+    // Resolve the email to approve with: an explicit body email wins, else the
+    // existing column, else the researched contactInfo email.
+    const bodyEmail =
+      typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
+    const email =
+      bodyEmail || prospect.email || prospect.contactInfo?.email || null;
+
+    if (!email) {
+      res.status(400).json({
+        error:
+          "Cannot approve a prospect with no email. Add or research a contact email first.",
+      });
+      return;
+    }
+
+    const [updated] = await db
+      .update(outreachProspectsTable)
+      .set({ email, reviewState: "approved", updatedAt: new Date() })
+      .where(eq(outreachProspectsTable.id, id))
+      .returning();
+
+    const slug = updated.profileId
+      ? (
+          await db
+            .select({ slug: featuredProfilesTable.slug })
+            .from(featuredProfilesTable)
+            .where(eq(featuredProfilesTable.id, updated.profileId))
+            .limit(1)
+        )[0]?.slug ?? null
+      : null;
+
+    res.json(toProspectWire(updated, slug));
+  },
+);
+
+// Send a single prospect's outreach email immediately. Enforces the same gate as
+// the scheduler: must be approved AND have a confirmed email.
+router.post(
+  "/admin/outreach/prospects/:id/send",
+  async (req: Request, res: Response): Promise<void> => {
+    if (!isResendConfigured()) {
+      res
+        .status(503)
+        .json({ error: "RESEND_API_KEY is not configured. Cannot send emails." });
+      return;
+    }
+
+    const id = String(req.params.id);
+    const [prospect] = await db
+      .select()
+      .from(outreachProspectsTable)
+      .where(eq(outreachProspectsTable.id, id))
+      .limit(1);
+
+    if (!prospect) {
+      res.status(404).json({ error: "Prospect not found." });
+      return;
+    }
+    if (prospect.reviewState !== "approved") {
+      res
+        .status(400)
+        .json({ error: "Prospect must be approved before sending." });
+      return;
+    }
+    if (!prospect.email) {
+      res
+        .status(400)
+        .json({ error: "Prospect has no confirmed email to send to." });
+      return;
+    }
+
+    const settings = await getOutreachSettings();
+    try {
+      await sendToProspect(prospect, settings);
+    } catch (err) {
+      req.log.error({ err, prospectId: id }, "outreach: manual send failed");
+      res.status(502).json({ error: "Failed to send email. Please try again." });
+      return;
+    }
+
+    res.json({ message: "Email sent.", prospectId: id });
   },
 );
 
@@ -1416,7 +1845,7 @@ async function getOrCreateSettings() {
       id: 1,
       sendHour: 9,
       batchSize: 20,
-      fromEmail: "outreach@citizenscience.app",
+      fromEmail: "outreach@citizen-science.org",
       fromName: "Citizen Science",
       updatedAt: new Date(),
     }

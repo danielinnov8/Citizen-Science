@@ -756,10 +756,22 @@ export const ListOutreachProspectsResponse = zod.object({
     zod.object({
       id: zod.string(),
       name: zod.string(),
-      email: zod.string(),
+      email: zod.string().nullable(),
       type: zod.enum(["researcher", "scientist", "investor", "user"]),
       notes: zod.string(),
       status: zod.enum(["pending", "contacted", "replied", "unsubscribed"]),
+      profileId: zod.string().nullable(),
+      profileSlug: zod.string().nullable(),
+      source: zod.enum(["manual", "directory"]),
+      reviewState: zod.enum(["needs_review", "approved"]),
+      contactInfo: zod.object({
+        email: zod.string().nullable(),
+        website: zod.string().nullable(),
+        contactPage: zod.string().nullable(),
+        socials: zod.array(zod.string()),
+        notes: zod.string().nullable(),
+      }),
+      researchedAt: zod.coerce.date().nullable(),
       createdAt: zod.coerce.date(),
       lastContactedAt: zod.coerce.date().nullable(),
       updatedAt: zod.coerce.date(),
@@ -817,21 +829,43 @@ export const updateOutreachProspectBodyNotesMax = 2000;
 
 export const UpdateOutreachProspectBody = zod.object({
   name: zod.string().min(1).max(updateOutreachProspectBodyNameMax).optional(),
-  email: zod.string().email().optional(),
+  email: zod.string().email().nullish(),
   type: zod.enum(["researcher", "scientist", "investor", "user"]).optional(),
   notes: zod.string().max(updateOutreachProspectBodyNotesMax).optional(),
   status: zod
     .enum(["pending", "contacted", "replied", "unsubscribed"])
+    .optional(),
+  reviewState: zod.enum(["needs_review", "approved"]).optional(),
+  contactInfo: zod
+    .object({
+      email: zod.string().nullish(),
+      website: zod.string().nullish(),
+      contactPage: zod.string().nullish(),
+      socials: zod.array(zod.string()).optional(),
+      notes: zod.string().nullish(),
+    })
     .optional(),
 });
 
 export const UpdateOutreachProspectResponse = zod.object({
   id: zod.string(),
   name: zod.string(),
-  email: zod.string(),
+  email: zod.string().nullable(),
   type: zod.enum(["researcher", "scientist", "investor", "user"]),
   notes: zod.string(),
   status: zod.enum(["pending", "contacted", "replied", "unsubscribed"]),
+  profileId: zod.string().nullable(),
+  profileSlug: zod.string().nullable(),
+  source: zod.enum(["manual", "directory"]),
+  reviewState: zod.enum(["needs_review", "approved"]),
+  contactInfo: zod.object({
+    email: zod.string().nullable(),
+    website: zod.string().nullable(),
+    contactPage: zod.string().nullable(),
+    socials: zod.array(zod.string()),
+    notes: zod.string().nullable(),
+  }),
+  researchedAt: zod.coerce.date().nullable(),
   createdAt: zod.coerce.date(),
   lastContactedAt: zod.coerce.date().nullable(),
   updatedAt: zod.coerce.date(),
@@ -853,6 +887,148 @@ export const DeleteOutreachProspectResponse = zod.object({
     .describe(
       "True when the message was held for an unclaimed living member and will be delivered once they claim their profile.\n",
     ),
+});
+
+/**
+ * Superadmin-only. Enumerates every featured directory profile and queues each LIVING figure as a directory-sourced prospect in the needs_review state (no email yet). Deceased figures are never queued. Idempotent.
+ * @summary Queue living directory figures as prospects
+ */
+export const QueueDirectoryProspectsResponse = zod.object({
+  livingCount: zod.number(),
+  totalProfiles: zod.number(),
+  queued: zod.number(),
+  skipped: zod.number(),
+});
+
+/**
+ * Superadmin-only. Runs one paced, resumable batch of Gemini web-search contact research over directory prospects not yet researched.
+ * @summary Research contact info for queued directory prospects
+ */
+export const researchProspectContactsBodyLimitMax = 10;
+
+export const ResearchProspectContactsBody = zod.object({
+  limit: zod
+    .number()
+    .min(1)
+    .max(researchProspectContactsBodyLimitMax)
+    .optional(),
+});
+
+export const ResearchProspectContactsResponse = zod.object({
+  researched: zod.number(),
+  withEmail: zod.number(),
+  failed: zod.number(),
+  remaining: zod.number(),
+});
+
+/**
+ * Superadmin-only. Full prospect detail joined with its directory profile.
+ * @summary Get a prospect with its directory profile
+ */
+export const GetOutreachProspectParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetOutreachProspectResponse = zod
+  .object({
+    id: zod.string(),
+    name: zod.string(),
+    email: zod.string().nullable(),
+    type: zod.enum(["researcher", "scientist", "investor", "user"]),
+    notes: zod.string(),
+    status: zod.enum(["pending", "contacted", "replied", "unsubscribed"]),
+    profileId: zod.string().nullable(),
+    profileSlug: zod.string().nullable(),
+    source: zod.enum(["manual", "directory"]),
+    reviewState: zod.enum(["needs_review", "approved"]),
+    contactInfo: zod.object({
+      email: zod.string().nullable(),
+      website: zod.string().nullable(),
+      contactPage: zod.string().nullable(),
+      socials: zod.array(zod.string()),
+      notes: zod.string().nullable(),
+    }),
+    researchedAt: zod.coerce.date().nullable(),
+    createdAt: zod.coerce.date(),
+    lastContactedAt: zod.coerce.date().nullable(),
+    updatedAt: zod.coerce.date(),
+  })
+  .and(
+    zod.object({
+      profile: zod
+        .object({
+          slug: zod.string().nullish(),
+          name: zod.string().nullish(),
+          field: zod.string().nullish(),
+          era: zod.string().nullish(),
+          summary: zod.string().nullish(),
+          imageUrl: zod.string().nullish(),
+        })
+        .nullable(),
+    }),
+  );
+
+/**
+ * Superadmin-only. Renders the personalised email without sending it.
+ * @summary Preview the email a prospect would receive
+ */
+export const PreviewOutreachProspectEmailParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const PreviewOutreachProspectEmailResponse = zod.object({
+  subject: zod.string(),
+  html: zod.string(),
+  to: zod.string().nullable(),
+});
+
+/**
+ * Superadmin-only. Marks the prospect approved and promotes a confirmed email (body, existing column, or researched contactInfo) onto the prospect so the scheduler can reach them. Fails if no email is available.
+ * @summary Approve a prospect for sending
+ */
+export const ApproveOutreachProspectParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ApproveOutreachProspectBody = zod.object({
+  email: zod.string().email().optional(),
+});
+
+export const ApproveOutreachProspectResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  email: zod.string().nullable(),
+  type: zod.enum(["researcher", "scientist", "investor", "user"]),
+  notes: zod.string(),
+  status: zod.enum(["pending", "contacted", "replied", "unsubscribed"]),
+  profileId: zod.string().nullable(),
+  profileSlug: zod.string().nullable(),
+  source: zod.enum(["manual", "directory"]),
+  reviewState: zod.enum(["needs_review", "approved"]),
+  contactInfo: zod.object({
+    email: zod.string().nullable(),
+    website: zod.string().nullable(),
+    contactPage: zod.string().nullable(),
+    socials: zod.array(zod.string()),
+    notes: zod.string().nullable(),
+  }),
+  researchedAt: zod.coerce.date().nullable(),
+  createdAt: zod.coerce.date(),
+  lastContactedAt: zod.coerce.date().nullable(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * Superadmin-only. Sends immediately. Enforces the scheduler gate: the prospect must be approved and have a confirmed email.
+ * @summary Send a single prospect's outreach email now
+ */
+export const SendOutreachProspectParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const SendOutreachProspectResponse = zod.object({
+  message: zod.string(),
+  prospectId: zod.string(),
 });
 
 /**

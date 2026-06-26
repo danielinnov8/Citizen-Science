@@ -5,8 +5,10 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { OutreachProspectPatchReviewState } from "./outreachProspectPatchReviewState";
 import type { OutreachProspectPatchStatus } from "./outreachProspectPatchStatus";
 import type { OutreachProspectPatchType } from "./outreachProspectPatchType";
+import type { ProspectContactInfoInput } from "./prospectContactInfoInput";
 
 export interface OutreachProspectPatch {
   /**
@@ -14,9 +16,12 @@ export interface OutreachProspectPatch {
    * @maxLength 200
    */
   name?: string;
-  email?: string;
+  /** @nullable */
+  email?: string | null;
   type?: OutreachProspectPatchType;
   /** @maxLength 2000 */
   notes?: string;
   status?: OutreachProspectPatchStatus;
+  reviewState?: OutreachProspectPatchReviewState;
+  contactInfo?: ProspectContactInfoInput;
 }

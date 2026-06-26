@@ -28,3 +28,4 @@
 - [Contemporary vs historical classification](contemporary-profile-bc-era.md) — eyebrow uses lifespan; BC/short-year ranges must read as historical, not Modern Visionaries.
 - [Orval response-name collision](orval-response-name-collision.md) — never name a component schema {OperationId}Response; zod barrel re-exports value+type of same name → TS2308.
 - [Post-auth routing via localStorage](post-auth-routing-localstorage.md) — Login/Onboarding route from localStorage flags, NOT ?query params; carry intent (e.g. pendingCheckout) as a flag, resume checkout before onboarding (transaction-first).
+- [Outreach pipeline safety](outreach-pipeline.md) — directory figures queued needs-review; send only when pending+approved+email-not-null; from=verified citizen-science.org domain.

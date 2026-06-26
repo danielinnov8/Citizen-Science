@@ -713,6 +713,18 @@ export interface EnrollResult {
   totalRemaining: number;
 }
 
+export interface ProspectContactInfo {
+  /** @nullable */
+  email: string | null;
+  /** @nullable */
+  website: string | null;
+  /** @nullable */
+  contactPage: string | null;
+  socials: string[];
+  /** @nullable */
+  notes: string | null;
+}
+
 export type OutreachProspectType =
   (typeof OutreachProspectType)[keyof typeof OutreachProspectType];
 
@@ -733,18 +745,67 @@ export const OutreachProspectStatus = {
   unsubscribed: "unsubscribed",
 } as const;
 
+export type OutreachProspectSource =
+  (typeof OutreachProspectSource)[keyof typeof OutreachProspectSource];
+
+export const OutreachProspectSource = {
+  manual: "manual",
+  directory: "directory",
+} as const;
+
+export type OutreachProspectReviewState =
+  (typeof OutreachProspectReviewState)[keyof typeof OutreachProspectReviewState];
+
+export const OutreachProspectReviewState = {
+  needs_review: "needs_review",
+  approved: "approved",
+} as const;
+
 export interface OutreachProspect {
   id: string;
   name: string;
-  email: string;
+  /** @nullable */
+  email: string | null;
   type: OutreachProspectType;
   notes: string;
   status: OutreachProspectStatus;
+  /** @nullable */
+  profileId: string | null;
+  /** @nullable */
+  profileSlug: string | null;
+  source: OutreachProspectSource;
+  reviewState: OutreachProspectReviewState;
+  contactInfo: ProspectContactInfo;
+  /** @nullable */
+  researchedAt: string | null;
   createdAt: string;
   /** @nullable */
   lastContactedAt: string | null;
   updatedAt: string;
 }
+
+/**
+ * @nullable
+ */
+export type OutreachProspectDetailProfile = {
+  /** @nullable */
+  slug?: string | null;
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  field?: string | null;
+  /** @nullable */
+  era?: string | null;
+  /** @nullable */
+  summary?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
+} | null;
+
+export type OutreachProspectDetail = OutreachProspect & {
+  /** @nullable */
+  profile: OutreachProspectDetailProfile;
+};
 
 export type OutreachProspectInputType =
   (typeof OutreachProspectInputType)[keyof typeof OutreachProspectInputType];
@@ -788,17 +849,78 @@ export const OutreachProspectPatchStatus = {
   unsubscribed: "unsubscribed",
 } as const;
 
+export type OutreachProspectPatchReviewState =
+  (typeof OutreachProspectPatchReviewState)[keyof typeof OutreachProspectPatchReviewState];
+
+export const OutreachProspectPatchReviewState = {
+  needs_review: "needs_review",
+  approved: "approved",
+} as const;
+
+export interface ProspectContactInfoInput {
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  website?: string | null;
+  /** @nullable */
+  contactPage?: string | null;
+  socials?: string[];
+  /** @nullable */
+  notes?: string | null;
+}
+
 export interface OutreachProspectPatch {
   /**
    * @minLength 1
    * @maxLength 200
    */
   name?: string;
-  email?: string;
+  /** @nullable */
+  email?: string | null;
   type?: OutreachProspectPatchType;
   /** @maxLength 2000 */
   notes?: string;
   status?: OutreachProspectPatchStatus;
+  reviewState?: OutreachProspectPatchReviewState;
+  contactInfo?: ProspectContactInfoInput;
+}
+
+export interface QueueDirectoryResult {
+  livingCount: number;
+  totalProfiles: number;
+  queued: number;
+  skipped: number;
+}
+
+export interface ResearchContactsInput {
+  /**
+   * @minimum 1
+   * @maximum 10
+   */
+  limit?: number;
+}
+
+export interface ResearchContactsResult {
+  researched: number;
+  withEmail: number;
+  failed: number;
+  remaining: number;
+}
+
+export interface ApproveProspectInput {
+  email?: string;
+}
+
+export interface ProspectEmailPreview {
+  subject: string;
+  html: string;
+  /** @nullable */
+  to: string | null;
+}
+
+export interface SendProspectResult {
+  message: string;
+  prospectId: string;
 }
 
 export interface OutreachProspectList {

@@ -5,16 +5,29 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { OutreachProspectReviewState } from "./outreachProspectReviewState";
+import type { OutreachProspectSource } from "./outreachProspectSource";
 import type { OutreachProspectStatus } from "./outreachProspectStatus";
 import type { OutreachProspectType } from "./outreachProspectType";
+import type { ProspectContactInfo } from "./prospectContactInfo";
 
 export interface OutreachProspect {
   id: string;
   name: string;
-  email: string;
+  /** @nullable */
+  email: string | null;
   type: OutreachProspectType;
   notes: string;
   status: OutreachProspectStatus;
+  /** @nullable */
+  profileId: string | null;
+  /** @nullable */
+  profileSlug: string | null;
+  source: OutreachProspectSource;
+  reviewState: OutreachProspectReviewState;
+  contactInfo: ProspectContactInfo;
+  /** @nullable */
+  researchedAt: Date | null;
   createdAt: Date;
   /** @nullable */
   lastContactedAt: Date | null;

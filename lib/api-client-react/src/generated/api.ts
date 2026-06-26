@@ -26,6 +26,7 @@ import type {
   AdminUsage,
   AdminUser,
   AdminUserList,
+  ApproveProspectInput,
   AuthUser,
   BillingPrices,
   BulkImportProspectsInput,
@@ -75,6 +76,7 @@ import type {
   OutOfCreditsError,
   OutreachBatchResult,
   OutreachProspect,
+  OutreachProspectDetail,
   OutreachProspectInput,
   OutreachProspectList,
   OutreachProspectPatch,
@@ -85,8 +87,13 @@ import type {
   OutreachTemplateInput,
   PortalUrl,
   ProfileSolutionItem,
+  ProspectEmailPreview,
+  QueueDirectoryResult,
   RegisterInput,
+  ResearchContactsInput,
+  ResearchContactsResult,
   SendMessageInput,
+  SendProspectResult,
   SetUserMentorInput,
   UpdateProfileInput,
   UpdateUserPlanInput,
@@ -2477,6 +2484,526 @@ export const useDeleteOutreachProspect = <
   TContext
 > => {
   return useMutation(getDeleteOutreachProspectMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Enumerates every featured directory profile and queues each LIVING figure as a directory-sourced prospect in the needs_review state (no email yet). Deceased figures are never queued. Idempotent.
+ * @summary Queue living directory figures as prospects
+ */
+export const getQueueDirectoryProspectsUrl = () => {
+  return `/api/admin/outreach/queue-directory`;
+};
+
+export const queueDirectoryProspects = async (
+  options?: RequestInit,
+): Promise<QueueDirectoryResult> => {
+  return customFetch<QueueDirectoryResult>(getQueueDirectoryProspectsUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getQueueDirectoryProspectsMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof queueDirectoryProspects>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof queueDirectoryProspects>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["queueDirectoryProspects"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof queueDirectoryProspects>>,
+    void
+  > = () => {
+    return queueDirectoryProspects(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type QueueDirectoryProspectsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof queueDirectoryProspects>>
+>;
+
+export type QueueDirectoryProspectsMutationError = ErrorType<Error>;
+
+/**
+ * @summary Queue living directory figures as prospects
+ */
+export const useQueueDirectoryProspects = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof queueDirectoryProspects>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof queueDirectoryProspects>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getQueueDirectoryProspectsMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Runs one paced, resumable batch of Gemini web-search contact research over directory prospects not yet researched.
+ * @summary Research contact info for queued directory prospects
+ */
+export const getResearchProspectContactsUrl = () => {
+  return `/api/admin/outreach/research-contacts`;
+};
+
+export const researchProspectContacts = async (
+  researchContactsInput?: ResearchContactsInput,
+  options?: RequestInit,
+): Promise<ResearchContactsResult> => {
+  return customFetch<ResearchContactsResult>(getResearchProspectContactsUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(researchContactsInput),
+  });
+};
+
+export const getResearchProspectContactsMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof researchProspectContacts>>,
+    TError,
+    { data: BodyType<ResearchContactsInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof researchProspectContacts>>,
+  TError,
+  { data: BodyType<ResearchContactsInput> },
+  TContext
+> => {
+  const mutationKey = ["researchProspectContacts"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof researchProspectContacts>>,
+    { data: BodyType<ResearchContactsInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return researchProspectContacts(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ResearchProspectContactsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof researchProspectContacts>>
+>;
+export type ResearchProspectContactsMutationBody =
+  BodyType<ResearchContactsInput>;
+export type ResearchProspectContactsMutationError = ErrorType<Error>;
+
+/**
+ * @summary Research contact info for queued directory prospects
+ */
+export const useResearchProspectContacts = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof researchProspectContacts>>,
+    TError,
+    { data: BodyType<ResearchContactsInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof researchProspectContacts>>,
+  TError,
+  { data: BodyType<ResearchContactsInput> },
+  TContext
+> => {
+  return useMutation(getResearchProspectContactsMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Full prospect detail joined with its directory profile.
+ * @summary Get a prospect with its directory profile
+ */
+export const getGetOutreachProspectUrl = (id: string) => {
+  return `/api/admin/outreach/prospects/${id}/detail`;
+};
+
+export const getOutreachProspect = async (
+  id: string,
+  options?: RequestInit,
+): Promise<OutreachProspectDetail> => {
+  return customFetch<OutreachProspectDetail>(getGetOutreachProspectUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetOutreachProspectQueryKey = (id: string) => {
+  return [`/api/admin/outreach/prospects/${id}/detail`] as const;
+};
+
+export const getGetOutreachProspectQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOutreachProspect>>,
+  TError = ErrorType<Error>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getOutreachProspect>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetOutreachProspectQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOutreachProspect>>
+  > = ({ signal }) => getOutreachProspect(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOutreachProspect>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetOutreachProspectQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOutreachProspect>>
+>;
+export type GetOutreachProspectQueryError = ErrorType<Error>;
+
+/**
+ * @summary Get a prospect with its directory profile
+ */
+
+export function useGetOutreachProspect<
+  TData = Awaited<ReturnType<typeof getOutreachProspect>>,
+  TError = ErrorType<Error>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getOutreachProspect>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetOutreachProspectQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Superadmin-only. Renders the personalised email without sending it.
+ * @summary Preview the email a prospect would receive
+ */
+export const getPreviewOutreachProspectEmailUrl = (id: string) => {
+  return `/api/admin/outreach/prospects/${id}/preview`;
+};
+
+export const previewOutreachProspectEmail = async (
+  id: string,
+  options?: RequestInit,
+): Promise<ProspectEmailPreview> => {
+  return customFetch<ProspectEmailPreview>(
+    getPreviewOutreachProspectEmailUrl(id),
+    {
+      ...options,
+      method: "POST",
+    },
+  );
+};
+
+export const getPreviewOutreachProspectEmailMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof previewOutreachProspectEmail>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof previewOutreachProspectEmail>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["previewOutreachProspectEmail"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof previewOutreachProspectEmail>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return previewOutreachProspectEmail(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PreviewOutreachProspectEmailMutationResult = NonNullable<
+  Awaited<ReturnType<typeof previewOutreachProspectEmail>>
+>;
+
+export type PreviewOutreachProspectEmailMutationError = ErrorType<Error>;
+
+/**
+ * @summary Preview the email a prospect would receive
+ */
+export const usePreviewOutreachProspectEmail = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof previewOutreachProspectEmail>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof previewOutreachProspectEmail>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getPreviewOutreachProspectEmailMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Marks the prospect approved and promotes a confirmed email (body, existing column, or researched contactInfo) onto the prospect so the scheduler can reach them. Fails if no email is available.
+ * @summary Approve a prospect for sending
+ */
+export const getApproveOutreachProspectUrl = (id: string) => {
+  return `/api/admin/outreach/prospects/${id}/approve`;
+};
+
+export const approveOutreachProspect = async (
+  id: string,
+  approveProspectInput?: ApproveProspectInput,
+  options?: RequestInit,
+): Promise<OutreachProspect> => {
+  return customFetch<OutreachProspect>(getApproveOutreachProspectUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(approveProspectInput),
+  });
+};
+
+export const getApproveOutreachProspectMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof approveOutreachProspect>>,
+    TError,
+    { id: string; data: BodyType<ApproveProspectInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof approveOutreachProspect>>,
+  TError,
+  { id: string; data: BodyType<ApproveProspectInput> },
+  TContext
+> => {
+  const mutationKey = ["approveOutreachProspect"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof approveOutreachProspect>>,
+    { id: string; data: BodyType<ApproveProspectInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return approveOutreachProspect(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ApproveOutreachProspectMutationResult = NonNullable<
+  Awaited<ReturnType<typeof approveOutreachProspect>>
+>;
+export type ApproveOutreachProspectMutationBody =
+  BodyType<ApproveProspectInput>;
+export type ApproveOutreachProspectMutationError = ErrorType<Error>;
+
+/**
+ * @summary Approve a prospect for sending
+ */
+export const useApproveOutreachProspect = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof approveOutreachProspect>>,
+    TError,
+    { id: string; data: BodyType<ApproveProspectInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof approveOutreachProspect>>,
+  TError,
+  { id: string; data: BodyType<ApproveProspectInput> },
+  TContext
+> => {
+  return useMutation(getApproveOutreachProspectMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Sends immediately. Enforces the scheduler gate: the prospect must be approved and have a confirmed email.
+ * @summary Send a single prospect's outreach email now
+ */
+export const getSendOutreachProspectUrl = (id: string) => {
+  return `/api/admin/outreach/prospects/${id}/send`;
+};
+
+export const sendOutreachProspect = async (
+  id: string,
+  options?: RequestInit,
+): Promise<SendProspectResult> => {
+  return customFetch<SendProspectResult>(getSendOutreachProspectUrl(id), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getSendOutreachProspectMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendOutreachProspect>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof sendOutreachProspect>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["sendOutreachProspect"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof sendOutreachProspect>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return sendOutreachProspect(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SendOutreachProspectMutationResult = NonNullable<
+  Awaited<ReturnType<typeof sendOutreachProspect>>
+>;
+
+export type SendOutreachProspectMutationError = ErrorType<Error>;
+
+/**
+ * @summary Send a single prospect's outreach email now
+ */
+export const useSendOutreachProspect = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendOutreachProspect>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof sendOutreachProspect>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getSendOutreachProspectMutationOptions(options));
 };
 
 /**

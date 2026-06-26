@@ -20,6 +20,13 @@ import {
   Upload,
   AlertTriangle,
   RefreshCw,
+  Sparkles,
+  ListPlus,
+  Globe,
+  Eye,
+  Loader2,
+  Link2,
+  ExternalLink,
 } from "lucide-react";
 import {
   AreaChart,
@@ -70,9 +77,17 @@ import {
   useGetOutreachSettings,
   getGetOutreachSettingsQueryKey,
   useUpdateOutreachSettings,
+  useQueueDirectoryProspects,
+  useResearchProspectContacts,
+  useGetOutreachProspect,
+  getGetOutreachProspectQueryKey,
+  usePreviewOutreachProspectEmail,
+  useApproveOutreachProspect,
+  useSendOutreachProspect,
   type AdminUser,
   type AdminClaim,
   type OutreachProspect,
+  type OutreachProspectDetail,
   type OutreachTemplate,
   type ListOutreachProspectsParams,
   type ListOutreachSendsParams,
@@ -1159,6 +1174,14 @@ const SEND_STATUS_COLORS: Record<
   complained: { bg: "bg-orange-50", text: "text-orange-700", label: "Spam" },
 };
 
+const REVIEW_STATE_COLORS: Record<
+  string,
+  { bg: string; text: string; label: string }
+> = {
+  needs_review: { bg: "bg-amber-50", text: "text-amber-700", label: "Needs review" },
+  approved: { bg: "bg-green-50", text: "text-green-700", label: "Approved" },
+};
+
 function ProspectTypeBadge({ type }: { type: string }) {
   return (
     <span className="rounded-full bg-violet-50 px-2 py-0.5 text-[11px] font-medium text-violet-700">
@@ -1366,6 +1389,362 @@ function BulkImportDialog({
   );
 }
 
+// ---------- Prospect Review Modal ----------
+
+function ProspectReviewModal({
+  prospectId,
+  open,
+  onOpenChange,
+  onChanged,
+  resendMissing,
+}: {
+  prospectId: string | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onChanged: () => void;
+  resendMissing: boolean;
+}) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data, isLoading } = useGetOutreachProspect(prospectId ?? "", {
+    query: {
+      queryKey: getGetOutreachProspectQueryKey(prospectId ?? ""),
+      enabled: open && !!prospectId,
+      staleTime: 0,
+    },
+  });
+
+  const update = useUpdateOutreachProspect();
+  const approve = useApproveOutreachProspect();
+  const send = useSendOutreachProspect();
+  const preview = usePreviewOutreachProspectEmail();
+
+  // Editable form state, hydrated from the fetched detail.
+  const [sendEmail, setSendEmail] = React.useState("");
+  const [type, setType] = React.useState<string>("user");
+  const [status, setStatus] = React.useState<string>("pending");
+  const [notes, setNotes] = React.useState("");
+  const [ciEmail, setCiEmail] = React.useState("");
+  const [ciWebsite, setCiWebsite] = React.useState("");
+  const [ciContactPage, setCiContactPage] = React.useState("");
+  const [ciSocials, setCiSocials] = React.useState("");
+  const [ciNotes, setCiNotes] = React.useState("");
+  const [previewHtml, setPreviewHtml] = React.useState<{ subject: string; html: string } | null>(null);
+
+  React.useEffect(() => {
+    if (open && data) {
+      setSendEmail(data.email ?? "");
+      setType(data.type);
+      setStatus(data.status);
+      setNotes(data.notes ?? "");
+      setCiEmail(data.contactInfo.email ?? "");
+      setCiWebsite(data.contactInfo.website ?? "");
+      setCiContactPage(data.contactInfo.contactPage ?? "");
+      setCiSocials((data.contactInfo.socials ?? []).join("\n"));
+      setCiNotes(data.contactInfo.notes ?? "");
+      setPreviewHtml(null);
+    }
+    if (!open) setPreviewHtml(null);
+  }, [open, data]);
+
+  const buildContactInfo = () => ({
+    email: ciEmail.trim() || null,
+    website: ciWebsite.trim() || null,
+    contactPage: ciContactPage.trim() || null,
+    socials: ciSocials
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean),
+    notes: ciNotes.trim() || null,
+  });
+
+  const afterMutation = () => {
+    onChanged();
+    if (prospectId)
+      void queryClient.invalidateQueries({
+        queryKey: getGetOutreachProspectQueryKey(prospectId),
+      });
+  };
+
+  const saveInfo = async () => {
+    if (!prospectId) return;
+    try {
+      await update.mutateAsync({
+        id: prospectId,
+        data: {
+          email: sendEmail.trim() || null,
+          type: type as "researcher" | "scientist" | "investor" | "user",
+          status: status as "pending" | "contacted" | "replied" | "unsubscribed",
+          notes: notes.trim(),
+          contactInfo: buildContactInfo(),
+        },
+      });
+      toast({ title: "Saved" });
+      afterMutation();
+    } catch (err) {
+      toast({ title: "Couldn't save", description: (err as Error)?.message, variant: "destructive" });
+    }
+  };
+
+  const approveAndQueue = async () => {
+    if (!prospectId) return;
+    const email = sendEmail.trim() || ciEmail.trim();
+    if (!email) {
+      toast({ title: "Add a contact email first", variant: "destructive" });
+      return;
+    }
+    try {
+      // Persist edits first so notes/contactInfo/type aren't lost on approve.
+      await update.mutateAsync({
+        id: prospectId,
+        data: {
+          type: type as "researcher" | "scientist" | "investor" | "user",
+          notes: notes.trim(),
+          contactInfo: buildContactInfo(),
+        },
+      });
+      await approve.mutateAsync({ id: prospectId, data: { email } });
+      toast({ title: "Approved & queued", description: email });
+      afterMutation();
+    } catch (err) {
+      toast({ title: "Couldn't approve", description: (err as Error)?.message, variant: "destructive" });
+    }
+  };
+
+  const sendNow = async () => {
+    if (!prospectId) return;
+    try {
+      await send.mutateAsync({ id: prospectId });
+      toast({ title: "Email sent" });
+      afterMutation();
+      onOpenChange(false);
+    } catch (err) {
+      toast({ title: "Couldn't send", description: (err as Error)?.message, variant: "destructive" });
+    }
+  };
+
+  const runPreview = async () => {
+    if (!prospectId) return;
+    try {
+      const r = await preview.mutateAsync({ id: prospectId });
+      setPreviewHtml({ subject: r.subject, html: r.html });
+    } catch (err) {
+      toast({ title: "Couldn't render preview", description: (err as Error)?.message, variant: "destructive" });
+    }
+  };
+
+  const profile = data?.profile ?? null;
+  const isApproved = data?.reviewState === "approved";
+  const busy = update.isPending || approve.isPending || send.isPending;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            {data?.name ?? "Prospect"}
+            {data && <StatusBadge status={data.reviewState} map={REVIEW_STATE_COLORS} />}
+          </DialogTitle>
+          <DialogDescription>
+            {data?.source === "directory"
+              ? "Directory figure queued for outreach. Review the researched contact details, then approve to queue for sending."
+              : "Review and edit this prospect's outreach details."}
+          </DialogDescription>
+        </DialogHeader>
+
+        {isLoading || !data ? (
+          <div className="flex items-center justify-center py-12 text-sm text-[#94A3B8]">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading…
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-[200px_1fr]">
+            {/* Profile column */}
+            <div className="space-y-3">
+              <div className="aspect-square w-full overflow-hidden rounded-xl bg-slate-100">
+                {profile?.imageUrl ? (
+                  <img src={profile.imageUrl} alt={data.name} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-[#CBD5E1]">
+                    <UsersIcon className="h-10 w-10" />
+                  </div>
+                )}
+              </div>
+              {profile?.field && (
+                <div className="text-sm">
+                  <div className="font-medium text-[#0F172A]">{profile.field}</div>
+                  {profile.era && <div className="text-xs text-[#94A3B8]">{profile.era}</div>}
+                </div>
+              )}
+              {data.profileSlug && (
+                <a
+                  href={`/directory/${data.profileSlug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
+                >
+                  View directory profile <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+              {profile?.summary && (
+                <p className="text-xs leading-relaxed text-[#64748B]">{profile.summary}</p>
+              )}
+            </div>
+
+            {/* Editable column */}
+            <div className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium">Send-to email</label>
+                  <Input
+                    type="email"
+                    value={sendEmail}
+                    onChange={(e) => setSendEmail(e.target.value)}
+                    placeholder="confirmed@email.com"
+                  />
+                  <p className="text-[11px] text-[#94A3B8]">The address the scheduler will use.</p>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium">Type</label>
+                  <Select value={type} onValueChange={setType}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="researcher">Researcher</SelectItem>
+                      <SelectItem value="scientist">Scientist</SelectItem>
+                      <SelectItem value="investor">Investor</SelectItem>
+                      <SelectItem value="user">General User</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-[#E2E8F0] bg-slate-50/60 p-3 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Researched contact info
+                  {data.researchedAt && (
+                    <span className="ml-auto font-normal normal-case text-[#94A3B8]">
+                      {new Date(data.researchedAt).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-[#64748B]">Public email</label>
+                    <Input value={ciEmail} onChange={(e) => setCiEmail(e.target.value)} placeholder="—" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-[#64748B]">Website</label>
+                    <Input value={ciWebsite} onChange={(e) => setCiWebsite(e.target.value)} placeholder="—" />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-[#64748B]">Contact page</label>
+                  <Input value={ciContactPage} onChange={(e) => setCiContactPage(e.target.value)} placeholder="—" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-[#64748B]">Socials (one per line)</label>
+                  <textarea
+                    className="h-16 w-full rounded-md border border-[#E2E8F0] bg-white p-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    value={ciSocials}
+                    onChange={(e) => setCiSocials(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-[#64748B]">Research notes</label>
+                  <Input value={ciNotes} onChange={(e) => setCiNotes(e.target.value)} placeholder="—" />
+                </div>
+                {ciEmail.trim() && !sendEmail.trim() && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setSendEmail(ciEmail.trim())}
+                  >
+                    <Link2 className="h-3.5 w-3.5" />
+                    Use as send-to email
+                  </Button>
+                )}
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium">Status</label>
+                  <Select value={status} onValueChange={setStatus}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="contacted">Contacted</SelectItem>
+                      <SelectItem value="replied">Replied</SelectItem>
+                      <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Personalisation notes</label>
+                <textarea
+                  className="h-16 w-full rounded-md border border-[#E2E8F0] bg-white p-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Context the AI uses to personalise the email…"
+                />
+              </div>
+
+              {previewHtml && (
+                <div className="rounded-lg border border-[#E2E8F0] overflow-hidden">
+                  <div className="border-b border-[#E2E8F0] bg-slate-50 px-3 py-2 text-xs">
+                    <span className="text-[#94A3B8]">Subject:</span>{" "}
+                    <span className="font-medium text-[#0F172A]">{previewHtml.subject}</span>
+                  </div>
+                  <div
+                    className="max-h-64 overflow-y-auto bg-white p-3 text-sm"
+                    dangerouslySetInnerHTML={{ __html: previewHtml.html }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <DialogFooter className="flex-wrap gap-2 sm:justify-between">
+          <Button variant="ghost" onClick={runPreview} disabled={!data || preview.isPending}>
+            {preview.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
+            Preview email
+          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" onClick={saveInfo} disabled={busy}>
+              Save
+            </Button>
+            <Button onClick={approveAndQueue} disabled={busy}>
+              <CheckCircle2 className="h-4 w-4" />
+              {isApproved ? "Update & re-queue" : "Approve & queue"}
+            </Button>
+            <Button
+              variant="default"
+              className="bg-green-600 hover:bg-green-700"
+              onClick={sendNow}
+              disabled={busy || !isApproved || !data?.email || resendMissing}
+              title={
+                resendMissing
+                  ? "RESEND_API_KEY not configured"
+                  : !isApproved
+                    ? "Approve the prospect first"
+                    : !data?.email
+                      ? "No confirmed email"
+                      : undefined
+              }
+            >
+              {send.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              Send now
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ---------- Prospects sub-tab ----------
 
 function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
@@ -1381,8 +1760,12 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<OutreachProspect | null>(null);
   const [bulkOpen, setBulkOpen] = React.useState(false);
+  const [reviewId, setReviewId] = React.useState<string | null>(null);
+  const [reviewOpen, setReviewOpen] = React.useState(false);
 
   const deleteProspect = useDeleteOutreachProspect();
+  const queueDirectory = useQueueDirectoryProspects();
+  const researchContacts = useResearchProspectContacts();
 
   const params: ListOutreachProspectsParams = {
     search: search || undefined,
@@ -1401,13 +1784,47 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
   const totalPages = data ? Math.max(1, Math.ceil(data.total / pageSize)) : 1;
 
   const onDelete = async (p: OutreachProspect) => {
-    if (!confirm(`Delete ${p.email}?`)) return;
+    if (!confirm(`Delete ${p.email ?? p.name}?`)) return;
     try {
       await deleteProspect.mutateAsync({ id: p.id });
       toast({ title: "Prospect deleted" });
       refetch();
     } catch {
       toast({ title: "Couldn't delete prospect", variant: "destructive" });
+    }
+  };
+
+  const openReview = (p: OutreachProspect) => {
+    setReviewId(p.id);
+    setReviewOpen(true);
+  };
+
+  const onQueueDirectory = async () => {
+    try {
+      const r = await queueDirectory.mutateAsync();
+      toast({
+        title: `Queued ${r.queued} living figure${r.queued === 1 ? "" : "s"}`,
+        description: `${r.livingCount} living of ${r.totalProfiles} profiles · ${r.skipped} already queued`,
+      });
+      refetch();
+    } catch (err) {
+      toast({ title: "Couldn't queue directory", description: (err as Error)?.message, variant: "destructive" });
+    }
+  };
+
+  const onResearch = async () => {
+    try {
+      const r = await researchContacts.mutateAsync({ data: { limit: 5 } });
+      toast({
+        title: `Researched ${r.researched} · ${r.withEmail} with email`,
+        description:
+          r.remaining > 0
+            ? `${r.remaining} still to research — run again to continue${r.failed ? ` · ${r.failed} failed` : ""}`
+            : `All directory prospects researched${r.failed ? ` · ${r.failed} failed` : ""}`,
+      });
+      refetch();
+    } catch (err) {
+      toast({ title: "Couldn't research contacts", description: (err as Error)?.message, variant: "destructive" });
     }
   };
 
@@ -1466,6 +1883,14 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
           </SelectContent>
         </Select>
 
+        <Button onClick={onQueueDirectory} disabled={queueDirectory.isPending}>
+          {queueDirectory.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ListPlus className="h-4 w-4" />}
+          Queue directory
+        </Button>
+        <Button variant="secondary" onClick={onResearch} disabled={researchContacts.isPending}>
+          {researchContacts.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4" />}
+          Research contacts
+        </Button>
         <Button variant="secondary" onClick={() => { setEditing(null); setDialogOpen(true); }}>
           <Plus className="h-4 w-4" />
           Add
@@ -1483,31 +1908,44 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
               <TableRow>
                 <TableHead>Name / Email</TableHead>
                 <TableHead>Type</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Review</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Last contacted</TableHead>
-                <TableHead>Notes</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center text-sm text-[#94A3B8]">Loading…</TableCell>
+                  <TableCell colSpan={7} className="py-8 text-center text-sm text-[#94A3B8]">Loading…</TableCell>
                 </TableRow>
               ) : !data?.prospects.length ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-10 text-center text-sm text-[#94A3B8]">
-                    No prospects yet. Add one or import a CSV file.
+                  <TableCell colSpan={7} className="py-10 text-center text-sm text-[#94A3B8]">
+                    No prospects yet. Queue the directory, add one, or import a CSV file.
                   </TableCell>
                 </TableRow>
               ) : (
                 data.prospects.map((p) => (
-                  <TableRow key={p.id}>
+                  <TableRow
+                    key={p.id}
+                    className="cursor-pointer"
+                    onClick={() => openReview(p)}
+                  >
                     <TableCell>
                       <div className="font-medium text-[#0F172A]">{p.name}</div>
-                      <div className="text-xs text-[#94A3B8]">{p.email}</div>
+                      <div className="text-xs text-[#94A3B8]">{p.email ?? "no email yet"}</div>
                     </TableCell>
                     <TableCell><ProspectTypeBadge type={p.type} /></TableCell>
+                    <TableCell>
+                      <span className="text-xs text-[#64748B]">
+                        {p.source === "directory" ? "Directory" : "Manual"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={p.reviewState} map={REVIEW_STATE_COLORS} />
+                    </TableCell>
                     <TableCell>
                       <StatusBadge status={p.status} map={PROSPECT_STATUS_COLORS} />
                     </TableCell>
@@ -1516,11 +1954,11 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
                         ? new Date(p.lastContactedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
                         : "—"}
                     </TableCell>
-                    <TableCell className="max-w-[160px] truncate text-sm text-[#64748B]">
-                      {p.notes || "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex justify-end gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => openReview(p)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Button size="sm" variant="ghost" onClick={() => { setEditing(p); setDialogOpen(true); }}>
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -1549,6 +1987,13 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
 
       <ProspectDialog open={dialogOpen} onOpenChange={setDialogOpen} editing={editing} onSuccess={refetch} />
       <BulkImportDialog open={bulkOpen} onOpenChange={setBulkOpen} onSuccess={refetch} />
+      <ProspectReviewModal
+        prospectId={reviewId}
+        open={reviewOpen}
+        onOpenChange={setReviewOpen}
+        onChanged={refetch}
+        resendMissing={resendMissing}
+      />
     </div>
   );
 }

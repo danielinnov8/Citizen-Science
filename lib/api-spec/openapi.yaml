@@ -823,6 +823,220 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /admin/outreach/queue-directory:
+    post:
+      operationId: queueDirectoryProspects
+      tags: [admin]
+      summary: Queue living directory figures as prospects
+      description: >-
+        Superadmin-only. Enumerates every featured directory profile and queues
+        each LIVING figure as a directory-sourced prospect in the needs_review
+        state (no email yet). Deceased figures are never queued. Idempotent.
+      responses:
+        "200":
+          description: Queue result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueueDirectoryResult"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/outreach/research-contacts:
+    post:
+      operationId: researchProspectContacts
+      tags: [admin]
+      summary: Research contact info for queued directory prospects
+      description: >-
+        Superadmin-only. Runs one paced, resumable batch of Gemini web-search
+        contact research over directory prospects not yet researched.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResearchContactsInput"
+      responses:
+        "200":
+          description: Research batch result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResearchContactsResult"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "503":
+          description: Gemini not configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/outreach/prospects/{id}/detail:
+    get:
+      operationId: getOutreachProspect
+      tags: [admin]
+      summary: Get a prospect with its directory profile
+      description: Superadmin-only. Full prospect detail joined with its directory profile.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The prospect detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutreachProspectDetail"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/outreach/prospects/{id}/preview:
+    post:
+      operationId: previewOutreachProspectEmail
+      tags: [admin]
+      summary: Preview the email a prospect would receive
+      description: Superadmin-only. Renders the personalised email without sending it.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The rendered email preview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProspectEmailPreview"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/outreach/prospects/{id}/approve:
+    post:
+      operationId: approveOutreachProspect
+      tags: [admin]
+      summary: Approve a prospect for sending
+      description: >-
+        Superadmin-only. Marks the prospect approved and promotes a confirmed
+        email (body, existing column, or researched contactInfo) onto the
+        prospect so the scheduler can reach them. Fails if no email is available.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApproveProspectInput"
+      responses:
+        "200":
+          description: The approved prospect
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutreachProspect"
+        "400":
+          description: No email available
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/outreach/prospects/{id}/send:
+    post:
+      operationId: sendOutreachProspect
+      tags: [admin]
+      summary: Send a single prospect's outreach email now
+      description: >-
+        Superadmin-only. Sends immediately. Enforces the scheduler gate: the
+        prospect must be approved and have a confirmed email.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Send result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendProspectResult"
+        "400":
+          description: Not approved or no email
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "502":
+          description: Send failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "503":
+          description: Resend not configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /admin/outreach/templates:
     get:
       operationId: listOutreachTemplates
@@ -3484,6 +3698,27 @@ components:
         - courseId
         - creditsPaid
         - totalRemaining
+    ProspectContactInfo:
+      type: object
+      properties:
+        email:
+          type: ["string", "null"]
+        website:
+          type: ["string", "null"]
+        contactPage:
+          type: ["string", "null"]
+        socials:
+          type: array
+          items:
+            type: string
+        notes:
+          type: ["string", "null"]
+      required:
+        - email
+        - website
+        - contactPage
+        - socials
+        - notes
     OutreachProspect:
       type: object
       properties:
@@ -3492,7 +3727,7 @@ components:
         name:
           type: string
         email:
-          type: string
+          type: ["string", "null"]
         type:
           type: string
           enum: [researcher, scientist, investor, user]
@@ -3501,6 +3736,21 @@ components:
         status:
           type: string
           enum: [pending, contacted, replied, unsubscribed]
+        profileId:
+          type: ["string", "null"]
+        profileSlug:
+          type: ["string", "null"]
+        source:
+          type: string
+          enum: [manual, directory]
+        reviewState:
+          type: string
+          enum: [needs_review, approved]
+        contactInfo:
+          $ref: "#/components/schemas/ProspectContactInfo"
+        researchedAt:
+          type: ["string", "null"]
+          format: date-time
         createdAt:
           type: string
           format: date-time
@@ -3517,9 +3767,37 @@ components:
         - type
         - notes
         - status
+        - profileId
+        - profileSlug
+        - source
+        - reviewState
+        - contactInfo
+        - researchedAt
         - createdAt
         - lastContactedAt
         - updatedAt
+    OutreachProspectDetail:
+      allOf:
+        - $ref: "#/components/schemas/OutreachProspect"
+        - type: object
+          properties:
+            profile:
+              type: ["object", "null"]
+              properties:
+                slug:
+                  type: ["string", "null"]
+                name:
+                  type: ["string", "null"]
+                field:
+                  type: ["string", "null"]
+                era:
+                  type: ["string", "null"]
+                summary:
+                  type: ["string", "null"]
+                imageUrl:
+                  type: ["string", "null"]
+          required:
+            - profile
     OutreachProspectInput:
       type: object
       properties:
@@ -3548,7 +3826,7 @@ components:
           minLength: 1
           maxLength: 200
         email:
-          type: string
+          type: ["string", "null"]
           format: email
         type:
           type: string
@@ -3559,6 +3837,94 @@ components:
         status:
           type: string
           enum: [pending, contacted, replied, unsubscribed]
+        reviewState:
+          type: string
+          enum: [needs_review, approved]
+        contactInfo:
+          $ref: "#/components/schemas/ProspectContactInfoInput"
+    ProspectContactInfoInput:
+      type: object
+      properties:
+        email:
+          type: ["string", "null"]
+        website:
+          type: ["string", "null"]
+        contactPage:
+          type: ["string", "null"]
+        socials:
+          type: array
+          items:
+            type: string
+        notes:
+          type: ["string", "null"]
+    QueueDirectoryResult:
+      type: object
+      properties:
+        livingCount:
+          type: integer
+        totalProfiles:
+          type: integer
+        queued:
+          type: integer
+        skipped:
+          type: integer
+      required:
+        - livingCount
+        - totalProfiles
+        - queued
+        - skipped
+    ResearchContactsInput:
+      type: object
+      properties:
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 10
+    ResearchContactsResult:
+      type: object
+      properties:
+        researched:
+          type: integer
+        withEmail:
+          type: integer
+        failed:
+          type: integer
+        remaining:
+          type: integer
+      required:
+        - researched
+        - withEmail
+        - failed
+        - remaining
+    ApproveProspectInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+    ProspectEmailPreview:
+      type: object
+      properties:
+        subject:
+          type: string
+        html:
+          type: string
+        to:
+          type: ["string", "null"]
+      required:
+        - subject
+        - html
+        - to
+    SendProspectResult:
+      type: object
+      properties:
+        message:
+          type: string
+        prospectId:
+          type: string
+      required:
+        - message
+        - prospectId
     OutreachProspectList:
       type: object
       properties:
