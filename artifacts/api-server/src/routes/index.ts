@@ -11,6 +11,7 @@ import citizenxRouter from "./citizenx";
 import mentorshipRouter from "./mentorship";
 import digitalMentorRouter from "./digitalMentor";
 import challengesRouter from "./challenges";
+import onboardingRouter from "./onboarding";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(citizenxRouter);
 router.use(mentorshipRouter);
 router.use(digitalMentorRouter);
 router.use(challengesRouter);
+router.use(onboardingRouter);
 
 export default router;

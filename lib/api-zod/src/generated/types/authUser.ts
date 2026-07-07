@@ -17,4 +17,6 @@ export interface AuthUser {
   isSuperAdmin: boolean;
   /** Whether this account is flagged as a mentor (can publish mentoring courses). */
   isMentor: boolean;
+  /** Whether this account has completed the story-driven onboarding (server-side source of truth). */
+  onboarded: boolean;
 }

@@ -30,3 +30,4 @@
 - [Post-auth routing via localStorage](post-auth-routing-localstorage.md) — Login/Onboarding route from localStorage flags, NOT ?query params; carry intent (e.g. pendingCheckout) as a flag, resume checkout before onboarding (transaction-first).
 - [Outreach pipeline safety](outreach-pipeline.md) — directory figures queued needs-review; send only when pending+approved+email-not-null; from=verified citizen-science.org domain.
 - [Nobel-solutions seeder throughput](nobel-seeder-throughput.md) — laureate-solution seeder is latency-bound not quota-bound (1000+ grounded calls, 0 429s); use the concurrency CLI arg; ~6 physics/poetry laureates correctly stay uncovered (no forced matches).
+- [AI interview deterministic close](ai-interview-deterministic-close.md) — models can't count their own questions; server must count answers and inject a forced-close instruction, client needs a same-limit safety net.

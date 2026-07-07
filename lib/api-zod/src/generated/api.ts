@@ -54,6 +54,11 @@ export const LoginResponse = zod.object({
     .describe(
       "Whether this account is flagged as a mentor (can publish mentoring courses).",
     ),
+  onboarded: zod
+    .boolean()
+    .describe(
+      "Whether this account has completed the story-driven onboarding (server-side source of truth).",
+    ),
 });
 
 /**
@@ -88,6 +93,11 @@ export const GetCurrentUserResponse = zod.object({
     .boolean()
     .describe(
       "Whether this account is flagged as a mentor (can publish mentoring courses).",
+    ),
+  onboarded: zod
+    .boolean()
+    .describe(
+      "Whether this account has completed the story-driven onboarding (server-side source of truth).",
     ),
 });
 
@@ -370,6 +380,101 @@ export const ListProfileSolutionsResponseItem = zod.object({
 export const ListProfileSolutionsResponse = zod.array(
   ListProfileSolutionsResponseItem,
 );
+
+/**
+ * Auth required. Returns whether the user has completed the story-driven onboarding (server-side source of truth) and, when present, the saved structured record.
+
+ * @summary Get the current user's onboarding state
+ */
+export const GetOnboardingStateResponse = zod.object({
+  onboarded: zod.boolean(),
+  record: zod.union([
+    zod
+      .object({
+        path: zod.enum(["member", "claimant"]),
+        claimProfileSlug: zod.string().nullable(),
+        role: zod.string().nullable(),
+        interests: zod.array(zod.string()),
+        primaryGoal: zod.string().nullable(),
+        ambition: zod.string().nullable(),
+        insights: zod.array(zod.string()),
+        summary: zod.string().nullable(),
+        source: zod.enum(["agentic", "fallback", "legacy"]),
+        completedAt: zod.coerce.date(),
+      })
+      .describe("The saved structured onboarding record (Task"),
+    zod.null(),
+  ]),
+});
+
+/**
+ * Auth required. Saves the member's onboarding answers (structured fields plus, when a free-form interview transcript is supplied, AI-extracted insights) and marks the account onboarded. Idempotent — repeat calls update the existing record. Not credit-metered.
+
+ * @summary Complete onboarding and persist answers
+ */
+export const completeOnboardingBodyProfileSlugMax = 200;
+
+export const completeOnboardingBodyTranscriptMax = 12000;
+
+export const completeOnboardingBodyRoleMax = 100;
+
+export const completeOnboardingBodyInterestsItemMax = 100;
+
+export const completeOnboardingBodyInterestsMax = 8;
+
+export const completeOnboardingBodyPrimaryGoalMax = 100;
+
+export const completeOnboardingBodyAmbitionMax = 100;
+
+export const CompleteOnboardingBody = zod.object({
+  source: zod.enum(["agentic", "fallback", "legacy"]),
+  path: zod.enum(["member", "claimant"]),
+  profileSlug: zod
+    .string()
+    .max(completeOnboardingBodyProfileSlugMax)
+    .optional()
+    .describe(
+      "The featured-profile slug being claimed, for claimant-path onboarding.",
+    ),
+  transcript: zod
+    .string()
+    .max(completeOnboardingBodyTranscriptMax)
+    .optional()
+    .describe(
+      'Free-form interview transcript (\"guide:\"\/\"member:\"-prefixed lines). When present, the server runs a best-effort AI extraction pass.',
+    ),
+  role: zod.string().max(completeOnboardingBodyRoleMax).optional(),
+  interests: zod
+    .array(zod.string().max(completeOnboardingBodyInterestsItemMax))
+    .max(completeOnboardingBodyInterestsMax)
+    .optional(),
+  primaryGoal: zod
+    .string()
+    .max(completeOnboardingBodyPrimaryGoalMax)
+    .optional(),
+  ambition: zod.string().max(completeOnboardingBodyAmbitionMax).optional(),
+});
+
+export const CompleteOnboardingResponse = zod.object({
+  onboarded: zod.boolean(),
+  record: zod.union([
+    zod
+      .object({
+        path: zod.enum(["member", "claimant"]),
+        claimProfileSlug: zod.string().nullable(),
+        role: zod.string().nullable(),
+        interests: zod.array(zod.string()),
+        primaryGoal: zod.string().nullable(),
+        ambition: zod.string().nullable(),
+        insights: zod.array(zod.string()),
+        summary: zod.string().nullable(),
+        source: zod.enum(["agentic", "fallback", "legacy"]),
+        completedAt: zod.coerce.date(),
+      })
+      .describe("The saved structured onboarding record (Task"),
+    zod.null(),
+  ]),
+});
 
 /**
  * Returns the credit balance for the caller — a signed-in user or, when logged out, the anonymous guest identified by the browser's anon cookie. Credits meter all AI features (copilot chat, web-grounded research, field-notes analysis, and the talking avatar).

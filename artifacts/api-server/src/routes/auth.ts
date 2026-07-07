@@ -55,6 +55,8 @@ function toAuthUser(user: User) {
     image: user.image,
     isSuperAdmin: isSuperAdmin(user),
     isMentor: user.isMentor,
+    // Server-side source of truth for the story-driven onboarding gate.
+    onboarded: user.onboardedAt !== null,
   };
 }
 

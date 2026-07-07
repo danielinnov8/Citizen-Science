@@ -44,7 +44,8 @@ function linesToArray(value: string): string[] {
 
 export function ProfileOwnership({ profile }: { profile: FeaturedProfile }) {
   const { slug } = profile;
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, hasCompletedOnboarding } =
+    useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -103,6 +104,23 @@ export function ProfileOwnership({ profile }: { profile: FeaturedProfile }) {
       {
         onSuccess: () => {
           refetchClaim();
+          // A signed-in-but-not-onboarded innovator flows straight into the
+          // story-driven onboarding with their claim as context, and returns
+          // here afterwards (same localStorage-flag pattern as post-auth
+          // routing).
+          if (!hasCompletedOnboarding) {
+            try {
+              window.localStorage.setItem("cs.onboardingClaimSlug", slug);
+              window.localStorage.setItem(
+                "cs.postAuthRedirect",
+                `/directory/${slug}`,
+              );
+            } catch {
+              /* ignore */
+            }
+            navigate("/onboarding");
+            return;
+          }
           toast({
             title: "Claim submitted",
             description:

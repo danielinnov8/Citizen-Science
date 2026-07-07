@@ -43,6 +43,7 @@ import type {
   CitizenxExperiment,
   CitizenxExperimentInput,
   CitizenxExperimentSummary,
+  CompleteOnboardingInput,
   CourseDraft,
   CourseDraftInput,
   CourseInput,
@@ -73,6 +74,7 @@ import type {
   MessageList,
   MessageResponse,
   MyProfileClaimStatus,
+  OnboardingState,
   OutOfCreditsError,
   OutreachBatchResult,
   OutreachProspect,
@@ -1191,6 +1193,171 @@ export function useListProfileSolutions<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Auth required. Returns whether the user has completed the story-driven onboarding (server-side source of truth) and, when present, the saved structured record.
+
+ * @summary Get the current user's onboarding state
+ */
+export const getGetOnboardingStateUrl = () => {
+  return `/api/onboarding`;
+};
+
+export const getOnboardingState = async (
+  options?: RequestInit,
+): Promise<OnboardingState> => {
+  return customFetch<OnboardingState>(getGetOnboardingStateUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetOnboardingStateQueryKey = () => {
+  return [`/api/onboarding`] as const;
+};
+
+export const getGetOnboardingStateQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOnboardingState>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getOnboardingState>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetOnboardingStateQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOnboardingState>>
+  > = ({ signal }) => getOnboardingState({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOnboardingState>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetOnboardingStateQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOnboardingState>>
+>;
+export type GetOnboardingStateQueryError = ErrorType<void>;
+
+/**
+ * @summary Get the current user's onboarding state
+ */
+
+export function useGetOnboardingState<
+  TData = Awaited<ReturnType<typeof getOnboardingState>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getOnboardingState>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetOnboardingStateQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Auth required. Saves the member's onboarding answers (structured fields plus, when a free-form interview transcript is supplied, AI-extracted insights) and marks the account onboarded. Idempotent — repeat calls update the existing record. Not credit-metered.
+
+ * @summary Complete onboarding and persist answers
+ */
+export const getCompleteOnboardingUrl = () => {
+  return `/api/onboarding/complete`;
+};
+
+export const completeOnboarding = async (
+  completeOnboardingInput: CompleteOnboardingInput,
+  options?: RequestInit,
+): Promise<OnboardingState> => {
+  return customFetch<OnboardingState>(getCompleteOnboardingUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(completeOnboardingInput),
+  });
+};
+
+export const getCompleteOnboardingMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof completeOnboarding>>,
+    TError,
+    { data: BodyType<CompleteOnboardingInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof completeOnboarding>>,
+  TError,
+  { data: BodyType<CompleteOnboardingInput> },
+  TContext
+> => {
+  const mutationKey = ["completeOnboarding"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof completeOnboarding>>,
+    { data: BodyType<CompleteOnboardingInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return completeOnboarding(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CompleteOnboardingMutationResult = NonNullable<
+  Awaited<ReturnType<typeof completeOnboarding>>
+>;
+export type CompleteOnboardingMutationBody = BodyType<CompleteOnboardingInput>;
+export type CompleteOnboardingMutationError = ErrorType<void>;
+
+/**
+ * @summary Complete onboarding and persist answers
+ */
+export const useCompleteOnboarding = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof completeOnboarding>>,
+    TError,
+    { data: BodyType<CompleteOnboardingInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof completeOnboarding>>,
+  TError,
+  { data: BodyType<CompleteOnboardingInput> },
+  TContext
+> => {
+  return useMutation(getCompleteOnboardingMutationOptions(options));
+};
 
 /**
  * Returns the credit balance for the caller — a signed-in user or, when logged out, the anonymous guest identified by the browser's anon cookie. Credits meter all AI features (copilot chat, web-grounded research, field-notes analysis, and the talking avatar).

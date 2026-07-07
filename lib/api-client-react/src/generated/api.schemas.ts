@@ -223,6 +223,8 @@ export interface AuthUser {
   isSuperAdmin: boolean;
   /** Whether this account is flagged as a mentor (can publish mentoring courses). */
   isMentor: boolean;
+  /** Whether this account has completed the story-driven onboarding (server-side source of truth). */
+  onboarded: boolean;
 }
 
 export interface RegisterInput {
@@ -325,6 +327,89 @@ export interface FeaturedProfile {
   /** Whether this profile has an approved owner (Task #92). True once a superadmin approves a user's claim; drives the "Verified" badge.
    */
   verified: boolean;
+}
+
+export type OnboardingRecordPath =
+  (typeof OnboardingRecordPath)[keyof typeof OnboardingRecordPath];
+
+export const OnboardingRecordPath = {
+  member: "member",
+  claimant: "claimant",
+} as const;
+
+export type OnboardingRecordSource =
+  (typeof OnboardingRecordSource)[keyof typeof OnboardingRecordSource];
+
+export const OnboardingRecordSource = {
+  agentic: "agentic",
+  fallback: "fallback",
+  legacy: "legacy",
+} as const;
+
+/**
+ * The saved structured onboarding record (Task
+ */
+export interface OnboardingRecord {
+  path: OnboardingRecordPath;
+  /** @nullable */
+  claimProfileSlug: string | null;
+  /** @nullable */
+  role: string | null;
+  interests: string[];
+  /** @nullable */
+  primaryGoal: string | null;
+  /** @nullable */
+  ambition: string | null;
+  insights: string[];
+  /** @nullable */
+  summary: string | null;
+  source: OnboardingRecordSource;
+  completedAt: string;
+}
+
+export interface OnboardingState {
+  onboarded: boolean;
+  record: OnboardingRecord | null;
+}
+
+export type CompleteOnboardingInputSource =
+  (typeof CompleteOnboardingInputSource)[keyof typeof CompleteOnboardingInputSource];
+
+export const CompleteOnboardingInputSource = {
+  agentic: "agentic",
+  fallback: "fallback",
+  legacy: "legacy",
+} as const;
+
+export type CompleteOnboardingInputPath =
+  (typeof CompleteOnboardingInputPath)[keyof typeof CompleteOnboardingInputPath];
+
+export const CompleteOnboardingInputPath = {
+  member: "member",
+  claimant: "claimant",
+} as const;
+
+export interface CompleteOnboardingInput {
+  source: CompleteOnboardingInputSource;
+  path: CompleteOnboardingInputPath;
+  /**
+   * The featured-profile slug being claimed, for claimant-path onboarding.
+   * @maxLength 200
+   */
+  profileSlug?: string;
+  /**
+   * Free-form interview transcript ("guide:"/"member:"-prefixed lines). When present, the server runs a best-effort AI extraction pass.
+   * @maxLength 12000
+   */
+  transcript?: string;
+  /** @maxLength 100 */
+  role?: string;
+  /** @maxItems 8 */
+  interests?: string[];
+  /** @maxLength 100 */
+  primaryGoal?: string;
+  /** @maxLength 100 */
+  ambition?: string;
 }
 
 export type ProfileClaimStatus =

@@ -376,6 +376,97 @@ export async function scoreVideoRelevance(
   return { bestIndex, score, reason: parsed.reason ?? "" };
 }
 
+export interface OnboardingInsights {
+  role: string | null;
+  interests: string[];
+  primaryGoal: string | null;
+  ambition: string | null;
+  insights: string[];
+  summary: string | null;
+}
+
+const ONBOARDING_INSIGHTS_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    role: { type: Type.STRING, nullable: true },
+    interests: { type: Type.ARRAY, items: { type: Type.STRING } },
+    primaryGoal: { type: Type.STRING, nullable: true },
+    ambition: { type: Type.STRING, nullable: true },
+    insights: { type: Type.ARRAY, items: { type: Type.STRING } },
+    summary: { type: Type.STRING, nullable: true },
+  },
+  required: ["interests", "insights"],
+};
+
+const ONBOARDING_INSIGHTS_INSTRUCTION = `You convert a short onboarding interview transcript from the "Citizen Science" learning platform into one structured member record. Lines are prefixed "guide:" (the AI interviewer) and "member:" (the new member's answers).
+
+Produce:
+- role: the single best-fit role slug from exactly this list, or null if truly unclear: student, researcher, professional, educator, founder, explorer, innovator.
+- interests: 1-5 short science interest phrases the member expressed (e.g. "astronomy", "marine biology", "AI & computing"). Lowercase. Empty array if none.
+- primaryGoal: the single best-fit goal slug from exactly this list, or null: great-minds, ai-tools, experiments, mentor, expertise, connect, share-knowledge.
+- ambition: the single best-fit ambition slug from exactly this list, or null: curiosity, career, contribute, discovery, transition, inspire.
+- insights: 2-5 short factual bullet observations about the member drawn only from what they said (their background, current work, motivations, what they want to share or get from the community). No speculation.
+- summary: one plain-text sentence describing who this member is and what they are here for.
+
+Only use information the member actually gave. Never fabricate. Respond with JSON only.`;
+
+export interface ExtractOnboardingInsightsOptions {
+  signal?: AbortSignal;
+  onUsage?: (usage: UsageInfo) => void;
+}
+
+// Convert a free-form onboarding interview transcript into the structured
+// fields the app stores (role/interests/goal/ambition + insight bullets).
+// Structured JSON output, thinking off for low latency. Uses the user's own
+// GEMINI_API_KEY. Callers treat failures as best-effort (save without
+// extraction rather than failing onboarding).
+export async function extractOnboardingInsights(
+  transcript: string,
+  options: ExtractOnboardingInsightsOptions = {},
+): Promise<OnboardingInsights> {
+  const trimmed = transcript.trim();
+  if (!trimmed) {
+    throw new Error("transcript must not be empty");
+  }
+
+  const response = await getGenAI().models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: trimmed.slice(0, 12000),
+    config: {
+      systemInstruction: ONBOARDING_INSIGHTS_INSTRUCTION,
+      responseMimeType: "application/json",
+      responseSchema: ONBOARDING_INSIGHTS_SCHEMA,
+      maxOutputTokens: 2048,
+      thinkingConfig: { thinkingBudget: 0 },
+      abortSignal: options.signal,
+    },
+  });
+
+  const usage = toUsageInfo(response.usageMetadata);
+  if (usage) options.onUsage?.(usage);
+
+  const text = response.text;
+  if (!text) {
+    throw new Error("Gemini returned an empty response");
+  }
+
+  const parsed = JSON.parse(text) as Partial<OnboardingInsights>;
+  const str = (v: unknown): string | null =>
+    typeof v === "string" && v.trim() ? v.trim() : null;
+  const strArr = (v: unknown): string[] =>
+    Array.isArray(v)
+      ? v.filter((s): s is string => typeof s === "string" && !!s.trim()).slice(0, 8)
+      : [];
+  return {
+    role: str(parsed.role),
+    interests: strArr(parsed.interests),
+    primaryGoal: str(parsed.primaryGoal),
+    ambition: str(parsed.ambition),
+    insights: strArr(parsed.insights),
+    summary: str(parsed.summary),
+  };
+}
+
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;

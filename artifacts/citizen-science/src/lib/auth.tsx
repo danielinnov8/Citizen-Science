@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useGetCurrentUser,
@@ -6,6 +12,7 @@ import {
   useRegister,
   useLogout,
   getGetCurrentUserQueryKey,
+  completeOnboarding as completeOnboardingRequest,
   type AuthUser,
 } from "@workspace/api-client-react";
 
@@ -17,6 +24,7 @@ interface AuthUserView {
   image: string | null;
   isSuperAdmin: boolean;
   isMentor: boolean;
+  onboarded: boolean;
 }
 
 interface AuthState {
@@ -54,7 +62,16 @@ function toView(user: AuthUser): AuthUserView {
     image: user.image,
     isSuperAdmin: user.isSuperAdmin,
     isMentor: user.isMentor,
+    onboarded: user.onboarded,
   };
+}
+
+function readLegacyFlag(): boolean {
+  try {
+    return localStorage.getItem("cs_onboarded") === "true";
+  } catch {
+    return false;
+  }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -72,17 +89,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const registerMutation = useRegister();
   const logoutMutation = useLogout();
 
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(() => {
-    try {
-      return localStorage.getItem("cs_onboarded") === "true";
-    } catch {
-      return false;
-    }
-  });
+  // Legacy compat: the old wizard stored completion in localStorage only. The
+  // server flag (users.onboarded_at, surfaced as `user.onboarded`) is now the
+  // source of truth; the local flag keeps pre-migration users from being
+  // bounced back into onboarding and is backfilled to the server below.
+  const [legacyOnboarded, setLegacyOnboarded] = useState(readLegacyFlag);
 
   const user = meQuery.data ? toView(meQuery.data) : null;
   const isAuthenticated = !!user;
   const isLoading = meQuery.isLoading;
+  const hasCompletedOnboarding = user ? user.onboarded || legacyOnboarded : false;
+
+  // One-shot backfill: a signed-in user with the legacy local flag but no
+  // server flag gets their completion persisted server-side. Best-effort.
+  const backfillAttempted = useRef(false);
+  useEffect(() => {
+    if (!user || user.onboarded || !legacyOnboarded) return;
+    if (backfillAttempted.current) return;
+    backfillAttempted.current = true;
+    completeOnboardingRequest({ source: "legacy", path: "member" })
+      .then(() => {
+        queryClient.setQueryData(
+          getGetCurrentUserQueryKey(),
+          (prev: AuthUser | null | undefined) =>
+            prev ? { ...prev, onboarded: true } : prev,
+        );
+      })
+      .catch(() => {
+        // Leave the local flag doing its job; retry next session.
+        backfillAttempted.current = false;
+      });
+  }, [user, legacyOnboarded, queryClient]);
 
   const signInWithEmail = async (email: string, password: string) => {
     const result = await loginMutation.mutateAsync({ data: { email, password } });
@@ -112,20 +149,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  // Mark onboarding done locally (optimistic). The Onboarding page persists to
+  // the server via POST /onboarding/complete; this keeps the client-side gate
+  // open immediately so completion navigation isn't bounced by ProtectedRoute.
   const completeOnboarding = () => {
     try {
       localStorage.setItem("cs_onboarded", "true");
     } catch {
       /* ignore */
     }
-    setHasCompletedOnboarding(true);
+    setLegacyOnboarded(true);
+    queryClient.setQueryData(
+      getGetCurrentUserQueryKey(),
+      (prev: AuthUser | null | undefined) =>
+        prev ? { ...prev, onboarded: true } : prev,
+    );
   };
 
   // Sync onboarding flag across tabs
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "cs_onboarded") {
-        setHasCompletedOnboarding(e.newValue === "true");
+        setLegacyOnboarded(e.newValue === "true");
       }
     };
     window.addEventListener("storage", handleStorageChange);

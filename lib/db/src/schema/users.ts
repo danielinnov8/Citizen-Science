@@ -18,6 +18,10 @@ export const usersTable = pgTable("users", {
   // checkout session (customer) or completes a subscription (subscription).
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
+  // When the user completed the story-driven onboarding (Task #160). Null =
+  // not yet onboarded. Server-side source of truth; the old localStorage flag
+  // is only a compat fallback that gets backfilled here.
+  onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

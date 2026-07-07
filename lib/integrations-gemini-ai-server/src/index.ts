@@ -4,6 +4,7 @@ export {
   streamChat,
   researchWithSearch,
   scoreVideoRelevance,
+  extractOnboardingInsights,
   isGeminiConfigured,
 } from "./client";
 export {
@@ -30,4 +31,6 @@ export type {
   AnalyzeFieldNotesOptions,
   MentoringCourseDraft,
   DraftMentoringCourseOptions,
+  OnboardingInsights,
+  ExtractOnboardingInsightsOptions,
 } from "./client";

@@ -347,6 +347,51 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ProfileSolutionItem"
+  /onboarding:
+    get:
+      operationId: getOnboardingState
+      tags: [onboarding]
+      summary: Get the current user's onboarding state
+      description: >
+        Auth required. Returns whether the user has completed the
+        story-driven onboarding (server-side source of truth) and, when
+        present, the saved structured record.
+      responses:
+        "200":
+          description: The user's onboarding state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnboardingState"
+        "401":
+          description: Not authenticated
+  /onboarding/complete:
+    post:
+      operationId: completeOnboarding
+      tags: [onboarding]
+      summary: Complete onboarding and persist answers
+      description: >
+        Auth required. Saves the member's onboarding answers (structured
+        fields plus, when a free-form interview transcript is supplied,
+        AI-extracted insights) and marks the account onboarded. Idempotent —
+        repeat calls update the existing record. Not credit-metered.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteOnboardingInput"
+      responses:
+        "200":
+          description: Onboarding saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnboardingState"
+        "400":
+          description: Invalid input
+        "401":
+          description: Not authenticated
   /billing/credits:
     get:
       operationId: getCreditBalance
@@ -2676,6 +2721,9 @@ components:
         isMentor:
           type: boolean
           description: Whether this account is flagged as a mentor (can publish mentoring courses).
+        onboarded:
+          type: boolean
+          description: Whether this account has completed the story-driven onboarding (server-side source of truth).
       required:
         - id
         - email
@@ -2683,6 +2731,7 @@ components:
         - image
         - isSuperAdmin
         - isMentor
+        - onboarded
     RegisterInput:
       type: object
       properties:
@@ -2942,6 +2991,95 @@ components:
         - didYouKnow
         - storyTheme
         - verified
+    OnboardingRecord:
+      type: object
+      description: The saved structured onboarding record (Task #160).
+      properties:
+        path:
+          type: string
+          enum: [member, claimant]
+        claimProfileSlug:
+          type: ["string", "null"]
+        role:
+          type: ["string", "null"]
+        interests:
+          type: array
+          items:
+            type: string
+        primaryGoal:
+          type: ["string", "null"]
+        ambition:
+          type: ["string", "null"]
+        insights:
+          type: array
+          items:
+            type: string
+        summary:
+          type: ["string", "null"]
+        source:
+          type: string
+          enum: [agentic, fallback, legacy]
+        completedAt:
+          type: string
+          format: date-time
+      required:
+        - path
+        - claimProfileSlug
+        - role
+        - interests
+        - primaryGoal
+        - ambition
+        - insights
+        - summary
+        - source
+        - completedAt
+    OnboardingState:
+      type: object
+      properties:
+        onboarded:
+          type: boolean
+        record:
+          anyOf:
+            - $ref: "#/components/schemas/OnboardingRecord"
+            - type: "null"
+      required:
+        - onboarded
+        - record
+    CompleteOnboardingInput:
+      type: object
+      properties:
+        source:
+          type: string
+          enum: [agentic, fallback, legacy]
+        path:
+          type: string
+          enum: [member, claimant]
+        profileSlug:
+          type: string
+          maxLength: 200
+          description: The featured-profile slug being claimed, for claimant-path onboarding.
+        transcript:
+          type: string
+          maxLength: 12000
+          description: Free-form interview transcript ("guide:"/"member:"-prefixed lines). When present, the server runs a best-effort AI extraction pass.
+        role:
+          type: string
+          maxLength: 100
+        interests:
+          type: array
+          maxItems: 8
+          items:
+            type: string
+            maxLength: 100
+        primaryGoal:
+          type: string
+          maxLength: 100
+        ambition:
+          type: string
+          maxLength: 100
+      required:
+        - source
+        - path
     ProfileClaimStatus:
       type: string
       enum:
