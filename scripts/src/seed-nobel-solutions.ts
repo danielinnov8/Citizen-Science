@@ -50,6 +50,11 @@ interface GeneratedSolution {
 }
 
 const LIMIT = Math.max(1, Number(process.argv[2] ?? 12) || 12);
+// Optional second arg: how many laureates to process in parallel. Defaults to 1
+// (the original sequential behavior). `researchWithSearch` is stateless, so
+// concurrent calls are safe; raising this dramatically increases throughput when
+// the Gemini key is not the bottleneck. A 429 from any worker stops the pass.
+const CONCURRENCY = Math.max(1, Number(process.argv[3] ?? 1) || 1);
 const PACE_MS = 4000;
 
 function extractJson(text: string): unknown {
@@ -171,12 +176,19 @@ async function main(): Promise<void> {
     `${laureates.length} laureates total, ${todo.length} still need solutions. Processing up to ${LIMIT} this pass.`,
   );
 
+  const batch = todo.slice(0, LIMIT);
+  console.log(
+    `Processing ${batch.length} laureates this pass with concurrency ${CONCURRENCY}.`,
+  );
+
+  type Laureate = (typeof batch)[number];
   let processed = 0;
   let inserted = 0;
-  for (const laureate of todo) {
-    if (processed >= LIMIT) break;
-    processed++;
+  let stopped = false; // flips on a 429 so no new work is started
 
+  // Generate + persist solutions for a single laureate. Returns false when a
+  // 429/quota error is seen so the pass can wind down.
+  async function processOne(laureate: Laureate): Promise<boolean> {
     let parsed: { solutions?: GeneratedSolution[] };
     try {
       const { text } = await researchWithSearch(
@@ -188,11 +200,10 @@ async function main(): Promise<void> {
       const msg = err instanceof Error ? err.message : String(err);
       if (/429|RESOURCE_EXHAUSTED|quota/i.test(msg)) {
         console.warn(`\n[429] Daily Gemini quota reached at ${laureate.name}. Stopping; re-run later to resume.`);
-        break;
+        return false;
       }
       console.warn(`  ! ${laureate.name}: ${msg}`);
-      await new Promise((r) => setTimeout(r, PACE_MS));
-      continue;
+      return true;
     }
 
     const candidates = (parsed.solutions ?? [])
@@ -201,8 +212,7 @@ async function main(): Promise<void> {
 
     if (candidates.length === 0) {
       console.log(`  - ${laureate.name}: no genuine challenge match`);
-      await new Promise((r) => setTimeout(r, PACE_MS));
-      continue;
+      return true;
     }
 
     // Guard against duplicate (challengeSlug, authorSlug) pairs.
@@ -236,9 +246,31 @@ async function main(): Promise<void> {
         `  ✓ ${laureate.name}: +${rows.length} (${rows.map((r) => r.challengeSlug).join(", ")})`,
       );
     }
-
-    await new Promise((r) => setTimeout(r, PACE_MS));
+    return true;
   }
+
+  // Concurrency-bounded worker pool: each worker pulls the next laureate off a
+  // shared cursor until the batch is exhausted or a 429 trips `stopped`.
+  let cursor = 0;
+  async function worker(): Promise<void> {
+    while (!stopped) {
+      const idx = cursor++;
+      if (idx >= batch.length) break;
+      processed++;
+      const ok = await processOne(batch[idx]);
+      if (!ok) {
+        stopped = true;
+        break;
+      }
+      if (CONCURRENCY === 1) {
+        await new Promise((r) => setTimeout(r, PACE_MS));
+      }
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(CONCURRENCY, batch.length) }, () => worker()),
+  );
 
   console.log(`\nDone. Processed ${processed} laureates, inserted ${inserted} solutions.`);
   await pool.end();
