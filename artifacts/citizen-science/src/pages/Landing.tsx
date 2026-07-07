@@ -1290,10 +1290,10 @@ export function Landing() {
       {/* HEADER */}
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0B1120]/90 text-white backdrop-blur-md">
         <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
-          <div className="flex items-center gap-2 font-semibold text-lg tracking-tight">
+          <Link href="/" className="flex items-center gap-2 font-semibold text-lg tracking-tight">
             <LogoIcon className="h-8 w-8" />
             <span>Citizen Science</span>
-          </div>
+          </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
             <a href="#vision" className="transition-colors hover:text-white">Vision</a>
             <a href="#discover" className="transition-colors hover:text-white">Discover</a>
