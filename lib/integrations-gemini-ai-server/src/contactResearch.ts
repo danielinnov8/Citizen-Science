@@ -21,6 +21,13 @@ export interface ContactResearchInput {
   era?: string | null;
 }
 
+export interface DeepContactResearchInput extends ContactResearchInput {
+  /** Official site found by the first pass, if any — the deep pass starts here. */
+  knownWebsite?: string | null;
+  /** Contact page found by the first pass, if any. */
+  knownContactPage?: string | null;
+}
+
 const URL_RE = /^https?:\/\/\S+$/i;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -112,6 +119,66 @@ If you cannot verify a field, use null (or [] for socials). Never invent an emai
     systemInstruction:
       "You are a meticulous research assistant. You only report contact details that are publicly published and verifiable, and you never fabricate email addresses or URLs.",
     maxOutputTokens: 1024,
+  });
+
+  const parsed = extractJsonObject(text);
+  return sanitizeContactInfo(parsed);
+}
+
+/**
+ * Second, deeper email-hunting pass for figures whose first research pass found
+ * no public email. Digs through the channels where academics' and public
+ * figures' addresses are actually published — faculty/lab profile pages,
+ * university directories, CVs, paper correspondence lines, press offices,
+ * speaker bureaus — and, unlike the first pass, accepts an INSTITUTIONAL
+ * fallback (department office, press/media contact, agent/assistant) as long
+ * as `notes` says exactly whose address it is. Still never fabricates: every
+ * email must be genuinely published somewhere findable.
+ */
+export async function researchDeepContact(
+  input: DeepContactResearchInput,
+): Promise<PublicContactInfo> {
+  const descriptor = [input.field, input.era]
+    .map((s) => (s ?? "").trim())
+    .filter(Boolean)
+    .join(", ");
+
+  const known: string[] = [];
+  if (input.knownWebsite) known.push(`- Official website: ${input.knownWebsite}`);
+  if (input.knownContactPage)
+    known.push(`- Contact page: ${input.knownContactPage}`);
+
+  const prompt = `Using web search, do a DEEP hunt for a publicly published email address to reach ${input.name}${
+    descriptor ? ` (${descriptor})` : ""
+  }.
+${known.length ? `\nAlready known from earlier research:\n${known.join("\n")}\n` : ""}
+Search hard in the places where such addresses are actually published:
+1. Their current university/institute FACULTY or LAB PROFILE page (search "site:university-domain ${input.name} email", "${input.name} faculty profile", "${input.name} lab contact").
+2. Their institution's public STAFF DIRECTORY.
+3. A recent CV, homepage, or course page listing an address.
+4. The CORRESPONDING-AUTHOR line of a recent paper (publisher pages often show it).
+5. Their institution's PRESS/MEDIA OFFICE, department office, or official agent/speaker bureau — an institutional route is an acceptable FALLBACK if no personal address is published, but "notes" MUST then state exactly whose address it is (e.g. "department office email; forward requests to her assistant").
+
+Rules:
+- Report an email ONLY if it is genuinely published on a real page you found. NEVER guess or construct an address from a name pattern.
+- Prefer the person's own published address; otherwise the closest official institutional route.
+- Also fill website/contactPage/socials if you find better ones than already known.
+
+Respond with ONLY a JSON object, no prose, in exactly this shape:
+{
+  "email": string | null,        // published personal OR institutional-route email, else null
+  "website": string | null,
+  "contactPage": string | null,
+  "socials": string[],           // up to 4 public professional profile URLs
+  "notes": string | null         // REQUIRED when email is set: whose address it is + where it was published
+}
+
+If nothing verifiable is found, use null (or [] for socials).`;
+
+  const { text } = await researchWithSearch(prompt, {
+    systemInstruction:
+      "You are a meticulous research assistant. You only report contact details that are publicly published and verifiable, and you never fabricate email addresses or URLs. When you report an institutional or intermediary email, your notes always state exactly whose address it is.",
+    maxOutputTokens: 1536,
   });
 
   const parsed = extractJsonObject(text);

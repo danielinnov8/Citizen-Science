@@ -30,6 +30,19 @@ wrapper and the bulk script (`research-laureate-contacts`) can't drift. `isLivin
 now mirrored in THREE places (web client, api-server, the script) — a null/empty era must
 read as historical (NOT living) in all of them; keep in lockstep.
 
+**Era discipline-labels read as living:** `isLivingEra` treats anything without a closed
+YYYY–YYYY range as living, so legacy rows with eras like "20th-Century Physics" made
+DECEASED figures (Feynman, Bohr, Planck…) queue as outreach prospects. Fix at the root:
+set such profiles' `era` to a closed lifespan range — never special-case the queue logic.
+Organizations ("Est. YYYY") are correctly living/contactable; some living scientists have
+odd open eras ("since the 1980s") — audit by name before bulk-fixing.
+
+**Deep email pass:** `researchDeepContact` (Gemini lib) is the second pass for figures the
+first pass found no email for — hunts faculty pages/directories/CVs/press offices and may
+return an institutional-route email with attribution in notes. Idempotency marker is
+`contactInfo.deepSearched` (JSONB, not on the wire; admin PATCH drops it, making an edited
+email-less row re-eligible — intended).
+
 **Suggested emails can be misattributed:** grounded research sometimes returns a real-looking
 email belonging to someone else (seen: a laureate assigned another person's address at a
 dubious domain). Format validation can't catch this — the `needs_review` gate is the

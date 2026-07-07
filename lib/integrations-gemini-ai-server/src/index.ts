@@ -6,10 +6,14 @@ export {
   scoreVideoRelevance,
   isGeminiConfigured,
 } from "./client";
-export { researchPublicContact } from "./contactResearch";
+export {
+  researchPublicContact,
+  researchDeepContact,
+} from "./contactResearch";
 export type {
   PublicContactInfo,
   ContactResearchInput,
+  DeepContactResearchInput,
 } from "./contactResearch";
 export type {
   FieldNoteAnalysis,

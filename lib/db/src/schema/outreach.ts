@@ -57,6 +57,9 @@ export interface ProspectContactInfo {
   contactPage?: string | null;
   socials?: string[];
   notes?: string | null;
+  // Set when the second, deeper email-hunting pass has run for this prospect
+  // (idempotency marker for the deep-research script; not exposed on the wire).
+  deepSearched?: boolean;
 }
 
 export const outreachProspectsTable = pgTable(

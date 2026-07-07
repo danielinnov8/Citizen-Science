@@ -12,6 +12,7 @@
     "seed-homepage-inventors": "tsx ./src/seed-homepage-inventors.ts",
     "dump-featured-profiles": "tsx ./src/dump-featured-profiles.ts",
     "research-laureate-contacts": "tsx ./src/research-laureate-contacts.ts",
+    "deep-research-laureate-emails": "tsx ./src/deep-research-laureate-emails.ts",
     "dump-nobel-solutions": "tsx ./src/dump-nobel-solutions.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "seed-products": "tsx ./src/seed-products.ts"

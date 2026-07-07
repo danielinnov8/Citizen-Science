@@ -1935,7 +1935,34 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
                   >
                     <TableCell>
                       <div className="font-medium text-[#0F172A]">{p.name}</div>
-                      <div className="text-xs text-[#94A3B8]">{p.email ?? "no email yet"}</div>
+                      {p.email ? (
+                        <div className="text-xs text-[#94A3B8]">{p.email}</div>
+                      ) : p.contactInfo.email ? (
+                        <div className="flex items-center gap-1 text-xs text-violet-600">
+                          <Sparkles className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{p.contactInfo.email}</span>
+                          <span className="text-[#94A3B8]">(suggested)</span>
+                        </div>
+                      ) : p.contactInfo.website || p.contactInfo.contactPage ? (
+                        <div className="flex items-center gap-1 text-xs text-[#64748B]">
+                          <Globe className="h-3 w-3 shrink-0" />
+                          <span className="truncate">
+                            {(() => {
+                              try {
+                                return new URL(
+                                  (p.contactInfo.website ?? p.contactInfo.contactPage)!,
+                                ).hostname.replace(/^www\./, "");
+                              } catch {
+                                return "website found";
+                              }
+                            })()}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="text-xs text-[#94A3B8]">
+                          {p.researchedAt ? "no public email found" : "not researched yet"}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell><ProspectTypeBadge type={p.type} /></TableCell>
                     <TableCell>
