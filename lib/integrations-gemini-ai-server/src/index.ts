@@ -6,6 +6,11 @@ export {
   scoreVideoRelevance,
   isGeminiConfigured,
 } from "./client";
+export { researchPublicContact } from "./contactResearch";
+export type {
+  PublicContactInfo,
+  ContactResearchInput,
+} from "./contactResearch";
 export type {
   FieldNoteAnalysis,
   Measurement,

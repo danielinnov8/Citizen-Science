@@ -23,3 +23,14 @@ contact info; sending before a human approves would blast real people with bad d
 **OpenAPI gotcha:** the PATCH prospect `email` must be nullable (`type: ["string","null"]`)
 to match the server which clears email on null/empty — otherwise the generated TS type is
 `string` and the admin UI can't clear/leave it unset.
+
+**Shared research helper:** the contact-research prompt + sanitizer live in the Gemini lib
+(`researchPublicContact` in `@workspace/integrations-gemini-ai-server`) so the admin route
+wrapper and the bulk script (`research-laureate-contacts`) can't drift. `isLivingEra` is
+now mirrored in THREE places (web client, api-server, the script) — a null/empty era must
+read as historical (NOT living) in all of them; keep in lockstep.
+
+**Suggested emails can be misattributed:** grounded research sometimes returns a real-looking
+email belonging to someone else (seen: a laureate assigned another person's address at a
+dubious domain). Format validation can't catch this — the `needs_review` gate is the
+mitigation and admins must verify attribution per-email, never bulk-approve.
