@@ -19,6 +19,7 @@ import diamandisCover from "@assets/generated_images/cover-peter-diamandis.png";
 import salimCover from "@assets/generated_images/cover-salim-ismail.png";
 import blundinCover from "@assets/generated_images/cover-dave-blundin.png";
 import wissnerGrossCover from "@assets/generated_images/cover-alexander-wissner-gross.png";
+import levyPhoto from "@assets/matthew-chase-levy.jpg";
 
 // Field-themed background patterns suited to modern science & technology. Each
 // motif is rendered faintly behind the hero so every living profile feels
@@ -2185,6 +2186,157 @@ export const LIVING_MIND_STORIES: Record<string, LivingMindStory> = {
       {
         title: "Alexander Wissner-Gross — Wikipedia",
         url: "https://en.wikipedia.org/wiki/Alexander_Wissner-Gross",
+      },
+    ],
+  },
+
+  "matthew-chase-levy": {
+    slug: "matthew-chase-levy",
+    name: "Matthew Chase Levy",
+    field: "Fusion, Lasers & AI for Science",
+    era: "Working Today",
+    born: "Born 1985 · Dallas, Texas",
+    base: "Oakland, California",
+    tagline:
+      "From the physics of the world's most powerful laser to teaching machines the language of science — and now a run at rebuilding California.",
+    imageUrl: levyPhoto,
+    theme: {
+      accent: "#EA580C",
+      accentSoft: "#FFF1E7",
+      accentDeep: "#9A3412",
+      heroFrom: "#150A05",
+      heroTo: "#3B1B0C",
+      motif: "neural",
+    },
+    biography: [
+      "Matthew Chase Levy was born in Dallas in 1985 and found his footing when his family moved to California — passing nine AP exams and taking UC Berkeley classes while still in high school. Physics became his way of asking how the universe actually works: a bachelor's degree at UCLA, then a master's and PhD in physics and astronomy from Rice University, earned with distinction.",
+      "His doctoral research took him to Lawrence Livermore National Laboratory just as the National Ignition Facility — the world's most energetic laser — was coming online. As an E.O. Lawrence Fellow he worked on inertial confinement fusion and laboratory astrophysics, supervised a new nuclear-radiography capability, and supported experiments that first demonstrated magnetic self-organization in laser plasmas. His theoretical work on how intense lasers deposit energy into matter was part of the decades-long research effort at the facility that achieved fusion ignition in December 2022.",
+      "In 2015 the Royal Society named him the first American physicist ever awarded a Newton International Fellowship, bringing him to Oxford as a Junior Research Fellow of Wolfson College. There his work fused physics with machine learning into what is now called 'AI for science' — a field in which he holds some of the earliest patents. He turned the idea into Noble.AI, one of the first AI-for-science companies, backed by investors from Stanford's endowment to Microsoft and Chevron. In 2023 he founded Blue Capital to aim free markets at existential threats; in 2024 Wolfson College made him its youngest Honorary Fellow in history. Today he lives in Oakland with his wife, Stanford professor Debbie Senesky — and is running for Governor of California in 2026.",
+    ],
+    buildingNow: [
+      {
+        title: "A Run for California Governor",
+        detail:
+          "Campaigning in the 2026 California governor's race as a political outsider, with a platform centered on affordability, education, and long-term planning.",
+      },
+      {
+        title: "Blue Capital & AeBlue",
+        detail:
+          "Directing capital toward fusion, clean energy, and AI companies — betting that free markets can be pointed at existential threats.",
+      },
+      {
+        title: "AI for Science",
+        detail:
+          "Advancing the field he helped found: machine-learning systems that understand physical laws, so simulations and experiments learn from each other.",
+      },
+      {
+        title: "Science Policy & Statecraft",
+        detail:
+          "Bridging labs and lawmakers — from co-organizing the Stanford–SLAC Extreme Energy Workshop to serving on the Board of Trustees of The Washington Institute.",
+      },
+    ],
+    timeline: [
+      {
+        year: "1985",
+        title: "Born in Dallas",
+        detail:
+          "Raised between New Jersey and California; receives a Presidential Education Award at age ten.",
+      },
+      {
+        year: "2008",
+        title: "Lawrence Livermore",
+        detail:
+          "Joins the physics division as the National Ignition Facility comes online, working on fusion and laboratory astrophysics as an E.O. Lawrence Fellow.",
+      },
+      {
+        year: "2015",
+        title: "First American Newton Fellow",
+        detail:
+          "The Royal Society awards him the Newton International Fellowship — a first for an American physicist — and Oxford's Wolfson College elects him a Junior Research Fellow.",
+      },
+      {
+        year: "2016",
+        title: "Founds Noble.AI",
+        detail:
+          "Launches one of the first AI-for-science companies, later backed by Stanford's endowment, Microsoft, Chevron, Solvay, and Exxon.",
+      },
+      {
+        year: "2021",
+        title: "AI-for-Science Patents Granted",
+        detail:
+          "US patents for machine-learning characterization of dynamical physical systems — among the earliest patents in the AI-for-science field.",
+      },
+      {
+        year: "2022",
+        title: "Fusion Ignition",
+        detail:
+          "NIF achieves the first ignited, burning laboratory plasma in history — a historic milestone for the facility where his research contributed to fusion science.",
+      },
+      {
+        year: "2024",
+        title: "Youngest Honorary Fellow",
+        detail:
+          "Wolfson College, Oxford appoints him its youngest Honorary Fellow ever; he co-organizes the Stanford–SLAC Extreme Energy Workshop.",
+      },
+      {
+        year: "2026",
+        title: "Runs for Governor",
+        detail:
+          "Enters the California governor's race as a physicist-entrepreneur political outsider.",
+      },
+    ],
+    contributions: [
+      {
+        title: "Laser–Plasma Energy Absorption",
+        detail:
+          "Theoretical work on how ultra-intense lasers deposit energy into matter — physics supporting inertial confinement fusion research at the National Ignition Facility.",
+      },
+      {
+        title: "AI for Science",
+        detail:
+          "Helped pioneer the field that teaches machine learning to respect physical law, with early patents on characterizing dynamical physical systems.",
+      },
+      {
+        title: "Noble.AI",
+        detail:
+          "Built one of the first AI-for-science companies, raising $35M+ and putting scientific deep learning to work in chemistry, energy, and materials R&D.",
+      },
+      {
+        title: "Frontier Experiments",
+        detail:
+          "Supervised a new nuclear-radiography capability and supported the first demonstrations of magnetic self-organization in laser-driven plasmas.",
+      },
+    ],
+    quotes: [
+      "I've spent my life building solutions. Now I'm ready to build a better California.",
+    ],
+    impact: [
+      "The 'AI for science' approach Levy patented and commercialized early is now a global research movement — machine learning that accelerates fusion, materials, and drug discovery instead of just ranking ads.",
+      "His career is a live demonstration that citizen curiosity scales: from a kid taking Berkeley classes in high school, to the laser that ignited a star on Earth, to the ballot for governor of the world's fourth-largest economy.",
+    ],
+    didYouKnow: [
+      "At age ten he received a Presidential Education Award signed by President Bill Clinton.",
+      "He is the first American physicist ever awarded the Royal Society's Newton International Fellowship.",
+      "In 2024 he became the youngest Honorary Fellow in the history of Wolfson College, Oxford.",
+      "He is married to Stanford engineering professor Debbie Senesky, whose lab builds electronics for Venus-grade extreme environments.",
+    ],
+    relatedCategorySlugs: ["physics", "astronomy", "materials-science"],
+    sources: [
+      {
+        title: "matthewchaselevy.com",
+        url: "https://matthewchaselevy.com/about",
+      },
+      {
+        title: "Global Young Academy — Matthew Chase Levy",
+        url: "https://globalyoungacademy.net/matthew-c-levy/",
+      },
+      {
+        title: "Wolfson College, Oxford",
+        url: "https://www.wolfson.ox.ac.uk/person/matthew-chase-levy",
+      },
+      {
+        title: "Justia Patents — Matthew Chase Levy",
+        url: "https://patents.justia.com/inventor/matthew-chase-levy",
       },
     ],
   },

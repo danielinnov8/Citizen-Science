@@ -4,6 +4,7 @@ import diamandisPhoto from "@assets/65ee191f9cc09e354404b538_Peter_Diamandis_178
 import salimPhoto from "@assets/image_1780697674289.png";
 import blundinPhoto from "@assets/moonshot-dave-blundin.webp";
 import wissnerGrossPhoto from "@assets/Alex_W_G_1780704314284.png";
+import levyPhoto from "@assets/matthew-chase-levy.jpg";
 
 export interface Inventor {
   name: string;
@@ -316,6 +317,15 @@ export const NETWORK_MINDS: Inventor[] = [
     imageUrl:
       "https://upload.wikimedia.org/wikipedia/commons/2/2b/Demis_Hassabis%2C_2024_Nobel_Prize_Laureate_in_Chemistry_7_%28cropped%29.jpg",
     href: "https://en.wikipedia.org/wiki/Demis_Hassabis",
+  },
+  {
+    name: "Matthew Chase Levy",
+    slug: "matthew-chase-levy",
+    field: "Fusion & AI for Science",
+    blurb:
+      "Laser-fusion physicist turned AI entrepreneur — the first American physicist Royal Society Newton Fellow, founder of Noble.AI, and holder of early AI-for-science patents.",
+    imageUrl: levyPhoto,
+    href: "https://matthewchaselevy.com",
   },
 ];
 

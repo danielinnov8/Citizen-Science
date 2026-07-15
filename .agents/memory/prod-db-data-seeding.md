@@ -36,3 +36,14 @@ seed.
 **How to apply:** esbuild inlines the JSON import (`with { type: "json" }`) into the
 bundle, so no separate asset shipping is needed. This is data seeding, not DDL —
 distinct from the forbidden startup-time schema migration.
+
+**Editing the snapshot after a row already seeded:** the seeder is
+`onConflictDoNothing`, so changing an existing row in `featured-profiles.json` will
+NOT update the dev DB. To propagate an edit: `DELETE FROM featured_profiles WHERE
+slug = '...'` then restart api-server to reseed that row. (Prod gets the new JSON on
+next publish only for rows not yet present there.)
+
+**Profile portraits:** never hotlink press-wire/campaign image URLs (unstable,
+CORP-blocked, or press-cycle cached). Self-host: copy to `attached_assets/` and
+import via `@assets` in frontend data files; for the DB `imageUrl`, use a
+site-relative path under `artifacts/citizen-science/public/avatars/`.
