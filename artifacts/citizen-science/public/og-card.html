@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1200" />
+<title>OG Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: radial-gradient(1200px 700px at 78% 30%, #16233f 0%, #0b1220 55%, #070b14 100%);
+    color: #f8fafc;
+    position: relative;
+  }
+  .constellation { position: absolute; inset: 0; }
+  .inner {
+    position: relative;
+    height: 100%;
+    padding: 72px 84px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #93c5fd;
+  }
+  .eyebrow .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #2563eb;
+    box-shadow: 0 0 18px 4px rgba(37, 99, 235, 0.8);
+  }
+  .headline {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 88px;
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+    max-width: 880px;
+  }
+  .headline em { font-style: italic; color: #86efac; }
+  .sub {
+    margin-top: 26px;
+    font-size: 25px;
+    line-height: 1.5;
+    color: #cbd5e1;
+    max-width: 760px;
+    font-weight: 400;
+  }
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 21px;
+    color: #94a3b8;
+  }
+  .footer .brand { color: #e2e8f0; font-weight: 600; letter-spacing: 0.04em; }
+  .pill {
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    border-radius: 999px;
+    padding: 10px 22px;
+    color: #c4b5fd;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+  <svg class="constellation" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+    <g stroke="rgba(96,165,250,0.28)" stroke-width="1">
+      <line x1="880" y1="120" x2="1005" y2="210" />
+      <line x1="1005" y1="210" x2="1095" y2="110" />
+      <line x1="1005" y1="210" x2="1110" y2="330" />
+      <line x1="1110" y1="330" x2="985" y2="430" />
+      <line x1="985" y1="430" x2="1095" y2="520" />
+      <line x1="880" y1="120" x2="940" y2="340" />
+      <line x1="940" y1="340" x2="985" y2="430" />
+      <line x1="940" y1="340" x2="1005" y2="210" />
+      <line x1="820" y1="470" x2="985" y2="430" />
+      <line x1="820" y1="470" x2="940" y2="340" />
+    </g>
+    <g>
+      <circle cx="880" cy="120" r="7" fill="#2563eb" />
+      <circle cx="1005" cy="210" r="9" fill="#7c3aed" />
+      <circle cx="1095" cy="110" r="6" fill="#16a34a" />
+      <circle cx="1110" cy="330" r="8" fill="#2563eb" />
+      <circle cx="985" cy="430" r="10" fill="#16a34a" />
+      <circle cx="1095" cy="520" r="6" fill="#7c3aed" />
+      <circle cx="940" cy="340" r="7" fill="#60a5fa" />
+      <circle cx="820" cy="470" r="5" fill="#94a3b8" />
+    </g>
+    <g fill="rgba(148,163,184,0.55)">
+      <circle cx="70" cy="80" r="2.5" /><circle cx="200" cy="40" r="2" />
+      <circle cx="330" cy="90" r="2.5" /><circle cx="520" cy="50" r="2" />
+      <circle cx="650" cy="95" r="2.5" /><circle cx="120" cy="250" r="2" />
+      <circle cx="60" cy="420" r="2.5" /><circle cx="180" cy="560" r="2" />
+      <circle cx="420" cy="590" r="2.5" /><circle cx="700" cy="570" r="2" />
+      <circle cx="760" cy="180" r="2" /><circle cx="460" cy="300" r="2" />
+    </g>
+  </svg>
+  <div class="inner">
+    <div class="eyebrow"><span class="dot"></span>Citizen Science</div>
+    <div>
+      <div class="headline">Humanity's <em>Research</em> Network</div>
+      <div class="sub">Learn from the greatest minds in history, run real experiments, and help solve humanity's greatest challenges — together.</div>
+    </div>
+    <div class="footer">
+      <span class="brand">citizen-science.org</span>
+      <span class="pill">Become a founding member</span>
+    </div>
+  </div>
+</body>
+</html>
