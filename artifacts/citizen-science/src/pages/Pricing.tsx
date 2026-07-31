@@ -556,8 +556,8 @@ function FoundingMember() {
 
   return (
     <section
-      id="founding"
-      className="relative overflow-hidden bg-[#0B1120] text-white"
+      id="founding-member"
+      className="relative overflow-hidden bg-[#0B1120] text-white scroll-mt-16"
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.12]"
@@ -750,6 +750,19 @@ export default function Pricing() {
     }, 1800);
     return () => window.clearTimeout(t);
   }, [checkoutStatus, hasCompletedOnboarding, setLocation]);
+
+  // Deep links like /pricing/#founding-member: React renders after the
+  // browser's native anchor jump, so scroll to the section once it exists.
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    const t = window.setTimeout(() => {
+      document
+        .getElementById(hash)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 350);
+    return () => window.clearTimeout(t);
+  }, []);
 
   const getPlanPriceId = (planId: string) =>
     pricesData?.subscriptions.find((s) => s.planId === planId)?.id;

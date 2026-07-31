@@ -121,7 +121,7 @@ const STRATEGIES: Strategy[] = [
       "Homepage feature + Founding Member badge",
       "Early non-dilutive capital to build with",
     ],
-    cta: { label: "Become a founder", href: "/pricing#founding" },
+    cta: { label: "Become a founder", href: "/pricing#founding-member" },
   },
   {
     id: "referrals",
