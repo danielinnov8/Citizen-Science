@@ -5,14 +5,21 @@ import {
   GetCreditEconomyResponse,
   GetBillingPricesResponse,
   CreateCheckoutSessionResponse,
+  CreateGuestCheckoutSessionResponse,
+  GetCheckoutSessionResponse,
   CreatePortalSessionResponse,
 } from "@workspace/api-zod";
-import { db, usersTable } from "@workspace/db";
+import { db, usersTable, foundingClaimsTable } from "@workspace/db";
 import { resolveBillingSubject } from "../lib/credits/subject";
 import { getCreditState, nextRenewalDate } from "../lib/credits/credits";
 import { buildCreditEconomy } from "../lib/credits/plans";
 import { requireAuth } from "../middlewares/requireAuth";
+import { rateLimit } from "../middlewares/rateLimit";
 import { getUncachableStripeClient } from "../lib/stripe/stripeClient";
+import {
+  summarizeCheckoutLineItems,
+  type CheckoutLineItem,
+} from "../lib/stripe/webhookHandlers";
 
 const router: IRouter = Router();
 
@@ -210,6 +217,167 @@ router.post(
 
     res.json(
       CreateCheckoutSessionResponse.parse({ url: session.url ?? "" }),
+    );
+  },
+);
+
+// ── Guest checkout session (public, founding member only) ───────────────────
+// Body: { priceId: string }
+// Creates a Stripe Checkout session WITHOUT requiring an account. Stripe
+// collects the buyer's email; after payment the webhook either matches an
+// existing account by email or parks the purchase as a claim (see
+// foundingClaims.ts). Only founding-tagged prices are accepted — everything
+// else still goes through the authenticated checkout above.
+
+router.post(
+  "/billing/checkout-guest",
+  rateLimit({ windowMs: 60_000, max: 10 }),
+  async (req: Request, res: Response): Promise<void> => {
+    const { priceId } = req.body as { priceId?: string };
+    if (!priceId || typeof priceId !== "string") {
+      res.status(400).json({ error: "priceId is required" });
+      return;
+    }
+
+    let stripe: Awaited<ReturnType<typeof getUncachableStripeClient>>;
+    try {
+      stripe = await getUncachableStripeClient();
+    } catch (err) {
+      req.log.warn({ err }, "Stripe not connected — guest checkout unavailable");
+      res.status(503).json({
+        error: "Payment system not available. Please try again later.",
+      });
+      return;
+    }
+
+    // Only founding-member prices may be purchased as a guest.
+    const price = await stripe.prices.retrieve(priceId, {
+      expand: ["product"],
+    });
+    const productMeta =
+      typeof price.product === "object" && price.product !== null
+        ? ((price.product as { metadata?: Record<string, string> }).metadata ??
+          {})
+        : {};
+    const type = price.metadata?.["type"] ?? productMeta["type"];
+    if (type !== "founding") {
+      res.status(400).json({
+        error: "Guest checkout is only available for founding memberships.",
+      });
+      return;
+    }
+
+    const domain =
+      process.env.PUBLIC_BASE_URL?.replace(/\/+$/, "") ||
+      `https://${(process.env.REPLIT_DOMAINS ?? "").split(",")[0]?.trim()}`;
+
+    const session = await stripe.checkout.sessions.create({
+      // No `customer`: Stripe creates one and collects the email at checkout.
+      customer_creation: "always",
+      payment_method_types: ["card"],
+      line_items: [{ price: priceId, quantity: 1 }],
+      mode: "payment",
+      success_url: `${domain}/founding/welcome?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${domain}/pricing?checkout=canceled`,
+    });
+
+    res.json(
+      CreateGuestCheckoutSessionResponse.parse({ url: session.url ?? "" }),
+    );
+  },
+);
+
+// ── Completed checkout session lookup (public) ──────────────────────────────
+// Returns the buyer email + claim state for a PAID founding checkout session
+// so the post-payment page can route to sign-in vs sign-up. Session IDs are
+// unguessable, so possession of one is proof enough for this read-only lookup.
+
+router.get(
+  "/billing/checkout-session/:sessionId",
+  rateLimit({ windowMs: 60_000, max: 30 }),
+  async (req: Request, res: Response): Promise<void> => {
+    let stripe: Awaited<ReturnType<typeof getUncachableStripeClient>>;
+    try {
+      stripe = await getUncachableStripeClient();
+    } catch (err) {
+      req.log.warn({ err }, "Stripe not connected — session lookup unavailable");
+      res.status(503).json({
+        error: "Payment system not available. Please try again later.",
+      });
+      return;
+    }
+
+    const sessionIdParam = req.params.sessionId;
+    const sessionId = Array.isArray(sessionIdParam)
+      ? sessionIdParam[0]
+      : sessionIdParam;
+    if (!sessionId || !sessionId.startsWith("cs_")) {
+      res.status(404).json({ error: "Checkout session not found." });
+      return;
+    }
+
+    let session;
+    try {
+      session = await stripe.checkout.sessions.retrieve(sessionId);
+    } catch {
+      res.status(404).json({ error: "Checkout session not found." });
+      return;
+    }
+
+    if (session.payment_status !== "paid") {
+      res.status(404).json({ error: "Checkout session not found." });
+      return;
+    }
+
+    const lineItems = await stripe.checkout.sessions.listLineItems(sessionId, {
+      limit: 10,
+      expand: ["data.price.product"],
+    });
+    const { purchasedPlanId } = summarizeCheckoutLineItems(
+      lineItems.data as CheckoutLineItem[],
+    );
+
+    // Only founding-member sessions may be read through this public endpoint —
+    // anything else (subscriptions, top-ups) must not disclose the buyer's
+    // email to whoever holds a session ID.
+    if (!purchasedPlanId) {
+      res.status(404).json({ error: "Checkout session not found." });
+      return;
+    }
+
+    const email = (session.customer_details?.email ?? "")
+      .trim()
+      .toLowerCase();
+    if (!email) {
+      res.status(404).json({ error: "Checkout session not found." });
+      return;
+    }
+
+    res.setHeader("Cache-Control", "no-store");
+
+    const [user] = await db
+      .select({ id: usersTable.id, plan: usersTable.plan })
+      .from(usersTable)
+      .where(eq(usersTable.email, email));
+
+    const [claim] = await db
+      .select({ claimedAt: foundingClaimsTable.claimedAt })
+      .from(foundingClaimsTable)
+      .where(eq(foundingClaimsTable.stripeSessionId, sessionId));
+
+    const claimed = Boolean(
+      claim?.claimedAt ||
+        (user && purchasedPlanId && user.plan === purchasedPlanId),
+    );
+
+    res.json(
+      GetCheckoutSessionResponse.parse({
+        email,
+        founding: purchasedPlanId !== null,
+        planId: purchasedPlanId,
+        hasAccount: Boolean(user),
+        claimed,
+      }),
     );
   },
 );

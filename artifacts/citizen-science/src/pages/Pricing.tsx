@@ -27,6 +27,7 @@ import { LogoIcon, Logo } from "@/components/Logo";
 import {
   useGetBillingPrices,
   useCreateCheckoutSession,
+  useCreateGuestCheckoutSession,
   getGetCreditBalanceQueryKey,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
@@ -532,25 +533,21 @@ function FoundingMember() {
   const { isAuthenticated } = useAuth();
   const { data: prices } = useGetBillingPrices();
   const mutation = useCreateCheckoutSession();
+  const guestMutation = useCreateGuestCheckoutSession();
   const [loading, setLoading] = useState(false);
 
   const foundingPriceId = prices?.founding?.[0]?.id;
 
   const handleCheckout = async () => {
     if (!foundingPriceId) return;
-    if (!isAuthenticated) {
-      try {
-        window.localStorage.setItem("cs.pendingCheckout", foundingPriceId);
-        window.localStorage.setItem("cs.postAuthRedirect", "/pricing");
-      } catch {
-        /* ignore */
-      }
-      window.location.href = "/login";
-      return;
-    }
     setLoading(true);
     try {
-      const result = await mutation.mutateAsync({ data: { priceId: foundingPriceId } });
+      // Guests pay FIRST — no account required up front. After Stripe collects
+      // their email and payment, /founding/welcome routes them to sign in or
+      // create an account, and the membership is claimed automatically.
+      const result = isAuthenticated
+        ? await mutation.mutateAsync({ data: { priceId: foundingPriceId } })
+        : await guestMutation.mutateAsync({ data: { priceId: foundingPriceId } });
       if (result.url) window.location.href = result.url;
     } finally {
       setLoading(false);

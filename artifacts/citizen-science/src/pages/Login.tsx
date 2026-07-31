@@ -75,6 +75,23 @@ export function Login() {
     if (err && GOOGLE_ERRORS[err]) setError(GOOGLE_ERRORS[err]);
   }, []);
 
+  // Prefill from a guest founding checkout (set by /founding/welcome): the
+  // buyer's checkout email and whether to show sign-up or sign-in first.
+  useEffect(() => {
+    try {
+      const prefill = window.localStorage.getItem("cs.prefillEmail");
+      const authMode = window.localStorage.getItem("cs.authMode");
+      if (prefill) setEmail(prefill);
+      if (authMode === "signup") setMode("signup");
+      if (prefill || authMode) {
+        window.localStorage.removeItem("cs.prefillEmail");
+        window.localStorage.removeItem("cs.authMode");
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   // If already authenticated (incl. returning from Google), route onward.
   useEffect(() => {
     if (!isLoading && isAuthenticated) {

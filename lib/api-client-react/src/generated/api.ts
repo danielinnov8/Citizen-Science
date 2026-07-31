@@ -35,6 +35,7 @@ import type {
   ChallengeSolutionDetail,
   ChallengeSolutionView,
   ChallengeSummary,
+  CheckoutSessionInfo,
   CheckoutUrl,
   CitizenxChapter,
   CitizenxChapterInput,
@@ -1677,6 +1678,186 @@ export const useCreateCheckoutSession = <
 > => {
   return useMutation(getCreateCheckoutSessionMutationOptions(options));
 };
+
+/**
+ * Public — no account required. Creates a Stripe Checkout session for a one-time founding membership; Stripe collects the buyer's email during checkout. After payment, the webhook records the purchase and the buyer claims it by signing in or creating an account with the same email. Only prices tagged as founding memberships are accepted — subscriptions and top-ups still require an authenticated checkout.
+
+ * @summary Create a guest Stripe checkout session (founding member)
+ */
+export const getCreateGuestCheckoutSessionUrl = () => {
+  return `/api/billing/checkout-guest`;
+};
+
+export const createGuestCheckoutSession = async (
+  createCheckoutInput: CreateCheckoutInput,
+  options?: RequestInit,
+): Promise<CheckoutUrl> => {
+  return customFetch<CheckoutUrl>(getCreateGuestCheckoutSessionUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createCheckoutInput),
+  });
+};
+
+export const getCreateGuestCheckoutSessionMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createGuestCheckoutSession>>,
+    TError,
+    { data: BodyType<CreateCheckoutInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createGuestCheckoutSession>>,
+  TError,
+  { data: BodyType<CreateCheckoutInput> },
+  TContext
+> => {
+  const mutationKey = ["createGuestCheckoutSession"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createGuestCheckoutSession>>,
+    { data: BodyType<CreateCheckoutInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createGuestCheckoutSession(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateGuestCheckoutSessionMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createGuestCheckoutSession>>
+>;
+export type CreateGuestCheckoutSessionMutationBody =
+  BodyType<CreateCheckoutInput>;
+export type CreateGuestCheckoutSessionMutationError = ErrorType<Error>;
+
+/**
+ * @summary Create a guest Stripe checkout session (founding member)
+ */
+export const useCreateGuestCheckoutSession = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createGuestCheckoutSession>>,
+    TError,
+    { data: BodyType<CreateCheckoutInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createGuestCheckoutSession>>,
+  TError,
+  { data: BodyType<CreateCheckoutInput> },
+  TContext
+> => {
+  return useMutation(getCreateGuestCheckoutSessionMutationOptions(options));
+};
+
+/**
+ * Public. Returns the buyer email and claim state for a PAID founding-member checkout session so the post-payment page can route the buyer to sign-in (email matches an account) or sign-up (no account yet). Session IDs are unguessable, so possessing one is proof enough for this read-only lookup.
+
+ * @summary Look up a completed guest checkout session
+ */
+export const getGetCheckoutSessionUrl = (sessionId: string) => {
+  return `/api/billing/checkout-session/${sessionId}`;
+};
+
+export const getCheckoutSession = async (
+  sessionId: string,
+  options?: RequestInit,
+): Promise<CheckoutSessionInfo> => {
+  return customFetch<CheckoutSessionInfo>(getGetCheckoutSessionUrl(sessionId), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetCheckoutSessionQueryKey = (sessionId: string) => {
+  return [`/api/billing/checkout-session/${sessionId}`] as const;
+};
+
+export const getGetCheckoutSessionQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCheckoutSession>>,
+  TError = ErrorType<Error>,
+>(
+  sessionId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCheckoutSession>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetCheckoutSessionQueryKey(sessionId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCheckoutSession>>
+  > = ({ signal }) =>
+    getCheckoutSession(sessionId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!sessionId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCheckoutSession>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCheckoutSessionQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCheckoutSession>>
+>;
+export type GetCheckoutSessionQueryError = ErrorType<Error>;
+
+/**
+ * @summary Look up a completed guest checkout session
+ */
+
+export function useGetCheckoutSession<
+  TData = Awaited<ReturnType<typeof getCheckoutSession>>,
+  TError = ErrorType<Error>,
+>(
+  sessionId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCheckoutSession>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCheckoutSessionQueryOptions(sessionId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * Auth required. Creates a Stripe Billing Portal session so the user can manage their subscription, update their payment method, or cancel. Returns a URL to redirect the user to.

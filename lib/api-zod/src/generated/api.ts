@@ -54,6 +54,11 @@ export const LoginResponse = zod.object({
     .describe(
       "Whether this account is flagged as a mentor (can publish mentoring courses).",
     ),
+  foundingMember: zod
+    .boolean()
+    .describe(
+      "Whether this account is a lifetime founding member (one-time founding purchase, applied directly or claimed after a guest checkout).",
+    ),
   onboarded: zod
     .boolean()
     .describe(
@@ -93,6 +98,11 @@ export const GetCurrentUserResponse = zod.object({
     .boolean()
     .describe(
       "Whether this account is flagged as a mentor (can publish mentoring courses).",
+    ),
+  foundingMember: zod
+    .boolean()
+    .describe(
+      "Whether this account is a lifetime founding member (one-time founding purchase, applied directly or claimed after a guest checkout).",
     ),
   onboarded: zod
     .boolean()
@@ -668,6 +678,55 @@ export const CreateCheckoutSessionResponse = zod.object({
   url: zod
     .string()
     .describe("Stripe-hosted checkout URL to redirect the user to"),
+});
+
+/**
+ * Public — no account required. Creates a Stripe Checkout session for a one-time founding membership; Stripe collects the buyer's email during checkout. After payment, the webhook records the purchase and the buyer claims it by signing in or creating an account with the same email. Only prices tagged as founding memberships are accepted — subscriptions and top-ups still require an authenticated checkout.
+
+ * @summary Create a guest Stripe checkout session (founding member)
+ */
+export const CreateGuestCheckoutSessionBody = zod.object({
+  priceId: zod.string().describe("Stripe price ID to purchase"),
+});
+
+export const CreateGuestCheckoutSessionResponse = zod.object({
+  url: zod
+    .string()
+    .describe("Stripe-hosted checkout URL to redirect the user to"),
+});
+
+/**
+ * Public. Returns the buyer email and claim state for a PAID founding-member checkout session so the post-payment page can route the buyer to sign-in (email matches an account) or sign-up (no account yet). Session IDs are unguessable, so possessing one is proof enough for this read-only lookup.
+
+ * @summary Look up a completed guest checkout session
+ */
+export const GetCheckoutSessionParams = zod.object({
+  sessionId: zod.coerce.string(),
+});
+
+export const GetCheckoutSessionResponse = zod.object({
+  email: zod
+    .string()
+    .describe("Buyer email collected by Stripe checkout (lowercased)"),
+  founding: zod
+    .boolean()
+    .describe("Whether the session contains a founding-member purchase"),
+  planId: zod
+    .string()
+    .nullish()
+    .describe(
+      'The lifetime plan granted by the purchase (e.g. \"researcher\"), when founding',
+    ),
+  hasAccount: zod
+    .boolean()
+    .describe(
+      "Whether an account already exists for the buyer email (true → prompt sign-in, false → prompt sign-up)",
+    ),
+  claimed: zod
+    .boolean()
+    .describe(
+      "Whether the founding membership has already been applied to an account",
+    ),
 });
 
 /**

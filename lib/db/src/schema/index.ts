@@ -10,6 +10,7 @@ export * from "./mentorship";
 export * from "./menteeWaitlist";
 export * from "./messages";
 export * from "./stripeIdempotency";
+export * from "./foundingClaims";
 export * from "./outreach";
 export * from "./challenges";
 export * from "./onboarding";

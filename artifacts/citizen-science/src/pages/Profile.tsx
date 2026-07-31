@@ -203,6 +203,19 @@ export function Profile() {
           </Avatar>
           <div className="mt-14">
             <h2 className="text-2xl font-bold">{user?.name}</h2>
+            {user?.foundingMember && (
+              <span
+                className="mb-2 inline-flex items-center rounded-full border px-3 py-0.5 text-xs font-semibold uppercase tracking-wider"
+                style={{
+                  borderColor: "rgba(212,175,55,0.5)",
+                  color: "#B8912F",
+                  backgroundColor: "rgba(212,175,55,0.10)",
+                }}
+                data-testid="founding-badge"
+              >
+                Founding Member
+              </span>
+            )}
             <p className="text-[#64748B] mb-6">{user?.email}</p>
             <div className="flex gap-4">
               <Button variant="outline" onClick={() => void handleSignOut()}>

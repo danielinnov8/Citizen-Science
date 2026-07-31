@@ -1,7 +1,12 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db, usersTable, stripeProcessedEventsTable } from "@workspace/db";
 import { addTopupCredits } from "../credits/credits";
 import { getStripeSync } from "./stripeClient";
+import {
+  grantFoundingToUser,
+  planRank,
+  recordUnclaimedFoundingPurchase,
+} from "./foundingClaims";
 import type { PlanId } from "../credits/plans";
 
 function planIdFromMeta(planId: string | null | undefined): PlanId | null {
@@ -142,10 +147,29 @@ export class WebhookHandlers {
           obj.status === "active" || obj.status === "trialing";
         const newPlan: string = isActive && planId ? planId : "free";
 
-        await db
-          .update(usersTable)
-          .set({ plan: newPlan, stripeSubscriptionId: String(obj.id) })
+        // Founding members have a LIFETIME plan floor: a subscription event
+        // (including a delayed one) can raise their plan but never lower it.
+        const [subUser] = await db
+          .select({
+            id: usersTable.id,
+            plan: usersTable.plan,
+            foundingMember: usersTable.foundingMember,
+          })
+          .from(usersTable)
           .where(eq(usersTable.stripeCustomerId, customerId));
+
+        if (subUser) {
+          const keepPlan =
+            subUser.foundingMember &&
+            planRank(newPlan) < planRank(subUser.plan);
+          await db
+            .update(usersTable)
+            .set({
+              plan: keepPlan ? subUser.plan : newPlan,
+              stripeSubscriptionId: String(obj.id),
+            })
+            .where(eq(usersTable.id, subUser.id));
+        }
 
         break;
       }
@@ -155,10 +179,26 @@ export class WebhookHandlers {
         const customerId = obj.customer as string | null;
         if (!customerId) break;
 
+        // Founding members keep their lifetime plan when a subscription is
+        // cancelled — the cancellation only detaches the subscription id.
         await db
           .update(usersTable)
           .set({ plan: "free", stripeSubscriptionId: null })
-          .where(eq(usersTable.stripeCustomerId, customerId));
+          .where(
+            and(
+              eq(usersTable.stripeCustomerId, customerId),
+              eq(usersTable.foundingMember, false),
+            ),
+          );
+        await db
+          .update(usersTable)
+          .set({ stripeSubscriptionId: null })
+          .where(
+            and(
+              eq(usersTable.stripeCustomerId, customerId),
+              eq(usersTable.foundingMember, true),
+            ),
+          );
 
         break;
       }
@@ -174,17 +214,9 @@ export class WebhookHandlers {
 
         if (!customerId || !sessionId || !sync || !eventId) break;
 
-        // Persistent idempotency: insert the event id with a unique constraint.
-        // If a duplicate event is delivered (Stripe at-least-once delivery),
-        // the insert is a no-op and we skip re-crediting the user.
-        const inserted = await db
-          .insert(stripeProcessedEventsTable)
-          .values({ stripeEventId: eventId, eventType: event.type })
-          .onConflictDoNothing()
-          .returning({ id: stripeProcessedEventsTable.id });
-
-        if (inserted.length === 0) break; // already processed
-
+        // Fetch line items BEFORE claiming the event — a Stripe API failure
+        // here means the event was never marked, so Stripe's automatic retry
+        // reprocesses it naturally.
         const lineItems = await sync.stripe.checkout.sessions.listLineItems(
           sessionId,
           { limit: 10, expand: ["data.price.product"] },
@@ -197,23 +229,84 @@ export class WebhookHandlers {
           lineItems.data as CheckoutLineItem[],
         );
 
-        const [user] = await db
-          .select({ id: usersTable.id, plan: usersTable.plan })
-          .from(usersTable)
-          .where(eq(usersTable.stripeCustomerId, customerId));
+        // Persistent idempotency + ownership: the unique-constrained insert is
+        // the atomic claim on this event. A duplicate delivery (Stripe is
+        // at-least-once) conflicts and skips, so effects run exactly once.
+        const inserted = await db
+          .insert(stripeProcessedEventsTable)
+          .values({ stripeEventId: eventId, eventType: event.type })
+          .onConflictDoNothing()
+          .returning({ id: stripeProcessedEventsTable.id });
 
-        if (user) {
-          // Grant lifetime plan upgrade (founding member).
-          if (purchasedPlanId) {
-            await db
-              .update(usersTable)
-              .set({ plan: purchasedPlanId })
-              .where(eq(usersTable.id, user.id));
-          }
-          // Add top-up credits (credit packs).
-          if (totalCredits > 0) {
-            await addTopupCredits(`user:${user.id}`, totalCredits);
-          }
+        if (inserted.length === 0) break; // already processed / in flight
+
+        try {
+          // All effects in ONE transaction: plan grant, customer link, claim
+          // park, and top-up credits either all apply or none do — a retry
+          // after a failure can never double-credit or half-grant.
+          await db.transaction(async (tx) => {
+            let [user] = await tx
+              .select({ id: usersTable.id })
+              .from(usersTable)
+              .where(eq(usersTable.stripeCustomerId, customerId));
+
+            // Guest founding checkout has no account linked to the Stripe
+            // customer — fall back to the email Stripe collected at checkout.
+            // Match → grant now; no match → park the purchase as a claim the
+            // buyer picks up when they register or log in with that email.
+            if (!user && purchasedPlanId) {
+              const email =
+                typeof obj.customer_details?.email === "string"
+                  ? obj.customer_details.email.trim().toLowerCase()
+                  : null;
+              if (email) {
+                const [byEmail] = await tx
+                  .select({ id: usersTable.id })
+                  .from(usersTable)
+                  .where(eq(usersTable.email, email));
+                if (byEmail) {
+                  user = byEmail;
+                } else {
+                  await recordUnclaimedFoundingPurchase(
+                    {
+                      email,
+                      planId: purchasedPlanId,
+                      stripeCustomerId: customerId,
+                      stripeSessionId: sessionId,
+                    },
+                    tx,
+                  );
+                }
+              }
+            }
+
+            if (user) {
+              // Grant lifetime plan upgrade (founding member). Never
+              // downgrades a higher plan; flags the account as founding.
+              if (purchasedPlanId) {
+                await grantFoundingToUser(
+                  user.id,
+                  purchasedPlanId,
+                  customerId,
+                  tx,
+                );
+              }
+              // Add top-up credits (credit packs).
+              if (totalCredits > 0) {
+                await addTopupCredits(`user:${user.id}`, totalCredits, tx);
+              }
+            }
+          });
+        } catch (err) {
+          // The event was marked processed above but its effects rolled back.
+          // Remove the marker so Stripe's retry re-enters and completes the
+          // purchase — otherwise it would be silently lost. Safe against
+          // concurrent deliveries: while our marker exists, other deliveries
+          // conflict-and-skip; only after our delete can one re-claim it.
+          await db
+            .delete(stripeProcessedEventsTable)
+            .where(eq(stripeProcessedEventsTable.stripeEventId, eventId));
+          throw err;
         }
 
         break;

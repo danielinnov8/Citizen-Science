@@ -28,6 +28,7 @@ import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import Brand from "@/pages/Brand";
 import Pricing from "@/pages/Pricing";
+import FoundingWelcome from "@/pages/FoundingWelcome";
 import Mcp from "@/pages/Mcp";
 import Monetize from "@/pages/Monetize";
 import Incorporation from "@/pages/Incorporation";
@@ -74,6 +75,7 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/brand" component={Brand} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/founding/welcome" component={FoundingWelcome} />
       <Route path="/mcp" component={Mcp} />
       <Route path="/MCP" component={Mcp} />
       <Route path="/monetize" component={Monetize} />

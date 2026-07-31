@@ -223,6 +223,8 @@ export interface AuthUser {
   isSuperAdmin: boolean;
   /** Whether this account is flagged as a mentor (can publish mentoring courses). */
   isMentor: boolean;
+  /** Whether this account is a lifetime founding member (one-time founding purchase, applied directly or claimed after a guest checkout). */
+  foundingMember: boolean;
   /** Whether this account has completed the story-driven onboarding (server-side source of truth). */
   onboarded: boolean;
 }
@@ -595,6 +597,22 @@ export interface CheckoutUrl {
 export interface PortalUrl {
   /** Stripe Billing Portal URL to redirect the user to */
   url: string;
+}
+
+export interface CheckoutSessionInfo {
+  /** Buyer email collected by Stripe checkout (lowercased) */
+  email: string;
+  /** Whether the session contains a founding-member purchase */
+  founding: boolean;
+  /**
+   * The lifetime plan granted by the purchase (e.g. "researcher"), when founding
+   * @nullable
+   */
+  planId?: string | null;
+  /** Whether an account already exists for the buyer email (true → prompt sign-in, false → prompt sign-up) */
+  hasAccount: boolean;
+  /** Whether the founding membership has already been applied to an account */
+  claimed: boolean;
 }
 
 export interface AdminTrendPoint {

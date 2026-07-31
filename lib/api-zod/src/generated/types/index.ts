@@ -32,6 +32,7 @@ export * from "./challengeSolutionDetail";
 export * from "./challengeSolutionView";
 export * from "./challengeSummary";
 export * from "./challengeTeam";
+export * from "./checkoutSessionInfo";
 export * from "./checkoutUrl";
 export * from "./citizenxChapter";
 export * from "./citizenxChapterInput";

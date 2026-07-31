@@ -127,10 +127,11 @@ export async function consumeCredits(
 export async function addTopupCredits(
   subjectKey: string,
   credits: number,
+  executor: Pick<typeof db, "insert"> = db,
 ): Promise<void> {
   if (credits <= 0) return;
   const period = currentPeriodKey();
-  await db
+  await executor
     .insert(creditAccountsTable)
     .values({
       subjectKey,

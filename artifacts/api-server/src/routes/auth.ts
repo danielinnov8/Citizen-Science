@@ -23,6 +23,7 @@ import {
 } from "../lib/auth/session";
 import { requireAuth } from "../middlewares/requireAuth";
 import { isSuperAdmin } from "../lib/admin/superadmin";
+import { claimFoundingMemberships } from "../lib/stripe/foundingClaims";
 import { createOauthState, consumeOauthState } from "../lib/auth/oauthState";
 
 const router: IRouter = Router();
@@ -55,6 +56,7 @@ function toAuthUser(user: User) {
     image: user.image,
     isSuperAdmin: isSuperAdmin(user),
     isMentor: user.isMentor,
+    foundingMember: user.foundingMember,
     // Server-side source of truth for the story-driven onboarding gate.
     onboarded: user.onboardedAt !== null,
   };
@@ -182,6 +184,15 @@ router.post("/auth/register", async (req: Request, res: Response): Promise<void>
     user = created;
   }
 
+  // A guest founding-member purchase made with this email is claimed on
+  // first auth — refresh the row so the response reflects the grant.
+  if (await claimFoundingMemberships(user.id, user.email)) {
+    [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, user.id));
+  }
+
   const sid = await createSession(user.id);
   res.cookie(SESSION_COOKIE, sid, sessionCookieOptions(req));
   res.status(201).json(GetCurrentUserResponse.parse(toAuthUser(user)));
@@ -195,7 +206,7 @@ router.post("/auth/login", async (req: Request, res: Response): Promise<void> =>
   }
 
   const email = parsed.data.email.trim().toLowerCase();
-  const [user] = await db
+  let [user] = await db
     .select()
     .from(usersTable)
     .where(eq(usersTable.email, email));
@@ -209,6 +220,14 @@ router.post("/auth/login", async (req: Request, res: Response): Promise<void> =>
   if (!ok) {
     res.status(401).json({ error: "Invalid email or password." });
     return;
+  }
+
+  // Claim any unclaimed guest founding purchase made with this email.
+  if (await claimFoundingMemberships(user.id, user.email)) {
+    [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, user.id));
   }
 
   const sid = await createSession(user.id);
@@ -445,6 +464,14 @@ router.get(
             })
             .returning();
         }
+      }
+
+      // Claim any unclaimed guest founding purchase made with this email.
+      if (await claimFoundingMemberships(user.id, user.email)) {
+        [user] = await db
+          .select()
+          .from(usersTable)
+          .where(eq(usersTable.id, user.id));
       }
 
       const sid = await createSession(user.id);

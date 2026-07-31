@@ -10,6 +10,9 @@ export const usersTable = pgTable("users", {
   // Subscription tier. "free" (Explorer) is metered; any other value is treated
   // as an unlimited/paid plan. Defaults to "free" for every new account.
   plan: text("plan").notNull().default("free"),
+  // Lifetime founding member (one-time $2,500 purchase). Set by the Stripe
+  // webhook or when a guest purchase is claimed on sign-up/sign-in.
+  foundingMember: boolean("founding_member").notNull().default(false),
   // Whether a superadmin has flagged this account as a mentor. Mentors can set
   // up a mentor profile and publish mentoring courses others enroll in. Set by
   // the admin portal only (Task #83 mentorship marketplace).

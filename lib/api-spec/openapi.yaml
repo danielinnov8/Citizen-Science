@@ -484,6 +484,85 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /billing/checkout-guest:
+    post:
+      operationId: createGuestCheckoutSession
+      tags: [billing]
+      summary: Create a guest Stripe checkout session (founding member)
+      description: >
+        Public — no account required. Creates a Stripe Checkout session for a
+        one-time founding membership; Stripe collects the buyer's email during
+        checkout. After payment, the webhook records the purchase and the
+        buyer claims it by signing in or creating an account with the same
+        email. Only prices tagged as founding memberships are accepted —
+        subscriptions and top-ups still require an authenticated checkout.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCheckoutInput"
+      responses:
+        "200":
+          description: Checkout session URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutUrl"
+        "400":
+          description: Invalid input or not a founding price
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limited
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "503":
+          description: Stripe not connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /billing/checkout-session/{sessionId}:
+    get:
+      operationId: getCheckoutSession
+      tags: [billing]
+      summary: Look up a completed guest checkout session
+      description: >
+        Public. Returns the buyer email and claim state for a PAID
+        founding-member checkout session so the post-payment page can route
+        the buyer to sign-in (email matches an account) or sign-up (no
+        account yet). Session IDs are unguessable, so possessing one is proof
+        enough for this read-only lookup.
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Checkout session info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutSessionInfo"
+        "404":
+          description: Unknown or unpaid session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "503":
+          description: Stripe not connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /billing/portal:
     post:
       operationId: createPortalSession
@@ -2721,6 +2800,9 @@ components:
         isMentor:
           type: boolean
           description: Whether this account is flagged as a mentor (can publish mentoring courses).
+        foundingMember:
+          type: boolean
+          description: Whether this account is a lifetime founding member (one-time founding purchase, applied directly or claimed after a guest checkout).
         onboarded:
           type: boolean
           description: Whether this account has completed the story-driven onboarding (server-side source of truth).
@@ -2731,6 +2813,7 @@ components:
         - image
         - isSuperAdmin
         - isMentor
+        - foundingMember
         - onboarded
     RegisterInput:
       type: object
@@ -3408,6 +3491,29 @@ components:
         url:
           type: string
           description: Stripe Billing Portal URL to redirect the user to
+    CheckoutSessionInfo:
+      type: object
+      required:
+        - email
+        - founding
+        - hasAccount
+        - claimed
+      properties:
+        email:
+          type: string
+          description: Buyer email collected by Stripe checkout (lowercased)
+        founding:
+          type: boolean
+          description: Whether the session contains a founding-member purchase
+        planId:
+          type: ["string", "null"]
+          description: The lifetime plan granted by the purchase (e.g. "researcher"), when founding
+        hasAccount:
+          type: boolean
+          description: Whether an account already exists for the buyer email (true → prompt sign-in, false → prompt sign-up)
+        claimed:
+          type: boolean
+          description: Whether the founding membership has already been applied to an account
     AdminTrendPoint:
       type: object
       properties:

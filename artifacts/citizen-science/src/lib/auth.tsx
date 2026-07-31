@@ -24,6 +24,7 @@ interface AuthUserView {
   image: string | null;
   isSuperAdmin: boolean;
   isMentor: boolean;
+  foundingMember: boolean;
   onboarded: boolean;
 }
 
@@ -62,6 +63,7 @@ function toView(user: AuthUser): AuthUserView {
     image: user.image,
     isSuperAdmin: user.isSuperAdmin,
     isMentor: user.isMentor,
+    foundingMember: user.foundingMember,
     onboarded: user.onboarded,
   };
 }
