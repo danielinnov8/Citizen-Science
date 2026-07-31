@@ -17,6 +17,7 @@ import { Logo, LogoIcon } from "@/components/Logo";
 import { NetworkGlobe } from "@/components/NetworkGlobe";
 import { PeopleNetwork } from "@/components/PeopleNetwork";
 import { HeroAtom } from "@/components/HeroAtom";
+import { useAuth } from "@/lib/auth";
 
 type DashboardSlide = {
   slug: string;
@@ -1285,6 +1286,7 @@ function FooterNewsletter() {
 }
 
 export function Landing() {
+  const { isAuthenticated } = useAuth();
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans selection:bg-blue-100 selection:text-blue-900">
       {/* HEADER */}
@@ -1304,12 +1306,20 @@ export function Landing() {
             <Link href="/pricing" className="transition-colors hover:text-white">Pricing</Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="hidden sm:inline text-sm font-medium text-white/70 transition-colors hover:text-white">
-              Sign in
-            </Link>
-            <Link href="/login" className="btn-metal-blue inline-flex items-center rounded-full px-6 py-2 text-sm font-medium transition-colors">
-              Join
-            </Link>
+            {isAuthenticated ? (
+              <Link href="/dashboard" className="btn-metal-blue inline-flex items-center rounded-full px-6 py-2 text-sm font-medium transition-colors">
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="hidden sm:inline text-sm font-medium text-white/70 transition-colors hover:text-white">
+                  Sign in
+                </Link>
+                <Link href="/login" className="btn-metal-blue inline-flex items-center rounded-full px-6 py-2 text-sm font-medium transition-colors">
+                  Join
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
