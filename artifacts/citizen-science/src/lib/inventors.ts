@@ -148,15 +148,6 @@ export const MODERN_MINDS: Inventor[] = [
       "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Sara_Seager_CHF-Cain-Conference-May-2016-059.jpg/500px-Sara_Seager_CHF-Cain-Conference-May-2016-059.jpg",
     href: "https://en.wikipedia.org/wiki/Sara_Seager",
   },
-  {
-    name: "Amjad Masad",
-    slug: "amjad-masad",
-    field: "Software & AI",
-    blurb:
-      "Founder and CEO of Replit, making programming accessible to everyone and pioneering AI agents that build software from plain language.",
-    imageUrl: amjadPhoto,
-    href: "https://en.wikipedia.org/wiki/Amjad_Masad",
-  },
 ];
 
 // Row 3 — "Pioneers of Discovery": foundational inventors and researchers

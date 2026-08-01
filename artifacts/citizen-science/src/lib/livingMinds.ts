@@ -2201,7 +2201,7 @@ export const LIVING_MIND_STORIES: Record<string, LivingMindStory> = {
     born: "Born 1985 · Dallas, Texas",
     base: "Oakland, California",
     tagline:
-      "From the physics of the world's most powerful laser to teaching machines the language of science — and now a run at rebuilding California.",
+      "From the physics of the world's most powerful laser to teaching machines the language of science.",
     imageUrl: levyPhoto,
     theme: {
       accent: "#EA580C",
@@ -2214,14 +2214,9 @@ export const LIVING_MIND_STORIES: Record<string, LivingMindStory> = {
     biography: [
       "Matthew Chase Levy was born in Dallas in 1985 and found his footing when his family moved to California — passing nine AP exams and taking UC Berkeley classes while still in high school. Physics became his way of asking how the universe actually works: a bachelor's degree at UCLA, then a master's and PhD in physics and astronomy from Rice University, earned with distinction.",
       "His doctoral research took him to Lawrence Livermore National Laboratory just as the National Ignition Facility — the world's most energetic laser — was coming online. As an E.O. Lawrence Fellow he worked on inertial confinement fusion and laboratory astrophysics, supervised a new nuclear-radiography capability, and supported experiments that first demonstrated magnetic self-organization in laser plasmas. His theoretical work on how intense lasers deposit energy into matter was part of the decades-long research effort at the facility that achieved fusion ignition in December 2022.",
-      "In 2015 the Royal Society named him the first American physicist ever awarded a Newton International Fellowship, bringing him to Oxford as a Junior Research Fellow of Wolfson College. There his work fused physics with machine learning into what is now called 'AI for science' — a field in which he holds some of the earliest patents. He turned the idea into Noble.AI, one of the first AI-for-science companies, backed by investors from Stanford's endowment to Microsoft and Chevron. In 2023 he founded Blue Capital to aim free markets at existential threats; in 2024 Wolfson College made him its youngest Honorary Fellow in history. Today he lives in Oakland with his wife, Stanford professor Debbie Senesky — and is running for Governor of California in 2026.",
+      "In 2015 the Royal Society named him the first American physicist ever awarded a Newton International Fellowship, bringing him to Oxford as a Junior Research Fellow of Wolfson College. There his work fused physics with machine learning into what is now called 'AI for science' — a field in which he holds some of the earliest patents. He turned the idea into Noble.AI, one of the first AI-for-science companies, backed by investors from Stanford's endowment to Microsoft and Chevron. In 2023 he founded Blue Capital to aim free markets at existential threats; in 2024 Wolfson College made him its youngest Honorary Fellow in history. Today he lives in Oakland, California.",
     ],
     buildingNow: [
-      {
-        title: "A Run for California Governor",
-        detail:
-          "Campaigning in the 2026 California governor's race as a political outsider, with a platform centered on affordability, education, and long-term planning.",
-      },
       {
         title: "Blue Capital & AeBlue",
         detail:
@@ -2281,12 +2276,6 @@ export const LIVING_MIND_STORIES: Record<string, LivingMindStory> = {
         detail:
           "Wolfson College, Oxford appoints him its youngest Honorary Fellow ever; he co-organizes the Stanford–SLAC Extreme Energy Workshop.",
       },
-      {
-        year: "2026",
-        title: "Runs for Governor",
-        detail:
-          "Enters the California governor's race as a physicist-entrepreneur political outsider.",
-      },
     ],
     contributions: [
       {
@@ -2310,18 +2299,15 @@ export const LIVING_MIND_STORIES: Record<string, LivingMindStory> = {
           "Supervised a new nuclear-radiography capability and supported the first demonstrations of magnetic self-organization in laser-driven plasmas.",
       },
     ],
-    quotes: [
-      "I've spent my life building solutions. Now I'm ready to build a better California.",
-    ],
+    quotes: [],
     impact: [
       "The 'AI for science' approach Levy patented and commercialized early is now a global research movement — machine learning that accelerates fusion, materials, and drug discovery instead of just ranking ads.",
-      "His career is a live demonstration that citizen curiosity scales: from a kid taking Berkeley classes in high school, to the laser that ignited a star on Earth, to the ballot for governor of the world's fourth-largest economy.",
+      "His career is a live demonstration that citizen curiosity scales: from a kid taking Berkeley classes in high school, to the laser that ignited a star on Earth.",
     ],
     didYouKnow: [
       "At age ten he received a Presidential Education Award signed by President Bill Clinton.",
       "He is the first American physicist ever awarded the Royal Society's Newton International Fellowship.",
       "In 2024 he became the youngest Honorary Fellow in the history of Wolfson College, Oxford.",
-      "He is married to Stanford engineering professor Debbie Senesky, whose lab builds electronics for Venus-grade extreme environments.",
     ],
     relatedCategorySlugs: ["physics", "astronomy", "materials-science"],
     sources: [
