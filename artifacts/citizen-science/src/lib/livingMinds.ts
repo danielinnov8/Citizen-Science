@@ -20,6 +20,8 @@ import salimCover from "@assets/generated_images/cover-salim-ismail.png";
 import blundinCover from "@assets/generated_images/cover-dave-blundin.png";
 import wissnerGrossCover from "@assets/generated_images/cover-alexander-wissner-gross.png";
 import levyPhoto from "@assets/matthew-chase-levy.jpg";
+import amjadPhoto from "@assets/amjad-masad.jpg";
+import lauraPhoto from "@assets/laura-burkemper.jpg";
 
 // Field-themed background patterns suited to modern science & technology. Each
 // motif is rendered faintly behind the hero so every living profile feels
@@ -2337,6 +2339,282 @@ export const LIVING_MIND_STORIES: Record<string, LivingMindStory> = {
       {
         title: "Justia Patents — Matthew Chase Levy",
         url: "https://patents.justia.com/inventor/matthew-chase-levy",
+      },
+    ],
+  },
+
+  "amjad-masad": {
+    slug: "amjad-masad",
+    name: "Amjad Masad",
+    field: "Software & AI",
+    era: "Working Today",
+    born: "From Amman, Jordan",
+    base: "San Francisco Bay Area, California",
+    tagline:
+      "Making programming something anyone can do, from any device — and teaching AI to build the software alongside you.",
+    imageUrl: amjadPhoto,
+    theme: {
+      accent: "#F26207",
+      accentSoft: "#FFF1E8",
+      accentDeep: "#C2410C",
+      heroFrom: "#0A0E1A",
+      heroTo: "#1A0E06",
+      motif: "chip",
+    },
+    biography: [
+      "Amjad Masad grew up in Amman, Jordan, where he fell in love with programming — and with the frustration of how hard it was just to get started. Setting up a development environment on a shared or underpowered computer could take days. That friction became a lifelong question: what if anyone, anywhere, could open a browser and simply start building?",
+      "After studying computer science at Princess Sumaya University for Technology, he became one of the earliest engineers at Codecademy — the interactive platform that taught millions to code — and then worked at Facebook, building tools used by millions of developers. In 2016 he left to found Replit with Haya Odeh and Faris Masad: a complete programming environment that runs entirely in the browser, with nothing to install and nothing to configure.",
+      "Replit grew from a classroom tool into one of the world's largest communities of developers, used by tens of millions of people across schools, startups, and enterprises. When AI coding models matured, Masad pushed the idea further: Ghostwriter brought AI pair programming to the mainstream in 2022, and Replit Agent, launched in 2024, let anyone describe an app in plain language and watch it get built.",
+    ],
+    buildingNow: [
+      {
+        title: "Replit Agent",
+        detail:
+          "Leading the development of AI agents that turn natural-language descriptions into working, deployed applications — no coding experience required.",
+      },
+      {
+        title: "The Next Billion Creators",
+        detail:
+          "Pursuing Replit's founding mission: making software creation as universal as writing, for people on any device and in any country.",
+      },
+      {
+        title: "Enterprise & Education",
+        detail:
+          "Scaling Replit from classrooms to companies — teams prototype, collaborate, and ship internal tools directly from the browser.",
+      },
+      {
+        title: "The Vibe Coding Movement",
+        detail:
+          "Championing a cultural shift in who gets to build software, as AI collapses the distance between having an idea and shipping it.",
+      },
+    ],
+    timeline: [
+      {
+        year: "2011",
+        title: "Codecademy",
+        detail:
+          "Joins Codecademy as one of its earliest engineers after studying computer science at Princess Sumaya University for Technology in Amman.",
+      },
+      {
+        year: "2013",
+        title: "Facebook Engineering",
+        detail:
+          "Builds JavaScript infrastructure at Facebook, working on tools used by millions of developers.",
+      },
+      {
+        year: "2016",
+        title: "Founds Replit",
+        detail:
+          "Launches a full programming environment in the browser with co-founders Haya Odeh and Faris Masad.",
+      },
+      {
+        year: "2022",
+        title: "Ghostwriter AI",
+        detail:
+          "Ships an AI pair programmer that writes and explains code — one of the first mainstream AI coding assistants.",
+      },
+      {
+        year: "2023",
+        title: "Unicorn Milestone",
+        detail:
+          "Replit raises $97 million at a valuation over $1 billion as its community passes tens of millions of users.",
+      },
+      {
+        year: "2024",
+        title: "Replit Agent Launches",
+        detail:
+          "Anyone can describe an app in plain English and watch the agent build and deploy it — a milestone in AI-assisted software creation.",
+      },
+      {
+        year: "2025",
+        title: "Agent 3 & the Mainstream",
+        detail:
+          "Replit's most autonomous agent yet arrives as enterprises and first-time builders alike adopt natural-language software creation.",
+      },
+    ],
+    contributions: [
+      {
+        title: "Programming in the Browser",
+        detail:
+          "Pioneered the zero-setup, browser-native development environment — code, collaborate, and deploy from any device with nothing to install.",
+      },
+      {
+        title: "Democratizing Software Creation",
+        detail:
+          "Opened programming to students, hobbyists, and founders worldwide, regardless of hardware or geography.",
+      },
+      {
+        title: "Mainstreaming AI Pair Programming",
+        detail:
+          "Ghostwriter brought AI-assisted coding to millions before AI coding tools were an industry standard.",
+      },
+      {
+        title: "Natural-Language App Building",
+        detail:
+          "Replit Agent turned plain-language descriptions into deployed applications, opening software creation to non-programmers.",
+      },
+    ],
+    quotes: [
+      "Our mission is to bring the next billion software creators online.",
+    ],
+    impact: [
+      "Removed the setup barrier that kept millions of people — especially in the developing world — from ever writing their first line of code.",
+      "Helped shift programming from an installed, solitary activity to a browser-native, collaborative one — the Google Docs model, for code.",
+      "Through Replit Agent, changed who gets to build software at all: entrepreneurs, teachers, and scientists now ship real apps without writing code.",
+    ],
+    didYouKnow: [
+      "The company is named after the REPL — the read-eval-print loop, the simplest interactive way to run code.",
+      "His co-founders are his wife, designer Haya Odeh, and his brother, engineer Faris Masad.",
+      "The founding insight came from his own childhood in Jordan, where configuring a dev environment was often harder than learning to code itself.",
+      "He has spoken about AI and the future of coding at TED AI San Francisco.",
+    ],
+    relatedCategorySlugs: ["physics", "materials-science", "neuroscience"],
+    sources: [
+      { title: "Replit", url: "https://replit.com" },
+      {
+        title: "Amjad Masad — Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Amjad_Masad",
+      },
+      {
+        title: "TED AI San Francisco — Amjad Masad",
+        url: "https://tedai-sanfrancisco.ted.com/speakers/",
+      },
+    ],
+  },
+
+  "laura-burkemper": {
+    slug: "laura-burkemper",
+    name: "Laura Burkemper",
+    field: "Business & Brand Strategy",
+    era: "Working Today",
+    born: "From St. Louis, Missouri",
+    base: "St. Louis, Missouri",
+    tagline:
+      "Turning bold ideas into market-dominating companies — and helping founders become investable, scalable, and valuable.",
+    imageUrl: lauraPhoto,
+    theme: {
+      accent: "#E11D48",
+      accentSoft: "#FFF1F2",
+      accentDeep: "#9F1239",
+      heroFrom: "#0A0E1A",
+      heroTo: "#1A0710",
+      motif: "web",
+    },
+    biography: [
+      "Laura Burkemper built her expertise inside three of the world's most iconic brands — Coca-Cola, McDonald's, and Express Scripts — companies that successfully made the journey from startup to grownup. Across more than three decades in strategy, brand, business development, and innovation, she saw the same pattern everywhere: the companies that win are the ones whose story, strategy, and value creation line up.",
+      "Today she is the Founder and CEO of SCALEBLAZER®, a business and brand strategy firm in St. Louis that guides CEOs, entrepreneurs, corporate innovators, and celebrity brands toward becoming 'Investable, Scalable, & Valuable.' With more than 80 venture investments behind her, she brings a rare dual lens — investor and strategist — to every engagement, aligning narrative with numbers to accelerate growth and increase valuation.",
+      "Her conviction that business is fundamentally human runs through everything she does. After placing in the top 10 of a global negotiations contest she entered simply to improve, she earned a Certificate in Negotiation Mastery from Harvard Business School Online in 2023 — and a week later signed on as a contributing co-author of 'Empathy and Understanding in Business' alongside renowned negotiator Chris Voss and fellow experts, arguing that trust and empathy are the foundation of lasting commercial success.",
+    ],
+    buildingNow: [
+      {
+        title: "SCALEBLAZER®",
+        detail:
+          "Leading her strategic growth and brand firm, guiding companies from 'startup to grownup' — positioned for investment, scale, and sale.",
+      },
+      {
+        title: "Investable Storytelling™",
+        detail:
+          "Applying her signature frameworks — Investable Storytelling™, Building Brand Capital™, and Negotiating Better Outcomes™ — to align story with strategy and raise valuations.",
+      },
+      {
+        title: "Investing & Advising",
+        detail:
+          "Bringing an investor's eye from 80+ venture investments to a global client portfolio of founders, innovators, and celebrity brands.",
+      },
+      {
+        title: "Teaching & Mentorship",
+        detail:
+          "Serving on the UMSL Alumni Governing Board since 2015 and the Harvard Business Review Advisory Council, after a decade as a senior adjunct professor in a top-ranked MBA entrepreneurship program.",
+      },
+    ],
+    timeline: [
+      {
+        year: "Early career",
+        title: "Inside Iconic Brands",
+        detail:
+          "Builds a 30+ year career in strategy, brand, and innovation with leadership roles at Coca-Cola, McDonald's, and Express Scripts.",
+      },
+      {
+        year: "2015",
+        title: "UMSL Alumni Governing Board",
+        detail:
+          "Begins serving on the alumni board of the University of Missouri–St. Louis, her undergraduate alma mater, as a donor and volunteer.",
+      },
+      {
+        year: "2022",
+        title: "Top 10 Globally",
+        detail:
+          "Places in the top 10 of 100 contestants in a global negotiations contest she entered for fun and self-improvement.",
+      },
+      {
+        year: "2023",
+        title: "Harvard Negotiation Mastery",
+        detail:
+          "Earns her Certificate in Negotiation Mastery from Harvard Business School Online — and signs a book deal a week later.",
+      },
+      {
+        year: "2023",
+        title: "Co-Author with Chris Voss",
+        detail:
+          "Publishes 'Empathy and Understanding in Business' alongside expert negotiator Chris Voss and 28 fellow co-authors.",
+      },
+      {
+        year: "Today",
+        title: "CEO of SCALEBLAZER®",
+        detail:
+          "Guides a global portfolio of CEOs, entrepreneurs, and celebrity brands, with insights featured on CNBC, FOX Business, ABC, CBS, NBC, and in INC Magazine and Essence.",
+      },
+    ],
+    contributions: [
+      {
+        title: "Startup to Grownup™",
+        detail:
+          "Her signature approach to scaling: positioning companies for investment, scale, and sale by aligning strategy, story, and value creation.",
+      },
+      {
+        title: "Building Brand Capital™",
+        detail:
+          "A framework treating brand as a balance-sheet asset — one that compounds trust, pricing power, and valuation over time.",
+      },
+      {
+        title: "Investable Storytelling™",
+        detail:
+          "Teaching founders to tell the story investors actually fund — narrative discipline as a growth lever, not decoration.",
+      },
+      {
+        title: "Empathy in Negotiation",
+        detail:
+          "Contributing to 'Empathy and Understanding in Business' alongside Chris Voss and fellow experts, making the case that lasting deals are built on trust and mutual understanding.",
+      },
+    ],
+    quotes: [
+      "Helping companies become Investable, Scalable, & Valuable.",
+    ],
+    impact: [
+      "Brought big-brand rigor — learned inside Coca-Cola, McDonald's, and Express Scripts — to entrepreneurs and growth-stage companies that rarely get access to it.",
+      "Reframed brand and story as financial assets through frameworks like Building Brand Capital™ and Investable Storytelling™.",
+      "Championed empathy as a core business skill, from the Chris Voss collaboration to a decade teaching the next generation of entrepreneurial leaders.",
+    ],
+    didYouKnow: [
+      "She entered a global negotiations contest purely for self-improvement — and placed in the top 10 of 100 contestants.",
+      "She signed on to contribute to a book alongside Chris Voss just one week after earning her Harvard negotiation certification.",
+      "She holds an MBA from Saint Louis University and a business degree from the University of Missouri–St. Louis, and spent over a decade as a senior adjunct professor in a top-12-ranked MBA entrepreneurship program.",
+      "She serves on the Harvard Business Review Advisory Council.",
+    ],
+    relatedCategorySlugs: [],
+    sources: [
+      { title: "SCALEBLAZER®", url: "https://www.scaleblazer.com/" },
+      {
+        title: "UMSL Daily — Laura Burkemper",
+        url: "https://blogs.umsl.edu/news/2024/05/30/laura-burkemper/",
+      },
+      {
+        title: "Laura Burkemper — LinkedIn",
+        url: "https://linkedin.com/in/lauraburkemper",
+      },
+      {
+        title: "Empathy and Understanding in Business",
+        url: "https://www.amazon.com/Empathy-Understanding-Business-Chris-Voss/dp/B0CNF6J4G8",
       },
     ],
   },

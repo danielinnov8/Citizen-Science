@@ -29,6 +29,8 @@ export const LIVING_LEGEND_SLUGS: ReadonlySet<string> = new Set([
   "dave-blundin",
   "alexander-wissner-gross",
   "matthew-chase-levy",
+  "amjad-masad",
+  "laura-burkemper",
 ]);
 
 export function isKnownLivingLegend(slug: string): boolean {

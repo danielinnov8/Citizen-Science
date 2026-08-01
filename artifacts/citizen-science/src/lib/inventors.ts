@@ -5,6 +5,7 @@ import salimPhoto from "@assets/image_1780697674289.png";
 import blundinPhoto from "@assets/moonshot-dave-blundin.webp";
 import wissnerGrossPhoto from "@assets/Alex_W_G_1780704314284.png";
 import levyPhoto from "@assets/matthew-chase-levy.jpg";
+import amjadPhoto from "@assets/amjad-masad.jpg";
 
 export interface Inventor {
   name: string;
@@ -63,7 +64,7 @@ export const GREAT_MINDS: Inventor[] = [
   },
 ];
 
-// Row 2 — "Modern Visionaries": eight widely-recognized living visionaries
+// Row 2 — "Modern Visionaries": widely-recognized living visionaries
 // curated from our directory, spanning frontier technology, AI, biology, and
 // space — the builders and scientists shaping the world right now.
 export const MODERN_MINDS: Inventor[] = [
@@ -243,6 +244,15 @@ export const FRONTIER_MINDS: Inventor[] = [
 // PeopleNetwork visualization. Kept separate from the curated homepage rows so
 // the network keeps featuring this set even as the Modern Visionaries row evolves.
 export const NETWORK_MINDS: Inventor[] = [
+  {
+    name: "Amjad Masad",
+    slug: "amjad-masad",
+    field: "Software & AI",
+    blurb:
+      "Founder and CEO of Replit, making programming accessible to everyone and pioneering AI agents that build software from plain language.",
+    imageUrl: amjadPhoto,
+    href: "https://en.wikipedia.org/wiki/Amjad_Masad",
+  },
   {
     name: "Peter Diamandis",
     slug: "peter-diamandis",

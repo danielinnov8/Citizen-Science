@@ -854,11 +854,11 @@ export default function Pricing() {
                 more. No hidden fees.
               </p>
               <a
-                href="#founding"
+                href="#founding-member"
                 onClick={(e) => {
                   e.preventDefault();
                   document
-                    .getElementById("founding")
+                    .getElementById("founding-member")
                     ?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
                 className="mt-7 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-medium text-amber-200 transition-colors hover:bg-amber-300/20"
