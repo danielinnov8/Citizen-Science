@@ -16,6 +16,10 @@ import {
   Megaphone,
   Infinity as InfinityIcon,
   MessageCircle,
+  Award,
+  ScrollText,
+  CalendarDays,
+  Users,
   Zap,
   Loader2,
   X,
@@ -662,8 +666,48 @@ function FoundingMember() {
   );
 }
 
-// ── FAQ ──────────────────────────────────────────────────────────────────────
-
+const HONORARY_PERKS: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+}[] = [
+  {
+    icon: Award,
+    title: "Permanent Honorary Member badge",
+    description:
+      "A lasting badge across the platform marking you as someone the community looks up to.",
+  },
+  {
+    icon: ScrollText,
+    title: "A place on the honorary roll",
+    description:
+      "Your name added to our honorary showcase, celebrating the people we're proud to recognize.",
+  },
+  {
+    icon: Zap,
+    title: "A boosted credit allowance",
+    description:
+      "A complimentary expansion of the Free plan's monthly AI credits — every month, on us.",
+  },
+  {
+    icon: CalendarDays,
+    title: "Member-only events & previews",
+    description:
+      "Invitations to community gatherings, talks, and early previews of what we're building.",
+  },
+  {
+    icon: Users,
+    title: "Recognition in the community",
+    description:
+      "Your profile highlighted so fellow members can discover your work and follow along.",
+  },
+  {
+    icon: Mail,
+    title: "A personal note from the team",
+    description:
+      "A thank-you from the founders — recognition should feel personal, not automated.",
+  },
+];
 const FAQS: { q: string; a: string }[] = [
   {
     q: "Can I really use Citizen Science for free?",
@@ -902,10 +946,13 @@ export default function Pricing() {
           loadingKey={loading}
         />
 
-        {/* FOUNDING MEMBER */}
+        {/* HONORARY MEMBER */}
         <div className="mt-20 lg:mt-24">
-          <FoundingMember />
+          <HonoraryMember />
         </div>
+
+        {/* FOUNDING MEMBER */}
+        <FoundingMember />
 
         {/* FAQ */}
         <section className="container mx-auto max-w-3xl px-4 lg:px-8 py-20 lg:py-24">
@@ -1005,5 +1052,90 @@ export default function Pricing() {
         </div>
       </footer>
     </div>
+  );
+}
+
+function HonoraryMember() {
+  const scrollToFounding = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    document
+      .getElementById("founding-member")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  return (
+    <section
+      id="honorary-member"
+      className="relative overflow-hidden border-y border-emerald-100 bg-white scroll-mt-16"
+    >
+      <div className="pointer-events-none absolute -top-32 left-1/2 h-[360px] w-[600px] -translate-x-1/2 rounded-full bg-emerald-100/60 blur-[130px]" />
+
+      <div className="relative container mx-auto max-w-6xl px-4 lg:px-8 py-20 lg:py-24">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-700">
+            <Award className="h-3.5 w-3.5" />
+            By invitation only · complimentary
+          </span>
+          <h2 className="mt-5 font-serif text-4xl lg:text-5xl tracking-tight leading-[1.05] text-[#0F172A]">
+            Some honors{" "}
+            <span className="italic text-emerald-600">
+              can&apos;t be bought
+            </span>
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-[#64748B]">
+            Honorary membership is how we recognize people whose curiosity,
+            teaching, or research inspires us. We grant it by invitation, free
+            of charge — no fee, no checkout, nothing to apply for. It simply
+            appears on your profile as a lasting thank-you.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {HONORARY_PERKS.map((perk) => {
+            const Icon = perk.icon;
+            return (
+              <div
+                key={perk.title}
+                className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-5 transition-colors hover:border-emerald-200"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                  <Icon className="h-4 w-4" />
+                </span>
+                <h3 className="mt-3 text-sm font-semibold text-[#0F172A]">
+                  {perk.title}
+                </h3>
+                <p className="mt-1 text-xs leading-relaxed text-[#64748B]">
+                  {perk.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-12 flex flex-col items-center gap-4 text-center">
+          <p className="text-sm text-[#64748B]">
+            Want to go further and back the mission for life?
+          </p>
+          <a
+            href="#founding-member"
+            onClick={scrollToFounding}
+            className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white px-5 py-2.5 text-sm font-medium text-[#0F172A] transition-colors hover:border-emerald-300 hover:text-emerald-700"
+            data-testid="honorary-jump-founding"
+          >
+            See the Founding Member offer below
+            <ArrowDown className="h-3.5 w-3.5" />
+          </a>
+          <p className="text-xs text-[#94A3B8]">
+            Think someone deserves to be recognized?{" "}
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="font-medium text-emerald-700 underline-offset-2 hover:underline"
+            >
+              Let us know
+            </a>
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }

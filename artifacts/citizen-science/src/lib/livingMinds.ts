@@ -68,6 +68,7 @@ export interface LivingMindStory {
   sources: { title: string; url: string }[];
 }
 
+// hint: Logic changed on both sides. Requires understanding intent of each change.
 export const LIVING_MIND_STORIES: Record<string, LivingMindStory> = {
   "elon-musk": {
     slug: "elon-musk",
