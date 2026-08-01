@@ -31,7 +31,9 @@ import { getTalkableFigure, useAvatarFigure } from "@/lib/talkable";
 import { TalkToFigure } from "@/components/TalkToFigure";
 import { NobelBadge } from "@/components/NobelBadge";
 import { NobelFootsteps } from "@/components/NobelFootsteps";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, GraduationCap } from "lucide-react";
+import { useMentorCta } from "@/lib/useMentorCta";
+import { isLivingEra } from "@/lib/living";
 
 function hostname(url: string): string {
   try {
@@ -793,6 +795,13 @@ export function GreatMindStory({
   const firstName = talkable?.firstName ?? story.name.split(" ")[0];
   const avatarProviders = avatarCap?.providers ?? [];
 
+  // ----- "Be mentored by {figure}" mentorship CTA -----
+  // Living-era figures only — historical great minds never get this. Mirrors
+  // the server gate (living profile or known living legend) that backs the
+  // waitlist + digital-mentor chat the CTA drops members into.
+  const { startMentorship, isJoining } = useMentorCta();
+  const showMentorCta = isLivingEra(story.era);
+
   function handleTalkClick() {
     // The live experience is open to everyone — no sign-in required.
     setTalkOpen(true);
@@ -966,6 +975,29 @@ export function GreatMindStory({
                   {story.era}
                 </span>
               </div>
+
+              {showMentorCta && (
+                <div className="mt-7">
+                  <button
+                    type="button"
+                    onClick={() => startMentorship(story.slug)}
+                    disabled={isJoining}
+                    className="group inline-flex items-center gap-2.5 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition-all hover:scale-[1.03] disabled:opacity-70 disabled:hover:scale-100"
+                    style={{
+                      background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentDeep})`,
+                      boxShadow: `0 18px 40px -12px ${theme.accent}99`,
+                    }}
+                  >
+                    <GraduationCap className="h-4 w-4" />
+                    Be mentored by {firstName}
+                    <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                  <p className="mt-2.5 text-xs text-white/55">
+                    Join the mentorship waitlist and chat with {firstName}&apos;s
+                    digital mentor.
+                  </p>
+                </div>
+              )}
 
               {profile?.nobelPrizes && profile.nobelPrizes.length > 0 && (
                 <NobelBadge prizes={profile.nobelPrizes} className="mt-6" />

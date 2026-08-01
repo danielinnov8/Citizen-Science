@@ -296,7 +296,7 @@ export const NETWORK_MINDS: Inventor[] = [
     blurb:
       "Austin-based inventor, engineer, and advisor with twelve patents across cloud storage, language models, autonomous systems, and wearable intelligence.",
     imageUrl: manuPhoto,
-    href: "https://rehani.co",
+    href: "/directory/manu-rehani",
   },
   {
     name: "Neil deGrasse Tyson",
