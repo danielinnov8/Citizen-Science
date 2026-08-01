@@ -31,6 +31,7 @@ export const LIVING_LEGEND_SLUGS: ReadonlySet<string> = new Set([
   "matthew-chase-levy",
   "amjad-masad",
   "laura-burkemper",
+  "manu-rehani",
 ]);
 
 export function isKnownLivingLegend(slug: string): boolean {

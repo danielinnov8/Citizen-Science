@@ -2605,6 +2605,7 @@ export const LIVING_MIND_STORIES: Record<string, LivingMindStory> = {
       },
     ],
   },
+
 };
 
 export function getLivingMindStory(
