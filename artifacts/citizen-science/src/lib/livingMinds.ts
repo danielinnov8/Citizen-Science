@@ -22,6 +22,7 @@ import wissnerGrossCover from "@assets/generated_images/cover-alexander-wissner-
 import levyPhoto from "@assets/matthew-chase-levy.jpg";
 import amjadPhoto from "@assets/amjad-masad.jpg";
 import lauraPhoto from "@assets/laura-burkemper.jpg";
+import manuPhoto from "@assets/image_1780677287488.jpeg";
 
 // Field-themed background patterns suited to modern science & technology. Each
 // motif is rendered faintly behind the hero so every living profile feels
@@ -56,6 +57,10 @@ export interface LivingMindStory {
   tagline: string; // one-line hero subtitle
   imageUrl: string;
   theme: LivingTheme;
+  // When true, /directory/:slug skips the authored cinematic layout and falls
+  // through to the DB-built cover, while this entry still backs the mentor
+  // chat persona (MentorChat reads LIVING_MIND_STORIES[slug] directly).
+  preferDbStory?: boolean;
   biography: string[]; // long-form, present-tense narrative paragraphs
   buildingNow: StoryContribution[]; // current work — "what they're building now"
   timeline: StoryTimelineEntry[]; // the journey so far
@@ -2606,6 +2611,115 @@ export const LIVING_MIND_STORIES: Record<string, LivingMindStory> = {
     ],
   },
 
+  "manu-rehani": {
+    slug: "manu-rehani",
+    name: "Manu Rehani",
+    field: "Behavioral Intelligence & Dual-Use Technology",
+    era: "Contemporary",
+    born: "Inventor, engineer & advisor",
+    base: "Austin, Texas",
+    tagline:
+      "Building behavioral intelligence for the AI-native renaissance — across cloud infrastructure, autonomous systems, and wearable technology.",
+    imageUrl: manuPhoto,
+    theme: {
+      accent: "#0D9488",
+      accentSoft: "#F0FDFA",
+      accentDeep: "#115E59",
+      heroFrom: "#0A0E1A",
+      heroTo: "#06201D",
+      motif: "neural",
+    },
+    preferDbStory: true,
+    biography: [
+      "Manu Rehani is an Austin, Texas–based inventor, engineer, and advisor working at the intersection of behavioral intelligence, artificial intelligence, and dual-use technology. His career is built on a rare combination: deep intellectual property — twelve patents spanning cloud storage, large language models, autonomous systems, and wearable intelligence — and the operating experience of two company exits.",
+      "His central conviction is that the next era of computing will be defined not just by smarter models, but by systems that understand people: what he calls behavioral intelligence for the AI-native renaissance. That lens shapes his work across cognitive modeling and 'design for relevance fit' — building technology that earns its place in human lives rather than demanding attention from them.",
+      "Today he builds and advises across that frontier, pairing an inventor's patent portfolio with an operator's scars to help companies navigate the space where AI, autonomy, and human behavior meet.",
+    ],
+    buildingNow: [
+      {
+        title: "Behavioral Intelligence",
+        detail:
+          "Developing cognitive modeling approaches that make AI systems responsive to real human behavior — intelligence for the AI-native renaissance.",
+      },
+      {
+        title: "Design for Relevance Fit",
+        detail:
+          "Applying his relevance-fit design philosophy to AI-native products across cloud infrastructure, autonomous systems, and wearables.",
+      },
+      {
+        title: "Advising & Dual-Use Technology",
+        detail:
+          "Advising companies at the intersection of AI and dual-use technology, drawing on two startup exits and a twelve-patent portfolio.",
+      },
+    ],
+    timeline: [
+      {
+        year: "2013",
+        title: "First Patent Grants",
+        detail:
+          "Begins building a patent portfolio that will grow to twelve patents across four technology domains.",
+      },
+      {
+        year: "2015–2017",
+        title: "Patents Across Four Domains",
+        detail:
+          "Granted patents spanning cloud storage — including a storage system for pervasive and mobile content — large language models, autonomous systems, and wearable intelligence.",
+      },
+      {
+        year: "Exits",
+        title: "Two Company Exits",
+        detail:
+          "Achieves two startup exits in behavioral intelligence and dual-use technology, pairing inventor credibility with operator experience.",
+      },
+      {
+        year: "Today",
+        title: "The AI-Native Renaissance",
+        detail:
+          "Builds and advises from Austin on behavioral intelligence, cognitive modeling, and design for relevance fit.",
+      },
+    ],
+    contributions: [
+      {
+        title: "Twelve Patents",
+        detail:
+          "A portfolio spanning cloud storage, large language models, autonomous systems, and wearable intelligence.",
+      },
+      {
+        title: "Behavioral Intelligence",
+        detail:
+          "A framework for AI systems that understand and adapt to human behavior — his thesis for the AI-native renaissance.",
+      },
+      {
+        title: "Design for Relevance Fit",
+        detail:
+          "Cognitive modeling and design approaches that make technology earn relevance in people's lives.",
+      },
+      {
+        title: "Two Startup Exits",
+        detail:
+          "Operator experience in behavioral intelligence and dual-use technology, from founding through acquisition.",
+      },
+    ],
+    quotes: ["Behavioral intelligence for the AI-native renaissance."],
+    impact: [
+      "Bridged pure invention and company-building, holding twelve patents while achieving two startup exits.",
+      "Framed behavioral intelligence as a design discipline for AI-native products across infrastructure, autonomy, and wearables.",
+      "Advanced cognitive modeling and relevance-fit design as answers to how technology should fit into human life.",
+    ],
+    didYouKnow: [
+      "His twelve patents span four distinct domains: cloud storage, large language models, autonomous systems, and wearable intelligence.",
+      "He holds a 2017 patent for a storage system designed for pervasive and mobile content.",
+      "He has achieved two company exits and now advises from Austin, Texas.",
+    ],
+    relatedCategorySlugs: ["neuroscience", "materials-science"],
+    sources: [
+      { title: "rehani.co", url: "https://rehani.co" },
+      {
+        title: "Manu Rehani — Behavioral Intelligence",
+        url: "https://rehani.co/behavioral-intelligence",
+      },
+    ],
+  },
 };
 
 export function getLivingMindStory(

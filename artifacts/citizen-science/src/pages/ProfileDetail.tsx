@@ -103,7 +103,7 @@ export function ProfileDetail() {
   // simply enriches with the profile row once it loads. Figures without
   // authored content fall through to the DB-built / plain layout below.
   const livingStory = owned ? undefined : getLivingMindStory(slug);
-  if (livingStory) {
+  if (livingStory && !livingStory.preferDbStory) {
     return (
       <>
         <LivingMindStory
