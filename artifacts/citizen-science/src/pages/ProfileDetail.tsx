@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useParams } from "wouter";
 import {
   ChevronRight,
@@ -26,6 +27,7 @@ import { GreatMindStory } from "@/components/GreatMindStory";
 import { getLivingMindStory } from "@/lib/livingMinds";
 import { LivingMindStory } from "@/components/LivingMindStory";
 import { ProfileOwnership } from "@/components/ProfileOwnership";
+import { setPageMeta } from "@/lib/seo";
 import { NobelBadge } from "@/components/NobelBadge";
 import { NobelFootsteps } from "@/components/NobelFootsteps";
 import { stripMotivationHtml } from "@/lib/nobelFootsteps";
@@ -73,6 +75,18 @@ export function ProfileDetail() {
   const notFound =
     isError &&
     (error as { status?: number } | undefined)?.status === 404;
+
+  // Per-figure tab title + description (JS-executing crawlers incl. Googlebot
+  // pick these up; static crawlers get the index.html defaults).
+  useEffect(() => {
+    if (profile) {
+      setPageMeta(
+        `${profile.name} — Citizen Science`,
+        profile.summary ?? undefined,
+        `/directory/${profile.slug}`,
+      );
+    }
+  }, [profile]);
 
   // The ownership affordance (claim / pending / verified+edit) is layout
   // agnostic — it renders as a fixed overlay alongside whichever layout we pick,

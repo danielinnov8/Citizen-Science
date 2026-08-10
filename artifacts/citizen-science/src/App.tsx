@@ -54,6 +54,7 @@ import { AppShell } from "@/components/AppShell";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminRoute } from "@/components/AdminRoute";
 import { AuthProvider } from "@/lib/auth";
+import { RouteSeo } from "@/lib/seo";
 
 const queryClient = new QueryClient();
 
@@ -188,6 +189,7 @@ function App() {
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <ScrollToTop />
+            <RouteSeo />
             <Router />
           </WouterRouter>
           <Toaster />

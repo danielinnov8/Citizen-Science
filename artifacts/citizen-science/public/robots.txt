@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# Private / app surfaces — no search value, keep crawlers out
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /agent
+Disallow: /onboarding
+Disallow: /settings
+Disallow: /messages
+Disallow: /admin
+Disallow: /login
+Disallow: /sign-out
+Disallow: /founding/welcome
+Disallow: /mentor/
+Disallow: /notebook
+Disallow: /progress
+Disallow: /inbox
+Disallow: /citizenx/organize
+Disallow: /citizenx/host
+Disallow: /citizenx/publish
+
+Sitemap: https://citizen-science.org/sitemap.xml
