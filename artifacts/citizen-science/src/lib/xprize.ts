@@ -133,14 +133,6 @@ export const REQUIREMENT_GROUPS: XprizeGroup[] = [
         status: "met",
         counts: true,
       },
-      {
-        id: "new-project",
-        title: "Newly created project",
-        rule: "Projects must be newly created after the submission period opened (May 19, 2026). Any pre-existing templates/boilerplate/code must be disclosed and explained.",
-        note: "RISK: Citizen Science predates May 19, 2026. Either build a fresh project for the hackathon or clearly disclose the pre-existing work and substantially build on it — verify eligibility carefully.",
-        status: "atrisk",
-        counts: true,
-      },
     ],
   },
   {
