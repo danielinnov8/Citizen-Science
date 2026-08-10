@@ -169,13 +169,13 @@ export function Xprize() {
   return (
     <div className="min-h-[100dvh] bg-[#F8FAFC] text-[#0F172A] font-sans">
       <div className="mx-auto max-w-5xl px-4 py-10 lg:px-8 lg:py-14">
-        {/* Dev banner */}
-        <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
+        {/* Public banner */}
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm text-blue-800">
           <span className="font-medium">
-            Internal dev dashboard · not part of the public site
+            Follow our progress toward competition readiness
           </span>
           <Link href="/" className="inline-flex items-center gap-1 font-semibold hover:underline">
-            <ArrowLeft className="h-3.5 w-3.5" /> Back to app
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to Citizen Science
           </Link>
         </div>
 
@@ -407,8 +407,7 @@ export function Xprize() {
         </section>
 
         <p className="mt-10 text-xs text-[#94A3B8]">
-          Statuses are a best-effort assessment of this project against the official rules and are
-          editable in <code className="rounded bg-[#F1F5F9] px-1">src/lib/xprize.ts</code>. Always
+          Statuses are a best-effort assessment of this project against the official rules. Always
           confirm against the{" "}
           <a href={COMPETITION.rulesUrl} target="_blank" rel="noreferrer" className="underline">
             current official rules

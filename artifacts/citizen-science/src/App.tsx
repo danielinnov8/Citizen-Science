@@ -88,7 +88,7 @@ function Router() {
       <Route path="/architecture" component={Architecture} />
       <Route path="/api" component={ApiDirectory} />
       <Route path="/apis" component={ApiDirectory} />
-      {import.meta.env.DEV && <Route path="/xprize" component={Xprize} />}
+      <Route path="/xprize" component={Xprize} />
 
       {/* CitizenX program */}
       <Route path="/citizenx">

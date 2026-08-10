@@ -21,6 +21,7 @@ const STATIC_ROUTES = [
   ["/pricing", "monthly", "0.6"],
   ["/monetize", "monthly", "0.6"],
   ["/citizenx", "monthly", "0.5"],
+  ["/xprize", "weekly", "0.6"],
   ["/brand", "monthly", "0.3"],
   ["/privacy", "yearly", "0.2"],
   ["/terms", "yearly", "0.2"],
