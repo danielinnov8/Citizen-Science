@@ -7,6 +7,10 @@ import { cn } from "@/lib/utils";
 /**
  * YouTube channel banner mockup for Citizen Science.
  *
+ * NOTE: the artwork is mirrored in the web app at
+ * artifacts/citizen-science/src/components/ChannelBanner.tsx (shown on /brand).
+ * Keep both in sync when changing the design.
+ *
  * Artboard is the YouTube-recommended 2560×1440. All critical content lives
  * inside the 1546×423 center "safe area" so the banner reads correctly on TV,
  * desktop, tablet, and mobile crops. Background artwork bleeds to the edges.

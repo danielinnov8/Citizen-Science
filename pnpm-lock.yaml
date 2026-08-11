@@ -245,6 +245,10 @@ importers:
         version: 4.1.9(@types/node@25.3.5)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.2)
 
   artifacts/citizen-science:
+    dependencies:
+      html-to-image:
+        specifier: ^1.11.13
+        version: 1.11.13
     devDependencies:
       '@hookform/resolvers':
         specifier: ^3.10.0

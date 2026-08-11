@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Download, Copy, Check, FileImage, FileCode } from "lucide-react";
+import { ArrowLeft, Download, Copy, Check, FileImage, FileCode, Loader2 } from "lucide-react";
+import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
+import { ChannelBannerArtwork, BANNER_W, BANNER_H } from "@/components/ChannelBanner";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
@@ -142,6 +144,99 @@ function ColorSwatch({ name, hex, usage }: { name: string; hex: string; usage: s
   );
 }
 
+function ChannelArtCard() {
+  const { toast } = useToast();
+  const frameRef = useRef<HTMLDivElement>(null);
+  const artboardRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.2);
+  const [busy, setBusy] = useState(false);
+
+  // Fit the 2560×1440 artboard to the card width.
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    const update = () => setScale(Math.min(el.clientWidth / BANNER_W, 1));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const handleDownload = useCallback(async () => {
+    const node = artboardRef.current;
+    if (!node || busy) return;
+    setBusy(true);
+    try {
+      // Ensure webfonts are loaded before rasterizing.
+      await Promise.all([
+        document.fonts.load(`400 104px 'Instrument Serif'`),
+        document.fonts.load(`italic 400 104px 'Instrument Serif'`),
+        document.fonts.load(`600 42px Inter`),
+        document.fonts.load(`400 27px Inter`),
+      ]);
+      await document.fonts.ready;
+
+      const dataUrl = await toPng(node, {
+        canvasWidth: BANNER_W,
+        canvasHeight: BANNER_H,
+        pixelRatio: 1,
+        style: { transform: "none", transformOrigin: "top left" },
+      });
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "citizen-science-youtube-banner-2560x1440.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch {
+      toast({ title: "Couldn't generate PNG", description: "Please try again." });
+    } finally {
+      setBusy(false);
+    }
+  }, [busy, toast]);
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white">
+      <div ref={frameRef} className="w-full bg-[#0B1120]">
+        <div style={{ width: "100%", height: BANNER_H * scale, overflow: "hidden" }}>
+          <div
+            style={{
+              width: BANNER_W,
+              height: BANNER_H,
+              transform: `scale(${scale})`,
+              transformOrigin: "top left",
+            }}
+          >
+            <div ref={artboardRef}>
+              <ChannelBannerArtwork />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col gap-3 border-t border-[#E2E8F0] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <span className="text-sm font-semibold text-[#0F172A]">YouTube channel banner</span>
+          <p className="text-xs text-[#64748B]">
+            2560 × 1440 — critical content sits in the center safe area, so it stays visible on
+            every device crop. Upload as-is in YouTube Studio.
+          </p>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 shrink-0 gap-1.5 border-[#E2E8F0] text-xs"
+          onClick={handleDownload}
+          disabled={busy}
+          data-testid="download-youtube-banner"
+        >
+          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileImage className="h-3.5 w-3.5" />}
+          {busy ? "Rendering…" : "PNG · 2560 × 1440"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function Brand() {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -204,6 +299,20 @@ export default function Brand() {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* CHANNEL ART */}
+        <section className="border-t border-[#E2E8F0] bg-white">
+          <div className="container mx-auto max-w-5xl px-4 lg:px-8 py-16 lg:py-20">
+            <div className="mb-10">
+              <h2 className="text-2xl lg:text-3xl font-semibold tracking-tight mb-2">Channel art</h2>
+              <p className="text-[#64748B] max-w-2xl">
+                Ready-made artwork for our channels, exported at full resolution with the
+                brand's night-sky orbit motif.
+              </p>
+            </div>
+            <ChannelArtCard />
           </div>
         </section>
 
