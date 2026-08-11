@@ -211,7 +211,7 @@ export const REQUIREMENT_GROUPS: XprizeGroup[] = [
         id: "real-users",
         title: "Real, active users",
         rule: "Demonstrate a real, active (ideally paying) user base, with a high-level breakdown of who they are and any testimonials.",
-        note: "Traction is real: GA4 shows 173 active users and 3.4K events over the last 90 days (as of Aug 11, 2026), with daily actives peaking near 50. Remaining: package the evidence — GA export, a breakdown of who users are, and testimonials.",
+        note: "GA4 (Jun 1 – Aug 11, 2026): 174 active users, 159 new, 3,446 events, 52.9% engagement rate, ~1 min avg engagement, daily actives peaking near 50. Breakdown: 80% United States (139), 15 countries total incl. UK, Germany, India, China, Canada, France, Spain, Egypt. Remaining: add testimonials to complete the evidence package.",
         status: "partial",
         counts: true,
       },
