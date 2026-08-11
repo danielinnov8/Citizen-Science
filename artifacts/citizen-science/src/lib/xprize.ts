@@ -235,8 +235,8 @@ export const REQUIREMENT_GROUPS: XprizeGroup[] = [
         id: "costs",
         title: "Total costs disclosed",
         rule: "Report total costs during the hackathon (excluding marketing/acquisition), with a one-sentence description of what they cover.",
-        note: "Track hosting, AI API usage, and any contractor costs from now.",
-        status: "todo",
+        note: "Calculated ~$170 hard costs + Replit subscription (≈$240 total on Core): D-ID $87 (3 mo × $29), Stripe processing ≈$75 (2.9% + 30¢ on $2,505), domain ≈$3 prorated; Cloud Run, Neon, Gemini API ≈ $0 — all inside free tiers at 3.4K events/90 days. Verify Replit spend under Account → Billing, then write the one-sentence description.",
+        status: "partial",
         counts: true,
       },
       {
