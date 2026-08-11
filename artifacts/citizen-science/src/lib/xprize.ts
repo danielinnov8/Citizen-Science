@@ -227,8 +227,8 @@ export const REQUIREMENT_GROUPS: XprizeGroup[] = [
         id: "revenue-by-month",
         title: "Revenue broken out by month (May–Aug)",
         rule: "Report revenue for each calendar month of the build period: May, June, July, and August 2026.",
-        note: "Blocked until revenue exists; start tracking by month now.",
-        status: "todo",
+        note: "Breakdown confirmed from Stripe (as of Aug 11, 2026): May $0, June $0, July $0, August $2,505 gross / $2,431.75 net — all revenue landed in August. Report the $0 months explicitly in the submission.",
+        status: "met",
         counts: true,
       },
       {
