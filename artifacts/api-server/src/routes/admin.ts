@@ -1412,7 +1412,10 @@ router.post(
       return;
     }
 
-    const limit = Math.min(10, Math.max(1, toInt(req.body?.limit) || 5));
+    // Cap 25: with ~5-8s per grounded call + 1.2s pacing this stays under the
+    // Cloud Run default request timeout while clearing a full queue in ~14
+    // clicks instead of ~70.
+    const limit = Math.min(25, Math.max(1, toInt(req.body?.limit) || 5));
 
     const rows = await db
       .select({
