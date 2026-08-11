@@ -118,13 +118,17 @@ export function Sidebar() {
   });
   const unreadCount = inboxQuery.data?.unreadCount ?? 0;
 
-  // Individual profile pages (`/directory/:slug`) are immersive, full-width
-  // story pages — collapse the sidebar on arrival to let the hero breathe, and
-  // restore the user's saved preference once they navigate elsewhere.
+  // Individual profile pages (`/directory/:slug`) and challenge pages
+  // (`/challenges`, `/challenges/:slug`, solution details) are immersive,
+  // full-width pages — collapse the sidebar on arrival to let the content
+  // breathe, and restore the user's saved preference once they navigate
+  // elsewhere.
   const isProfilePage = /^\/directory\/[^/]+$/.test(location);
+  const isChallengePage = /^\/challenges/.test(location);
+  const collapseByDefault = isProfilePage || isChallengePage;
   React.useEffect(() => {
-    setCollapsed(isProfilePage ? true : storage.getSidebarCollapsed());
-  }, [isProfilePage]);
+    setCollapsed(collapseByDefault ? true : storage.getSidebarCollapsed());
+  }, [collapseByDefault]);
 
   const toggleCollapsed = () => {
     setCollapsed((prev) => {
