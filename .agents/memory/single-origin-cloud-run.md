@@ -57,6 +57,8 @@ committed versioned drizzle migrations on startup against its `DATABASE_URL`
 (= Neon). Replit Publish's schema-diff flow still does NOT apply. To change the
 schema: `pnpm --filter @workspace/db run generate`, commit the SQL, deploy.
 
+**Per-figure OG meta is injected server-side in the app.ts SPA fallback** (`/directory/:slug` → `injectProfileMeta` over the built index.html). Because the `clientDir` block no-ops in Replit (no `dist/public`), OG injection can NEVER be verified via the Replit dev preview — verify on prod with view-source or a card validator after a Cloud Run deploy.
+
 **Data self-heals via seed-on-boot, schema does not.** `seedFeaturedProfiles`
 runs at app boot against whatever `DATABASE_URL` Cloud Run has (= Neon): if the
 table is empty it bulk-inserts the committed snapshot. So once Neon's schema has

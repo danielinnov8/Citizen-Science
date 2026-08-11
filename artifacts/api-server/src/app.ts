@@ -4,13 +4,16 @@ import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { eq } from "drizzle-orm";
+import { db, featuredProfilesTable } from "@workspace/db";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { awaitMigrations } from "./lib/startup/migrations";
 import { WebhookHandlers } from "./lib/stripe/webhookHandlers";
 import { startOutreachScheduler } from "./lib/outreach/scheduler";
 import { isResendConfigured } from "./lib/outreach/resend";
+import { injectProfileMeta } from "./lib/og/profileMeta";
 
 const app: Express = express();
 
@@ -113,9 +116,18 @@ const clientDir = path.join(
 if (existsSync(clientDir)) {
   app.use(express.static(clientDir));
 
+  const indexPath = path.join(clientDir, "index.html");
+  const indexHtml = readFileSync(indexPath, "utf8");
+  const siteOrigin = (
+    process.env.PUBLIC_BASE_URL ?? "https://citizen-science.org"
+  ).replace(/\/+$/, "");
+
   // SPA fallback: serve index.html for client-side routes, but never shadow the
-  // API — an unmatched /api/* request should 404, not return HTML.
-  app.use((req, res, next) => {
+  // API — an unmatched /api/* request should 404, not return HTML. Directory
+  // profile pages get figure-specific og:/twitter:/canonical meta injected
+  // because share crawlers never execute JS and would otherwise see the
+  // homepage card for every profile.
+  app.use(async (req, res, next) => {
     if (req.method !== "GET" && req.method !== "HEAD") {
       next();
       return;
@@ -124,7 +136,35 @@ if (existsSync(clientDir)) {
       next();
       return;
     }
-    res.sendFile(path.join(clientDir, "index.html"));
+    const profileMatch = /^\/directory\/([a-z0-9-]+)\/?$/.exec(req.path);
+    if (!profileMatch) {
+      res.sendFile(indexPath);
+      return;
+    }
+    try {
+      const [profile] = await db
+        .select({
+          name: featuredProfilesTable.name,
+          summary: featuredProfilesTable.summary,
+          imageUrl: featuredProfilesTable.imageUrl,
+        })
+        .from(featuredProfilesTable)
+        .where(eq(featuredProfilesTable.slug, profileMatch[1]))
+        .limit(1);
+      res
+        .type("html")
+        .send(
+          profile
+            ? injectProfileMeta(indexHtml, profile, siteOrigin, profileMatch[1])
+            : indexHtml,
+        );
+    } catch (err) {
+      logger.warn(
+        { err, slug: profileMatch[1] },
+        "og: profile meta injection failed; serving default index.html",
+      );
+      res.type("html").send(indexHtml);
+    }
   });
 }
 
