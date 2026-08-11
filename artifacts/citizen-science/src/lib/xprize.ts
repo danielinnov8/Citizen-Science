@@ -219,8 +219,8 @@ export const REQUIREMENT_GROUPS: XprizeGroup[] = [
         id: "revenue",
         title: "Verifiable revenue",
         rule: "Generate real revenue, proven with hard evidence: a Stripe dashboard export, corporate bank statement, or documented P&L ledger.",
-        note: "GAP: no payments/monetization yet — would need to ship paid plans and actually collect revenue.",
-        status: "atrisk",
+        note: "Met — $2,505.00 gross / $2,431.75 net in the last 4 weeks (as of Aug 11, 2026), 100% succeeded, no refunds or disputes. Evidence: Stripe dashboard export.",
+        status: "met",
         counts: true,
       },
       {
