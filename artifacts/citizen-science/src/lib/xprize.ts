@@ -211,8 +211,8 @@ export const REQUIREMENT_GROUPS: XprizeGroup[] = [
         id: "real-users",
         title: "Real, active users",
         rule: "Demonstrate a real, active (ideally paying) user base, with a high-level breakdown of who they are and any testimonials.",
-        note: "GAP: the prototype has real auth but no real user base yet — needs genuine users acquired during the build window.",
-        status: "atrisk",
+        note: "Traction is real: GA4 shows 173 active users and 3.4K events over the last 90 days (as of Aug 11, 2026), with daily actives peaking near 50. Remaining: package the evidence — GA export, a breakdown of who users are, and testimonials.",
+        status: "partial",
         counts: true,
       },
       {
