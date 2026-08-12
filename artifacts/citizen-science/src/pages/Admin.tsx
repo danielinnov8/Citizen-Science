@@ -1863,7 +1863,9 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
   const [typeFilter, setTypeFilter] = React.useState<string>("all");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [page, setPage] = React.useState(1);
-  const pageSize = 25;
+  // 100 per page — the API caps pageSize at 100; batch-select still caps at
+  // MAX_SELECTED (50) for sending.
+  const pageSize = 100;
 
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<OutreachProspect | null>(null);
