@@ -1848,8 +1848,8 @@ async function getOrCreateSettings() {
       id: 1,
       sendHour: 9,
       batchSize: 20,
-      fromEmail: "outreach@citizen-science.org",
-      fromName: "Citizen Science",
+      fromEmail: "daniel@citizen-science.org",
+      fromName: "Daniel (Citizen Science)",
       updatedAt: new Date(),
     }
   );

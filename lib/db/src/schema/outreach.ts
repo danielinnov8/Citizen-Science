@@ -136,11 +136,11 @@ export const outreachSettingsTable = pgTable("outreach_settings", {
   sendHour: integer("send_hour").notNull().default(9),
   batchSize: integer("batch_size").notNull().default(20),
   // Must live on the verified Resend domain (citizen-science.org) or sends are
-  // rejected.
+  // rejected. Defaults to the founder's real mailbox so replies reach a human.
   fromEmail: text("from_email")
     .notNull()
-    .default("outreach@citizen-science.org"),
-  fromName: text("from_name").notNull().default("Citizen Science"),
+    .default("daniel@citizen-science.org"),
+  fromName: text("from_name").notNull().default("Daniel (Citizen Science)"),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

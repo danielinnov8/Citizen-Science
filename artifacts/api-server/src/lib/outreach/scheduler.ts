@@ -14,10 +14,12 @@ import { logger } from "../logger";
 
 // Default settings used when the DB row doesn't exist yet. The from-address must
 // live on the verified Resend domain (citizen-science.org) or sends are rejected.
+// daniel@ is the founder's real Google Workspace mailbox, so prospect replies
+// reach a human and unsubscribe mailtos land somewhere watched.
 const DEFAULT_SEND_HOUR = 9;
 const DEFAULT_BATCH_SIZE = 20;
-const DEFAULT_FROM_EMAIL = "outreach@citizen-science.org";
-const DEFAULT_FROM_NAME = "Citizen Science";
+const DEFAULT_FROM_EMAIL = "daniel@citizen-science.org";
+const DEFAULT_FROM_NAME = "Daniel (Citizen Science)";
 
 // Check every minute whether it's time to fire the daily batch.
 const TICK_INTERVAL_MS = 60_000;
