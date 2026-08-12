@@ -94,8 +94,41 @@ export function ProfileOwnership({ profile }: { profile: FeaturedProfile }) {
     });
   };
 
+  // One-time "welcome back" after a login-to-claim round trip: the visitor
+  // clicked "Log in to claim" anonymously, signed in, and was routed back
+  // here. Point them at the CTA so the flow feels continuous.
+  useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
+    try {
+      const returnTo = window.localStorage.getItem("cs.claimReturnTo");
+      if (returnTo !== slug) return;
+      window.localStorage.removeItem("cs.claimReturnTo");
+      toast({
+        title: "Welcome back!",
+        description:
+          "You're signed in — click “Claim this profile” to submit your claim for review.",
+      });
+    } catch {
+      /* ignore */
+    }
+  }, [authLoading, isAuthenticated, slug]);
+
   const submitClaim = () => {
     if (!isAuthenticated) {
+      // Carry claim intent through auth: every login path (existing account,
+      // new signup, Google OAuth) funnels through Login's routeAfterAuth,
+      // which follows cs.postAuthRedirect back to this profile — where this
+      // card then shows the "Claim this profile" CTA. cs.claimReturnTo drives
+      // a one-time welcome hint on arrival.
+      try {
+        window.localStorage.setItem(
+          "cs.postAuthRedirect",
+          `/directory/${slug}`,
+        );
+        window.localStorage.setItem("cs.claimReturnTo", slug);
+      } catch {
+        /* ignore */
+      }
       navigate("/login");
       return;
     }

@@ -120,7 +120,12 @@ export function Login() {
       } else {
         await signInWithEmail(trimmedEmail, password);
       }
-      routeAfterAuth();
+      // No direct routeAfterAuth() call here: this closure was captured
+      // while anonymous, so its hasCompletedOnboarding is stale (false) and
+      // would wrongly bounce existing accounts into onboarding. The sign-in
+      // writes the fresh user into the query cache, flipping isAuthenticated
+      // — the effect above then routes with up-to-date onboarding state
+      // (same mechanism the Google OAuth return already relies on).
     } catch (err) {
       const status = (err as { status?: number }).status;
       if (status === 409) {
