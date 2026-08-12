@@ -35,7 +35,7 @@ describe("buildPlainBody", () => {
     );
     expect(out).toContain("claim the profile");
     expect(out).toContain(
-      "It would be an honor to welcome you as an honorary member of the community.",
+      "We would like to invite you to become an honorary member of our community.",
     );
     expect(out).toContain(
       "Best,\n\nDaniel Innovaté\nFounder, Citizen Science\ncitizen-science.org\ndaniel@citizen-science.org",

@@ -162,7 +162,7 @@ export function buildPlainBody(
     );
   }
   paragraphs.push(
-    `It would be an honor to welcome you as an honorary member of the community.`,
+    `We would like to invite you to become an honorary member of our community.`,
     `Best,\n\nDaniel Innovaté\nFounder, Citizen Science\ncitizen-science.org\n${senderEmail}`,
   );
   return paragraphs.join("\n\n");
