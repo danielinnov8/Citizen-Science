@@ -47,3 +47,10 @@ id = "h7guyLL9ogb4UyDxk79HZ"
 uri = "file://artifacts/citizen-science/public/favicon.svg"
 type = "image"
 title = "Citizen Science icon (favicon.svg)"
+
+[[outputs]]
+id = "eZ8h5saK0y7yMDFuiV13l"
+uri = "file://prod-imports/outreach-research-2026-08-12.sql"
+type = "unspecified"
+title = "Production outreach research import (SQL)"
+description = "Run in the Neon SQL Editor to copy all 341 researched contact profiles (299 with email candidates) from dev into the production admin portal. Idempotent; never touches the approved-email column."

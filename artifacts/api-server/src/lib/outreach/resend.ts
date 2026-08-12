@@ -12,6 +12,9 @@ export interface SendEmailOptions {
   html: string;
   fromEmail: string;
   fromName: string;
+  /** Optional BCC copy address (e.g. the sender's own inbox for a paper trail —
+   * Resend sends bypass Gmail entirely, so nothing lands in the Sent folder). */
+  bcc?: string;
   tags?: Array<{ name: string; value: string }>;
 }
 
@@ -35,6 +38,7 @@ export async function sendEmail(
     headers: {
       "List-Unsubscribe": `<mailto:${opts.fromEmail}?subject=unsubscribe>`,
     },
+    ...(opts.bcc ? { bcc: [opts.bcc] } : {}),
     ...(opts.tags?.length ? { tags: opts.tags } : {}),
   };
 

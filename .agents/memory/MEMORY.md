@@ -33,3 +33,4 @@
 - [Nobel-solutions seeder throughput](nobel-seeder-throughput.md) — laureate-solution seeder is latency-bound not quota-bound (1000+ grounded calls, 0 429s); use the concurrency CLI arg; ~6 physics/poetry laureates correctly stay uncovered (no forced matches).
 - [AI interview deterministic close](ai-interview-deterministic-close.md) — models can't count their own questions; server must count answers and inject a forced-close instruction, client needs a same-limit safety net.
 - [Mentor chat persona source](mentor-persona-source.md) — /mentor/:slug reads personas only from LIVING_MIND_STORIES; use preferDbStory (not deletion) to keep mentorship while using the DB directory cover.
+- [executeSql bulk export gotcha](executesql-bulk-export.md) — CSV-ish output corrupts rows with commas; durable scope lacks Buffer/TextDecoder; hex-encode in SQL, decode in impure fn.

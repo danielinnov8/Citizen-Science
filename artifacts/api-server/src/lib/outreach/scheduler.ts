@@ -167,6 +167,9 @@ export async function sendToProspect(
     html,
     fromEmail: settings.fromEmail,
     fromName: settings.fromName,
+    // BCC the sender's mailbox: Resend sends bypass Gmail, so this copy is the
+    // founder's paper trail of every outreach email that goes out.
+    bcc: settings.fromEmail,
     tags: [
       { name: "prospect_type", value: prospect.type },
       { name: "prospect_id", value: prospect.id },
