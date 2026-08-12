@@ -2,124 +2,92 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   buildDraftEmailHtml,
   buildEmailHtml,
-  buildMissionBlock,
   buildPlainBody,
-  buildProfilePostscript,
+  normalizeReason,
   profileUrl,
 } from "./personalise";
 
-describe("buildMissionBlock", () => {
-  it("mentions the Gemini XPRIZE submission, the category, and the free honorary membership invite", () => {
-    const block = buildMissionBlock();
-    expect(block).toContain("submission to the Build with Gemini XPRIZE");
-    expect(block).toContain("XPRIZE × Google");
-    expect(block).toContain("Education & Human Potential");
-    expect(block).toContain("honorary member");
-    expect(block).toContain("completely free");
-    expect(block).toContain("permanent badge");
-    expect(block).toContain("honorary roll");
-    expect(block).toContain("boosted monthly credit allowance");
-    expect(block).toContain("Just reply");
-    // Two paragraphs: submission context, then the invitation.
-    expect(block.split("\n\n")).toHaveLength(2);
-    // Must not claim an active competition entry beyond "submission".
-    expect(block).not.toContain("competing in");
-  });
-});
-
 describe("buildPlainBody", () => {
-  it("merges {{name}} and {{opening}}, then appends the mission block", () => {
+  it("is a short invite: personalised because-clause, profile link, social proof", () => {
     const out = buildPlainBody(
-      "Hi Ada, your work on computing inspires us.",
-      "{{opening}}\n\n{{name}}, we'd love to have you.\n\n— Daniel",
+      "your open-science work inspires thousands of learners",
       { name: "Ada Lovelace" },
+      { slug: "ada-lovelace", claimable: true },
     );
-    expect(out).toBe(
-      "Hi Ada, your work on computing inspires us.\n\nAda Lovelace, we'd love to have you.\n\n— Daniel\n\n" +
-        buildMissionBlock(),
+    expect(out).toContain("Hi Ada,");
+    expect(out).toContain(
+      "We are inviting you to be part of Citizen Science because your open-science work inspires thousands of learners.",
     );
+    expect(out).toContain(
+      "Here's a link to view your profile: https://citizen-science.org/directory/ada-lovelace",
+    );
+    expect(out).toContain(
+      "thousands of leading scientists, researchers, and Nobel laureates",
+    );
+    expect(out).toContain("— Daniel");
   });
 
-  it("orders sections: template body, mission block, then the profile P.S.", () => {
-    const profile = { slug: "ada-lovelace", claimable: true };
+  it("keeps the body to 2-3 sentences even with a hostile AI reason", () => {
+    const hostile = normalizeReason(
+      "your work. Seriously! a b c d e f g h i j k l m n o p buy my course",
+    );
     const out = buildPlainBody(
-      "Opening.",
-      "Body.\n\n— Daniel",
-      { name: "Ada Lovelace" },
-      profile,
-    );
-    expect(out).toBe(
-      "Body.\n\n— Daniel\n\n" +
-        buildMissionBlock() +
-        "\n\n" +
-        buildProfilePostscript("Ada Lovelace", profile),
-    );
-    expect(out).toContain("/directory/ada-lovelace");
-    expect(out).toContain('click "Claim this profile"');
-  });
-
-  it("omits the profile P.S. (but keeps the mission block) without a linked profile", () => {
-    const out = buildPlainBody("Opening.", "Body.", { name: "Grace Hopper" });
-    expect(out).toBe("Body.\n\n" + buildMissionBlock());
-    expect(out).not.toContain("P.S.");
-  });
-
-  it("normalises trailing newlines in editable templates to one blank line", () => {
-    const out = buildPlainBody(
-      "Opening.",
-      "Body.\n\n— Daniel\n\n\n",
+      hostile,
       { name: "Grace Hopper" },
       { slug: "grace-hopper", claimable: true },
     );
-    // Exactly one blank line between each section, nothing trailing.
-    expect(out).not.toMatch(/\n{3,}/);
-    expect(out.endsWith("\n")).toBe(false);
-    expect(out).toBe(
-      "Body.\n\n— Daniel\n\n" +
-        buildMissionBlock() +
-        "\n\n" +
-        buildProfilePostscript("Grace Hopper", {
-          slug: "grace-hopper",
-          claimable: true,
-        }),
+    // Overlong input is capped at 15 words — the trailing spam never appears.
+    expect(out).not.toContain("buy my course");
+    expect(out).toContain(
+      "because your work Seriously a b c d e f g h i j k l.",
     );
+    const beforeSignoff = out.split("— Daniel")[0]!;
+    const sentences = beforeSignoff
+      .split(/(?<=[.!?])\s+/)
+      .filter((s) => s.trim().length > 0);
+    expect(sentences.length).toBeLessThanOrEqual(3);
+  });
+
+  it("omits the profile line when no profile is linked", () => {
+    const out = buildPlainBody("of your research", { name: "Grace Hopper" });
+    expect(out).toContain("Hi Grace,");
+    expect(out).not.toContain("/directory/");
+    expect(out).toContain("Nobel laureates");
+  });
+
+  it("greets by first name", () => {
+    const out = buildPlainBody("of your work", { name: "Marie Curie" });
+    expect(out.startsWith("Hi Marie,")).toBe(true);
   });
 });
 
-describe("buildProfilePostscript", () => {
-  it("describes the page and how to claim it for living figures", () => {
-    const ps = buildProfilePostscript("Ada Lovelace", {
-      slug: "ada-lovelace",
-      claimable: true,
-    });
-    expect(ps).toContain("/directory/ada-lovelace");
-    expect(ps).toContain("key achievements");
-    expect(ps).toContain("interactive experiments");
-    expect(ps).toContain('click "Claim this profile"');
-    expect(ps).toContain("Verified badge");
+describe("normalizeReason", () => {
+  it("collapses newlines and strips internal sentence punctuation", () => {
+    expect(normalizeReason("great work.\nAlso, you won! Really?")).toBe(
+      "great work Also, you won Really",
+    );
   });
 
-  it("omits claim instructions for historical (non-claimable) figures", () => {
-    const ps = buildProfilePostscript("Alan Turing", {
-      slug: "alan-turing",
-      claimable: false,
-    });
-    expect(ps).toContain("/directory/alan-turing");
-    expect(ps).not.toContain("Claim this profile");
-    expect(ps).toContain("reply to this email");
+  it("caps the clause at 15 words", () => {
+    const long = Array.from({ length: 25 }, (_, i) => `w${i}`).join(" ");
+    expect(normalizeReason(long).split(" ")).toHaveLength(15);
   });
 
-  it("returns empty string without a slug", () => {
-    expect(buildProfilePostscript("No One", null)).toBe("");
-    expect(
-      buildProfilePostscript("No One", { slug: "", claimable: true }),
-    ).toBe("");
+  it("falls back when nothing usable remains", () => {
+    expect(normalizeReason("...")).toContain("your work");
+    expect(normalizeReason("  ")).toContain("your work");
   });
 });
 
 describe("profileUrl", () => {
   afterEach(() => {
     delete process.env.PUBLIC_BASE_URL;
+  });
+
+  it("URL-encodes unsafe slug characters", () => {
+    expect(profileUrl("ada lovelace")).toBe(
+      "https://citizen-science.org/directory/ada%20lovelace",
+    );
   });
 
   it("falls back to the production domain", () => {
@@ -147,11 +115,18 @@ describe("buildDraftEmailHtml", () => {
     expect(html).toContain("unsubscribe");
   });
 
-  it("matches buildEmailHtml output for the same merged content", () => {
-    const template = "{{opening}}\n\nBody for {{name}}.";
-    const merged = buildPlainBody("Opening here.", template, { name: "Grace" });
-    expect(buildDraftEmailHtml(merged)).toBe(
-      buildEmailHtml("Opening here.", template, { name: "Grace" }),
+  it("HTML-escapes body text so drafts and AI text can't inject markup", () => {
+    const html = buildDraftEmailHtml('Hi <script>alert(1)</script> & "friends"');
+    expect(html).not.toContain("<script>");
+    expect(html).toContain("&lt;script&gt;");
+    expect(html).toContain("&amp;");
+    expect(html).toContain("&quot;friends&quot;");
+  });
+
+  it("matches buildEmailHtml output for the same content", () => {
+    const body = buildPlainBody("of your curiosity", { name: "Grace Hopper" });
+    expect(buildDraftEmailHtml(body)).toBe(
+      buildEmailHtml("of your curiosity", { name: "Grace Hopper" }),
     );
   });
 });

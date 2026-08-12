@@ -1609,25 +1609,19 @@ router.post(
       return;
     }
 
-    const [{ subject, openingParagraph }, profileBlurb] = await Promise.all([
+    const [{ subject, reason }, profileBlurb] = await Promise.all([
       personaliseEmail({
         name: prospect.name,
         type: prospect.type,
         notes: prospect.notes,
         subjectTemplate: template.subjectTemplate,
-        bodyTemplate: template.bodyTemplate,
       }),
       resolveProfileBlurb(prospect.profileId),
     ]);
 
     res.json({
       subject,
-      body: buildPlainBody(
-        openingParagraph,
-        template.bodyTemplate,
-        { name: prospect.name },
-        profileBlurb,
-      ),
+      body: buildPlainBody(reason, { name: prospect.name }, profileBlurb),
       to: prospect.email ?? null,
     });
   },

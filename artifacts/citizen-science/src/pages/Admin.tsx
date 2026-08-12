@@ -2133,14 +2133,14 @@ function TemplatesPanel() {
   const updateTemplate = useUpdateOutreachTemplate();
   const { toast } = useToast();
 
-  const [drafts, setDrafts] = React.useState<Record<string, { subject: string; body: string }>>({});
+  const [drafts, setDrafts] = React.useState<Record<string, { subject: string }>>({});
   const [saving, setSaving] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (data) {
-      const init: Record<string, { subject: string; body: string }> = {};
+      const init: Record<string, { subject: string }> = {};
       for (const t of data) {
-        init[t.id] = { subject: t.subjectTemplate, body: t.bodyTemplate };
+        init[t.id] = { subject: t.subjectTemplate };
       }
       setDrafts(init);
     }
@@ -2153,7 +2153,7 @@ function TemplatesPanel() {
     try {
       await updateTemplate.mutateAsync({
         id: template.id,
-        data: { subjectTemplate: draft.subject, bodyTemplate: draft.body },
+        data: { subjectTemplate: draft.subject },
       });
       toast({ title: "Template saved" });
     } catch {
@@ -2168,18 +2168,16 @@ function TemplatesPanel() {
   return (
     <div className="space-y-6">
       <p className="text-sm text-[#64748B]">
-        One template per audience type. Variables:{" "}
-        {["{{name}}", "{{opening}}"].map((v) => (
-          <code key={v} className="mx-0.5 rounded bg-blue-50 px-1.5 py-0.5 text-xs font-mono text-blue-700">{v}</code>
-        ))}{" "}
-        — <code className="rounded bg-blue-50 px-1.5 py-0.5 text-xs font-mono text-blue-700">{"{{opening}}"}</code> is the AI-drafted personalised paragraph.
+        One subject template per audience type — use{" "}
+        <code className="mx-0.5 rounded bg-blue-50 px-1.5 py-0.5 text-xs font-mono text-blue-700">{"{{name}}"}</code>{" "}
+        for the prospect's name. The email body is a fixed short format: a personal
+        invitation (with an AI-written reason), a link to the prospect's profile page,
+        and a social-proof close.
       </p>
 
       {(data ?? []).map((template) => {
         const draft = drafts[template.id];
-        const changed =
-          draft &&
-          (draft.subject !== template.subjectTemplate || draft.body !== template.bodyTemplate);
+        const changed = draft && draft.subject !== template.subjectTemplate;
 
         return (
           <Card key={template.id}>
@@ -2201,19 +2199,6 @@ function TemplatesPanel() {
                     setDrafts((prev) => ({
                       ...prev,
                       [template.id]: { ...prev[template.id]!, subject: e.target.value },
-                    }))
-                  }
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Body template</label>
-                <textarea
-                  className="h-52 w-full rounded-md border border-[#E2E8F0] p-3 text-sm text-[#0F172A] font-mono resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={draft?.body ?? ""}
-                  onChange={(e) =>
-                    setDrafts((prev) => ({
-                      ...prev,
-                      [template.id]: { ...prev[template.id]!, body: e.target.value },
                     }))
                   }
                 />

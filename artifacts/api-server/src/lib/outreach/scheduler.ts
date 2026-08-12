@@ -155,16 +155,10 @@ export async function sendToProspect(
       type: prospect.type,
       notes: prospect.notes,
       subjectTemplate: template.subjectTemplate,
-      bodyTemplate: template.bodyTemplate,
     });
     subject = personal.subject;
     const profileBlurb = await resolveProfileBlurb(prospect.profileId);
-    html = buildEmailHtml(
-      personal.openingParagraph,
-      template.bodyTemplate,
-      { name: prospect.name },
-      profileBlurb,
-    );
+    html = buildEmailHtml(personal.reason, { name: prospect.name }, profileBlurb);
   }
 
   const result = await sendEmail({

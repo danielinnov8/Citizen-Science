@@ -6,12 +6,12 @@ export interface PersonalisationInput {
   type: "researcher" | "scientist" | "investor" | "user";
   notes?: string;
   subjectTemplate: string;
-  bodyTemplate: string;
 }
 
 export interface PersonalisationResult {
   subject: string;
-  openingParagraph: string;
+  /** Short clause completing "…because {reason}." — why THIS person. */
+  reason: string;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -21,10 +21,41 @@ const TYPE_LABELS: Record<string, string> = {
   user: "prospective user",
 };
 
+/** The directory profile a prospect is linked to (if any). */
+export interface ProfileBlurb {
+  slug: string;
+  /** True when the figure is living and can claim the page themselves. */
+  claimable: boolean;
+}
+
+export function profileUrl(slug: string): string {
+  // Strip trailing slashes so a PUBLIC_BASE_URL configured with one doesn't
+  // produce a double-slash URL.
+  const base = (
+    process.env.PUBLIC_BASE_URL ?? "https://citizen-science.org"
+  ).replace(/\/+$/, "");
+  return `${base}/directory/${encodeURIComponent(slug)}`;
+}
+
+const FALLBACK_REASON =
+  "your work is exactly the kind our community of curious minds loves to learn from";
+
 function templateFallback(input: PersonalisationInput): PersonalisationResult {
   const subject = input.subjectTemplate.replace(/\{\{name\}\}/g, input.name);
-  const openingParagraph = `Hi ${input.name}, I wanted to reach out personally because I think you'd find Citizen Science particularly valuable.`;
-  return { subject, openingParagraph };
+  return { subject, reason: FALLBACK_REASON };
+}
+
+/**
+ * Force the AI-written clause to be a single, short, sentence-safe clause:
+ * one line, no internal sentence punctuation, ≤ 15 words. This is what
+ * guarantees the "2-3 sentences max" promise no matter what the model returns.
+ */
+export function normalizeReason(raw: string): string {
+  const oneLine = raw.replace(/\s+/g, " ").trim();
+  const noSentencePunct = oneLine.replace(/[.!?]+/g, "");
+  const words = noSentencePunct.split(" ").filter(Boolean).slice(0, 15);
+  const clause = words.join(" ").trim();
+  return clause.length >= 3 ? clause : FALLBACK_REASON;
 }
 
 export async function personaliseEmail(
@@ -43,7 +74,7 @@ export async function personaliseEmail(
       ? `\nAdditional context about them: ${input.notes.trim()}`
       : "";
 
-    const prompt = `You are writing a personalised outreach email on behalf of Citizen Science, an AI-powered platform for science education and discovery.
+    const prompt = `You are writing a short, warm outreach email on behalf of Citizen Science, an AI-powered platform for science education and discovery.
 
 Prospect details:
 - Name: ${input.name}
@@ -53,9 +84,9 @@ Subject line template (you may adapt it): ${input.subjectTemplate}
 
 Write:
 1. A compelling, personalised subject line (max 60 chars) for this specific person
-2. A warm, personalised 1-2 sentence opening paragraph that addresses them by name and speaks to their role/interests
+2. "reason": ONE short clause (max 15 words, lowercase, no trailing period) completing the sentence "We are inviting you to be part of Citizen Science because …" — specific to this person's work and why our community would value them.
 
-Respond in JSON with keys: "subject" (string) and "openingParagraph" (string).`;
+Respond in JSON with keys: "subject" (string) and "reason" (string).`;
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -66,9 +97,9 @@ Respond in JSON with keys: "subject" (string) and "openingParagraph" (string).`;
           type: "object" as const,
           properties: {
             subject: { type: "string" as const },
-            openingParagraph: { type: "string" as const },
+            reason: { type: "string" as const },
           },
-          required: ["subject", "openingParagraph"],
+          required: ["subject", "reason"],
         },
         maxOutputTokens: 256,
         thinkingConfig: { thinkingBudget: 0 },
@@ -78,13 +109,13 @@ Respond in JSON with keys: "subject" (string) and "openingParagraph" (string).`;
     const text = response.text ?? "";
     const parsed = JSON.parse(text) as PersonalisationResult;
 
-    if (!parsed.subject || !parsed.openingParagraph) {
+    if (!parsed.subject || !parsed.reason) {
       throw new Error("incomplete gemini response");
     }
 
     return {
       subject: parsed.subject.slice(0, 120),
-      openingParagraph: parsed.openingParagraph.slice(0, 500),
+      reason: normalizeReason(parsed.reason),
     };
   } catch (err) {
     logger.warn({ err }, "outreach personalise: gemini failed, using fallback");
@@ -92,115 +123,64 @@ Respond in JSON with keys: "subject" (string) and "openingParagraph" (string).`;
   }
 }
 
-/** The directory profile a prospect is linked to (if any). */
-export interface ProfileBlurb {
-  slug: string;
-  /** True when the figure is living and can claim the page themselves. */
-  claimable: boolean;
-}
-
-export function profileUrl(slug: string): string {
-  // Strip trailing slashes so a PUBLIC_BASE_URL configured with one doesn't
-  // produce a double-slash URL.
-  const base = (
-    process.env.PUBLIC_BASE_URL ?? "https://citizen-science.org"
-  ).replace(/\/+$/, "");
-  return `${base}/directory/${slug}`;
-}
-
 /**
- * P.S. block pointing the prospect at their directory profile page: what's on
- * it and — for living figures — how to claim it. Empty when the prospect has
- * no linked profile.
- */
-export function buildProfilePostscript(
-  prospectName: string,
-  profile?: ProfileBlurb | null,
-): string {
-  if (!profile?.slug) return "";
-  const url = profileUrl(profile.slug);
-  const firstName = prospectName.trim().split(/\s+/)[0] || prospectName;
-
-  if (!profile.claimable) {
-    return (
-      `P.S. We've built a profile page celebrating your work on Citizen Science:\n${url}\n\n` +
-      `It features your story, key achievements, and interactive experiments. ` +
-      `If you'd like anything on it changed, just reply to this email.`
-    );
-  }
-
-  return (
-    `P.S. ${firstName}, we've already built a profile page for you on Citizen Science:\n${url}\n\n` +
-    `It tells your story — your background, key achievements and discoveries, plus interactive ` +
-    `experiments visitors can try — and people can even chat with an AI trained on your work.\n\n` +
-    `The page is yours to claim: open it and click "Claim this profile", sign in (it's free), ` +
-    `and submit — our team verifies every claim personally. Once approved you'll get a Verified ` +
-    `badge and full control to edit the page.`
-  );
-}
-
-/**
- * Fixed mission block appended to every generated outreach body: why we're
- * reaching out now (Citizen Science is a submission to the Build with Gemini
- * XPRIZE, Education & Human Potential category) plus the invitation to become
- * an honorary member at no cost. Static on purpose — admins can still rewrite
- * it per-prospect in the draft editor. Wording mirrors the public site:
- * category per lib/xprize.ts, honorary perks per the Pricing page.
- */
-export function buildMissionBlock(): string {
-  return (
-    `One reason we're reaching out now: Citizen Science is our submission to the ` +
-    `Build with Gemini XPRIZE (XPRIZE × Google), in the Education & Human ` +
-    `Potential category — and people like you are exactly who we're building it for.\n\n` +
-    `As a thank-you for the work you do, we'd love to welcome you as an honorary ` +
-    `member — completely free, forever. Honorary members carry a permanent badge, a ` +
-    `place on our honorary roll, and a boosted monthly credit allowance. Just reply ` +
-    `to this email and we'll set everything up.`
-  );
-}
-
-/**
- * Assemble the final plain-text body (template with {{name}} + {{opening}}
- * merged, the mission block, plus a profile P.S. when the prospect is linked
- * to a directory profile). This is the admin-editable form of the email: the
- * preview endpoint returns it, the admin edits it, and sends store it as the
- * prospect's draft.
+ * Assemble the final plain-text body — deliberately 2-3 sentences:
+ *   1. the invitation, personalised with the AI-written "because" clause
+ *   2. a link to the prospect's directory profile (when one is linked)
+ *   3. the social-proof close
+ * This is the admin-editable form of the email: the preview endpoint returns
+ * it, the admin edits it, and sends store it verbatim as the prospect's draft.
  */
 export function buildPlainBody(
-  openingParagraph: string,
-  bodyTemplate: string,
+  reason: string,
   prospect: { name: string },
   profile?: ProfileBlurb | null,
 ): string {
-  const merged = bodyTemplate
-    .replace(/\{\{name\}\}/g, prospect.name)
-    .replace(/\{\{opening\}\}/g, openingParagraph)
-    // Admin-editable templates may end in stray newlines; trim them so the
-    // join below always yields exactly one blank line between sections.
-    .replace(/\n+$/, "");
-  const sections = [merged, buildMissionBlock()];
-  const postscript = buildProfilePostscript(prospect.name, profile);
-  if (postscript) sections.push(postscript);
-  return sections.join("\n\n");
+  const firstName = prospect.name.trim().split(/\s+/)[0] || prospect.name;
+  const paragraphs = [
+    `Hi ${firstName},`,
+    `We are inviting you to be part of Citizen Science because ${reason}.`,
+  ];
+  if (profile?.slug) {
+    paragraphs.push(
+      `Here's a link to view your profile: ${profileUrl(profile.slug)}`,
+    );
+  }
+  paragraphs.push(
+    `You'd be joining thousands of leading scientists, researchers, and Nobel laureates already on Citizen Science — we'd be honoured to have you.`,
+    `— Daniel\nCitizen Science`,
+  );
+  return paragraphs.join("\n\n");
 }
 
 export function buildEmailHtml(
-  openingParagraph: string,
-  bodyTemplate: string,
+  reason: string,
   prospect: { name: string },
   profile?: ProfileBlurb | null,
 ): string {
-  return buildDraftEmailHtml(
-    buildPlainBody(openingParagraph, bodyTemplate, prospect, profile),
-  );
+  return buildDraftEmailHtml(buildPlainBody(reason, prospect, profile));
 }
 
-/** Wrap a final plain-text body (template output or an admin-edited draft) in
- * the standard outreach HTML shell. */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Wrap a final plain-text body (generated or an admin-edited draft) in the
+ * standard outreach HTML shell. Body text is HTML-escaped before <br>
+ * conversion: the draft editor is plain text, so what the admin sees is
+ * exactly what recipients get — and AI- or prospect-sourced text can never
+ * inject markup into an outbound email. */
 export function buildDraftEmailHtml(body: string): string {
   const paragraphs = body
     .split(/\n\n+/)
-    .map((p) => `<p style="margin:0 0 16px 0;">${p.replace(/\n/g, "<br>")}</p>`)
+    .map(
+      (p) =>
+        `<p style="margin:0 0 16px 0;">${escapeHtml(p).replace(/\n/g, "<br>")}</p>`,
+    )
     .join("\n");
 
   return `<!DOCTYPE html>
