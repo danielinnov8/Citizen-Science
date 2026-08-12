@@ -54,6 +54,7 @@ import {
 } from "../lib/outreach/scheduler";
 import { isResendConfigured } from "../lib/outreach/resend";
 import { ensureDefaultTemplates } from "../lib/outreach/templates";
+import { resolveProfileBlurb } from "../lib/outreach/profileBlurb";
 import {
   personaliseEmail,
   buildPlainBody,
@@ -1608,19 +1609,25 @@ router.post(
       return;
     }
 
-    const { subject, openingParagraph } = await personaliseEmail({
-      name: prospect.name,
-      type: prospect.type,
-      notes: prospect.notes,
-      subjectTemplate: template.subjectTemplate,
-      bodyTemplate: template.bodyTemplate,
-    });
+    const [{ subject, openingParagraph }, profileBlurb] = await Promise.all([
+      personaliseEmail({
+        name: prospect.name,
+        type: prospect.type,
+        notes: prospect.notes,
+        subjectTemplate: template.subjectTemplate,
+        bodyTemplate: template.bodyTemplate,
+      }),
+      resolveProfileBlurb(prospect.profileId),
+    ]);
 
     res.json({
       subject,
-      body: buildPlainBody(openingParagraph, template.bodyTemplate, {
-        name: prospect.name,
-      }),
+      body: buildPlainBody(
+        openingParagraph,
+        template.bodyTemplate,
+        { name: prospect.name },
+        profileBlurb,
+      ),
       to: prospect.email ?? null,
     });
   },

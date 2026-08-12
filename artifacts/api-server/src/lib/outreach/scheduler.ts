@@ -14,6 +14,7 @@ import {
   buildDraftEmailHtml,
 } from "./personalise";
 import { ensureDefaultTemplates } from "./templates";
+import { resolveProfileBlurb } from "./profileBlurb";
 import { logger } from "../logger";
 
 // Default settings used when the DB row doesn't exist yet. The from-address must
@@ -157,9 +158,13 @@ export async function sendToProspect(
       bodyTemplate: template.bodyTemplate,
     });
     subject = personal.subject;
-    html = buildEmailHtml(personal.openingParagraph, template.bodyTemplate, {
-      name: prospect.name,
-    });
+    const profileBlurb = await resolveProfileBlurb(prospect.profileId);
+    html = buildEmailHtml(
+      personal.openingParagraph,
+      template.bodyTemplate,
+      { name: prospect.name },
+      profileBlurb,
+    );
   }
 
   const result = await sendEmail({

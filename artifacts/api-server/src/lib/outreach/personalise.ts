@@ -92,28 +92,106 @@ Respond in JSON with keys: "subject" (string) and "openingParagraph" (string).`;
   }
 }
 
+/** The directory profile a prospect is linked to (if any). */
+export interface ProfileBlurb {
+  slug: string;
+  /** True when the figure is living and can claim the page themselves. */
+  claimable: boolean;
+}
+
+export function profileUrl(slug: string): string {
+  // Strip trailing slashes so a PUBLIC_BASE_URL configured with one doesn't
+  // produce a double-slash URL.
+  const base = (
+    process.env.PUBLIC_BASE_URL ?? "https://citizen-science.org"
+  ).replace(/\/+$/, "");
+  return `${base}/directory/${slug}`;
+}
+
+/**
+ * P.S. block pointing the prospect at their directory profile page: what's on
+ * it and — for living figures — how to claim it. Empty when the prospect has
+ * no linked profile.
+ */
+export function buildProfilePostscript(
+  prospectName: string,
+  profile?: ProfileBlurb | null,
+): string {
+  if (!profile?.slug) return "";
+  const url = profileUrl(profile.slug);
+  const firstName = prospectName.trim().split(/\s+/)[0] || prospectName;
+
+  if (!profile.claimable) {
+    return (
+      `P.S. We've built a profile page celebrating your work on Citizen Science:\n${url}\n\n` +
+      `It features your story, key achievements, and interactive experiments. ` +
+      `If you'd like anything on it changed, just reply to this email.`
+    );
+  }
+
+  return (
+    `P.S. ${firstName}, we've already built a profile page for you on Citizen Science:\n${url}\n\n` +
+    `It tells your story — your background, key achievements and discoveries, plus interactive ` +
+    `experiments visitors can try — and people can even chat with an AI trained on your work.\n\n` +
+    `The page is yours to claim: open it and click "Claim this profile", sign in (it's free), ` +
+    `and submit — our team verifies every claim personally. Once approved you'll get a Verified ` +
+    `badge and full control to edit the page.`
+  );
+}
+
+/**
+ * Fixed mission block appended to every generated outreach body: why we're
+ * reaching out now (Citizen Science is a submission to the Build with Gemini
+ * XPRIZE, Education & Human Potential category) plus the invitation to become
+ * an honorary member at no cost. Static on purpose — admins can still rewrite
+ * it per-prospect in the draft editor. Wording mirrors the public site:
+ * category per lib/xprize.ts, honorary perks per the Pricing page.
+ */
+export function buildMissionBlock(): string {
+  return (
+    `One reason we're reaching out now: Citizen Science is our submission to the ` +
+    `Build with Gemini XPRIZE (XPRIZE × Google), in the Education & Human ` +
+    `Potential category — and people like you are exactly who we're building it for.\n\n` +
+    `As a thank-you for the work you do, we'd love to welcome you as an honorary ` +
+    `member — completely free, forever. Honorary members carry a permanent badge, a ` +
+    `place on our honorary roll, and a boosted monthly credit allowance. Just reply ` +
+    `to this email and we'll set everything up.`
+  );
+}
+
 /**
  * Assemble the final plain-text body (template with {{name}} + {{opening}}
- * merged). This is the admin-editable form of the email: the preview endpoint
- * returns it, the admin edits it, and sends store it as the prospect's draft.
+ * merged, the mission block, plus a profile P.S. when the prospect is linked
+ * to a directory profile). This is the admin-editable form of the email: the
+ * preview endpoint returns it, the admin edits it, and sends store it as the
+ * prospect's draft.
  */
 export function buildPlainBody(
   openingParagraph: string,
   bodyTemplate: string,
   prospect: { name: string },
+  profile?: ProfileBlurb | null,
 ): string {
-  return bodyTemplate
+  const merged = bodyTemplate
     .replace(/\{\{name\}\}/g, prospect.name)
-    .replace(/\{\{opening\}\}/g, openingParagraph);
+    .replace(/\{\{opening\}\}/g, openingParagraph)
+    // Admin-editable templates may end in stray newlines; trim them so the
+    // join below always yields exactly one blank line between sections.
+    .replace(/\n+$/, "");
+  const sections = [merged, buildMissionBlock()];
+  const postscript = buildProfilePostscript(prospect.name, profile);
+  if (postscript) sections.push(postscript);
+  return sections.join("\n\n");
 }
 
 export function buildEmailHtml(
   openingParagraph: string,
   bodyTemplate: string,
   prospect: { name: string },
+  profile?: ProfileBlurb | null,
 ): string {
   return buildDraftEmailHtml(
-    buildPlainBody(openingParagraph, bodyTemplate, prospect),
+    buildPlainBody(openingParagraph, bodyTemplate, prospect, profile),
   );
 }
 

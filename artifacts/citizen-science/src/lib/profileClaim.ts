@@ -8,7 +8,9 @@
 // ("b. 1971", "Contemporary", "21st century") denotes a living innovator. The
 // authoritative check is server-side; this mirror lets us show the right
 // affordance to logged-out visitors before the claim endpoint is reachable.
-const CLOSED_YEAR_RANGE = /\b\d{4}\s*[–-]\s*\d{4}\b/;
+// Accepts hyphen, en dash, and em dash — keep in lockstep with the server
+// regex in api-server/src/lib/profiles/living.ts and ./living.ts here.
+const CLOSED_YEAR_RANGE = /\b\d{4}\s*[-–—]\s*\d{4}\b/;
 
 export function isClaimableProfile(
   era: string | null | undefined,

@@ -173,8 +173,8 @@ export const REQUIREMENT_GROUPS: XprizeGroup[] = [
         id: "category",
         title: "Select one of the five categories",
         rule: "Choose the single competition category your project competes in.",
-        note: "Education & Human Potential is the natural fit — confirm and select at submission.",
-        status: "todo",
+        note: "Selected — Education & Human Potential (confirmed by the founder, Aug 2026).",
+        status: "met",
         counts: true,
       },
       {

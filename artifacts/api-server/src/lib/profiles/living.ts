@@ -13,3 +13,15 @@ export function isLivingEra(era: string | null | undefined): boolean {
   if (!era) return false;
   return !CLOSED_LIFESPAN_RE.test(era);
 }
+
+// Mirrors the frontend `isClaimableProfile` (profileClaim.ts) — kept in
+// lockstep: a profile is claimable by its real-world person unless EITHER its
+// era or lifespan carries a closed YYYY–YYYY range (i.e. they're historical).
+export function isProfileClaimable(
+  era: string | null | undefined,
+  lifespan?: string | null,
+): boolean {
+  if (lifespan && CLOSED_LIFESPAN_RE.test(lifespan)) return false;
+  if (era && CLOSED_LIFESPAN_RE.test(era)) return false;
+  return true;
+}
