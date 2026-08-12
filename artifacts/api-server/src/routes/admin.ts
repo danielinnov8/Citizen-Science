@@ -54,11 +54,7 @@ import {
 } from "../lib/outreach/scheduler";
 import { isResendConfigured } from "../lib/outreach/resend";
 import { ensureDefaultTemplates } from "../lib/outreach/templates";
-import { resolveProfileBlurb } from "../lib/outreach/profileBlurb";
-import {
-  personaliseEmail,
-  buildPlainBody,
-} from "../lib/outreach/personalise";
+import { ensureProspectDraft } from "../lib/outreach/draft";
 import { researchProspectContact } from "../lib/outreach/research";
 import { isLivingEra } from "../lib/profiles/living";
 import {
@@ -1586,44 +1582,21 @@ router.post(
       return;
     }
 
-    await ensureDefaultTemplates();
-    const [template] = await db
-      .select()
-      .from(outreachTemplatesTable)
-      .where(eq(outreachTemplatesTable.type, prospect.type))
-      .limit(1);
-
-    if (!template) {
-      res.status(404).json({ error: "No template for this prospect type." });
-      return;
-    }
-
-    // If the admin saved a draft, preview THAT — the point of the editor is
-    // that what you see is what gets sent.
-    if (prospect.draftSubject && prospect.draftBody) {
+    // The stored draft IS the preview: generate-and-queue it on first view so
+    // what the admin sees here is exactly what a send delivers — never a
+    // throwaway regeneration that a later send would silently replace.
+    try {
+      const draft = await ensureProspectDraft(prospect.id);
       res.json({
-        subject: prospect.draftSubject,
-        body: prospect.draftBody,
+        subject: draft.subject,
+        body: draft.body,
         to: prospect.email ?? null,
       });
-      return;
+    } catch (err) {
+      res.status(500).json({
+        error: (err as Error)?.message ?? "Couldn't generate the email draft.",
+      });
     }
-
-    const [{ subject, reason }, profileBlurb] = await Promise.all([
-      personaliseEmail({
-        name: prospect.name,
-        type: prospect.type,
-        notes: prospect.notes,
-        subjectTemplate: template.subjectTemplate,
-      }),
-      resolveProfileBlurb(prospect.profileId),
-    ]);
-
-    res.json({
-      subject,
-      body: buildPlainBody(reason, { name: prospect.name }, profileBlurb),
-      to: prospect.email ?? null,
-    });
   },
 );
 
@@ -1667,6 +1640,19 @@ router.post(
       .where(eq(outreachProspectsTable.id, id))
       .returning();
 
+    // Generate the personalised email now so it's queued ready to send: the
+    // editor opens pre-filled and sends deliver this exact copy. A generation
+    // failure must not fail the approval — preview/send will retry it.
+    let draft: { subject: string; body: string } | null = null;
+    try {
+      draft = await ensureProspectDraft(updated.id);
+    } catch (err) {
+      req.log?.warn(
+        { err, prospectId: updated.id },
+        "outreach: draft generation on approve failed",
+      );
+    }
+
     const slug = updated.profileId
       ? (
           await db
@@ -1677,7 +1663,10 @@ router.post(
         )[0]?.slug ?? null
       : null;
 
-    res.json(toProspectWire(updated, slug));
+    res.json({
+      ...toProspectWire(updated, slug),
+      ...(draft ? { draftSubject: draft.subject, draftBody: draft.body } : {}),
+    });
   },
 );
 
@@ -1722,7 +1711,11 @@ router.post(
       await sendToProspect(prospect, settings);
     } catch (err) {
       req.log.error({ err, prospectId: id }, "outreach: manual send failed");
-      res.status(502).json({ error: "Failed to send email. Please try again." });
+      // Surface the real message — this is an admin-only route and the claim
+      // errors carry actionable guidance (e.g. how to resend).
+      res.status(502).json({
+        error: (err as Error)?.message ?? "Failed to send email. Please try again.",
+      });
       return;
     }
 

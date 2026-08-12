@@ -1,0 +1,167 @@
+Redesign the Citizen Science outbound invitation email system so it feels exceptionally credible, institutional, personal, and understated — like an invitation from a respected scientific organization, university, foundation, or research institution.
+
+The audience includes Nobel laureates, professors, scientists, researchers, academics, and prominent people in science.
+
+The current emails feel slightly too much like automated SaaS outreach. We need them to feel like thoughtful, individually addressed invitations.
+
+DESIGN DIRECTION
+
+Think:
+- Nature
+- MIT / Stanford institutional correspondence
+- Nobel Prize organization
+- scientific foundation
+- academic journal
+- personal founder outreach
+
+NOT:
+- startup growth email
+- newsletter
+- sales sequence
+- marketing automation
+- flashy HTML email
+- promotional SaaS email
+
+The email should almost look like an extremely polished personal email.
+
+Keep the visual design very minimal:
+- white background
+- black/dark gray typography
+- generous whitespace
+- no gradients
+- no promotional graphics
+- no giant logo
+- no colorful CTA buttons
+- no cards
+- no excessive borders
+- no emojis
+- no marketing badges
+
+If branding is included, use a small Citizen Science wordmark/logo at the very top, approximately 100–140px wide, followed by a subtle horizontal divider.
+
+EMAIL STRUCTURE
+
+Header:
+Citizen Science logo / wordmark
+
+Then:
+
+Hi {{first_name}},
+
+I’m Daniel, founder of Citizen Science.
+
+We’re building an independent network designed to make it easier for scientists, researchers, and the public to discover people doing important work across science.
+
+I’m reaching out personally because of your work in {{specific_field_or_contribution}}.
+
+We’ve prepared a preliminary directory page for you here:
+
+View your Citizen Science profile →
+
+{{profile_url}}
+
+If you’d like to participate, you can claim the profile, update your work, and decide what information is displayed.
+
+It would be an honor to have you represented in the community.
+
+Best,
+
+Daniel Innovaté
+Founder, Citizen Science
+citizen-science.org
+{{daniel_email}}
+
+Optional:
+“About Citizen Science” as one short, muted footer line:
+Citizen Science is an independent platform for discovering scientists, research, institutions, and scientific ideas.
+
+Only include that statement if it accurately represents the platform.
+
+IMPORTANT COPY RULES
+
+1. Every invitation should mention the recipient's actual scientific contribution, discipline, institution, award, or research area.
+2. Never use generic hype like:
+   - “Your science, amplified”
+   - “Join thousands of innovators”
+   - “Revolutionizing science”
+   - “Exclusive opportunity”
+   - “Act now”
+3. Avoid exaggerated social proof.
+4. Do not say “thousands of scientists are already on Citizen Science” unless that accurately describes active/claimed participation.
+5. If profiles were generated from public information rather than created by the scientist, make that distinction clear.
+6. Make it obvious there is nothing being sold.
+7. Use only one primary link.
+8. Display the citizen-science.org domain somewhere visibly in the signature so the destination can be independently verified.
+9. Prefer descriptive anchor text like “View your Citizen Science profile” instead of making a long raw URL the primary CTA.
+10. Keep total email body under approximately 120 words whenever possible.
+
+SUBJECT LINE SYSTEM
+
+Replace marketing-style subject lines with institutional/personal ones.
+
+Preferred options:
+
+Invitation to Citizen Science — {{name}}
+Citizen Science invitation for {{name}}
+Invitation regarding your Citizen Science profile
+A personal invitation to Citizen Science
+Citizen Science — {{research_field}}
+An invitation from Citizen Science
+
+For exceptionally prominent scientists, use the simplest possible option:
+
+Invitation to Citizen Science
+
+SENDER IDENTITY
+
+Emails should display:
+
+Daniel Innovaté | Citizen Science
+
+or
+
+Daniel Innovaté
+Founder, Citizen Science
+
+Sender email MUST use the citizen-science.org domain rather than Gmail or another unrelated domain.
+
+Reply-To should be a real monitored Citizen Science email address.
+
+FOOTER
+
+Do not use a giant marketing unsubscribe/footer block unless technically required.
+
+Keep footer institutional and understated:
+
+Citizen Science
+citizen-science.org
+
+You received this message because we are inviting researchers whose work is represented in the Citizen Science directory.
+
+Include appropriate opt-out language for outbound email compliance, but make it subtle and professional.
+
+TECHNICAL / TRUST DETAILS
+
+Make the underlying email implementation trustworthy as well:
+- responsive HTML
+- excellent Gmail rendering
+- accessible typography
+- text/plain multipart alternative
+- no tracking-heavy appearance
+- minimize unnecessary tracking parameters in links
+- links should visibly resolve to citizen-science.org
+- no URL shorteners
+- no third-party-looking redirect URLs
+- use proper SPF
+- DKIM
+- DMARC
+- branded sending domain
+- branded return path where supported
+
+The final result should make a recipient think:
+
+“This appears to be a legitimate personal invitation from the founder of a serious scientific project.”
+
+rather than:
+
+“This looks like someone scraped my information and put me into an automated email campaign.”

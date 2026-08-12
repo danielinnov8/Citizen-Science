@@ -10,6 +10,8 @@ export interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
+  /** Plain-text alternative sent alongside the HTML part (multipart email). */
+  text?: string;
   fromEmail: string;
   fromName: string;
   /** Optional BCC copy address (e.g. the sender's own inbox for a paper trail —
@@ -20,6 +22,24 @@ export interface SendEmailOptions {
 
 export interface SendEmailResult {
   id: string;
+}
+
+/**
+ * Thrown when Resend DEFINITIVELY rejected the email (4xx response): the
+ * message was never accepted, so callers may safely requeue the prospect.
+ * Any other failure — network drop, truncated/unparseable response, 5xx — is
+ * ambiguous (the email may have been accepted) and surfaces as a plain Error
+ * so callers treat it as reconciliation-needed, never auto-retry. (Resend's
+ * API has no idempotency-key support, so classification is the only guard.)
+ */
+export class ResendRejectedError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "ResendRejectedError";
+  }
 }
 
 export async function sendEmail(
@@ -35,6 +55,7 @@ export async function sendEmail(
     to: [opts.to],
     subject: opts.subject,
     html: opts.html,
+    ...(opts.text ? { text: opts.text } : {}),
     headers: {
       "List-Unsubscribe": `<mailto:${opts.fromEmail}?subject=unsubscribe>`,
     },
@@ -54,6 +75,15 @@ export async function sendEmail(
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     logger.error({ status: res.status, body: text }, "Resend API error");
+    // 4xx = definitive rejection (bad key, validation, rate limit): the email
+    // was not accepted. 5xx is ambiguous — Resend may have accepted it before
+    // failing — so it must not read as retryable to callers.
+    if (res.status >= 400 && res.status < 500) {
+      throw new ResendRejectedError(
+        res.status,
+        `Resend error ${res.status}: ${text}`,
+      );
+    }
     throw new Error(`Resend error ${res.status}: ${text}`);
   }
 

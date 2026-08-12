@@ -1523,7 +1523,10 @@ function ProspectReviewModal({
         },
       });
       await approve.mutateAsync({ id: prospectId, data: { email } });
-      toast({ title: "Approved & queued", description: email });
+      toast({
+        title: "Approved & queued",
+        description: `${email} — personalised email drafted, ready to send`,
+      });
       afterMutation();
     } catch (err) {
       toast({ title: "Couldn't approve", description: (err as Error)?.message, variant: "destructive" });
@@ -1596,7 +1599,7 @@ function ProspectReviewModal({
           </DialogTitle>
           <DialogDescription>
             {data?.source === "directory"
-              ? "Directory figure queued for outreach. Review the researched contact details, then approve to queue for sending."
+              ? "Directory figure queued for outreach. Review the researched contact details, then approve — a personalised email is drafted and queued for sending."
               : "Review and edit this prospect's outreach details."}
           </DialogDescription>
         </DialogHeader>

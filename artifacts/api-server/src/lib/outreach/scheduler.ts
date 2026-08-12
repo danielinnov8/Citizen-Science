@@ -5,26 +5,17 @@ import {
   outreachProspectsTable,
   outreachTemplatesTable,
   outreachSendsTable,
-  outreachSettingsTable,
 } from "@workspace/db";
-import { sendEmail, isResendConfigured } from "./resend";
-import {
-  personaliseEmail,
-  buildEmailHtml,
-  buildDraftEmailHtml,
-} from "./personalise";
+import { sendEmail, isResendConfigured, ResendRejectedError } from "./resend";
+import { buildDraftEmailHtml, assertDraftSendable } from "./personalise";
 import { ensureDefaultTemplates } from "./templates";
-import { resolveProfileBlurb } from "./profileBlurb";
+import { ensureProspectDraft } from "./draft";
+import { getOutreachSettings } from "./settings";
 import { logger } from "../logger";
 
-// Default settings used when the DB row doesn't exist yet. The from-address must
-// live on the verified Resend domain (citizen-science.org) or sends are rejected.
-// daniel@ is the founder's real Google Workspace mailbox, so prospect replies
-// reach a human and unsubscribe mailtos land somewhere watched.
-const DEFAULT_SEND_HOUR = 9;
-const DEFAULT_BATCH_SIZE = 20;
-const DEFAULT_FROM_EMAIL = "daniel@citizen-science.org";
-const DEFAULT_FROM_NAME = "Daniel (Citizen Science)";
+// Re-exported so the admin "send now" route can reuse the same from-address
+// resolution without importing the settings module directly.
+export { getOutreachSettings } from "./settings";
 
 // Check every minute whether it's time to fire the daily batch.
 const TICK_INTERVAL_MS = 60_000;
@@ -33,25 +24,6 @@ const TICK_INTERVAL_MS = 60_000;
 // once at the configured hour. Format: "YYYY-MM-DD:HH" (UTC).
 let lastFiredSlot: string | null = null;
 let schedulerHandle: NodeJS.Timeout | null = null;
-
-async function getSettings() {
-  try {
-    const [row] = await db.select().from(outreachSettingsTable).limit(1);
-    return {
-      sendHour: row?.sendHour ?? DEFAULT_SEND_HOUR,
-      batchSize: row?.batchSize ?? DEFAULT_BATCH_SIZE,
-      fromEmail: row?.fromEmail ?? DEFAULT_FROM_EMAIL,
-      fromName: row?.fromName ?? DEFAULT_FROM_NAME,
-    };
-  } catch {
-    return {
-      sendHour: DEFAULT_SEND_HOUR,
-      batchSize: DEFAULT_BATCH_SIZE,
-      fromEmail: DEFAULT_FROM_EMAIL,
-      fromName: DEFAULT_FROM_NAME,
-    };
-  }
-}
 
 export async function runOutreachBatch(overrideBatchSize?: number): Promise<{
   sent: number;
@@ -62,7 +34,7 @@ export async function runOutreachBatch(overrideBatchSize?: number): Promise<{
     return { sent: 0, errors: 0 };
   }
 
-  const settings = await getSettings();
+  const settings = await getOutreachSettings();
   const batchSize = overrideBatchSize ?? settings.batchSize;
 
   // Ensure default templates exist so scheduled/manual runs never fail with
@@ -108,14 +80,23 @@ export async function runOutreachBatch(overrideBatchSize?: number): Promise<{
   return { sent, errors };
 }
 
+// In-process per-prospect send locks: serialize sends of the same prospect so
+// a "send now" double-click or a manual send overlapping the daily batch runs
+// one after another and gets a clean "already contacted" error instead of
+// racing. The DB-level claim in deliverToProspect is the actual
+// duplicate-delivery guard — the lock just keeps the loser from burning work
+// before it sees the claim was lost.
+const inFlightSends = new Map<string, Promise<void>>();
+
 /**
  * Send a single personalised outreach email to one prospect, recording the send
  * and marking the prospect contacted. Throws on any failure so callers can
  * surface it. Used by both the daily batch and the admin "send now" action.
  *
- * The caller is responsible for the send gate (approved + confirmed email); this
- * function refuses an email-less prospect defensively but does not re-check the
- * review state.
+ * The full send gate — pending status, approved review state, confirmed
+ * email — is enforced atomically by the claim inside, so this is safe to call
+ * from anywhere. Deliberate resends go through the admin editor: set the
+ * prospect's status back to pending, then send.
  */
 export async function sendToProspect(
   prospect: OutreachProspect,
@@ -124,95 +105,196 @@ export async function sendToProspect(
     fromName: string;
   },
 ): Promise<void> {
-  if (!prospect.email) {
-    throw new Error("prospect has no confirmed email");
-  }
-
-  await ensureDefaultTemplates();
-
-  const [template] = await db
-    .select()
-    .from(outreachTemplatesTable)
-    .where(eq(outreachTemplatesTable.type, prospect.type))
-    .limit(1);
-
-  if (!template) {
-    throw new Error(`no outreach template for type "${prospect.type}"`);
-  }
-
-  // An admin-edited draft (both halves set) wins over template + AI
-  // personalisation — what the admin reviewed is exactly what gets sent.
-  // Either half alone is ignored so a half-cleared draft can't produce a
-  // malformed send.
-  let subject: string;
-  let html: string;
-  if (prospect.draftSubject && prospect.draftBody) {
-    subject = prospect.draftSubject;
-    html = buildDraftEmailHtml(prospect.draftBody);
-  } else {
-    const personal = await personaliseEmail({
-      name: prospect.name,
-      type: prospect.type,
-      notes: prospect.notes,
-      subjectTemplate: template.subjectTemplate,
-    });
-    subject = personal.subject;
-    const profileBlurb = await resolveProfileBlurb(prospect.profileId);
-    html = buildEmailHtml(personal.reason, { name: prospect.name }, profileBlurb);
-  }
-
-  const result = await sendEmail({
-    to: prospect.email,
-    subject,
-    html,
-    fromEmail: settings.fromEmail,
-    fromName: settings.fromName,
-    // BCC the sender's mailbox: Resend sends bypass Gmail, so this copy is the
-    // founder's paper trail of every outreach email that goes out.
-    bcc: settings.fromEmail,
-    tags: [
-      { name: "prospect_type", value: prospect.type },
-      { name: "prospect_id", value: prospect.id },
-    ],
+  const id = prospect.id;
+  const tail = inFlightSends.get(id) ?? Promise.resolve();
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
   });
+  const next = tail.then(() => gate);
+  inFlightSends.set(id, next);
 
-  const now = new Date();
-
-  await db.insert(outreachSendsTable).values({
-    prospectId: prospect.id,
-    templateId: template.id,
-    resendMessageId: result.id,
-    subject,
-    status: "pending",
-    sentAt: now,
-    updatedAt: now,
-  });
-
-  await db
-    .update(outreachProspectsTable)
-    .set({ status: "contacted", lastContactedAt: now, updatedAt: now })
-    .where(eq(outreachProspectsTable.id, prospect.id));
-
-  logger.info({ email: prospect.email, resendId: result.id }, "outreach: email sent");
+  await tail;
+  try {
+    await deliverToProspect(id, settings);
+  } finally {
+    release();
+    // Drop the lock only if nobody queued behind us, so the map can't grow.
+    if (inFlightSends.get(id) === next) inFlightSends.delete(id);
+  }
 }
 
-/**
- * Resolve the effective scheduler settings (DB row or defaults). Exported so the
- * admin "send now" route can reuse the same from-address resolution.
- */
-export async function getOutreachSettings(): Promise<{
-  sendHour: number;
-  batchSize: number;
-  fromEmail: string;
-  fromName: string;
-}> {
-  return getSettings();
+async function deliverToProspect(
+  prospectId: string,
+  settings: {
+    fromEmail: string;
+    fromName: string;
+  },
+): Promise<void> {
+  // Read the row fresh: the caller's copy can be stale (an admin edit, or a
+  // concurrent preview/approve that stored a newer draft). Also captures the
+  // pre-claim state the rollback restores if the send fails after claiming.
+  const [before] = await db
+    .select()
+    .from(outreachProspectsTable)
+    .where(eq(outreachProspectsTable.id, prospectId))
+    .limit(1);
+
+  if (!before) {
+    throw new Error("prospect no longer exists");
+  }
+  if (before.reviewState !== "approved") {
+    throw new Error("prospect is not approved for sending");
+  }
+  if (!before.email) {
+    throw new Error("prospect has no confirmed email");
+  }
+  if (before.status !== "pending") {
+    throw new Error(
+      `prospect status is "${before.status}", not pending — set status back to pending to resend`,
+    );
+  }
+
+  // Claim the send atomically BEFORE calling Resend: the pending -> contacted
+  // transition lands only if the row is still eligible, so overlapping sends
+  // (manual vs batch, double-click) can never deliver the same person twice —
+  // the loser's update matches zero rows.
+  const claimedAt = new Date();
+  const [claim] = await db
+    .update(outreachProspectsTable)
+    .set({
+      status: "contacted",
+      lastContactedAt: claimedAt,
+      updatedAt: claimedAt,
+    })
+    .where(
+      and(
+        eq(outreachProspectsTable.id, prospectId),
+        eq(outreachProspectsTable.status, "pending"),
+        eq(outreachProspectsTable.reviewState, "approved"),
+        isNotNull(outreachProspectsTable.email),
+      ),
+    )
+    .returning({ id: outreachProspectsTable.id });
+
+  if (!claim) {
+    // Lost a race against a concurrent state change between our read and the
+    // claim — fail loudly; the caller can retry.
+    throw new Error("prospect state changed concurrently — retry the send");
+  }
+
+  // Outcome tracking: `attempted` flips just before the Resend API call,
+  // `accepted` just after it resolves. A failure is safe to requeue ONLY when
+  // the email definitely never left us — pre-attempt (template/draft) or a
+  // definitive 4xx rejection. An ambiguous failure after an attempt (network
+  // drop, 5xx, unparseable response) may mean Resend accepted it, so the
+  // prospect keeps the claim; requeuing would risk a duplicate delivery.
+  let attempted = false;
+  let accepted = false;
+  try {
+    await ensureDefaultTemplates();
+
+    const [template] = await db
+      .select()
+      .from(outreachTemplatesTable)
+      .where(eq(outreachTemplatesTable.type, before.type))
+      .limit(1);
+
+    if (!template) {
+      throw new Error(`no outreach template for type "${before.type}"`);
+    }
+
+    // The queued draft is the source of truth: generated and stored at approve
+    // or preview time (just-in-time here for older approved rows), so what the
+    // admin reviewed is exactly what gets sent — never regenerated at send time.
+    const draft = await ensureProspectDraft(prospectId);
+    // Brief rule 1: never send an invitation that couldn't name the
+    // recipient's actual work — the admin must edit the draft first. Throws
+    // pre-attempt, so the claim rolls back and the prospect stays retryable.
+    assertDraftSendable(draft);
+    const subject = draft.subject;
+    const html = buildDraftEmailHtml(draft.body);
+
+    attempted = true;
+    const result = await sendEmail({
+      to: before.email,
+      subject,
+      html,
+      // Multipart: the stored plain-text draft goes along as the text/plain
+      // alternative — institutional emails should render cleanly everywhere.
+      text: draft.body,
+      fromEmail: settings.fromEmail,
+      fromName: settings.fromName,
+      // BCC the sender's mailbox: Resend sends bypass Gmail, so this copy is
+      // the founder's paper trail of every outreach email that goes out.
+      bcc: settings.fromEmail,
+      tags: [
+        { name: "prospect_type", value: before.type },
+        { name: "prospect_id", value: prospectId },
+      ],
+    });
+    accepted = true;
+
+    await db.insert(outreachSendsTable).values({
+      prospectId,
+      templateId: template.id,
+      resendMessageId: result.id,
+      subject,
+      status: "pending",
+      sentAt: claimedAt,
+      updatedAt: claimedAt,
+    });
+
+    logger.info(
+      { email: before.email, prospectId, resendId: result.id },
+      "outreach: email sent",
+    );
+  } catch (err) {
+    const definiteNoSend = !attempted || err instanceof ResendRejectedError;
+    if (!definiteNoSend) {
+      // Ambiguous attempt (or post-acceptance bookkeeping failure): the email
+      // may be on its way. Keep the claim (contacted) so no batch retries
+      // delivery, and log loudly for manual reconciliation — the Resend
+      // dashboard and the BCC copy show whether it actually went out.
+      logger.error(
+        { err, prospectId, accepted },
+        "outreach: send outcome uncertain — prospect stays contacted; check the Resend dashboard or BCC copy before flipping status back to pending",
+      );
+    } else {
+      // The email never reached Resend: release the claim so the prospect
+      // stays retryable by the next batch or a manual send. The rollback is
+      // conditional on the row still holding THIS attempt's claim
+      // (status=contacted + our claimedAt marker), so a concurrent admin
+      // change (e.g. unsubscribe) is never overwritten.
+      await db
+        .update(outreachProspectsTable)
+        .set({
+          status: before.status,
+          lastContactedAt: before.lastContactedAt,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(outreachProspectsTable.id, prospectId),
+            eq(outreachProspectsTable.status, "contacted"),
+            eq(outreachProspectsTable.lastContactedAt, claimedAt),
+          ),
+        )
+        .catch((rollbackErr) =>
+          logger.error(
+            { err: rollbackErr, prospectId },
+            "outreach: failed to roll back prospect status after send failure",
+          ),
+        );
+    }
+    throw err;
+  }
 }
 
 async function tick() {
   const now = new Date();
   const nowHour = now.getUTCHours();
-  const settings = await getSettings();
+  const settings = await getOutreachSettings();
 
   if (nowHour === settings.sendHour) {
     // Build a unique slot key per calendar day + hour (UTC) so the batch fires

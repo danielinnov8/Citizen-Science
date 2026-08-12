@@ -17,8 +17,31 @@ prospect. Approval is the human checkpoint — research/queue never sets `approv
 **Why:** prospects are auto-enriched by Gemini web research which can return wrong/empty
 contact info; sending before a human approves would blast real people with bad data.
 
-**Resend from-domain:** outreach `fromEmail` default is `outreach@citizen-science.org`
-(the verified Resend domain). A non-verified from address makes Resend reject the send.
+**Resend from-domain:** outreach `fromEmail` must live on the verified Resend domain
+(citizen-science.org) or Resend rejects the send. Sends BCC the from address —
+Resend bypasses Gmail, so the BCC is the sender's only paper trail.
+
+**Email copy rules (from the founder's design brief — do not regress):** institutional,
+understated founder's letter; every invitation must name the recipient's real
+field/contribution (send-time gate refuses drafts stuck on the generic fallback);
+no hype/social-proof inflation ("thousands of scientists" is banned); one primary
+link with descriptive anchor + visible raw URL; ~120-word body; institutional
+subject ("Invitation to Citizen Science — {{name}}"); muted footer with opt-out;
+text/plain multipart always sent.
+
+**Sticky drafts + claim-first sends (do not weaken):** the personalised email is
+generated ONCE (at approve/preview/first send), persisted on the prospect row, and
+sends always use the PERSISTED draft — what the admin reviewed is exactly what goes
+out. Sends claim the prospect atomically (pending→contacted, gated) BEFORE calling
+Resend, so overlapping batch/manual sends can't duplicate. Rollback is allowed ONLY
+for definite no-send (pre-attempt failure or Resend 4xx rejection) and must be scoped
+to the attempt's claim marker so it can't stomp a concurrent admin unsubscribe.
+Ambiguous post-attempt failures (network/5xx/parse — Resend has no idempotency keys)
+and post-acceptance bookkeeping failures KEEP contacted + log loudly for manual
+reconciliation. Resends: flip status back to pending in the admin editor, then send.
+
+**Why:** double-emailing a Nobel laureate is the worst outcome; the code trades
+retryability for never-duplicating whenever the send outcome is uncertain.
 
 **OpenAPI gotcha:** the PATCH prospect `email` must be nullable (`type: ["string","null"]`)
 to match the server which clears email on null/empty — otherwise the generated TS type is

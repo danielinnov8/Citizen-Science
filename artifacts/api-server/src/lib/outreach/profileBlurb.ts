@@ -18,6 +18,7 @@ export async function resolveProfileBlurb(
       slug: featuredProfilesTable.slug,
       era: featuredProfilesTable.era,
       lifespan: featuredProfilesTable.lifespan,
+      field: featuredProfilesTable.field,
     })
     .from(featuredProfilesTable)
     .where(eq(featuredProfilesTable.id, profileId))
@@ -26,5 +27,6 @@ export async function resolveProfileBlurb(
   return {
     slug: profile.slug,
     claimable: isProfileClaimable(profile.era, profile.lifespan),
+    field: profile.field,
   };
 }
