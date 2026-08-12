@@ -1176,7 +1176,9 @@ paths:
         email, or fail the send-time guards are skipped with a per-prospect
         reason. Runs as a background job: returns 202 immediately with a
         jobId to poll for live progress (GET /admin/outreach/send-jobs/{jobId}),
-        so request timeouts never apply. At most 50 ids per call.
+        so request timeouts never apply. At most 100 ids per call — the cap is
+        an operational safety rail (draft quota, mistake containment), not a
+        deliverability threshold; daily volume pacing is what spam filters see.
       requestBody:
         required: true
         content:
@@ -4294,9 +4296,9 @@ components:
       properties:
         ids:
           type: array
-          description: Prospect ids to generate and send to (max 50).
+          description: Prospect ids to generate and send to (max 100).
           minItems: 1
-          maxItems: 50
+          maxItems: 100
           items:
             type: string
       required:

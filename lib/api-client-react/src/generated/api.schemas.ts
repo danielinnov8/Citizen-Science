@@ -1055,9 +1055,9 @@ export interface ProspectEmailPreview {
 
 export interface SendSelectedProspectsInput {
   /**
-   * Prospect ids to generate and send to (max 50).
+   * Prospect ids to generate and send to (max 100).
    * @minItems 1
-   * @maxItems 50
+   * @maxItems 100
    */
   ids: string[];
 }

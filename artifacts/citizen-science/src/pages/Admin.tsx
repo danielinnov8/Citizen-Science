@@ -1924,9 +1924,9 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
     setReviewOpen(true);
   };
 
-  // Batches are capped (the API rejects more) so a send always finishes
-  // within request timeouts.
-  const MAX_SELECTED = 50;
+  // Batches are capped (the API rejects more) as an operational safety rail
+  // — the job runs in the background, so this isn't about request timeouts.
+  const MAX_SELECTED = 100;
 
   // Selection belongs to the result set it was made from — changing the
   // search, filters, or page clears it so a stale selection is never sent.

@@ -3358,7 +3358,7 @@ export const useSendOutreachProspect = <
 };
 
 /**
- * Superadmin-only. Batch "generate & send": for each selected prospect that is still pending, the admin's selection acts as approval — the prospect is approved in place (promoting a researched contact email when the email column is empty), the personalised draft is generated once and persisted, and the email is sent through the same claim-first pipeline as the scheduler. Prospects that are not pending, have no email, or fail the send-time guards are skipped with a per-prospect reason. Runs as a background job: returns 202 immediately with a jobId to poll for live progress (GET /admin/outreach/send-jobs/{jobId}), so request timeouts never apply. At most 50 ids per call.
+ * Superadmin-only. Batch "generate & send": for each selected prospect that is still pending, the admin's selection acts as approval — the prospect is approved in place (promoting a researched contact email when the email column is empty), the personalised draft is generated once and persisted, and the email is sent through the same claim-first pipeline as the scheduler. Prospects that are not pending, have no email, or fail the send-time guards are skipped with a per-prospect reason. Runs as a background job: returns 202 immediately with a jobId to poll for live progress (GET /admin/outreach/send-jobs/{jobId}), so request timeouts never apply. At most 100 ids per call — the cap is an operational safety rail (draft quota, mistake containment), not a deliverability threshold; daily volume pacing is what spam filters see.
 
  * @summary Generate and send invitations to selected prospects
  */
