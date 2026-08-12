@@ -1434,6 +1434,7 @@ function ProspectReviewModal({
   // draft verbatim instead of regenerating from the template.
   const [draftSubject, setDraftSubject] = React.useState("");
   const [draftBody, setDraftBody] = React.useState("");
+  const [emailEditorOpen, setEmailEditorOpen] = React.useState(false);
 
   // Hydrate the form ONCE per prospect per dialog open — not on every `data`
   // change. The detail query has staleTime: 0, so invalidations/refetches (e.g.
@@ -1552,12 +1553,41 @@ function ProspectReviewModal({
     }
   };
 
+  // Persist just the email copy (used by the pop-out editor modal). Empty
+  // fields clear the draft server-side, restoring auto-generation.
+  const saveDraft = async () => {
+    if (!prospectId) return;
+    try {
+      await update.mutateAsync({
+        id: prospectId,
+        data: {
+          draftSubject: draftSubject.trim() || null,
+          draftBody: draftBody.trim() || null,
+        },
+      });
+      toast({ title: "Draft saved", description: "This exact copy will be sent." });
+      afterMutation();
+      setEmailEditorOpen(false);
+    } catch (err) {
+      toast({ title: "Couldn't save draft", description: (err as Error)?.message, variant: "destructive" });
+    }
+  };
+
   const profile = data?.profile ?? null;
   const isApproved = data?.reviewState === "approved";
   const busy = update.isPending || approve.isPending || send.isPending;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        // Closing the parent also closes the email editor so it can't linger
+        // as a stale floating modal over the prospect list.
+        if (!v) setEmailEditorOpen(false);
+        onOpenChange(v);
+      }}
+    >
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -1709,35 +1739,23 @@ function ProspectReviewModal({
                 />
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Email copy</label>
-                  <Button
-                    variant="ghost"
-                    onClick={runPreview}
-                    disabled={!data || preview.isPending}
-                  >
-                    {preview.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
-                    {draftSubject || draftBody ? "Regenerate" : "Generate draft"}
-                  </Button>
+              <div className="flex items-center justify-between rounded-lg border border-[#E2E8F0] p-3">
+                <div>
+                  <div className="text-sm font-medium text-[#0F172A]">Email copy</div>
+                  <div className="text-xs text-[#64748B]">
+                    {data?.draftSubject && data?.draftBody
+                      ? "Saved draft — will be sent exactly as written"
+                      : "Auto-generated at send time"}
+                  </div>
                 </div>
-                <input
-                  className="h-9 w-full rounded-md border border-[#E2E8F0] bg-white px-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={draftSubject}
-                  onChange={(e) => setDraftSubject(e.target.value)}
-                  placeholder="Subject line"
-                />
-                <textarea
-                  className="h-48 w-full rounded-md border border-[#E2E8F0] bg-white p-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
-                  value={draftBody}
-                  onChange={(e) => setDraftBody(e.target.value)}
-                  placeholder="Email body — plain text, blank lines separate paragraphs"
-                />
-                <p className="text-xs text-[#64748B]">
-                  {data?.draftSubject && data?.draftBody
-                    ? "A saved draft exists — it will be sent exactly as written. Edit and Save to change it, or clear both fields to auto-generate."
-                    : "Generate a draft, edit it, then Save — the saved copy is sent exactly as written. Leave both fields blank to auto-generate at send time."}
-                </p>
+                <Button
+                  variant="secondary"
+                  onClick={() => setEmailEditorOpen(true)}
+                  disabled={!data}
+                >
+                  <Eye className="h-4 w-4" />
+                  Preview & edit
+                </Button>
               </div>
             </div>
           </div>
@@ -1774,6 +1792,57 @@ function ProspectReviewModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    {/* Pop-out email editor: the exact copy that will be sent. Centered,
+        focused modal so reviewing/editing isn't cramped inside the detail
+        dialog. */}
+    <Dialog open={emailEditorOpen} onOpenChange={setEmailEditorOpen}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Email to {data?.name ?? "prospect"}</DialogTitle>
+          <DialogDescription>
+            This is the exact copy that lands in their inbox. Generate a draft
+            with AI, edit it freely, then save.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="text-xs text-[#64748B]">
+            To: {sendEmail.trim() || data?.email || data?.contactInfo.email || "—"}
+          </div>
+          <input
+            className="h-9 w-full rounded-md border border-[#E2E8F0] bg-white px-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={draftSubject}
+            onChange={(e) => setDraftSubject(e.target.value)}
+            placeholder="Subject line"
+          />
+          <textarea
+            className="h-72 w-full rounded-md border border-[#E2E8F0] bg-white p-3 text-sm leading-relaxed text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+            value={draftBody}
+            onChange={(e) => setDraftBody(e.target.value)}
+            placeholder="Email body — plain text, blank lines separate paragraphs"
+          />
+          <p className="text-xs text-[#64748B]">
+            Saved drafts are sent verbatim. Clear both fields and save to go
+            back to auto-generation.
+          </p>
+        </div>
+        <DialogFooter className="flex-wrap gap-2 sm:justify-between">
+          <Button
+            variant="ghost"
+            onClick={runPreview}
+            disabled={!data || preview.isPending}
+          >
+            {preview.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
+            {draftSubject || draftBody ? "Regenerate with AI" : "Generate with AI"}
+          </Button>
+          <Button onClick={saveDraft} disabled={update.isPending}>
+            {update.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Save draft
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
 
