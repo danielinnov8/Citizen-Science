@@ -21,9 +21,8 @@ describe("buildPlainBody", () => {
     );
     expect(out).toContain("Hi Wolfgang,");
     expect(out).toContain("I'm Daniel, founder of Citizen Science.");
-    expect(out).toContain("independent network");
     expect(out).toContain(
-      "connecting the world's greatest minds to solve humanity's greatest challenges",
+      "We're building a platform that connects the world's greatest minds to solve humanity's greatest challenges.",
     );
     expect(out).toContain(
       "I'm reaching out personally because of your work in quantum many-body physics.",

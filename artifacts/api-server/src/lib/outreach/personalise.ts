@@ -151,7 +151,7 @@ export function buildPlainBody(
   const paragraphs = [
     `Hi ${firstName},`,
     `I'm Daniel, founder of Citizen Science.`,
-    `We're building an independent network designed to make it easier for scientists, researchers, and the public to discover people doing important work across science — connecting the world's greatest minds to solve humanity's greatest challenges.`,
+    `We're building a platform that connects the world's greatest minds to solve humanity's greatest challenges.`,
     `I'm reaching out personally because of your work in ${field}.`,
   ];
   if (profile?.slug) {
