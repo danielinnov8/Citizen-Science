@@ -262,6 +262,11 @@ router.patch(
     if (data.contributions !== undefined)
       updates.contributions = data.contributions;
     if (data.quotes !== undefined) updates.quotes = data.quotes;
+    if (data.storyContributions !== undefined)
+      updates.storyContributions = data.storyContributions;
+    if (data.timeline !== undefined) updates.timeline = data.timeline;
+    if (data.legacy !== undefined) updates.legacy = data.legacy;
+    if (data.didYouKnow !== undefined) updates.didYouKnow = data.didYouKnow;
 
     const [updated] = await db
       .update(featuredProfilesTable)

@@ -44,6 +44,7 @@ import {
   DenyClaimResponse,
   SetUserMentorBody,
   SetUserMentorResponse,
+  SendSelectedOutreachProspectsBody,
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/requireAuth";
 import { requireSuperAdmin } from "../lib/admin/superadmin";
@@ -52,6 +53,10 @@ import {
   sendToProspect,
   getOutreachSettings,
 } from "../lib/outreach/scheduler";
+import {
+  startSelectedSendJob,
+  getSelectedSendJob,
+} from "../lib/outreach/sendJobs";
 import { isResendConfigured } from "../lib/outreach/resend";
 import { ensureDefaultTemplates } from "../lib/outreach/templates";
 import { ensureProspectDraft } from "../lib/outreach/draft";
@@ -1720,6 +1725,55 @@ router.post(
     }
 
     res.json({ message: "Email sent.", prospectId: id });
+  },
+);
+
+// Batch "generate & send": the admin's selection acts as approval — each
+// selected pending prospect is approved in place, its personalised draft is
+// generated once and persisted, and the email is sent through the exact same
+// claim-first pipeline as the scheduler. Per-prospect results tell the admin
+// exactly who was sent and who was skipped (and why).
+router.post(
+  "/admin/outreach/prospects/send-selected",
+  async (req: Request, res: Response): Promise<void> => {
+    if (!isResendConfigured()) {
+      res
+        .status(503)
+        .json({ error: "RESEND_API_KEY is not configured. Cannot send emails." });
+      return;
+    }
+
+    const parsed = SendSelectedOutreachProspectsBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+
+    // Long-running: runs as a background job — 202 immediately, and the UI
+    // polls the job endpoint for live per-prospect progress.
+    const job = startSelectedSendJob([...new Set(parsed.data.ids)]);
+    res.status(202).json({ jobId: job.id, total: job.total });
+  },
+);
+
+// Live status of a batch send job (polled by the campaigns UI). Ephemeral:
+// finished jobs expire after an hour; the prospects table is always the
+// authoritative record of what was sent.
+router.get(
+  "/admin/outreach/send-jobs/:jobId",
+  async (req: Request, res: Response): Promise<void> => {
+    const job = getSelectedSendJob(String(req.params.jobId));
+    if (!job) {
+      res.status(404).json({ error: "Job not found or expired." });
+      return;
+    }
+    res.json({
+      status: job.status,
+      total: job.total,
+      sent: job.sent,
+      failed: job.failed,
+      results: job.results,
+    });
   },
 );
 

@@ -97,6 +97,9 @@ import type {
   ResearchContactsResult,
   SendMessageInput,
   SendProspectResult,
+  SendSelectedJobStart,
+  SendSelectedJobStatus,
+  SendSelectedProspectsInput,
   SetUserMentorInput,
   UpdateProfileInput,
   UpdateUserPlanInput,
@@ -3353,6 +3356,188 @@ export const useSendOutreachProspect = <
 > => {
   return useMutation(getSendOutreachProspectMutationOptions(options));
 };
+
+/**
+ * Superadmin-only. Batch "generate & send": for each selected prospect that is still pending, the admin's selection acts as approval — the prospect is approved in place (promoting a researched contact email when the email column is empty), the personalised draft is generated once and persisted, and the email is sent through the same claim-first pipeline as the scheduler. Prospects that are not pending, have no email, or fail the send-time guards are skipped with a per-prospect reason. Runs as a background job: returns 202 immediately with a jobId to poll for live progress (GET /admin/outreach/send-jobs/{jobId}), so request timeouts never apply. At most 50 ids per call.
+
+ * @summary Generate and send invitations to selected prospects
+ */
+export const getSendSelectedOutreachProspectsUrl = () => {
+  return `/api/admin/outreach/prospects/send-selected`;
+};
+
+export const sendSelectedOutreachProspects = async (
+  sendSelectedProspectsInput: SendSelectedProspectsInput,
+  options?: RequestInit,
+): Promise<SendSelectedJobStart> => {
+  return customFetch<SendSelectedJobStart>(
+    getSendSelectedOutreachProspectsUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(sendSelectedProspectsInput),
+    },
+  );
+};
+
+export const getSendSelectedOutreachProspectsMutationOptions = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendSelectedOutreachProspects>>,
+    TError,
+    { data: BodyType<SendSelectedProspectsInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof sendSelectedOutreachProspects>>,
+  TError,
+  { data: BodyType<SendSelectedProspectsInput> },
+  TContext
+> => {
+  const mutationKey = ["sendSelectedOutreachProspects"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof sendSelectedOutreachProspects>>,
+    { data: BodyType<SendSelectedProspectsInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return sendSelectedOutreachProspects(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SendSelectedOutreachProspectsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof sendSelectedOutreachProspects>>
+>;
+export type SendSelectedOutreachProspectsMutationBody =
+  BodyType<SendSelectedProspectsInput>;
+export type SendSelectedOutreachProspectsMutationError = ErrorType<Error>;
+
+/**
+ * @summary Generate and send invitations to selected prospects
+ */
+export const useSendSelectedOutreachProspects = <
+  TError = ErrorType<Error>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendSelectedOutreachProspects>>,
+    TError,
+    { data: BodyType<SendSelectedProspectsInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof sendSelectedOutreachProspects>>,
+  TError,
+  { data: BodyType<SendSelectedProspectsInput> },
+  TContext
+> => {
+  return useMutation(getSendSelectedOutreachProspectsMutationOptions(options));
+};
+
+/**
+ * Superadmin-only. Live status of a batch "generate & send" job started via /admin/outreach/prospects/send-selected, including per-prospect results as they complete. Jobs are ephemeral and expire after an hour; the prospects table is the authoritative record of what was sent.
+
+ * @summary Poll a batch send job
+ */
+export const getGetOutreachSendJobUrl = (jobId: string) => {
+  return `/api/admin/outreach/send-jobs/${jobId}`;
+};
+
+export const getOutreachSendJob = async (
+  jobId: string,
+  options?: RequestInit,
+): Promise<SendSelectedJobStatus> => {
+  return customFetch<SendSelectedJobStatus>(getGetOutreachSendJobUrl(jobId), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetOutreachSendJobQueryKey = (jobId: string) => {
+  return [`/api/admin/outreach/send-jobs/${jobId}`] as const;
+};
+
+export const getGetOutreachSendJobQueryOptions = <
+  TData = Awaited<ReturnType<typeof getOutreachSendJob>>,
+  TError = ErrorType<Error>,
+>(
+  jobId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getOutreachSendJob>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetOutreachSendJobQueryKey(jobId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getOutreachSendJob>>
+  > = ({ signal }) => getOutreachSendJob(jobId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!jobId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getOutreachSendJob>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetOutreachSendJobQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getOutreachSendJob>>
+>;
+export type GetOutreachSendJobQueryError = ErrorType<Error>;
+
+/**
+ * @summary Poll a batch send job
+ */
+
+export function useGetOutreachSendJob<
+  TData = Awaited<ReturnType<typeof getOutreachSendJob>>,
+  TError = ErrorType<Error>,
+>(
+  jobId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getOutreachSendJob>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetOutreachSendJobQueryOptions(jobId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * Superadmin-only. Returns all three default outreach templates.

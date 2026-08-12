@@ -21,6 +21,15 @@ contact info; sending before a human approves would blast real people with bad d
 (citizen-science.org) or Resend rejects the send. Sends BCC the from address —
 Resend bypasses Gmail, so the BCC is the sender's only paper trail.
 
+**Approval can be explicit OR implicit:** sends still require pending + approved +
+email, but selecting prospects in the campaigns UI batch action ("Generate & send
+selected") approves in place — the selection IS the approval. Core invariant:
+approval and the final send claim must NEVER overwrite a concurrent contact change
+(unsubscribe, status flip, email edit) — both are single atomic conditional
+UPDATEs whose committed values win, and a lost race skips the item loudly. Batch
+sends run as background jobs with polling, never synchronously in a request. No
+path sends to a needs_review prospect without an admin explicitly choosing it.
+
 **Email copy rules (from the founder's design brief — do not regress):** institutional,
 understated founder's letter; every invitation must name the recipient's real
 field/contribution (send-time gate refuses drafts stuck on the generic fallback);

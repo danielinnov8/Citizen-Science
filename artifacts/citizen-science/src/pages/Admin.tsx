@@ -84,6 +84,9 @@ import {
   usePreviewOutreachProspectEmail,
   useApproveOutreachProspect,
   useSendOutreachProspect,
+  useSendSelectedOutreachProspects,
+  useGetOutreachSendJob,
+  getGetOutreachSendJobQueryKey,
   type AdminUser,
   type AdminClaim,
   type OutreachProspect,
@@ -127,6 +130,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
@@ -1866,10 +1870,25 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
   const [bulkOpen, setBulkOpen] = React.useState(false);
   const [reviewId, setReviewId] = React.useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = React.useState(false);
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
 
   const deleteProspect = useDeleteOutreachProspect();
   const queueDirectory = useQueueDirectoryProspects();
   const researchContacts = useResearchProspectContacts();
+  const sendSelected = useSendSelectedOutreachProspects();
+
+  // Batch sends run as a background job on the server — we poll it here for
+  // live progress instead of holding the request open.
+  const [sendJobId, setSendJobId] = React.useState<string | null>(null);
+  const sendJobQuery = useGetOutreachSendJob(sendJobId ?? "", {
+    query: {
+      queryKey: getGetOutreachSendJobQueryKey(sendJobId ?? ""),
+      enabled: sendJobId !== null,
+      refetchInterval: (query) =>
+        query.state.data?.status === "done" ? false : 2000,
+    },
+  });
+  const sendJob = sendJobId ? sendJobQuery.data : undefined;
 
   const params: ListOutreachProspectsParams = {
     search: search || undefined,
@@ -1901,6 +1920,110 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
   const openReview = (p: OutreachProspect) => {
     setReviewId(p.id);
     setReviewOpen(true);
+  };
+
+  // Batches are capped (the API rejects more) so a send always finishes
+  // within request timeouts.
+  const MAX_SELECTED = 50;
+
+  // Selection belongs to the result set it was made from — changing the
+  // search, filters, or page clears it so a stale selection is never sent.
+  React.useEffect(() => {
+    setSelectedIds(new Set());
+  }, [search, typeFilter, statusFilter, page]);
+
+  // Only pending prospects can be sent — contacted/unsubscribed rows are
+  // intentionally not selectable.
+  const selectableOnPage = (data?.prospects ?? []).filter((p) => p.status === "pending");
+  const allPageSelected =
+    selectableOnPage.length > 0 && selectableOnPage.every((p) => selectedIds.has(p.id));
+
+  const toggleSelected = (id: string, checked: boolean) => {
+    if (checked && !selectedIds.has(id) && selectedIds.size >= MAX_SELECTED) {
+      toast({
+        title: `Batch limit is ${MAX_SELECTED} at a time`,
+        description: "Send this batch first, then select the next one.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+
+  const toggleAllOnPage = (checked: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (!checked) {
+        for (const p of selectableOnPage) next.delete(p.id);
+        return next;
+      }
+      for (const p of selectableOnPage) {
+        if (next.size >= MAX_SELECTED) break;
+        next.add(p.id);
+      }
+      return next;
+    });
+  };
+
+  // When the job finishes: report per-prospect outcomes, clear the
+  // selection, and refresh the list (statuses have flipped to contacted).
+  React.useEffect(() => {
+    if (sendJob?.status !== "done") return;
+    const failures = sendJob.results.filter((x) => !x.ok);
+    toast({
+      title: `Sent ${sendJob.sent} invitation${sendJob.sent === 1 ? "" : "s"}${sendJob.failed ? ` · ${sendJob.failed} skipped/failed` : ""}`,
+      description: failures.length
+        ? failures
+            .slice(0, 3)
+            .map((f) => `${f.name}: ${f.error}`)
+            .join(" · ") + (failures.length > 3 ? ` · +${failures.length - 3} more` : "")
+        : "All selected prospects were contacted.",
+      variant: sendJob.sent === 0 ? "destructive" : "default",
+    });
+    setSelectedIds(new Set());
+    setSendJobId(null);
+    refetch();
+  }, [sendJob?.status]);
+
+  // A lost/expired job (server restart or 1h expiry) means we can't know the
+  // final per-prospect results — but no send is lost or duplicated: the
+  // prospects table is authoritative. Tell the admin to check the list.
+  React.useEffect(() => {
+    if (!sendJobId || !sendJobQuery.isError) return;
+    toast({
+      title: "Batch send was interrupted",
+      description:
+        "The server restarted mid-batch. Nothing was lost or double-sent — unsent contacts are still pending and safe to re-select.",
+      variant: "destructive",
+    });
+    setSendJobId(null);
+    refetch();
+  }, [sendJobId, sendJobQuery.isError]);
+
+  const onSendSelected = async () => {
+    const ids = [...selectedIds];
+    if (ids.length === 0 || sendJob) return;
+    if (
+      !confirm(
+        `Generate a personalised invitation and send it to ${ids.length} selected prospect${ids.length === 1 ? "" : "s"} now?`,
+      )
+    )
+      return;
+    try {
+      const r = await sendSelected.mutateAsync({ data: { ids } });
+      setSendJobId(r.jobId);
+    } catch (err) {
+      toast({
+        title: "Couldn't start the batch send",
+        description: (err as Error)?.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const onQueueDirectory = async () => {
@@ -2003,6 +2126,23 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
           <Upload className="h-4 w-4" />
           Import CSV
         </Button>
+        {sendJob ? (
+          <Button disabled>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Sending… {sendJob.sent + sendJob.failed}/{sendJob.total}
+          </Button>
+        ) : (
+          selectedIds.size > 0 && (
+            <Button onClick={onSendSelected} disabled={sendSelected.isPending}>
+              {sendSelected.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              Generate & send ({selectedIds.size})
+            </Button>
+          )
+        )}
       </div>
 
       <Card>
@@ -2010,6 +2150,13 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={allPageSelected}
+                    onCheckedChange={(checked) => toggleAllOnPage(checked === true)}
+                    aria-label="Select all pending prospects on this page"
+                  />
+                </TableHead>
                 <TableHead>Name / Email</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Source</TableHead>
@@ -2022,11 +2169,11 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-sm text-[#94A3B8]">Loading…</TableCell>
+                  <TableCell colSpan={8} className="py-8 text-center text-sm text-[#94A3B8]">Loading…</TableCell>
                 </TableRow>
               ) : !data?.prospects.length ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-10 text-center text-sm text-[#94A3B8]">
+                  <TableCell colSpan={8} className="py-10 text-center text-sm text-[#94A3B8]">
                     No prospects yet. Queue the directory, add one, or import a CSV file.
                   </TableCell>
                 </TableRow>
@@ -2037,6 +2184,14 @@ function ProspectsPanel({ resendMissing }: { resendMissing: boolean }) {
                     className="cursor-pointer"
                     onClick={() => openReview(p)}
                   >
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedIds.has(p.id)}
+                        disabled={p.status !== "pending"}
+                        onCheckedChange={(checked) => toggleSelected(p.id, checked === true)}
+                        aria-label={`Select ${p.name}`}
+                      />
+                    </TableCell>
                     <TableCell>
                       <div className="font-medium text-[#0F172A]">{p.name}</div>
                       {p.email ? (

@@ -104,7 +104,10 @@ Rules: factual and specific to THIS person; no hype, no superlatives, no marketi
 
 Respond in JSON with one key: "field" (string).`;
 
-    const response = await ai.models.generateContent({
+    // Hard deadline: a slow/hung AI call must bound the batch, not hang the
+    // request — on timeout we fall back like any other AI failure.
+    const response = await Promise.race([
+      ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
       config: {
@@ -119,7 +122,14 @@ Respond in JSON with one key: "field" (string).`;
         maxOutputTokens: 128,
         thinkingConfig: { thinkingBudget: 0 },
       },
-    });
+      }),
+      new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error("personalisation AI timed out")),
+          10_000,
+        ),
+      ),
+    ]);
 
     const parsed = JSON.parse(response.text ?? "") as { field?: string };
     if (!parsed.field) {

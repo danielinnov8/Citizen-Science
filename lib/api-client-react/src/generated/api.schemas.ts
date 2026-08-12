@@ -484,6 +484,13 @@ export interface UpdateProfileInput {
   biography?: string[];
   contributions?: string[];
   quotes?: string[];
+  /** The owner's work — research highlights and projects, each with a title and a short description. Shown as the profile's key-work section.
+   */
+  storyContributions?: ProfileStoryContribution[];
+  /** Career and work milestones (year, title, detail). */
+  timeline?: ProfileTimelineEntry[];
+  legacy?: string[];
+  didYouKnow?: string[];
 }
 
 export interface CreditBalance {
@@ -1044,6 +1051,44 @@ export interface ProspectEmailPreview {
   body: string;
   /** @nullable */
   to: string | null;
+}
+
+export interface SendSelectedProspectsInput {
+  /**
+   * Prospect ids to generate and send to (max 50).
+   * @minItems 1
+   * @maxItems 50
+   */
+  ids: string[];
+}
+
+export interface SendSelectedProspectsResultItem {
+  id: string;
+  name: string;
+  ok: boolean;
+  /** Why this prospect was skipped or failed (when ok is false). */
+  error?: string;
+}
+
+export interface SendSelectedJobStart {
+  jobId: string;
+  total: number;
+}
+
+export type SendSelectedJobStatusStatus =
+  (typeof SendSelectedJobStatusStatus)[keyof typeof SendSelectedJobStatusStatus];
+
+export const SendSelectedJobStatusStatus = {
+  running: "running",
+  done: "done",
+} as const;
+
+export interface SendSelectedJobStatus {
+  status: SendSelectedJobStatusStatus;
+  total: number;
+  sent: number;
+  failed: number;
+  results: SendSelectedProspectsResultItem[];
 }
 
 export interface SendProspectResult {

@@ -239,6 +239,29 @@ export const UpdateMyProfileBody = zod
     biography: zod.array(zod.string()).optional(),
     contributions: zod.array(zod.string()).optional(),
     quotes: zod.array(zod.string()).optional(),
+    storyContributions: zod
+      .array(
+        zod.object({
+          title: zod.string(),
+          detail: zod.string(),
+        }),
+      )
+      .optional()
+      .describe(
+        "The owner's work — research highlights and projects, each with a title and a short description. Shown as the profile's key-work section.\n",
+      ),
+    timeline: zod
+      .array(
+        zod.object({
+          year: zod.string(),
+          title: zod.string(),
+          detail: zod.string(),
+        }),
+      )
+      .optional()
+      .describe("Career and work milestones (year, title, detail)."),
+    legacy: zod.array(zod.string()).optional(),
+    didYouKnow: zod.array(zod.string()).optional(),
   })
   .describe(
     "Owner-editable profile fields (Task #92). All optional; only provided fields are updated.\n",
@@ -1254,6 +1277,50 @@ export const SendOutreachProspectParams = zod.object({
 export const SendOutreachProspectResponse = zod.object({
   message: zod.string(),
   prospectId: zod.string(),
+});
+
+/**
+ * Superadmin-only. Batch "generate & send": for each selected prospect that is still pending, the admin's selection acts as approval — the prospect is approved in place (promoting a researched contact email when the email column is empty), the personalised draft is generated once and persisted, and the email is sent through the same claim-first pipeline as the scheduler. Prospects that are not pending, have no email, or fail the send-time guards are skipped with a per-prospect reason. Runs as a background job: returns 202 immediately with a jobId to poll for live progress (GET /admin/outreach/send-jobs/{jobId}), so request timeouts never apply. At most 50 ids per call.
+
+ * @summary Generate and send invitations to selected prospects
+ */
+export const sendSelectedOutreachProspectsBodyIdsMax = 50;
+
+export const SendSelectedOutreachProspectsBody = zod.object({
+  ids: zod
+    .array(zod.string())
+    .min(1)
+    .max(sendSelectedOutreachProspectsBodyIdsMax)
+    .describe("Prospect ids to generate and send to (max 50)."),
+});
+
+/**
+ * Superadmin-only. Live status of a batch "generate & send" job started via /admin/outreach/prospects/send-selected, including per-prospect results as they complete. Jobs are ephemeral and expire after an hour; the prospects table is the authoritative record of what was sent.
+
+ * @summary Poll a batch send job
+ */
+export const GetOutreachSendJobParams = zod.object({
+  jobId: zod.coerce.string(),
+});
+
+export const GetOutreachSendJobResponse = zod.object({
+  status: zod.enum(["running", "done"]),
+  total: zod.number(),
+  sent: zod.number(),
+  failed: zod.number(),
+  results: zod.array(
+    zod.object({
+      id: zod.string(),
+      name: zod.string(),
+      ok: zod.boolean(),
+      error: zod
+        .string()
+        .optional()
+        .describe(
+          "Why this prospect was skipped or failed (when ok is false).",
+        ),
+    }),
+  ),
 });
 
 /**

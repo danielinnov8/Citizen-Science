@@ -65,6 +65,10 @@ export async function sendEmail(
 
   const res = await fetch(RESEND_API_URL, {
     method: "POST",
+    // Hard deadline so a hung Resend call bounds a batch instead of hanging
+    // the request. An abort is an ambiguous post-attempt failure: callers
+    // must treat it as possibly-sent (keep contacted), never auto-retry.
+    signal: AbortSignal.timeout(10_000),
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",

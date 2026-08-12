@@ -333,6 +333,10 @@ function ProfileEditor({
     biography: string[];
     contributions: string[];
     quotes: string[];
+    storyContributions: { title: string; detail: string }[];
+    timeline: { year: string; title: string; detail: string }[];
+    legacy: string[];
+    didYouKnow: string[];
   }) => void;
 }) {
   const [summary, setSummary] = useState(profile.summary);
@@ -346,6 +350,16 @@ function ProfileEditor({
     profile.contributions.join("\n"),
   );
   const [quotes, setQuotes] = useState(profile.quotes.join("\n"));
+  const [workRows, setWorkRows] = useState(
+    (profile.storyContributions ?? []).map((c) => ({ ...c })),
+  );
+  const [timelineRows, setTimelineRows] = useState(
+    (profile.timeline ?? []).map((t) => ({ ...t })),
+  );
+  const [legacy, setLegacy] = useState((profile.legacy ?? []).join("\n"));
+  const [didYouKnow, setDidYouKnow] = useState(
+    (profile.didYouKnow ?? []).join("\n"),
+  );
 
   // Re-seed the form whenever the dialog re-opens or the profile changes.
   useEffect(() => {
@@ -359,6 +373,10 @@ function ProfileEditor({
       setBiography(profile.biography.join("\n"));
       setContributions(profile.contributions.join("\n"));
       setQuotes(profile.quotes.join("\n"));
+      setWorkRows((profile.storyContributions ?? []).map((c) => ({ ...c })));
+      setTimelineRows((profile.timeline ?? []).map((t) => ({ ...t })));
+      setLegacy((profile.legacy ?? []).join("\n"));
+      setDidYouKnow((profile.didYouKnow ?? []).join("\n"));
     }
   }, [open, profile]);
 
@@ -374,6 +392,18 @@ function ProfileEditor({
       biography: linesToArray(biography),
       contributions: linesToArray(contributions),
       quotes: linesToArray(quotes),
+      storyContributions: workRows
+        .map((r) => ({ title: r.title.trim(), detail: r.detail.trim() }))
+        .filter((r) => r.title || r.detail),
+      timeline: timelineRows
+        .map((r) => ({
+          year: r.year.trim(),
+          title: r.title.trim(),
+          detail: r.detail.trim(),
+        }))
+        .filter((r) => r.year || r.title || r.detail),
+      legacy: linesToArray(legacy),
+      didYouKnow: linesToArray(didYouKnow),
     });
   };
 
@@ -465,6 +495,139 @@ function ProfileEditor({
               <p className="text-xs text-[#94A3B8]">One contribution per line.</p>
             </div>
             <div className="space-y-2">
+              <Label>Your work</Label>
+              <p className="text-xs text-[#94A3B8]">
+                Research highlights and projects featured on your page.
+              </p>
+              {workRows.map((row, i) => (
+                <div
+                  key={i}
+                  className="space-y-1.5 rounded-lg border border-[#E2E8F0] p-2.5"
+                >
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Title — e.g. Discovery of X"
+                      value={row.title}
+                      onChange={(e) =>
+                        setWorkRows((rows) =>
+                          rows.map((r, j) =>
+                            j === i ? { ...r, title: e.target.value } : r,
+                          ),
+                        )
+                      }
+                    />
+                    <button
+                      type="button"
+                      aria-label="Remove work"
+                      onClick={() =>
+                        setWorkRows((rows) => rows.filter((_, j) => j !== i))
+                      }
+                      className="rounded-md p-1.5 text-[#94A3B8] transition-colors hover:text-[#0F172A]"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <Textarea
+                    placeholder="What it is and why it matters"
+                    value={row.detail}
+                    rows={2}
+                    onChange={(e) =>
+                      setWorkRows((rows) =>
+                        rows.map((r, j) =>
+                          j === i ? { ...r, detail: e.target.value } : r,
+                        ),
+                      )
+                    }
+                  />
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setWorkRows((rows) => [...rows, { title: "", detail: "" }])
+                }
+              >
+                Add work
+              </Button>
+            </div>
+            <div className="space-y-2">
+              <Label>Career timeline</Label>
+              <p className="text-xs text-[#94A3B8]">
+                Milestones shown on your page — year, milestone, short note.
+              </p>
+              {timelineRows.map((row, i) => (
+                <div
+                  key={i}
+                  className="space-y-1.5 rounded-lg border border-[#E2E8F0] p-2.5"
+                >
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Year"
+                      className="w-24 flex-shrink-0"
+                      value={row.year}
+                      onChange={(e) =>
+                        setTimelineRows((rows) =>
+                          rows.map((r, j) =>
+                            j === i ? { ...r, year: e.target.value } : r,
+                          ),
+                        )
+                      }
+                    />
+                    <Input
+                      placeholder="Milestone"
+                      value={row.title}
+                      onChange={(e) =>
+                        setTimelineRows((rows) =>
+                          rows.map((r, j) =>
+                            j === i ? { ...r, title: e.target.value } : r,
+                          ),
+                        )
+                      }
+                    />
+                    <button
+                      type="button"
+                      aria-label="Remove milestone"
+                      onClick={() =>
+                        setTimelineRows((rows) =>
+                          rows.filter((_, j) => j !== i),
+                        )
+                      }
+                      className="rounded-md p-1.5 text-[#94A3B8] transition-colors hover:text-[#0F172A]"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <Textarea
+                    placeholder="A short note about this milestone"
+                    value={row.detail}
+                    rows={2}
+                    onChange={(e) =>
+                      setTimelineRows((rows) =>
+                        rows.map((r, j) =>
+                          j === i ? { ...r, detail: e.target.value } : r,
+                        ),
+                      )
+                    }
+                  />
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setTimelineRows((rows) => [
+                    ...rows,
+                    { year: "", title: "", detail: "" },
+                  ])
+                }
+              >
+                Add milestone
+              </Button>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="edit-quotes">Quotes</Label>
               <Textarea
                 id="edit-quotes"
@@ -473,6 +636,28 @@ function ProfileEditor({
                 rows={3}
               />
               <p className="text-xs text-[#94A3B8]">One quote per line.</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-legacy">Legacy</Label>
+              <Textarea
+                id="edit-legacy"
+                value={legacy}
+                onChange={(e) => setLegacy(e.target.value)}
+                rows={3}
+              />
+              <p className="text-xs text-[#94A3B8]">
+                One line each — how you want your work to live on.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-dyk">Did you know</Label>
+              <Textarea
+                id="edit-dyk"
+                value={didYouKnow}
+                onChange={(e) => setDidYouKnow(e.target.value)}
+                rows={3}
+              />
+              <p className="text-xs text-[#94A3B8]">One fact per line.</p>
             </div>
           </div>
           <DialogFooter>

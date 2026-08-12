@@ -5,6 +5,8 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ProfileStoryContribution } from "./profileStoryContribution";
+import type { ProfileTimelineEntry } from "./profileTimelineEntry";
 
 /**
  * Owner-editable profile fields (Task #92). All optional; only provided fields are updated.
@@ -23,4 +25,11 @@ export interface UpdateProfileInput {
   biography?: string[];
   contributions?: string[];
   quotes?: string[];
+  /** The owner's work — research highlights and projects, each with a title and a short description. Shown as the profile's key-work section.
+   */
+  storyContributions?: ProfileStoryContribution[];
+  /** Career and work milestones (year, title, detail). */
+  timeline?: ProfileTimelineEntry[];
+  legacy?: string[];
+  didYouKnow?: string[];
 }

@@ -1,4 +1,4 @@
-import { and, eq, isNotNull } from "drizzle-orm";
+import { and, eq, isNotNull, sql } from "drizzle-orm";
 import type { OutreachProspect } from "@workspace/db";
 import {
   db,
@@ -124,6 +124,205 @@ export async function sendToProspect(
   }
 }
 
+export interface SelectedSendResult {
+  id: string;
+  name: string;
+  ok: boolean;
+  error?: string;
+}
+
+/** Injectable seams so the batch flow is testable without a database. */
+export interface SelectedSendDeps {
+  getSettings: () => Promise<{ fromEmail: string; fromName: string }>;
+  prepareDefaults: () => Promise<void>;
+  loadProspect: (id: string) => Promise<OutreachProspect | undefined>;
+  /**
+   * Atomic conditional approval: one UPDATE gated on the row still being
+   * pending with a resolvable email. COALESCE keeps an admin-edited email and
+   * only promotes the researched contact email when the column is empty; the
+   * RETURNING email is the address we actually send to, so a concurrent edit
+   * or unsubscribe always wins. Null = the row changed underneath us (the
+   * item is reported, never overwritten). No timestamp equality — Postgres
+   * microsecond precision makes JS-Date round-trip comparisons unreliable.
+   */
+  approveProspect: (id: string) => Promise<{ email: string } | null>;
+  ensureDraft: (id: string) => Promise<unknown>;
+  send: (
+    prospect: OutreachProspect,
+    settings: { fromEmail: string; fromName: string },
+  ) => Promise<void>;
+  /** Hard deadline per draft so a hung AI call bounds the batch. */
+  draftDeadlineMs: number;
+  /** Throttle between sends for the email provider's rate limits. */
+  interSendDelayMs: number;
+  /** Called after each prospect is processed (live progress for jobs). */
+  onItem?: (result: SelectedSendResult) => void;
+}
+
+const defaultSelectedSendDeps: SelectedSendDeps = {
+  getSettings: getOutreachSettings,
+  prepareDefaults: ensureDefaultTemplates,
+  loadProspect: async (id) => {
+    const [row] = await db
+      .select()
+      .from(outreachProspectsTable)
+      .where(eq(outreachProspectsTable.id, id))
+      .limit(1);
+    return row;
+  },
+  approveProspect: async (id) => {
+    const [row] = await db
+      .update(outreachProspectsTable)
+      .set({
+        email: sql`COALESCE(${outreachProspectsTable.email}, ${outreachProspectsTable.contactInfo} ->> 'email')`,
+        reviewState: "approved",
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(outreachProspectsTable.id, id),
+          eq(outreachProspectsTable.status, "pending"),
+          sql`COALESCE(${outreachProspectsTable.email}, ${outreachProspectsTable.contactInfo} ->> 'email') IS NOT NULL`,
+        ),
+      )
+      .returning({ email: outreachProspectsTable.email });
+    // The WHERE clause guarantees a resolvable email, so a null here means
+    // something unexpected — treat it as a lost race (reported, not sent).
+    return row?.email ? { email: row.email } : null;
+  },
+  ensureDraft: ensureProspectDraft,
+  send: sendToProspect,
+  draftDeadlineMs: 10_000,
+  interSendDelayMs: 300,
+};
+
+/**
+ * Batch "generate & send" for the admin campaigns UI. The admin's selection
+ * acts as approval: each selected prospect that is still pending is approved
+ * in place (promoting a researched contactInfo email onto the email column
+ * when needed), then sent through the exact same claim-first pipeline as the
+ * scheduler — draft generated once and persisted, claim before Resend, no
+ * duplicates. Prospects that are not pending, have no email, changed under
+ * us, or fail the send-time guards are skipped with a per-prospect reason.
+ *
+ * Timeout budget: drafts warm up in bounded-parallel groups (5) with a hard
+ * per-draft deadline, and the send loop's Resend call carries its own fetch
+ * deadline — a hung provider bounds the batch instead of hanging the request.
+ */
+export async function sendToSelectedProspects(
+  ids: string[],
+  deps: Partial<SelectedSendDeps> = {},
+): Promise<{
+  sent: number;
+  failed: number;
+  results: SelectedSendResult[];
+}> {
+  const d: SelectedSendDeps = { ...defaultSelectedSendDeps, ...deps };
+  const settings = await d.getSettings();
+  await d.prepareDefaults();
+
+  const uniqueIds = [...new Set(ids)];
+
+  const DRAFT_CONCURRENCY = 5;
+  for (let i = 0; i < uniqueIds.length; i += DRAFT_CONCURRENCY) {
+    await Promise.allSettled(
+      uniqueIds.slice(i, i + DRAFT_CONCURRENCY).map((id) =>
+        Promise.race([
+          d.ensureDraft(id),
+          new Promise<never>((_, reject) =>
+            setTimeout(
+              () => reject(new Error("draft generation timed out")),
+              d.draftDeadlineMs,
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  const results: SelectedSendResult[] = [];
+  let sent = 0;
+  let failed = 0;
+  const record = (r: SelectedSendResult) => {
+    results.push(r);
+    if (r.ok) sent++;
+    else failed++;
+    d.onItem?.(r);
+  };
+
+  for (const id of uniqueIds) {
+    // Throttle between sends (not before the first) for Resend rate limits.
+    if (results.length > 0) {
+      await new Promise((resolve) => setTimeout(resolve, d.interSendDelayMs));
+    }
+
+    // Every per-prospect step is inside the try — one bad row must never
+    // abort the rest of the batch or hide the results already collected.
+    let name = id;
+    try {
+      const prospect = await d.loadProspect(id);
+      if (!prospect) {
+        record({ id, name, ok: false, error: "Prospect not found." });
+        continue;
+      }
+      name = prospect.name;
+
+      if (prospect.status !== "pending") {
+        record({
+          id,
+          name,
+          ok: false,
+          error: `Status is "${prospect.status}" — only pending prospects can be sent.`,
+        });
+        continue;
+      }
+
+      const email = prospect.email || prospect.contactInfo?.email || null;
+      if (!email) {
+        record({
+          id,
+          name,
+          ok: false,
+          error: "No email on file — research or add one first.",
+        });
+        continue;
+      }
+
+      // Selection = approval — one atomic UPDATE gated on still-pending with
+      // a resolvable email; we send to the RETURNING (committed) address, so
+      // a concurrent unsubscribe or email edit always wins.
+      const approved = await d.approveProspect(id);
+      if (!approved) {
+        record({
+          id,
+          name,
+          ok: false,
+          error:
+            "No longer sendable (status or details changed) — skipped to stay safe.",
+        });
+        continue;
+      }
+
+      await d.send(
+        { ...prospect, email: approved.email, reviewState: "approved" },
+        settings,
+      );
+      record({ id, name, ok: true });
+    } catch (err) {
+      logger.error({ err, prospectId: id }, "outreach: selected send failed");
+      record({
+        id,
+        name,
+        ok: false,
+        error: (err as Error)?.message ?? "Send failed.",
+      });
+    }
+  }
+
+  logger.info({ sent, failed }, "outreach: selected-send batch complete");
+  return { sent, failed, results };
+}
+
 async function deliverToProspect(
   prospectId: string,
   settings: {
@@ -156,9 +355,10 @@ async function deliverToProspect(
   }
 
   // Claim the send atomically BEFORE calling Resend: the pending -> contacted
-  // transition lands only if the row is still eligible, so overlapping sends
-  // (manual vs batch, double-click) can never deliver the same person twice —
-  // the loser's update matches zero rows.
+  // transition lands only if the row is still eligible AND the address is
+  // still exactly the one we read (and, for batch sends, approved). An admin
+  // editing the email between our read and this claim makes the update match
+  // zero rows — we never send to a stale address.
   const claimedAt = new Date();
   const [claim] = await db
     .update(outreachProspectsTable)
@@ -173,13 +373,15 @@ async function deliverToProspect(
         eq(outreachProspectsTable.status, "pending"),
         eq(outreachProspectsTable.reviewState, "approved"),
         isNotNull(outreachProspectsTable.email),
+        eq(outreachProspectsTable.email, before.email!),
       ),
     )
     .returning({ id: outreachProspectsTable.id });
 
   if (!claim) {
-    // Lost a race against a concurrent state change between our read and the
-    // claim — fail loudly; the caller can retry.
+    // Lost a race against a concurrent state change (status flip,
+    // unsubscribe, email edit) between our read and the claim — fail loudly;
+    // the caller can retry.
     throw new Error("prospect state changed concurrently — retry the send");
   }
 
