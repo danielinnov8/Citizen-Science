@@ -23,5 +23,15 @@ export interface OutreachProspectPatch {
   notes?: string;
   status?: OutreachProspectPatchStatus;
   reviewState?: OutreachProspectPatchReviewState;
+  /**
+   * @maxLength 200
+   * @nullable
+   */
+  draftSubject?: string | null;
+  /**
+   * @maxLength 10000
+   * @nullable
+   */
+  draftBody?: string | null;
   contactInfo?: ProspectContactInfoInput;
 }

@@ -28,6 +28,16 @@ export interface OutreachProspect {
   contactInfo: ProspectContactInfo;
   /** @nullable */
   researchedAt: Date | null;
+  /**
+   * Admin-edited final subject; sent verbatim when both draft fields are set
+   * @nullable
+   */
+  draftSubject: string | null;
+  /**
+   * Admin-edited final plain-text body; sent verbatim when both draft fields are set
+   * @nullable
+   */
+  draftBody: string | null;
   createdAt: Date;
   /** @nullable */
   lastContactedAt: Date | null;

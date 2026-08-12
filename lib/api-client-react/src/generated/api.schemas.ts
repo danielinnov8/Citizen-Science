@@ -885,6 +885,16 @@ export interface OutreachProspect {
   contactInfo: ProspectContactInfo;
   /** @nullable */
   researchedAt: string | null;
+  /**
+   * Admin-edited final subject; sent verbatim when both draft fields are set
+   * @nullable
+   */
+  draftSubject: string | null;
+  /**
+   * Admin-edited final plain-text body; sent verbatim when both draft fields are set
+   * @nullable
+   */
+  draftBody: string | null;
   createdAt: string;
   /** @nullable */
   lastContactedAt: string | null;
@@ -989,6 +999,16 @@ export interface OutreachProspectPatch {
   notes?: string;
   status?: OutreachProspectPatchStatus;
   reviewState?: OutreachProspectPatchReviewState;
+  /**
+   * @maxLength 200
+   * @nullable
+   */
+  draftSubject?: string | null;
+  /**
+   * @maxLength 10000
+   * @nullable
+   */
+  draftBody?: string | null;
   contactInfo?: ProspectContactInfoInput;
 }
 
@@ -1020,7 +1040,8 @@ export interface ApproveProspectInput {
 
 export interface ProspectEmailPreview {
   subject: string;
-  html: string;
+  /** Final plain-text body (blank-line-separated paragraphs), ready for admin editing */
+  body: string;
   /** @nullable */
   to: string | null;
 }

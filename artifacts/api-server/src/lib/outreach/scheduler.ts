@@ -8,7 +8,11 @@ import {
   outreachSettingsTable,
 } from "@workspace/db";
 import { sendEmail, isResendConfigured } from "./resend";
-import { personaliseEmail, buildEmailHtml } from "./personalise";
+import {
+  personaliseEmail,
+  buildEmailHtml,
+  buildDraftEmailHtml,
+} from "./personalise";
 import { ensureDefaultTemplates } from "./templates";
 import { logger } from "../logger";
 
@@ -135,17 +139,28 @@ export async function sendToProspect(
     throw new Error(`no outreach template for type "${prospect.type}"`);
   }
 
-  const { subject, openingParagraph } = await personaliseEmail({
-    name: prospect.name,
-    type: prospect.type,
-    notes: prospect.notes,
-    subjectTemplate: template.subjectTemplate,
-    bodyTemplate: template.bodyTemplate,
-  });
-
-  const html = buildEmailHtml(openingParagraph, template.bodyTemplate, {
-    name: prospect.name,
-  });
+  // An admin-edited draft (both halves set) wins over template + AI
+  // personalisation — what the admin reviewed is exactly what gets sent.
+  // Either half alone is ignored so a half-cleared draft can't produce a
+  // malformed send.
+  let subject: string;
+  let html: string;
+  if (prospect.draftSubject && prospect.draftBody) {
+    subject = prospect.draftSubject;
+    html = buildDraftEmailHtml(prospect.draftBody);
+  } else {
+    const personal = await personaliseEmail({
+      name: prospect.name,
+      type: prospect.type,
+      notes: prospect.notes,
+      subjectTemplate: template.subjectTemplate,
+      bodyTemplate: template.bodyTemplate,
+    });
+    subject = personal.subject;
+    html = buildEmailHtml(personal.openingParagraph, template.bodyTemplate, {
+      name: prospect.name,
+    });
+  }
 
   const result = await sendEmail({
     to: prospect.email,

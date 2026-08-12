@@ -1430,10 +1430,23 @@ function ProspectReviewModal({
   const [ciContactPage, setCiContactPage] = React.useState("");
   const [ciSocials, setCiSocials] = React.useState("");
   const [ciNotes, setCiNotes] = React.useState("");
-  const [previewHtml, setPreviewHtml] = React.useState<{ subject: string; html: string } | null>(null);
+  // Editable final copy. When both are non-empty and saved, sends use this
+  // draft verbatim instead of regenerating from the template.
+  const [draftSubject, setDraftSubject] = React.useState("");
+  const [draftBody, setDraftBody] = React.useState("");
 
+  // Hydrate the form ONCE per prospect per dialog open — not on every `data`
+  // change. The detail query has staleTime: 0, so invalidations/refetches (e.g.
+  // after Save) swap in a fresh data object mid-edit; re-hydrating then would
+  // silently wipe in-progress typing.
+  const hydratedFor = React.useRef<string | null>(null);
   React.useEffect(() => {
-    if (open && data) {
+    if (!open) {
+      hydratedFor.current = null;
+      return;
+    }
+    if (data && hydratedFor.current !== data.id) {
+      hydratedFor.current = data.id;
       setSendEmail(data.email ?? "");
       setType(data.type);
       setStatus(data.status);
@@ -1443,9 +1456,9 @@ function ProspectReviewModal({
       setCiContactPage(data.contactInfo.contactPage ?? "");
       setCiSocials((data.contactInfo.socials ?? []).join("\n"));
       setCiNotes(data.contactInfo.notes ?? "");
-      setPreviewHtml(null);
+      setDraftSubject(data.draftSubject ?? "");
+      setDraftBody(data.draftBody ?? "");
     }
-    if (!open) setPreviewHtml(null);
   }, [open, data]);
 
   const buildContactInfo = () => ({
@@ -1478,6 +1491,8 @@ function ProspectReviewModal({
           status: status as "pending" | "contacted" | "replied" | "unsubscribed",
           notes: notes.trim(),
           contactInfo: buildContactInfo(),
+          draftSubject: draftSubject.trim() || null,
+          draftBody: draftBody.trim() || null,
         },
       });
       toast({ title: "Saved" });
@@ -1502,6 +1517,8 @@ function ProspectReviewModal({
           type: type as "researcher" | "scientist" | "investor" | "user",
           notes: notes.trim(),
           contactInfo: buildContactInfo(),
+          draftSubject: draftSubject.trim() || null,
+          draftBody: draftBody.trim() || null,
         },
       });
       await approve.mutateAsync({ id: prospectId, data: { email } });
@@ -1528,7 +1545,8 @@ function ProspectReviewModal({
     if (!prospectId) return;
     try {
       const r = await preview.mutateAsync({ id: prospectId });
-      setPreviewHtml({ subject: r.subject, html: r.html });
+      setDraftSubject(r.subject);
+      setDraftBody(r.body);
     } catch (err) {
       toast({ title: "Couldn't render preview", description: (err as Error)?.message, variant: "destructive" });
     }
@@ -1691,27 +1709,41 @@ function ProspectReviewModal({
                 />
               </div>
 
-              {previewHtml && (
-                <div className="rounded-lg border border-[#E2E8F0] overflow-hidden">
-                  <div className="border-b border-[#E2E8F0] bg-slate-50 px-3 py-2 text-xs">
-                    <span className="text-[#94A3B8]">Subject:</span>{" "}
-                    <span className="font-medium text-[#0F172A]">{previewHtml.subject}</span>
-                  </div>
-                  <div
-                    className="max-h-64 overflow-y-auto bg-white p-3 text-sm"
-                    dangerouslySetInnerHTML={{ __html: previewHtml.html }}
-                  />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Email copy</label>
+                  <Button
+                    variant="ghost"
+                    onClick={runPreview}
+                    disabled={!data || preview.isPending}
+                  >
+                    {preview.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
+                    {draftSubject || draftBody ? "Regenerate" : "Generate draft"}
+                  </Button>
                 </div>
-              )}
+                <input
+                  className="h-9 w-full rounded-md border border-[#E2E8F0] bg-white px-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={draftSubject}
+                  onChange={(e) => setDraftSubject(e.target.value)}
+                  placeholder="Subject line"
+                />
+                <textarea
+                  className="h-48 w-full rounded-md border border-[#E2E8F0] bg-white p-2 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+                  value={draftBody}
+                  onChange={(e) => setDraftBody(e.target.value)}
+                  placeholder="Email body — plain text, blank lines separate paragraphs"
+                />
+                <p className="text-xs text-[#64748B]">
+                  {data?.draftSubject && data?.draftBody
+                    ? "A saved draft exists — it will be sent exactly as written. Edit and Save to change it, or clear both fields to auto-generate."
+                    : "Generate a draft, edit it, then Save — the saved copy is sent exactly as written. Leave both fields blank to auto-generate at send time."}
+                </p>
+              </div>
             </div>
           </div>
         )}
 
-        <DialogFooter className="flex-wrap gap-2 sm:justify-between">
-          <Button variant="ghost" onClick={runPreview} disabled={!data || preview.isPending}>
-            {preview.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
-            Preview email
-          </Button>
+        <DialogFooter className="flex-wrap gap-2 sm:justify-end">
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={saveInfo} disabled={busy}>
               Save

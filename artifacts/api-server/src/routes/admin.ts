@@ -54,7 +54,10 @@ import {
 } from "../lib/outreach/scheduler";
 import { isResendConfigured } from "../lib/outreach/resend";
 import { ensureDefaultTemplates } from "../lib/outreach/templates";
-import { personaliseEmail, buildEmailHtml } from "../lib/outreach/personalise";
+import {
+  personaliseEmail,
+  buildPlainBody,
+} from "../lib/outreach/personalise";
 import { researchProspectContact } from "../lib/outreach/research";
 import { isLivingEra } from "../lib/profiles/living";
 import {
@@ -1008,6 +1011,8 @@ function toProspectWire(
     reviewState: string;
     contactInfo: ProspectContactInfo;
     researchedAt: Date | null;
+    draftSubject: string | null;
+    draftBody: string | null;
     createdAt: Date;
     lastContactedAt: Date | null;
     updatedAt: Date;
@@ -1033,6 +1038,8 @@ function toProspectWire(
       notes: p.contactInfo?.notes ?? null,
     },
     researchedAt: p.researchedAt ? p.researchedAt.toISOString() : null,
+    draftSubject: p.draftSubject ?? null,
+    draftBody: p.draftBody ?? null,
     createdAt: p.createdAt.toISOString(),
     lastContactedAt: p.lastContactedAt ? p.lastContactedAt.toISOString() : null,
     updatedAt: p.updatedAt.toISOString(),
@@ -1274,8 +1281,17 @@ router.patch(
   "/admin/outreach/prospects/:id",
   async (req: Request, res: Response): Promise<void> => {
     const id = String(req.params.id);
-    const { name, email, type, notes, status, reviewState, contactInfo } =
-      req.body as Record<string, unknown>;
+    const {
+      name,
+      email,
+      type,
+      notes,
+      status,
+      reviewState,
+      contactInfo,
+      draftSubject,
+      draftBody,
+    } = req.body as Record<string, unknown>;
 
     const updates: Record<string, unknown> = { updatedAt: new Date() };
     if (typeof name === "string" && name.trim()) updates.name = name.trim();
@@ -1301,6 +1317,25 @@ router.patch(
     }
     if (contactInfo !== undefined) {
       updates.contactInfo = sanitizeContactInfoInput(contactInfo);
+    }
+    // Draft copy: null/empty clears, string sets, absent leaves untouched (the
+    // email convention). Sends only use a draft when BOTH halves are set, so
+    // clearing one safely disables it.
+    if (
+      draftSubject === null ||
+      (typeof draftSubject === "string" && !draftSubject.trim())
+    ) {
+      updates.draftSubject = null;
+    } else if (typeof draftSubject === "string") {
+      updates.draftSubject = draftSubject.trim();
+    }
+    if (
+      draftBody === null ||
+      (typeof draftBody === "string" && !draftBody.trim())
+    ) {
+      updates.draftBody = null;
+    } else if (typeof draftBody === "string") {
+      updates.draftBody = draftBody.trim();
     }
 
     const [updated] = await db
@@ -1562,6 +1597,17 @@ router.post(
       return;
     }
 
+    // If the admin saved a draft, preview THAT — the point of the editor is
+    // that what you see is what gets sent.
+    if (prospect.draftSubject && prospect.draftBody) {
+      res.json({
+        subject: prospect.draftSubject,
+        body: prospect.draftBody,
+        to: prospect.email ?? null,
+      });
+      return;
+    }
+
     const { subject, openingParagraph } = await personaliseEmail({
       name: prospect.name,
       type: prospect.type,
@@ -1569,11 +1615,14 @@ router.post(
       subjectTemplate: template.subjectTemplate,
       bodyTemplate: template.bodyTemplate,
     });
-    const html = buildEmailHtml(openingParagraph, template.bodyTemplate, {
-      name: prospect.name,
-    });
 
-    res.json({ subject, html, to: prospect.email ?? null });
+    res.json({
+      subject,
+      body: buildPlainBody(openingParagraph, template.bodyTemplate, {
+        name: prospect.name,
+      }),
+      to: prospect.email ?? null,
+    });
   },
 );
 

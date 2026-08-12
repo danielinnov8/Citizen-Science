@@ -8,7 +8,8 @@
 
 export interface ProspectEmailPreview {
   subject: string;
-  html: string;
+  /** Final plain-text body (blank-line-separated paragraphs), ready for admin editing */
+  body: string;
   /** @nullable */
   to: string | null;
 }

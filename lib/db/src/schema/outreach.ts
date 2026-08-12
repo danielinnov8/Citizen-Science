@@ -90,6 +90,11 @@ export const outreachProspectsTable = pgTable(
     // When the Gemini contact research last ran for this prospect. Null = not
     // yet researched; the resumable batch skips already-researched rows.
     researchedAt: timestamp("researched_at", { withTimezone: true }),
+    // Admin-edited final copy. When BOTH are set, sends use them verbatim
+    // instead of regenerating from the template + AI personalisation. Either
+    // alone is ignored (defensive: never send a half-drafted email).
+    draftSubject: text("draft_subject"),
+    draftBody: text("draft_body"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

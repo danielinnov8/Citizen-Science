@@ -92,15 +92,34 @@ Respond in JSON with keys: "subject" (string) and "openingParagraph" (string).`;
   }
 }
 
+/**
+ * Assemble the final plain-text body (template with {{name}} + {{opening}}
+ * merged). This is the admin-editable form of the email: the preview endpoint
+ * returns it, the admin edits it, and sends store it as the prospect's draft.
+ */
+export function buildPlainBody(
+  openingParagraph: string,
+  bodyTemplate: string,
+  prospect: { name: string },
+): string {
+  return bodyTemplate
+    .replace(/\{\{name\}\}/g, prospect.name)
+    .replace(/\{\{opening\}\}/g, openingParagraph);
+}
+
 export function buildEmailHtml(
   openingParagraph: string,
   bodyTemplate: string,
   prospect: { name: string },
 ): string {
-  const body = bodyTemplate
-    .replace(/\{\{name\}\}/g, prospect.name)
-    .replace(/\{\{opening\}\}/g, openingParagraph);
+  return buildDraftEmailHtml(
+    buildPlainBody(openingParagraph, bodyTemplate, prospect),
+  );
+}
 
+/** Wrap a final plain-text body (template output or an admin-edited draft) in
+ * the standard outreach HTML shell. */
+export function buildDraftEmailHtml(body: string): string {
   const paragraphs = body
     .split(/\n\n+/)
     .map((p) => `<p style="margin:0 0 16px 0;">${p.replace(/\n/g, "<br>")}</p>`)

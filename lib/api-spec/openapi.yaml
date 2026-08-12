@@ -4007,6 +4007,12 @@ components:
         researchedAt:
           type: ["string", "null"]
           format: date-time
+        draftSubject:
+          type: ["string", "null"]
+          description: Admin-edited final subject; sent verbatim when both draft fields are set
+        draftBody:
+          type: ["string", "null"]
+          description: Admin-edited final plain-text body; sent verbatim when both draft fields are set
         createdAt:
           type: string
           format: date-time
@@ -4029,6 +4035,8 @@ components:
         - reviewState
         - contactInfo
         - researchedAt
+        - draftSubject
+        - draftBody
         - createdAt
         - lastContactedAt
         - updatedAt
@@ -4096,6 +4104,12 @@ components:
         reviewState:
           type: string
           enum: [needs_review, approved]
+        draftSubject:
+          type: ["string", "null"]
+          maxLength: 200
+        draftBody:
+          type: ["string", "null"]
+          maxLength: 10000
         contactInfo:
           $ref: "#/components/schemas/ProspectContactInfoInput"
     ProspectContactInfoInput:
@@ -4163,13 +4177,14 @@ components:
       properties:
         subject:
           type: string
-        html:
+        body:
           type: string
+          description: Final plain-text body (blank-line-separated paragraphs), ready for admin editing
         to:
           type: ["string", "null"]
       required:
         - subject
-        - html
+        - body
         - to
     SendProspectResult:
       type: object

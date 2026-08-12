@@ -936,6 +936,18 @@ export const ListOutreachProspectsResponse = zod.object({
         notes: zod.string().nullable(),
       }),
       researchedAt: zod.coerce.date().nullable(),
+      draftSubject: zod
+        .string()
+        .nullable()
+        .describe(
+          "Admin-edited final subject; sent verbatim when both draft fields are set",
+        ),
+      draftBody: zod
+        .string()
+        .nullable()
+        .describe(
+          "Admin-edited final plain-text body; sent verbatim when both draft fields are set",
+        ),
       createdAt: zod.coerce.date(),
       lastContactedAt: zod.coerce.date().nullable(),
       updatedAt: zod.coerce.date(),
@@ -991,6 +1003,10 @@ export const updateOutreachProspectBodyNameMax = 200;
 
 export const updateOutreachProspectBodyNotesMax = 2000;
 
+export const updateOutreachProspectBodyDraftSubjectMax = 200;
+
+export const updateOutreachProspectBodyDraftBodyMax = 10000;
+
 export const UpdateOutreachProspectBody = zod.object({
   name: zod.string().min(1).max(updateOutreachProspectBodyNameMax).optional(),
   email: zod.string().email().nullish(),
@@ -1000,6 +1016,11 @@ export const UpdateOutreachProspectBody = zod.object({
     .enum(["pending", "contacted", "replied", "unsubscribed"])
     .optional(),
   reviewState: zod.enum(["needs_review", "approved"]).optional(),
+  draftSubject: zod
+    .string()
+    .max(updateOutreachProspectBodyDraftSubjectMax)
+    .nullish(),
+  draftBody: zod.string().max(updateOutreachProspectBodyDraftBodyMax).nullish(),
   contactInfo: zod
     .object({
       email: zod.string().nullish(),
@@ -1030,6 +1051,18 @@ export const UpdateOutreachProspectResponse = zod.object({
     notes: zod.string().nullable(),
   }),
   researchedAt: zod.coerce.date().nullable(),
+  draftSubject: zod
+    .string()
+    .nullable()
+    .describe(
+      "Admin-edited final subject; sent verbatim when both draft fields are set",
+    ),
+  draftBody: zod
+    .string()
+    .nullable()
+    .describe(
+      "Admin-edited final plain-text body; sent verbatim when both draft fields are set",
+    ),
   createdAt: zod.coerce.date(),
   lastContactedAt: zod.coerce.date().nullable(),
   updatedAt: zod.coerce.date(),
@@ -1113,6 +1146,18 @@ export const GetOutreachProspectResponse = zod
       notes: zod.string().nullable(),
     }),
     researchedAt: zod.coerce.date().nullable(),
+    draftSubject: zod
+      .string()
+      .nullable()
+      .describe(
+        "Admin-edited final subject; sent verbatim when both draft fields are set",
+      ),
+    draftBody: zod
+      .string()
+      .nullable()
+      .describe(
+        "Admin-edited final plain-text body; sent verbatim when both draft fields are set",
+      ),
     createdAt: zod.coerce.date(),
     lastContactedAt: zod.coerce.date().nullable(),
     updatedAt: zod.coerce.date(),
@@ -1142,7 +1187,11 @@ export const PreviewOutreachProspectEmailParams = zod.object({
 
 export const PreviewOutreachProspectEmailResponse = zod.object({
   subject: zod.string(),
-  html: zod.string(),
+  body: zod
+    .string()
+    .describe(
+      "Final plain-text body (blank-line-separated paragraphs), ready for admin editing",
+    ),
   to: zod.string().nullable(),
 });
 
@@ -1177,6 +1226,18 @@ export const ApproveOutreachProspectResponse = zod.object({
     notes: zod.string().nullable(),
   }),
   researchedAt: zod.coerce.date().nullable(),
+  draftSubject: zod
+    .string()
+    .nullable()
+    .describe(
+      "Admin-edited final subject; sent verbatim when both draft fields are set",
+    ),
+  draftBody: zod
+    .string()
+    .nullable()
+    .describe(
+      "Admin-edited final plain-text body; sent verbatim when both draft fields are set",
+    ),
   createdAt: zod.coerce.date(),
   lastContactedAt: zod.coerce.date().nullable(),
   updatedAt: zod.coerce.date(),
