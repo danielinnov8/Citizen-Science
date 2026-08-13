@@ -181,8 +181,8 @@ export const REQUIREMENT_GROUPS: XprizeGroup[] = [
         id: "repo",
         title: "Public code repository URL",
         rule: "Submit a repo URL containing all source code; public (with licensing) or private and shared with testing@devpost.com & judging@hacker.fund.",
-        note: "Not done — prepare a clean repo and set the right access for judges.",
-        status: "todo",
+        note: "Met — public repo github.com/danielinnov8/Citizen-Science synced with the latest code; judge access invites sent to the Devpost testing and Hacker Fund judging accounts.",
+        status: "met",
         counts: true,
       },
       {
