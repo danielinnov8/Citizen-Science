@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Link } from "wouter";
 import {
   Sparkles, Users, GraduationCap, FlaskConical,
-  ChevronRight, ArrowRight, Clock,
+  ChevronRight, ArrowRight, Clock, UserRound,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useCreditBalance } from "@/components/CreditMeter";
@@ -25,6 +25,16 @@ function initials(name: string) {
 }
 
 const PILLARS = [
+  {
+    href: "/profile",
+    icon: UserRound,
+    label: "See my profile",
+    sub: "Make it yours",
+    bg: "bg-rose-50",
+    fg: "text-rose-600",
+    border: "border-rose-100",
+    hoverBorder: "hover:border-rose-300",
+  },
   {
     href: "/agent",
     icon: Sparkles,
@@ -146,8 +156,8 @@ export function Dashboard() {
         )}
       </div>
 
-      {/* ── Four pillars ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-12">
+      {/* ── Pillars ──────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-12">
         {PILLARS.map(({ href, icon: Icon, label, sub, bg, fg, border, hoverBorder }) => (
           <Link key={href} href={href}>
             <div className={`group flex flex-col gap-3 p-4 rounded-2xl border bg-white ${border} ${hoverBorder} shadow-sm hover:shadow-md transition-all cursor-pointer`}>
