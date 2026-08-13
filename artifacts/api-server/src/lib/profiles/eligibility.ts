@@ -8,7 +8,9 @@
 // Everything else ("b. 1971", "Contemporary", "21st century", "since the
 // 1980s") denotes a living innovator. We also honor `lifespan` when present so
 // the rule keeps working if that column is ever populated.
-const CLOSED_YEAR_RANGE = /\b\d{4}\s*[–-]\s*\d{4}\b/;
+// Accepts hyphen, en dash, and em dash — keep in lockstep with the client's
+// CLOSED_YEAR_RANGE in profileClaim.ts and CLOSED_LIFESPAN_RE in living.ts.
+const CLOSED_YEAR_RANGE = /\b\d{4}\s*[-–—]\s*\d{4}\b/;
 
 export function isLivingProfile(
   era: string | null | undefined,

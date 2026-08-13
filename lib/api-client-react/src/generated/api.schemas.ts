@@ -105,6 +105,8 @@ export interface ChallengeSolutionView {
    * @nullable
    */
   authorImageUrl: string | null;
+  /** True when the author is a living person — a real member or a living directory figure (era/lifespan without a closed year range). Historical figures' solutions are "projected". */
+  authorLiving: boolean;
   /** Nobel prizes won by the author when they map to a featured profile; empty when the author is not a laureate. */
   authorNobelPrizes: ProfileNobelPrize[];
   title: string;

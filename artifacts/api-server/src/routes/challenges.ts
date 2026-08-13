@@ -21,6 +21,7 @@ import {
 } from "@workspace/api-zod";
 import { requireAuth } from "../middlewares/requireAuth";
 import { getUserBySession, SESSION_COOKIE } from "../lib/auth/session";
+import { isLivingProfile } from "../lib/profiles/eligibility";
 
 const router: IRouter = Router();
 
@@ -254,6 +255,8 @@ router.get("/challenges/:slug/solutions", async (req, res) => {
         authorSlug: challengeSolutionsTable.authorSlug,
         authorImageUrl: featuredProfilesTable.imageUrl,
         authorNobelPrizes: featuredProfilesTable.nobelPrizes,
+        authorEra: featuredProfilesTable.era,
+        authorLifespan: featuredProfilesTable.lifespan,
         userName: usersTable.name,
         title: challengeSolutionsTable.title,
         description: challengeSolutionsTable.description,
@@ -281,6 +284,8 @@ router.get("/challenges/:slug/solutions", async (req, res) => {
         challengeSolutionsTable.authorSlug,
         featuredProfilesTable.imageUrl,
         featuredProfilesTable.nobelPrizes,
+        featuredProfilesTable.era,
+        featuredProfilesTable.lifespan,
         challengeSolutionsTable.title,
         challengeSolutionsTable.description,
         challengeSolutionsTable.approach,
@@ -321,6 +326,10 @@ router.get("/challenges/:slug/solutions", async (req, res) => {
           authorSlug: s.authorSlug ?? null,
           authorImageUrl: s.authorImageUrl ?? null,
           authorNobelPrizes: s.authorNobelPrizes ?? [],
+          // Living contributors (real members and living directory figures)
+          // rank above historical figures' "projected" solutions. No joined
+          // profile (null era) means a real member → living.
+          authorLiving: isLivingProfile(s.authorEra, s.authorLifespan),
           title: s.title,
           description: s.description,
           approach: s.approach,
@@ -402,6 +411,8 @@ router.post("/challenges/:slug/solutions", requireAuth, async (req, res) => {
         voteScore: 0,
         userVote: null,
         authorNobelPrizes: [],
+        // The author is the authenticated member submitting — a living person.
+        authorLiving: true,
       }),
     );
   } catch (err) {

@@ -324,10 +324,17 @@ export function ChallengeDetail() {
     query: { queryKey: getListChallengeSolutionsQueryKey(slug), staleTime: 1000 * 30 },
   });
 
-  // Rank solutions by their displayed (simulated + real) upvote score.
-  const rankedSolutions = [...solutions].sort(
-    (a, b) => displaySolutionScore(b) - displaySolutionScore(a),
-  );
+  // Ranking: pinned submissions first (Elon Musk on Make Life
+  // Multiplanetary), then living contributors before historical/projected
+  // ones, then by displayed (simulated + real) upvote score within a group.
+  const isPinned = (s: (typeof solutions)[number]) =>
+    slug === "multiplanetary-life" && s.authorSlug === "elon-musk";
+  const rankedSolutions = [...solutions].sort((a, b) => {
+    const pinDelta = Number(isPinned(b)) - Number(isPinned(a));
+    if (pinDelta !== 0) return pinDelta;
+    if (a.authorLiving !== b.authorLiving) return a.authorLiving ? -1 : 1;
+    return displaySolutionScore(b) - displaySolutionScore(a);
+  });
 
   const joinMutation = useJoinChallenge({
     mutation: {

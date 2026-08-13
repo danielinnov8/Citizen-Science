@@ -2704,6 +2704,9 @@ components:
         authorImageUrl:
           type: ["string", "null"]
           description: Author's directory profile picture, when the author maps to a featured profile
+        authorLiving:
+          type: boolean
+          description: True when the author is a living person — a real member or a living directory figure (era/lifespan without a closed year range). Historical figures' solutions are "projected".
         authorNobelPrizes:
           type: array
           description: Nobel prizes won by the author when they map to a featured profile; empty when the author is not a laureate.
@@ -2733,6 +2736,7 @@ components:
         - authorName
         - authorSlug
         - authorImageUrl
+        - authorLiving
         - authorNobelPrizes
         - title
         - description

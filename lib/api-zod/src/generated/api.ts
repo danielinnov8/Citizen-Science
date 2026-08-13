@@ -2398,6 +2398,11 @@ export const ListChallengeSolutionsResponseItem = zod.object({
     .describe(
       "Author's directory profile picture, when the author maps to a featured profile",
     ),
+  authorLiving: zod
+    .boolean()
+    .describe(
+      'True when the author is a living person — a real member or a living directory figure (era\/lifespan without a closed year range). Historical figures\' solutions are \"projected\".',
+    ),
   authorNobelPrizes: zod
     .array(
       zod.object({
